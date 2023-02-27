@@ -667,6 +667,8 @@ _my_lltoa:
   .my_lltoa_not_zero:
         li      t2, 0           # offset into the string
         mv      t6, zero        # default to unsigned
+        li      t0, 10          # negative numbers only exist for base 10
+        bne     a2, t0, .my_lltoa_digit_loop 
         li      t0, 0x8000000000000000
         and     t0, a0, t0
         beq     t0, zero, .my_lltoa_digit_loop
