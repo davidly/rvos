@@ -256,7 +256,7 @@ minmax_max:
         slli    t0, a3, 3          # function offset is 8 * the move position
         add     t0, t0, s10
         ld      t0, (t0)
-        jalr    t0
+        jalr    ra, t0
 
         li      t0, o_piece
         li      s5, lose_score
@@ -360,7 +360,7 @@ minmax_min:
         slli    t0, a3, 3          # function offset is 8 * the move position
         add     t0, t0, s10
         ld      t0, (t0)
-        jalr    t0
+        jalr    ra, t0
 
         li      t0, x_piece
         li      s5, win_score
