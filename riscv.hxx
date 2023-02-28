@@ -20,6 +20,7 @@ struct RiscV
     static const size_t a2 = 12;
     static const size_t a3 = 13;
     static const size_t a5 = 15;
+    static const size_t a6 = 16;
     static const size_t a7 = 17;
 
     void trace_instructions( bool trace );              // enable/disable tracing each instruction
@@ -36,7 +37,6 @@ struct RiscV
         mem_size = memory.size();
         beyond = mem + memory.size();
         rvc = compressed_rvc;
-        assert( !rvc ); // it's not supported yet
     } //RiscV
 
     uint64_t run( uint64_t max_cycles );
@@ -86,15 +86,24 @@ struct RiscV
 
     void unhandled( void );
 
+    uint32_t uncompress_rvc( uint16_t x );
+
     __inline_perf uint64_t decode()
     {
-        // when compressed opcodes are supported, put the check and conversion here.
-        // return pc + 2 when compressed and 4 otherwise
-
         op = getui32( pc );
+        uint64_t pc_next;
+
+        if ( 3 == ( op & 0x3 ) )
+            pc_next = pc + 4;
+        else
+        {
+            op = uncompress_rvc( op & 0xffff );
+            pc_next = pc + 2;
+        }
+
         opcode = op & 0x7f;
-        opcode_type = opcode >> 2;
-        return pc + 4;
+        opcode_type = ( opcode >> 2 );
+        return pc_next;
     } //decode
 
     // when inlined, the compiler uses btc for bits. non-lined it does the slow thing
@@ -136,7 +145,6 @@ struct RiscV
     __inline_perf void decode_S()
     {
         funct3 = ( op >> 12 ) & 0x7;
-        rd = ( op >> 7 ) & 0x1f;
         rs1 = ( op >> 15 ) & 0x1f;
         rs2 = ( op >> 20 ) & 0x1f;
         s_imm = sign_extend( ( ( op >> 20 ) & ( 0x7f << 5 ) ) | ( ( op >> 7 ) & 0x1f ), 12 );

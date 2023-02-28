@@ -2,7 +2,6 @@
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
     Only a subset of instructions are implemented (enough to to run my test apps).
-    Compressed instructions aren't supported.
     No floating point instructions are implemented.
     I tested with a variety of C apps compiled with g++ (using C runtime functions that don't call into the OS)
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
@@ -15,6 +14,7 @@
             https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#:~:text=In%20computing%2C%20the%20Executable%20and,shared%20libraries%2C%20and%20core%20dumps.
             https://jemu.oscc.cc/AUIPC
             https://inst.eecs.berkeley.edu/~cs61c/resources/su18_lec/Lecture7.pdf
+            https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
 */
 
 #include <stdint.h>
@@ -38,6 +38,7 @@ const byte RType = 6;
 const byte CsrType = 7;
 const byte R4Type = 8;
 const byte ShiftType = 9;
+const byte FType = 10;
 
 static uint32_t g_State = 0;
 
@@ -132,19 +133,15 @@ const char * instruction_types[] =
     "C",
     "r",
     "s",
+    "F",
 };
 
-struct RiscvInstruction
-{
-    char name[ 15 ];
-    byte type;
-};
+// for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
 
-// for the 32 opcodes ( ( op >> 2 ) & 0x1f )
 byte riscv_types[ 32 ] =
 {
     IType,   //  0
-    IllType, //  1
+    FType,   //  1
     IllType, //  2
     IllType, //  3
     IType,   //  4
@@ -195,19 +192,427 @@ const char * RiscV::reg_name( uint64_t reg )
     return register_names[ reg ];
 } //reg_name
 
-uint32_t uncompress_rvc( uint16_t x )
+void unhandled_op16( uint16_t x )
 {
-    return 0;
+    printf( "compressed opcode not handled: %04x\n", x );
+    tracer.Trace( "compressed opcode not handled: %04x\n", x );
+    exit( 1 );
+} //unhandled_op16
+
+uint32_t compose_I( uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t imm, uint32_t opcode_type )
+{
+    //if ( g_State & stateTraceInstructions )
+    //    tracer.Trace( "  composing I funct3 %02x, rd %x, rs1 %x, imm %d, opcode_type %x\n", funct3, rd, rs1, imm, opcode_type );
+
+    return ( funct3 << 12 ) | ( rd << 7 ) | ( rs1 << 15 ) | ( imm << 20 ) | ( opcode_type << 2 ) | 0x3;
+} //compose_I
+
+uint32_t compose_R( uint32_t funct3, uint32_t funct7, uint32_t rd, uint32_t rs1, uint32_t rs2, uint32_t opcode_type )
+{
+    //if ( g_State & stateTraceInstructions )
+    //    tracer.Trace( "  composing R funct3 %02x, funct7 %02x, rd %x, rs1 %x, rs2 %x, opcode_type %x\n", funct3, funct7, rd, rs1, rs2, opcode_type );
+
+    return ( funct3 << 12 ) | ( funct7 << 25 ) | ( rd << 7 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | ( opcode_type << 2 ) | 0x3;
+} //compose_R
+
+uint32_t compose_S( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
+{
+    //if ( g_State & stateTraceInstructions )
+    //    tracer.Trace( "  composing S funct3 %02x, rs1 %x, rs2 %x, imm %d, opcode_type %x\n", funct3, rs1, rs2, imm, opcode_type );
+
+    uint32_t i = ( ( imm << 7 ) & 0xf80 ) | ( ( imm << 20 ) & 0xfe000000 );
+
+    return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | i | ( opcode_type << 2 ) | 0x3;
+} //compose_S
+
+uint32_t compose_U( uint32_t rd, uint32_t imm, uint32_t opcode_type )
+{
+    return ( rd << 7 ) | ( imm << 12 ) | ( opcode_type << 2 ) | 0x3;
+} //compose_U
+
+uint32_t compose_J( uint32_t offset, uint32_t opcode_type )
+{
+    //                                            31 30   20 19
+    // j itself decodes from upper 20 bits as imm[20|10:1|11|19:12]
+
+    offset = ( ( offset << 11 ) & 0x80000000 ) |
+             ( ( offset << 20 ) & 0x7fe00000 ) |
+             ( ( offset << 9 )  & 0x00100000 ) |
+             ( offset &           0x000ff000 );
+    //tracer.Trace( "j offset re-encoded as %x = %d\n", offset, offset );
+
+    return offset | ( opcode_type << 2 ) | 0x3;
+} //compose_J
+
+uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
+{
+    // offset 12..1
+
+    uint32_t offset = ( ( imm << 19 ) & 0x80000000 ) | ( ( imm << 20 ) & 0x7e000000 ) |
+                      ( ( imm << 7 ) & 0xf00 )         | ( ( imm >> 4 ) & 0x80 );
+    //tracer.Trace( "offset before %x and after composing: %x\n", imm, offset );
+    return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
+} //compose_B
+
+uint32_t RiscV::uncompress_rvc( uint16_t x )
+{
+    uint32_t op32 = 0;
+    uint16_t op2 = x & 0x3;
+    const uint32_t rprime_offset = 8; // add this to r' to get a final r
+    uint16_t p_funct3 = ( x >> 13 ) & 0x7;   // p_ for prime -- the compressed version
+    uint16_t bit12 = ( x >> 12 ) & 1;
+
+    if ( g_State & stateTraceInstructions )
+        tracer.Trace( "rvc op %04x op2 %d funct3 %d bit12 %d\n", x, op2, p_funct3, bit12 );
+
+    /*
+        From https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
+        There are many exceptions to these rules.
+
+        Format Meaning           15  14 13  12  11 10 9 8 7  6 5 4 3 2  1 0
+        CR Register              funct3         rd/rs1       rs2        op
+        CI Immediate             funct3     imm rd/rs1       imm        op
+        CSS Stack-relative Store funct3     imm              rs2        op
+        CIW Wide Immediate       funct3     imm                  rd     op
+        CL Load                  funct3     imm       rs1 x  imm rd     op
+        CS Store                 funct3     imm       rs1 x  imm rs2    op
+        CB Branch                funct3     offset    rs1    offset     op
+        CJ Jump                  funct3     jump-target                 op
+    */
+
+    switch ( op2 )
+    {
+        case 0:
+        {
+            uint32_t p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x << 1 ) & 0xc0 );
+            uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
+            uint32_t p_rdrs2 = ( ( x >> 2 ) & 0x7 ) + rprime_offset;
+
+            switch( p_funct3 )
+            {
+                case 0: // c.addi4spn
+                {
+                    uint32_t amount = ( ( x >> 7 ) & 0x30 ) | ( ( x >> 1 ) & 0x3c0 ) | ( ( x >> 4 ) & 0x4 ) | ( ( x >> 1 ) & 0x8 );
+                    //tracer.Trace( "adjusting pointer to sp-offset using addi, amount %d\n", amount );
+
+                    // addi funct3 = 0, rd = p_rdrs2, rs1 = sp, i_imm = amount
+                    op32 = compose_I( 0, p_rdrs2, sp, amount, 0x4 );
+                    break;
+                }
+                case 1: // c.fld
+                {
+                    break;
+                }
+                case 2: // c.lw
+                {
+                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x << 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
+                    op32 = compose_I( 2, p_rdrs2, p_rs1, p_imm, 0 );
+                    break;
+                }
+                case 3: // c.ld
+                {
+                    //tracer.Trace( "composing ld %d, %d(%d)\n", p_rdrs2, p_imm, p_rs1 );
+                    op32 = compose_I( 3, p_rdrs2, p_rs1, p_imm, 0 );
+                    break;
+                }
+                case 4: // reserved
+                {
+                    break;
+                }
+                case 5: // c.fsd
+                {
+                    break;
+                }
+                case 6: // c.sw
+                {
+                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x << 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
+                    op32 = compose_S( 2, p_rs1, p_rdrs2, p_imm, 8 );
+                    break;
+                }
+                case 7: // c.sd
+                {
+                    op32 = compose_S( 3, p_rs1, p_rdrs2, p_imm, 8 );
+                    break;
+                }
+            }
+            break;
+        }
+        case 1:
+        {
+            uint32_t p_imm = sign_extend( ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f ), 6 );
+            uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
+
+            switch( p_funct3 )
+            {
+                case 0: // c.addi
+                {
+                    op32 = compose_I( 0, p_rs1rd, p_rs1rd, p_imm, 4 );
+                    break;
+                }
+                case 1: // jal + c.addiw
+                {
+                    /*  // how do I tell if it's addiw or jal?
+                        //     12   11  10    8    7   6   5    2
+                        // imm[11 | 4 | 9:8 | 10 | 6 | 7 | 3:1 |5]
+    
+                        uint32_t offset = ( ( x >> 1 ) & 0x800 ) | ( ( x >> 7 ) & 0x10 ) | ( ( x >> 1 ) & 0x300 ) |
+                                          ( ( x << 2 ) & 0x400 ) | ( ( x >> 1 ) & 0x40 ) | ( ( x << 1 ) & 0x80 ) |
+                                          ( ( x >> 2 ) & 0xe )   | ( ( x << 3 ) & 0x20 );
+                        tracer.Trace( "offset before sign extend for jal %d, %08x\n", offset, offset );
+                        offset = sign_extend( offset, 12 );
+                        op32 = compose_J( offset, 0x1b );
+                    */
+
+                    op32 = compose_I( 0, p_rs1rd, p_rs1rd, p_imm, 6);
+                    break;
+                }
+                case 2: // c.li
+                {
+                    op32 = compose_I( 0, p_rs1rd, zero, p_imm, 4 ); // addi rd, zero, imm
+                    break;
+                }
+                case 3:
+                {
+                    if ( 2 == p_rs1rd ) // c.addi16sp
+                    {
+                        uint32_t amount = ( ( x >> 3 ) & 0x200 ) | ( ( x >> 2 ) & 0x10 ) | ( ( x << 1 ) & 0x40 ) |
+                                          ( ( x << 4 ) & 0x180 ) | ( ( x << 3 ) & 0x20 );
+                        //tracer.Trace( "addi16sp amount %d\n", amount );
+                        amount = sign_extend( amount, 10 );
+                        //tracer.Trace( "addi16sp extended amount %d\n", amount );
+                        op32 = compose_I( 0, sp, sp, amount, 0x4 );
+                    }
+                    else // c.lui
+                    {
+                        uint32_t amount = ( ( x << 5 ) & 0x20000 ) | ( ( x << 10 ) & 0x1f000 );
+                        amount = sign_extend( amount, 18 );
+                        amount >>= 12; 
+                        op32 = compose_U( p_rs1rd, amount, 0xd );
+                    }
+                    break;
+                }
+                case 4: // many
+                {
+                    uint16_t funct11_10 = ( x >> 10 ) & 0x3;
+                    uint32_t p_rs1rd = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
+                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x7 ) + rprime_offset;
+
+                    switch ( funct11_10 )
+                    {
+                        case 0: // c.srli + c.srli64
+                        {
+                            uint32_t amount = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f );
+                            //tracer.Trace( "srli shift amount: %d\n", amount );
+                            op32 = compose_I( 5, p_rs1rd, p_rs1rd, amount, 4 );
+                            break;
+                        }
+                        case 1: // c.srai + c.srai64
+                        {
+                            uint32_t amount = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f );
+                            //tracer.Trace( "srai shift amount: %d\n", amount );
+                            amount |= 0x400; // set this bit so it's srai, not srli
+                            op32 = compose_I( 5, p_rs1rd, p_rs1rd, amount, 4 );
+                            break;
+                        }
+                        case 2: // c.andi
+                        {
+                            op32 = compose_I( 7, p_rs1rd, p_rs1rd, p_imm, 4 );
+                            break;
+                        }
+                        case 3:
+                        {
+                            uint16_t funct6_5 = ( x >> 5 ) & 0x3;
+
+                            if ( 0 == bit12 )
+                            {
+                                switch( funct6_5 )
+                                {
+                                    case 0: // c.sub
+                                    {
+                                        op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                        break;
+                                    }
+                                    case 1: // c.xor
+                                    {
+                                        op32 = compose_R( 4, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                        break;
+                                    }
+                                    case 2: // c.or
+                                    {
+                                        op32 = compose_R( 6, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                        break;
+                                    }
+                                    case 3: // c.and
+                                    {
+                                        op32 = compose_R( 7, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                switch( funct6_5 )
+                                {
+                                    case 0: // c.subw
+                                    {
+                                        op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xe );
+                                        break;
+                                    }
+                                    case 1: // c.addw
+                                    {
+                                        op32 = compose_R( 0, 0, p_rs1rd, p_rs1rd, p_rs2, 0xe );
+                                        break;
+                                    }
+                                    case 2: // reserved
+                                    case 3: // reserved
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 5: // c.j
+                {
+                    // j offset. J type. opcode_type 0x1b
+                    //                                             12 11 10 8  7 6 5   2
+                    // bits 12:2 should be decoded as 12 bits: imm[11|4|9:8|10|6|7|3:1|5]
+
+                    uint32_t offset = ( ( x >> 1 ) & 0x800 ) | ( ( x >> 7 ) & 0x10 ) | ( ( x >> 1 ) & 0x300 ) | ( ( x << 2 ) & 0x400 ) |
+                                      ( ( x >> 1 ) & 0x40 )  | ( ( x << 1 ) & 0x80 ) | ( ( x >> 2 ) & 0xe )   | ( ( x << 3 ) & 0x20 );
+                    //tracer.Trace( "j offset decoded as %x = %d\n", offset, offset );
+                    offset = sign_extend( offset, 12 );
+                    //tracer.Trace( "j offset extended as %x = %d\n", offset, offset );
+                    op32 = compose_J( offset, 0x1b );
+                    break;
+                }
+                case 6: // c.beqz
+                {
+                    uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
+                    uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
+                                      ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
+                    offset = sign_extend( offset, 9 );
+                    op32 = compose_B( 0, p_rs1, zero, offset, 0x18 );
+                    break;
+                }
+                case 7: // c.bnez
+                {
+                    uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
+                    uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
+                                      ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
+                    offset = sign_extend( offset, 9 );
+                    op32 = compose_B( 1, p_rs1, zero, offset, 0x18 );
+                    break;
+                }
+            }
+            break;
+        }
+        case 2:
+        {
+            uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
+            uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
+
+            switch( p_funct3 )
+            {
+                case 0: // c.cslli
+                {
+                    if ( 0 == bit12 && 0 == p_rs2 ) // slli64
+                    {
+                    }
+                    else // slli
+                    {
+                        uint32_t amount = ( ( x >> 7 ) & 0x20 ) | p_rs2;
+                        op32 = compose_I( 1, p_rs1rd, p_rs1rd, amount, 4 );
+                    }
+
+                    break;
+                }
+                case 1: // c.fldsp
+                {
+                    break;
+                }
+                case 2: // c.lwsp
+                {
+                    uint32_t i = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1c ) | ( ( x << 4 ) & 0x180 );
+                    op32 = compose_I( 2, p_rs1rd, sp, i, 0 );
+                    break;
+                }
+                case 3: // c.ldsp
+                {
+                    uint32_t i = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x18 ) | ( ( x << 4 ) & 0x1c0 );
+                    op32 = compose_I( 3, p_rs1rd, sp, i, 0 );
+                    break;
+                }
+                case 4: // several
+                {
+                    uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
+                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
+
+                    if ( 0 == bit12 )
+                    {
+                        if ( 0 == p_rs2 ) // c.jr
+                            op32 = compose_I( 0, 0, p_rs1rd, 0, 0x19 ); // I type jalr (p_rs1rd) + 0
+                        else // c.mv
+                            op32 = compose_I( 0, p_rs1rd, p_rs2, 0, 4 ); // add rd, rs, zero
+                    }
+                    else
+                    {
+                        if ( 0 == p_rs1rd ) // c.ebreak;
+                        {
+                        }
+                        else
+                        {
+                            if ( 0 == p_rs2 ) // c.jalr
+                                op32 = compose_I( 0, p_rs2, p_rs1rd, 0, 0x19 );
+                            else // c.add
+                                op32 = compose_R( 0, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                        }
+                    }
+                    break;
+                }
+                case 5: // c.fsdsp
+                {
+                    break;
+                }
+                case 6: // c.swsp
+                {
+                    uint32_t p_imm = ( ( x >> 7 ) & 0x3c ) | ( ( x >> 1 ) & 0xc0 );
+                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
+                    op32 = compose_S( 2, sp, p_rs2, p_imm, 8 );
+                    break;
+                }
+                case 7: // c.sdsp
+                {
+                    uint32_t p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x >> 1 ) & 0x1c0 );
+                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
+                    op32 = compose_S( 3, sp, p_rs2, p_imm, 8 );
+                    break;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            assert( "opcode does not appear to be compressed\n" );
+            break;
+        }
+    }
+
+    if ( 0 == op32 )
+        unhandled_op16( x );
+
+    return op32;
 } //uncompress_rvc
 
 void RiscV::trace_state( uint64_t pcnext )
 {
     byte optype = riscv_types[ opcode_type ];
 
-//    DumpBinaryData( getmem( regs[ sp ] ), 256, 2 );
+//    DumpBinaryData( getmem( 0x800004c0 ), 32, 2 );
 //    tracer.Trace( "t0 %8llx t1 %8llx t2 %8llx\n", regs[ t0 ], regs[ t1 ], regs[ t2 ] );
-    tracer.Trace( "pc %8llx op %08llx a0 %08llx a1 %08llx a2 %08llx a5 %08llx ra %08llx sp %08llx opt %2llx %s => ",
-                  pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a5 ], regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
+//    tracer.Trace( "a5 %8llx a6 %8llx a7 %8llx\n", regs[ a5 ], regs[ a6 ], regs[ a7 ] );
+    tracer.Trace( "pc %8llx op %08llx a0 %08llx a1 %08llx a2 %08llx t0 %08llx t1 %08llx ra %08llx sp %08llx opt %2llx %s => ",
+                  pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ t0 ], regs[ t1 ], regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
     switch ( optype )
     {
@@ -817,7 +1222,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             if ( 0 != rd )
                 regs[ rd ] = pcnext;
 
-            // jal %offset
+            // jal offset
 
             int64_t offset = j_imm_u;
             pc = pc + offset;
@@ -857,7 +1262,6 @@ bool RiscV::execute_instruction( uint64_t pcnext )
 uint64_t RiscV::run( uint64_t max_cycles )
 {
     uint64_t cycles = 0;
-    assert( !rvc ); // to do later
 
     do
     {

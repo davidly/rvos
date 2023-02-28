@@ -143,6 +143,7 @@ void usage( char const * perror = 0 )
     printf( "usage: rvos <elf_executable>\n" );
     printf( "   arguments:    -t     enable debug tracing to rvos.log\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
+    printf( "                 -e     just show information about the elf executable; don't actually run it\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     exit( 1 );
 } //usage
@@ -209,8 +210,9 @@ bool load_image( const char * pimage )
     execution_address = ehead.entry_point;
     compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
 
-    if ( compressed_rvc )
-        usage( "compressed rvc risc-v instructions not yet supported. Ask your compiler/assembler to not produce them" );
+    // determine how much RAM to allocate
+
+    uint64_t memory_size = 0;
 
     for ( uint16_t ph = 0; ph < ehead.program_header_table_entries; ph++ )
     {
@@ -231,6 +233,11 @@ bool load_image( const char * pimage )
         tracer.Trace( "  file size: %llx\n", head.file_size );
         tracer.Trace( "  memory size: %llx\n", head.mem_size );
         tracer.Trace( "  alignment: %llx\n", head.alignment );
+
+        memory_size += head.mem_size;
+
+        if ( 0 == ph )
+            base_address = head.physical_address;
     }
 
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
@@ -250,23 +257,6 @@ bool load_image( const char * pimage )
         tracer.Trace( "  address: %llx\n", head.address );
         tracer.Trace( "  offset: %llx\n", head.offset );
         tracer.Trace( "  size: %llx\n", head.size );
-    }
-
-    // determine how much RAM to allocate
-
-    uint64_t memory_size = 0;
-
-    for ( uint16_t ph = 0; ph < ehead.program_header_table_entries; ph++ )
-    {
-        size_t o = ehead.program_header_table + ( ph * ehead.program_header_table_size );
-        ElfProgramHeader64 head = {0};
-        fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.program_header_table_size ), 1, fp );
-
-        memory_size += head.mem_size;
-
-        if ( 0 == ph )
-            base_address = head.physical_address;
     }
 
     if ( 0 == base_address )
@@ -302,6 +292,102 @@ bool load_image( const char * pimage )
     return true;
 } //load_image
 
+void elf_info( const char * pimage )
+{
+    ElfHeader64 ehead = {0};
+
+    FILE * fp = fopen( pimage, "rb" );
+    if ( !fp )
+        usage( "can't open image file" );
+
+    CFile file( fp );
+    size_t read = fread( &ehead, sizeof ehead, 1, fp );
+
+    if ( 1 != read )
+    {
+        printf( "image file is invalid; can't read data\n" );
+        return;
+    }
+
+    if ( 0x464c457f != ehead.magic )
+    {
+        printf( "image file's magic header is invalid: %x\n", ehead.magic );
+        return;
+    }
+
+    if ( 0xf3 != ehead.machine )
+        printf( "image isn't for RISC-V; continuing anyway. machine type is %x\n", ehead.machine );
+
+    printf( "header fields:\n" );
+    printf( "  entry address: %llx\n", ehead.entry_point );
+    printf( "  program entries: %u\n", ehead.program_header_table_entries );
+    printf( "  program header entry size: %u\n", ehead.program_header_table_size );
+    printf( "  program offset: %llu == %llx\n", ehead.program_header_table, ehead.program_header_table );
+    printf( "  section entries: %u\n", ehead.section_header_table_entries );
+    printf( "  section header entry size: %u\n", ehead.section_header_table_size );
+    printf( "  section offset: %llu == %llx\n", ehead.section_header_table, ehead.section_header_table );
+    printf( "  flags: %x\n", ehead.flags );
+
+    execution_address = ehead.entry_point;
+    compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
+
+    uint64_t memory_size = 0;
+
+    for ( uint16_t ph = 0; ph < ehead.program_header_table_entries; ph++ )
+    {
+        size_t o = ehead.program_header_table + ( ph * ehead.program_header_table_size );
+        printf( "program header %u at offset %zu\n", ph, o );
+
+        ElfProgramHeader64 head = {0};
+
+        fseek( fp, (long) o, SEEK_SET );
+        read = fread( &head, __min( sizeof( head ), ehead.program_header_table_size ), 1, fp );
+        if ( 1 != read )
+            usage( "can't read program header" );
+
+        printf( "  type: %u / %s\n", head.type, head.show_type() );
+        printf( "  offset in image: %llx\n", head.offset_in_image );
+        printf( "  virtual address: %llx\n", head.virtual_address );
+        printf( "  physical address: %llx\n", head.physical_address );
+        printf( "  file size: %llx\n", head.file_size );
+        printf( "  memory size: %llx\n", head.mem_size );
+        printf( "  alignment: %llx\n", head.alignment );
+
+        memory_size += head.mem_size;
+
+        if ( 0 == ph )
+            base_address = head.physical_address;
+    }
+
+    for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
+    {
+        size_t o = ehead.section_header_table + ( sh * ehead.section_header_table_size );
+        printf( "section header %u at offset %zu == %zx\n", sh, o, o );
+
+        ElfSectionHeader64 head = {0};
+
+        fseek( fp, (long) o, SEEK_SET );
+        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
+        if ( 1 != read )
+            usage( "can't read section header" );
+
+        printf( "  type: %u / %s\n", head.type, head.show_type() );
+        printf( "  flags: %llx / %s\n", head.flags, head.show_flags() );
+        printf( "  address: %llx\n", head.address );
+        printf( "  offset: %llx\n", head.offset );
+        printf( "  size: %llx\n", head.size );
+    }
+
+    if ( 0 == base_address )
+        printf( "base address of elf image is zero; physical address required for the rvos emulator\n" );
+
+    printf( "contains 2-byte compressed RVC instructions: %s\n", compressed_rvc ? "yes" : "no" );
+    printf( "vm base address %llx\n", base_address );
+    printf( "memory size: %llx\n", memory_size );
+    printf( "stack size reserved: %llx\n", stack_reservation );
+    printf( "execution begins at %llx\n", execution_address );
+} //elf_info
+
 int ends_with( const char * str, const char * end )
 {
     size_t len = strlen( str );
@@ -319,6 +405,7 @@ int main( int argc, char * argv[] )
     char * pcApp = 0;
     bool showPerformance = false;
     bool traceInstructions = false;
+    bool elfInfo = false;
     static char acAppArgs[1024] = {0};
     static char acApp[MAX_PATH] = {0};
 
@@ -335,6 +422,8 @@ int main( int argc, char * argv[] )
                 trace = true;
             else if ( 'i' == ca )
                 traceInstructions = true;
+            else if ( 'e' == ca )
+                elfInfo = true;
             else if ( 'p' == ca )
                 showPerformance = true;
             else
@@ -364,7 +453,14 @@ int main( int argc, char * argv[] )
     if ( !ends_with( acApp, ".elf" ) )
         strcat( acApp, ".elf" );
 
+    if ( elfInfo )
+    {
+        elf_info( acApp );
+        return 0;
+    }
+
     bool ok = load_image( acApp );
+
     CPerfTime perfApp;
 
     if ( ok )
