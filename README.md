@@ -5,6 +5,7 @@ RISC-V emulator and minimal "OS". Loads and runs .elf files on Windows.
 
     arguments:    -t     enable debug tracing to rvos.log
                   -i     if -t is set, also enables risc-v instruction tracing
+                  -e     just show information about the elf executable; don't actually run it
                   -p     shows performance information at app exit
 
 Notes:
@@ -12,7 +13,7 @@ Notes:
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
     Only a subset of instructions are implemented (enough to to run my test apps).
-    Compressed instructions aren't supported.
+    Compressed rvc 16-bit instructions are supported, though apps run ~50% slower (there is no lookup table).
     No floating point instructions are implemented.
     I tested with a variety of C apps compiled with g++ (using C runtime functions that don't call into the OS)
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
