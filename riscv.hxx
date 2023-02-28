@@ -23,8 +23,9 @@ struct RiscV
     static const size_t a6 = 16;
     static const size_t a7 = 17;
 
-    void trace_instructions( bool trace );              // enable/disable tracing each instruction
-    void end_emulation( void );                         // make the emulator return at the start of the next instruction
+    void trace_instructions( bool trace );                // enable/disable tracing each instruction
+    void end_emulation( void );                           // make the emulator return at the start of the next instruction
+    static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
     RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_reservation )
     {
@@ -86,7 +87,7 @@ struct RiscV
 
     void unhandled( void );
 
-    uint32_t uncompress_rvc( uint16_t x );
+    static uint32_t uncompress_rvc( uint16_t x, bool failOnError = true );
 
     __inline_perf uint64_t decode()
     {
@@ -108,7 +109,7 @@ struct RiscV
 
     // when inlined, the compiler uses btc for bits. non-lined it does the slow thing
 
-    __forceinline int64_t sign_extend( uint64_t x, uint64_t bits )
+    __forceinline static int64_t sign_extend( uint64_t x, uint64_t bits )
     {
         const int64_t m = ( (uint64_t) 1 ) << ( bits - 1 );
         return ( x ^ m ) - m;

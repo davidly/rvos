@@ -199,6 +199,21 @@ void unhandled_op16( uint16_t x )
     exit( 1 );
 } //unhandled_op16
 
+#if true
+
+    #include "rvctable.txt"
+    
+    uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
+    {
+        uint32_t op32 = rvc_lookup[ x ];
+        if ( 0 == op32 && failOnError )
+            unhandled_op16( x );
+    
+        return op32;
+    } //uncompress_rvc
+
+#else // code, not a table
+
 uint32_t compose_I( uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t imm, uint32_t opcode_type )
 {
     //if ( g_State & stateTraceInstructions )
@@ -254,7 +269,7 @@ uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, u
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
 } //compose_B
 
-uint32_t RiscV::uncompress_rvc( uint16_t x )
+uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
 {
     uint32_t op32 = 0;
     uint16_t op2 = x & 0x3;
@@ -598,11 +613,41 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
         }
     }
 
-    if ( 0 == op32 )
+    if ( 0 == op32 && failOnError )
         unhandled_op16( x );
 
     return op32;
 } //uncompress_rvc
+
+#endif // use code for rvc uncompression, not a table
+
+bool RiscV::generate_rvc_table( const char * path )
+{
+    FILE * fp = fopen( path, "w" );
+    if ( fp )
+    {
+        fprintf( fp, "static const uint32_t rvc_lookup[65536] = \n{" );
+
+        for ( uint32_t i = 0; i <= 0xffff; i++ )
+        {
+            if ( 0 == ( i % 16 ) )
+                fprintf( fp, "\n  " );
+
+            uint32_t op32 = 0;
+            if ( 0x3 != ( i & 0x3 ) )
+                op32 = uncompress_rvc( (uint16_t) i, false );
+
+            fprintf( fp, ( 0 == op32 ) ? "%x, " : "0x%x, ", op32 );
+        }
+
+        fprintf( fp, "\n};" );
+        fclose( fp );
+    }
+    else
+        return false;
+
+    return true;
+} //generate_rvc_table
 
 void RiscV::trace_state( uint64_t pcnext )
 {

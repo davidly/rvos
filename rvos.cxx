@@ -406,6 +406,7 @@ int main( int argc, char * argv[] )
     bool showPerformance = false;
     bool traceInstructions = false;
     bool elfInfo = false;
+    bool generateRVCTable = false;
     static char acAppArgs[1024] = {0};
     static char acApp[MAX_PATH] = {0};
 
@@ -422,6 +423,8 @@ int main( int argc, char * argv[] )
                 trace = true;
             else if ( 'i' == ca )
                 traceInstructions = true;
+            else if ( 'g' == ca )
+                generateRVCTable = true;
             else if ( 'e' == ca )
                 elfInfo = true;
             else if ( 'p' == ca )
@@ -445,6 +448,17 @@ int main( int argc, char * argv[] )
 
     tracer.Enable( trace, L"rvos.log", true );
     tracer.SetQuiet( true );
+
+    if ( generateRVCTable )
+    {
+        bool ok = RiscV::generate_rvc_table( "rvctable.txt" );
+        if ( ok )
+            printf( "rvctable.txt successfully created\n" );
+        else
+            printf( "unable to create rvctable.txt\n" );
+
+        return 0;
+    }
 
     if ( 0 == pcApp )
         usage( "no executable specified\n" );
