@@ -578,7 +578,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
                         else
                         {
                             if ( 0 == p_rs2 ) // c.jalr
-                                op32 = compose_I( 0, p_rs2, p_rs1rd, 0, 0x19 );
+                                op32 = compose_I( 0, 1, p_rs1rd, 0, 0x19 ); // always store ra in ra/x1
                             else // c.add
                                 op32 = compose_R( 0, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
                         }

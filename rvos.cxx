@@ -498,7 +498,6 @@ int main( int argc, char * argv[] )
             ULARGE_INTEGER ullK, ullU;
             ullK.HighPart = kernelFT.dwHighDateTime;
             ullK.LowPart = kernelFT.dwLowDateTime;
-        
             ullU.HighPart = userFT.dwHighDateTime;
             ullU.LowPart = userFT.dwLowDateTime;
         

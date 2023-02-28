@@ -107,7 +107,8 @@ struct RiscV
         return pc_next;
     } //decode
 
-    // when inlined, the compiler uses btc for bits. non-lined it does the slow thing
+    // when inlined, the compiler uses btc for bits. when non-inlined it does the slow thing
+    // bits is the 1-based high bit that will be extended to the left.
 
     __forceinline static int64_t sign_extend( uint64_t x, uint64_t bits )
     {
