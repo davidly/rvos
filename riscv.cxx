@@ -178,10 +178,10 @@ void RiscV::assert_type( byte t ) { assert( t == riscv_types[ opcode_type ] ); }
 
 const char * register_names[ 32 ] =
 {
-    "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-    "s0",   "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-    "a6",   "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6",
+    "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
+    "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
+    "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
+    "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
 
 const char * RiscV::reg_name( uint64_t reg )
@@ -203,7 +203,7 @@ void unhandled_op16( uint16_t x )
 
     #include "rvctable.txt"
     
-    uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
+    uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
     {
         uint32_t op32 = rvc_lookup[ x ];
         if ( 0 == op32 && failOnError )
@@ -269,7 +269,7 @@ uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, u
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
 } //compose_B
 
-uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
+uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
 {
     uint32_t op32 = 0;
     uint16_t op2 = x & 0x3;
@@ -307,7 +307,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
             {
                 case 0: // c.addi4spn
                 {
-                    uint32_t amount = ( ( x >> 7 ) & 0x30 ) | ( ( x >> 1 ) & 0x3c0 ) | ( ( x >> 4 ) & 0x4 ) | ( ( x >> 1 ) & 0x8 );
+                    uint32_t amount = ( ( x >> 7 ) & 0x30 ) | ( ( x >> 1 ) & 0x3c0 ) | ( ( x >> 4 ) & 0x4 ) | ( ( x >> 2 ) & 0x8 );
                     //tracer.Trace( "adjusting pointer to sp-offset using addi, amount %d\n", amount );
 
                     // addi funct3 = 0, rd = p_rdrs2, rs1 = sp, i_imm = amount
@@ -340,7 +340,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
                 }
                 case 6: // c.sw
                 {
-                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x << 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
+                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x >> 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
                     op32 = compose_S( 2, p_rs1, p_rdrs2, p_imm, 8 );
                     break;
                 }
@@ -401,7 +401,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x, bool failOnError )
                     {
                         uint32_t amount = ( ( x << 5 ) & 0x20000 ) | ( ( x << 10 ) & 0x1f000 );
                         amount = sign_extend( amount, 18 );
-                        amount >>= 12; 
+                        amount >>= 12;
                         op32 = compose_U( p_rs1rd, amount, 0xd );
                     }
                     break;
@@ -655,7 +655,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
 //    DumpBinaryData( getmem( 0x800004c0 ), 32, 2 );
 //    tracer.Trace( "t0 %8llx t1 %8llx t2 %8llx\n", regs[ t0 ], regs[ t1 ], regs[ t2 ] );
-//    tracer.Trace( "a5 %8llx a6 %8llx a7 %8llx\n", regs[ a5 ], regs[ a6 ], regs[ a7 ] );
+//    tracer.Trace( "s2 %8llx a3 %8llx a5 %8llx\n", regs[ s2 ], regs[ a3 ], regs[ a5 ] );
     tracer.Trace( "pc %8llx op %08llx a0 %08llx a1 %08llx a2 %08llx t0 %08llx t1 %08llx ra %08llx sp %08llx opt %2llx %s => ",
                   pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ t0 ], regs[ t1 ], regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
@@ -1313,6 +1313,8 @@ uint64_t RiscV::run( uint64_t max_cycles )
         assert( 0 == regs[ 0 ] );
         assert( regs[ sp ] > ( base + mem_size - stack_size ) );
         assert( regs[ sp ] <= ( base + mem_size ) );
+        assert( pc >= base );
+        assert( pc < ( base + mem_size - stack_size ) );
         cycles++;
         uint64_t pcnext = decode();
 

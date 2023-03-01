@@ -22,6 +22,7 @@ struct RiscV
     static const size_t a5 = 15;
     static const size_t a6 = 16;
     static const size_t a7 = 17;
+    static const size_t s2 = 18;
 
     void trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
@@ -33,10 +34,11 @@ struct RiscV
         pc = start;
         stack_size = stack_reservation;
         regs[ sp ] = base_address + memory.size(); // points to memory that can't be accessed initially
-        base = base_address;
-        mem = memory.data();
+        base = base_address;                       // lowest valid address in the app's address space
+        mem = memory.data();                       
         mem_size = memory.size();
         beyond = mem + memory.size();
+        membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
         rvc = compressed_rvc;
     } //RiscV
 
@@ -48,11 +50,37 @@ struct RiscV
     uint8_t * mem;
     uint8_t * beyond;
     uint64_t base;
+    uint8_t * membase;
     uint64_t stack_size;
     uint64_t mem_size;
     bool rvc;
 
-    uint8_t * getmem( uint64_t o ) { uint8_t * r = mem + o - base; assert( r < beyond ); assert( r >= mem ); return r; }
+    uint8_t * getmem( uint64_t offset )
+    {
+        #ifdef NDEBUG
+
+            return membase + offset;
+
+        #else
+
+            uint8_t * r = membase + offset;
+
+            if ( r >= beyond )
+            {
+                printf( "memory reference %p beyond address space %p, offset %llx\n", r, beyond, offset );
+                assert( !"invalid memory reference beyond address space" );
+            }
+
+            if ( r < mem )
+            {
+                printf( "memory reference %p less than start of address space %p, offset %llx\n", r, mem, offset );
+                assert( !"invalid memory reference before address space" );
+            }
+
+            return r;
+
+        #endif
+    }
 
     uint64_t getui64( uint64_t o ) { return * (uint64_t *) getmem( o ); }
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }
@@ -87,7 +115,7 @@ struct RiscV
 
     void unhandled( void );
 
-    static uint32_t uncompress_rvc( uint16_t x, bool failOnError = true );
+    static uint32_t uncompress_rvc( uint32_t x, bool failOnError = true );
 
     __inline_perf uint64_t decode()
     {
