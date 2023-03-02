@@ -32,12 +32,12 @@ struct RiscV
     {
         memset( this, 0, sizeof( *this ) );
         pc = start;
-        stack_size = stack_reservation;
+        stack_size = stack_reservation;            // remember how much of the top of RAM is allocated to the stack
         regs[ sp ] = base_address + memory.size(); // points to memory that can't be accessed initially
         base = base_address;                       // lowest valid address in the app's address space
-        mem = memory.data();                       
+        mem = memory.data();                       // save the pointer, but don't take ownership
         mem_size = memory.size();
-        beyond = mem + memory.size();
+        beyond = mem + memory.size();              // addresses at beyond and later are illegal
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
         rvc = compressed_rvc;
     } //RiscV
@@ -67,20 +67,20 @@ struct RiscV
 
             if ( r >= beyond )
             {
-                printf( "memory reference %p beyond address space %p, offset %llx\n", r, beyond, offset );
+                tracer.Trace( "memory reference %p beyond address space %p, offset %llx\n", r, beyond, offset );
                 assert( !"invalid memory reference beyond address space" );
             }
 
             if ( r < mem )
             {
-                printf( "memory reference %p less than start of address space %p, offset %llx\n", r, mem, offset );
+                tracer.Trace( "memory reference %p less than start of address space %p, offset %llx\n", r, mem, offset );
                 assert( !"invalid memory reference before address space" );
             }
 
             return r;
 
         #endif
-    }
+    } //getmem
 
     uint64_t getui64( uint64_t o ) { return * (uint64_t *) getmem( o ); }
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }
@@ -126,6 +126,7 @@ struct RiscV
             pc_next = pc + 4;
         else
         {
+            assert( rvc );
             op = uncompress_rvc( op & 0xffff );
             pc_next = pc + 2;
         }

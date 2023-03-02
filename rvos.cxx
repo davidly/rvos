@@ -148,6 +148,16 @@ void usage( char const * perror = 0 )
     exit( 1 );
 } //usage
 
+uint64_t rand64()
+{
+    uint64_t r = 0;
+
+    for ( int i = 0; i < 7; i++ )
+        r = ( r << 15 ) | ( rand() & 0x7FFF );
+
+    return r;
+} //rand64
+
 // this is called when the risc-v app has an ecall instruction
 
 void riscv_invoke_ecall( RiscV & cpu )
@@ -157,6 +167,7 @@ void riscv_invoke_ecall( RiscV & cpu )
     switch ( cpu.regs[ RiscV::a7 ] )
     {
         case 1: // exit
+        case 93: // exit 
         {
             tracer.Trace( "  rvos command 1: exit app\n" );
             g_terminate = true;
@@ -168,6 +179,17 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
             printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            break;
+        }
+        case 169: // gettimeofday
+        {
+            uint8_t * pclock_t = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            * pclock_t = GetTickCount64();
+            break;
+        }
+        case 0x2000: // rand64. returns an unsigned random number in a0
+        {
+            cpu.regs[ RiscV::a0 ] = rand64();
             break;
         }
         default:
@@ -505,6 +527,7 @@ int main( int argc, char * argv[] )
             printf( "user CPU ms:      %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart ) );
             printf( "total CPU ms:     %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart + ullK.QuadPart ) );
             printf( "elapsed ms:       %16ws\n", perfApp.RenderDurationInMS( elapsed ) );
+            printf( "app exit code:    %16d\n", exit_code );
         }
     }
 
