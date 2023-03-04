@@ -672,7 +672,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
-    //sprintf( acExtra, "a4 %8llx a5 %8llx s0 %8llx s1 %8llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
+    sprintf( acExtra, "a4 %llx a5 %llx s0 %llx s1 %llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
 
     static const char * previous_symbol = 0;
     const char * symbol_name = "";
@@ -682,7 +682,7 @@ void RiscV::trace_state( uint64_t pcnext )
     else
         previous_symbol = symbol_name;
 
-    tracer.Trace( "pc %8llx %s op %8llx a0 %8llx a1 %8llx a2 %8llx a3 %8llx %s ra %8llx sp %8llx t %2llx %s => ",
+    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx %s ra %llx sp %llx t %2llx %s => ",
                   pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
                   regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
@@ -1160,7 +1160,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == i_top2 ) // srli rd, rs1, i_shamt
                     regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
                 else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
-                    regs[ rd ] = ( ( (int64_t) regs[ rs1 ] ) >> i_shamt5 );
+                    regs[ rd ] = ( ( (int64_t) regs[ rs1 ] ) >> i_shamt6 );
                 else
                     unhandled();
             }
@@ -1192,12 +1192,18 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             if ( 0 == rd )
                 break;
 
-            if ( 0 == funct3 )
-                regs[ rd ] = regs[ rs1 ] + i_imm;  // addiw rd, rs1, i_imm
+            if ( 0 == funct3 ) // addiw rd, rs1, i_imm  (sign-extend both i_imm and rd)
+            {
+                int32_t val = 0xffffffff & regs[ rs1 ];
+                int32_t imm = (int32_t) i_imm;
+                int32_t result = val + imm;
+                regs[ rd ] = sign_extend( (uint32_t) result, 32 );
+            }
             else if ( 1 == funct3 )
             {
+                // 5, not 6 per https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
                 if ( 0 == i_top2 )
-                    regs[ rd ] = ( regs[ rs1 ] << i_shamt6 );  // slliw rd, rs1, i_shamt6
+                    regs[ rd ] = ( regs[ rs1 ] << i_shamt5 );  // slliw rd, rs1, i_shamt5
                 else
                     unhandled();
             }
@@ -1258,7 +1264,8 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == funct3 )
                     regs[ rd ] = regs[ rs1 ] + regs[ rs2 ]; // add rd, rs1, rs2
                 else if ( 1 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] << ( regs[ rs2 ] & 0x1f ) ); // sll rd, rs1, rs2
+                    //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
+                    regs[ rd ] = ( regs[ rs1 ] << ( regs[ rs2 ] & 0x3f ) ); // sll rd, rs1, rs2  // slr rd, rs1, rs2
                 else if ( 2 == funct3 )
                     regs[ rd ] = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] ); // slt rd, rs1, rs2
                 else if ( 3 == funct3 )
@@ -1266,7 +1273,8 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else if ( 4 == funct3 )
                     regs[ rd ] = ( regs[ rs1 ] ^ regs[ rs2 ] ); // xor rd, rs1, rs2
                 else if ( 5 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] >> ( regs[ rs2 ] & 0x1f ) ); // slr rd, rs1, rs2
+                    //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
+                    regs[ rd ] = ( regs[ rs1 ] >> ( regs[ rs2 ] & 0x3f ) ); // slr rd, rs1, rs2
                 else if ( 6 == funct3 )
                     regs[ rd ] = regs[ rs1 ] | regs[ rs2 ]; // or rd, rs1, rs2
                 else if ( 7 == funct3 )

@@ -23,17 +23,17 @@
 #include "riscv.hxx"
 
 CDJLTrace tracer;
-bool compressed_rvc = false;                   // is the app compressed risc-v?
-const uint64_t stack_commit = 64 * 1024;       // RAM to allocate for the fixed stack
-const uint64_t brk_commit = 1024 * 1024;       // RAM to reserve if the app calls brk to allocate space
+bool g_compressed_rvc = false;                 // is the app compressed risc-v?
+const uint64_t g_stack_commit = 64 * 1024;     // RAM to allocate for the fixed stack
+const uint64_t g_brk_commit = 1024 * 1024;     // RAM to reserve if the app calls brk to allocate space
 bool g_terminate = false;                      // the app asked to shut down
-int exit_code = 0;                             // exit code of the app in the vm
+int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
-uint64_t base_address = 0;                     // vm address of start of memory
-uint64_t execution_address = 0;                // where the program counter starts
-uint64_t brk_address = 0;                      // offset of brk, initially end_of_data
-uint64_t end_of_data = 0;                      // official end of the loaded app
-uint64_t bottom_of_stack = 0;                  // just beyond where brk might move
+uint64_t g_base_address = 0;                   // vm address of start of memory
+uint64_t g_execution_address = 0;              // where the program counter starts
+uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
+uint64_t g_end_of_data = 0;                    // official end of the loaded app
+uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 
 #pragma pack( push, 1 )
 
@@ -63,12 +63,12 @@ struct ElfHeader64
 
 struct ElfSymbol64
 {
-    uint32_t name;          // index into symbol string table
+    uint32_t name;          // index into the symbol string table
     uint8_t info;           // value of the symbol
     uint8_t other;
     uint16_t shndx;
-    uint64_t value;
-    uint64_t size;
+    uint64_t value;         // address where the symbol resides in memory
+    uint64_t size;          // length in memory of the symbol
 
     const char * show_info()
     {
@@ -291,7 +291,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  rvos command 1: exit app\n" );
             g_terminate = true;
             cpu.end_emulation();
-            exit_code = (int) cpu.regs[ RiscV::a0 ];
+            g_exit_code = (int) cpu.regs[ RiscV::a0 ];
             break;
         }
         case 2: // print asciiz in a0
@@ -360,35 +360,37 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_brk:
         {
-            uint64_t original = brk_address;
+            uint64_t original = g_brk_address;
             uint64_t ask = cpu.regs[ RiscV::a0 ];
             if ( 0 == ask )
-                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( brk_address );
+                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_address );
             else
             {
-                uint64_t ask_offset = ask - base_address;
+                uint64_t ask_offset = ask - g_base_address;
 
-                tracer.Trace( "ask_offset %llx, end_of_data %llx, end_of_stack %llx\n", ask_offset, end_of_data, bottom_of_stack );
+                tracer.Trace( "  ask_offset %llx, g_end_of_data %llx, end_of_stack %llx\n", ask_offset, g_end_of_data, g_bottom_of_stack );
 
-                if ( ask_offset >= end_of_data && ask_offset < bottom_of_stack )
-                    brk_address = cpu.getoffset( ask );
+                if ( ask_offset >= g_end_of_data && ask_offset < g_bottom_of_stack )
+                    g_brk_address = cpu.getoffset( ask );
                 else
                 {
                     tracer.Trace( "  allocation request was too large, failing it by returning current brk\n" );
-                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( brk_address );
+                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_address );
                 }
             }
 
-            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, brk_address, cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_address, cpu.regs[ RiscV::a0 ] );
             break;
         }
         case 0x2000: // rand64. returns an unsigned random number in a0
         {
+            tracer.Trace( "  rvos command generate random number\n" );
             cpu.regs[ RiscV::a0 ] = rand64();
             break;
         }
         case 0x2001: // print_double in a0
         {
+            tracer.Trace( "  rvos command print double in a0\n" );
             double d;
             memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
             printf( "%lf", d );
@@ -405,19 +407,42 @@ void riscv_invoke_ecall( RiscV & cpu )
 vector<char> g_string_table;                   // strings in the elf image
 vector<ElfSymbol64> g_symbols;                 // symbols in the elf image
 
+int symbol_find_compare( const void * a, const void * b )
+{
+    ElfSymbol64 & sa = * (ElfSymbol64 *) a;
+    ElfSymbol64 & sb = * (ElfSymbol64 *) b;
+
+    if ( 0 == sa.size ) // a is the key
+    {
+        if ( sa.value >= sb.value && sa.value < ( sb.value + sb.size ) )
+            return 0;
+    }
+    else // b is the key
+    {
+        if ( sb.value >= sa.value && sb.value < ( sa.value + sa.size ) )
+            return 0;
+    }
+
+    if ( sa.value > sb.value )
+        return 1;
+    return -1;
+} //symbol_find_compare
+
 // returns the best guess for a symbol name for the address
 
 const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address )
 {
-    if ( address < base_address || address > ( base_address + memory.size() ) )
+    if ( address < g_base_address || address > ( g_base_address + memory.size() ) )
         return "";
 
-    for ( size_t i = 0; i < g_symbols.size(); i++ )
-    {
-        if ( ( address >= g_symbols[ i ].value ) &&
-             ( ( i == ( g_symbols.size() - 1 ) ) || ( address < g_symbols[ i + 1 ].value ) ) )
-            return & g_string_table[ g_symbols[ i ].name ];
-    }
+    ElfSymbol64 key;
+    key.value = address;
+    key.size = 0;
+
+    ElfSymbol64 * psym = (ElfSymbol64 *) bsearch( &key, g_symbols.data(), g_symbols.size(), sizeof( key ), symbol_find_compare );
+
+    if ( 0 != psym )
+        return & g_string_table[ psym->name ];
 
     return "";
 } //riscv_symbol_lookup
@@ -464,8 +489,8 @@ bool load_image( const char * pimage )
     tracer.Trace( "  section offset: %llu == %llx\n", ehead.section_header_table, ehead.section_header_table );
     tracer.Trace( "  flags: %x\n", ehead.flags );
 
-    execution_address = ehead.entry_point;
-    compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
+    g_execution_address = ehead.entry_point;
+    g_compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
 
     // determine how much RAM to allocate
 
@@ -494,7 +519,7 @@ bool load_image( const char * pimage )
         memory_size += head.mem_size;
 
         if ( 0 == ph )
-            base_address = head.physical_address;
+            g_base_address = head.physical_address;
     }
 
     // first load the string table
@@ -561,32 +586,32 @@ bool load_image( const char * pimage )
 
     // remove symbols that don't look like addresses
 
-    while ( g_symbols.size() && ( g_symbols[ 0 ].value < base_address ) )
+    while ( g_symbols.size() && ( g_symbols[ 0 ].value < g_base_address ) )
         g_symbols.erase( g_symbols.begin() );
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
         tracer.Trace( "    symbol %llx == %s\n", g_symbols[se].value, & g_string_table[ g_symbols[ se ].name ] );
 
-    if ( 0 == base_address )
+    if ( 0 == g_base_address )
         usage( "base address of elf image is invalid; physical address required" );
 
     // allocate space after uninitialized memory brk to request space and the stack at the end
     // memory map:
-    //     base_address (offset read from the .elf file)
+    //     g_base_address (offset read from the .elf file)
     //     code (read from the .elf file)
     //     initialized data (read from the .elf file)
     //     uninitalized data (size read from the .elf file)
-    //     end_of_data
-    //     brk_address with uninitialized RAM (same as end_of_data initially)
+    //     g_end_of_data
+    //     g_brk_address with uninitialized RAM (same as g_end_of_data initially)
     //     (unallocated space between brk and the bottom of the stack)
-    //     bottom_of_stack
+    //     g_bottom_of_stack
     //     starting stack / one byte beyond RAM for the app
 
-    end_of_data = memory_size;
-    brk_address = memory_size;
-    memory_size += brk_commit;
-    bottom_of_stack = memory_size;
-    memory_size += stack_commit;
+    g_end_of_data = memory_size;
+    g_brk_address = memory_size;
+    memory_size += g_brk_commit;
+    g_bottom_of_stack = memory_size;
+    memory_size += g_stack_commit;
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
 
@@ -602,20 +627,20 @@ bool load_image( const char * pimage )
         if ( 0 != head.file_size )
         {
             fseek( fp, (long) head.offset_in_image, SEEK_SET );
-            fread( memory.data() + head.physical_address - base_address, head.file_size, 1, fp );
+            fread( memory.data() + head.physical_address - g_base_address, head.file_size, 1, fp );
         }
     }
 
-    tracer.Trace( "risc-v compressed instructions: %d\n", compressed_rvc );
-    tracer.Trace( "vm base address %llx\n", base_address );
-    tracer.Trace( "memory size: %llx\n", memory_size );
-    tracer.Trace( "brk size reserved: %llx\n", brk_commit );
-    tracer.Trace( "stack size reserved: %llx\n", stack_commit );
-    tracer.Trace( "initial brk offset: %llx\n", brk_address );
-    tracer.Trace( "end_of_data: %llx\n", end_of_data );
-    tracer.Trace( "bottom_of_stack: %llx\n", bottom_of_stack );
-    tracer.Trace( "initial sp offset: %llx\n", memory_size );
-    tracer.Trace( "execution begins at %llx\n", execution_address );
+    tracer.Trace( "risc-v compressed instructions:  %d\n", g_compressed_rvc );
+    tracer.Trace( "vm g_base_address                %llx\n", g_base_address );
+    tracer.Trace( "memory_size:                     %llx\n", memory_size );
+    tracer.Trace( "g_brk_commit:                    %llx\n", g_brk_commit );
+    tracer.Trace( "g_stack_commit:                  %llx\n", g_stack_commit );
+    tracer.Trace( "g_brk_address:                   %llx\n", g_brk_address );
+    tracer.Trace( "g_end_of_data:                   %llx\n", g_end_of_data );
+    tracer.Trace( "g_bottom_of_stack:               %llx\n", g_bottom_of_stack );
+    tracer.Trace( "initial sp offset (memory_size): %llx\n", memory_size );
+    tracer.Trace( "execution_addess                 %llx\n", g_execution_address );
 
     return true;
 } //load_image
@@ -656,8 +681,8 @@ void elf_info( const char * pimage )
     printf( "  section offset: %llu == %llx\n", ehead.section_header_table, ehead.section_header_table );
     printf( "  flags: %x\n", ehead.flags );
 
-    execution_address = ehead.entry_point;
-    compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
+    g_execution_address = ehead.entry_point;
+    g_compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
 
     uint64_t memory_size = 0;
 
@@ -684,7 +709,7 @@ void elf_info( const char * pimage )
         memory_size += head.mem_size;
 
         if ( 0 == ph )
-            base_address = head.physical_address;
+            g_base_address = head.physical_address;
     }
 
     // first load the string table
@@ -756,14 +781,14 @@ void elf_info( const char * pimage )
         }
     }
 
-    if ( 0 == base_address )
+    if ( 0 == g_base_address )
         printf( "base address of elf image is zero; physical address required for the rvos emulator\n" );
 
-    printf( "contains 2-byte compressed RVC instructions: %s\n", compressed_rvc ? "yes" : "no" );
-    printf( "vm base address %llx\n", base_address );
-    printf( "memory size: %llx\n", memory_size );
-    printf( "stack size reserved: %llx\n", stack_commit );
-    printf( "execution begins at %llx\n", execution_address );
+    printf( "contains 2-byte compressed RVC instructions: %s\n", g_compressed_rvc ? "yes" : "no" );
+    printf( "vm g_base_address %llx\n", g_base_address );
+    printf( "memory_size: %llx\n", memory_size );
+    printf( "g_stack_commit: %llx\n", g_stack_commit );
+    printf( "g_execution_address %llx\n", g_execution_address );
 } //elf_info
 
 int ends_with( const char * str, const char * end )
@@ -857,7 +882,7 @@ int main( int argc, char * argv[] )
 
     if ( ok )
     {
-        RiscV cpu( memory, base_address, execution_address, compressed_rvc, stack_commit );
+        RiscV cpu( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit );
         cpu.trace_instructions( traceInstructions );
         uint64_t cycles = 0;
 
@@ -883,11 +908,11 @@ int main( int argc, char * argv[] )
             printf( "user CPU ms:      %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart ) );
             printf( "total CPU ms:     %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart + ullK.QuadPart ) );
             printf( "elapsed ms:       %16ws\n", perfApp.RenderDurationInMS( elapsed ) );
-            printf( "app exit code:    %16d\n", exit_code );
+            printf( "app exit code:    %16d\n", g_exit_code );
         }
     }
 
     tracer.Shutdown();
 
-    return exit_code;
+    return g_exit_code;
 } //main
