@@ -61,6 +61,58 @@ struct ElfHeader64
     uint16_t section_with_section_names;
 };
 
+struct ElfSymbol64
+{
+    uint32_t name;          // index into symbol string table
+    uint8_t info;           // value of the symbol
+    uint8_t other;
+    uint16_t shndx;
+    uint64_t value;
+    uint64_t size;
+
+    const char * show_info()
+    {
+        if ( 0 == info )
+            return "local";
+        if ( 1 == info )
+            return "global";
+        if ( 2 == info )
+            return "weak";
+        if ( 3 == info )
+            return "num";
+        if ( 4 == info )
+            return "file";
+        if ( 5 == info )
+            return "common";
+        if ( 6 == info )
+            return "tls";
+        if ( 7 == info )
+            return "num";
+        if ( 10 == info )
+            return "loos / gnu_ifunc";
+        if ( 12 == info )
+            return "hios";
+        if ( 13 == info )
+            return "loproc";
+        if ( 15 == info )
+            return "hiproc";
+        return "unknown";
+    } //show_info
+
+    const char * show_other()
+    {
+        if ( 0 == other )
+            return "default";
+        if ( 1 == other )
+            return "internal";
+        if ( 2 == other )
+            return "hidden";
+        if ( 3 == other )
+            return "protected";
+        return "unknown";
+    }
+};
+
 struct ElfProgramHeader64
 {
     uint32_t type;
@@ -314,9 +366,11 @@ void riscv_invoke_ecall( RiscV & cpu )
                 cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( brk_address );
             else
             {
-                uint64_t ask_offset = base_address - ask;
+                uint64_t ask_offset = ask - base_address;
 
-                if ( ask_offset >= end_of_data && ask_offset < cpu.getoffset( bottom_of_stack ) )
+                tracer.Trace( "ask_offset %llx, end_of_data %llx, end_of_stack %llx\n", ask_offset, end_of_data, bottom_of_stack );
+
+                if ( ask_offset >= end_of_data && ask_offset < bottom_of_stack )
                     brk_address = cpu.getoffset( ask );
                 else
                 {
@@ -347,6 +401,38 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
     }
 } //riscv_invoke_ecall
+
+vector<char> g_string_table;                   // strings in the elf image
+vector<ElfSymbol64> g_symbols;                 // symbols in the elf image
+
+// returns the best guess for a symbol name for the address
+
+const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address )
+{
+    if ( address < base_address || address > ( base_address + memory.size() ) )
+        return "";
+
+    for ( size_t i = 0; i < g_symbols.size(); i++ )
+    {
+        if ( ( address >= g_symbols[ i ].value ) &&
+             ( ( i == ( g_symbols.size() - 1 ) ) || ( address < g_symbols[ i + 1 ].value ) ) )
+            return & g_string_table[ g_symbols[ i ].name ];
+    }
+
+    return "";
+} //riscv_symbol_lookup
+
+int symbol_compare( const void * a, const void * b )
+{
+    ElfSymbol64 * pa = (ElfSymbol64 *) a;
+    ElfSymbol64 * pb = (ElfSymbol64 *) b;
+
+    if ( pa->value > pb->value )
+        return 1;
+    if ( pa->value == pb->value )
+        return 0;
+    return -1;
+} //symbol_compare
 
 bool load_image( const char * pimage )
 {
@@ -411,6 +497,30 @@ bool load_image( const char * pimage )
             base_address = head.physical_address;
     }
 
+    // first load the string table
+
+    for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
+    {
+        size_t o = ehead.section_header_table + ( sh * ehead.section_header_table_size );
+        ElfSectionHeader64 head = {0};
+
+        fseek( fp, (long) o, SEEK_SET );
+        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
+        if ( 1 != read )
+            usage( "can't read section header" );
+
+        if ( 3 == head.type )
+        {
+            g_string_table.resize( head.size );
+            fseek( fp, (long) head.offset, SEEK_SET );
+            read = fread( g_string_table.data(), head.size, 1, fp );
+            if ( 1 != read )
+                usage( "can't read string table\n" );
+
+            break;
+        }
+    }
+
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
     {
         size_t o = ehead.section_header_table + ( sh * ehead.section_header_table_size );
@@ -428,7 +538,34 @@ bool load_image( const char * pimage )
         tracer.Trace( "  address: %llx\n", head.address );
         tracer.Trace( "  offset: %llx\n", head.offset );
         tracer.Trace( "  size: %llx\n", head.size );
+
+        if ( 2 == head.type )
+        {
+            g_symbols.resize( head.size / sizeof( ElfSymbol64 ) );
+            fseek( fp, (long) head.offset, SEEK_SET );
+            read = fread( g_symbols.data(), head.size, 1, fp );
+            if ( 1 != read )
+                usage( "can't read symbol table\n" );
+        }
     }
+
+    tracer.Trace( "elf image has %zd symbols\n", g_symbols.size() );
+
+    // void out the entries that don't have symbol names
+
+    for ( size_t se = 0; se < g_symbols.size(); se++ )
+        if ( 0 == g_symbols[se].name )
+            g_symbols[se].value = 0;
+
+    qsort( g_symbols.data(), g_symbols.size(), sizeof( ElfSymbol64 ), symbol_compare );
+
+    // remove symbols that don't look like addresses
+
+    while ( g_symbols.size() && ( g_symbols[ 0 ].value < base_address ) )
+        g_symbols.erase( g_symbols.begin() );
+
+    for ( size_t se = 0; se < g_symbols.size(); se++ )
+        tracer.Trace( "    symbol %llx == %s\n", g_symbols[se].value, & g_string_table[ g_symbols[ se ].name ] );
 
     if ( 0 == base_address )
         usage( "base address of elf image is invalid; physical address required" );
@@ -441,6 +578,7 @@ bool load_image( const char * pimage )
     //     uninitalized data (size read from the .elf file)
     //     end_of_data
     //     brk_address with uninitialized RAM (same as end_of_data initially)
+    //     (unallocated space between brk and the bottom of the stack)
     //     bottom_of_stack
     //     starting stack / one byte beyond RAM for the app
 
@@ -549,6 +687,32 @@ void elf_info( const char * pimage )
             base_address = head.physical_address;
     }
 
+    // first load the string table
+
+    vector<char> string_table;
+
+    for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
+    {
+        size_t o = ehead.section_header_table + ( sh * ehead.section_header_table_size );
+        ElfSectionHeader64 head = {0};
+
+        fseek( fp, (long) o, SEEK_SET );
+        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
+        if ( 1 != read )
+            usage( "can't read section header" );
+
+        if ( 3 == head.type )
+        {
+            string_table.resize( head.size );
+            fseek( fp, (long) head.offset, SEEK_SET );
+            read = fread( string_table.data(), head.size, 1, fp );
+            if ( 1 != read )
+                usage( "can't read string table\n" );
+
+            break;
+        }
+    }
+
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
     {
         size_t o = ehead.section_header_table + ( sh * ehead.section_header_table_size );
@@ -566,6 +730,30 @@ void elf_info( const char * pimage )
         printf( "  address: %llx\n", head.address );
         printf( "  offset: %llx\n", head.offset );
         printf( "  size: %llx\n", head.size );
+
+        if ( 2 == head.type )
+        {
+            vector<ElfSymbol64> symbols;
+            symbols.resize( head.size / sizeof( ElfSymbol64 ) );
+            fseek( fp, (long) head.offset, SEEK_SET );
+            read = fread( symbols.data(), head.size, 1, fp );
+            if ( 1 != read )
+                usage( "can't read symbol table\n" );
+
+            size_t count = head.size / sizeof( ElfSymbol64 );
+            printf( "  symbols:\n" );
+            for ( size_t sym = 0; sym < symbols.size(); sym++ )
+            {
+                printf( "    symbol # %zd\n", sym );
+                ElfSymbol64 & sym_entry = symbols[ sym ];
+                printf( "     name:  %x == %s\n",   sym_entry.name, ( 0 == sym_entry.name ) ? "" : & string_table[ sym_entry.name ] );
+                printf( "     info:  %x == %s\n",   sym_entry.info, sym_entry.show_info() );
+                printf( "     other: %x == %s\n",   sym_entry.other, sym_entry.show_other() );
+                printf( "     shndx: %x\n",   sym_entry.shndx );
+                printf( "     value: %llx\n", sym_entry.value );
+                printf( "     size:  %lld\n", sym_entry.size );
+            }
+        }
     }
 
     if ( 0 == base_address )

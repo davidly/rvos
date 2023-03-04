@@ -670,12 +670,20 @@ void RiscV::trace_state( uint64_t pcnext )
 
 //    DumpBinaryData( getmem( 0x800004c0 ), 32, 2 );
 
-    static char acExtra[ 10240 ];
+    static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
-    sprintf( acExtra, "a4 %8llx a5 %8llx s0 %8llx s1 %8llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
+    //sprintf( acExtra, "a4 %8llx a5 %8llx s0 %8llx s1 %8llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
 
-    tracer.Trace( "pc %8llx op %8llx a0 %8llx a1 %8llx a2 %8llx a3 %8llx %s ra %8llx sp %8llx t %2llx %s => ",
-                  pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
+    static const char * previous_symbol = 0;
+    const char * symbol_name = "";
+    symbol_name = riscv_symbol_lookup( *this, pc );
+    if ( symbol_name == previous_symbol )
+        symbol_name = "";
+    else
+        previous_symbol = symbol_name;
+
+    tracer.Trace( "pc %8llx %s op %8llx a0 %8llx a1 %8llx a2 %8llx a3 %8llx %s ra %8llx sp %8llx t %2llx %s => ",
+                  pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
                   regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
     switch ( optype )
@@ -738,6 +746,7 @@ void RiscV::trace_state( uint64_t pcnext )
                 {
                     case 0: tracer.Trace( "addi    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 1: tracer.Trace( "slli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 ); break;
+                    case 2: tracer.Trace( "stli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 3: tracer.Trace( "sltiu   %s, %s, %llu\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 4: tracer.Trace( "xori    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 5:

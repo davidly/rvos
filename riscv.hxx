@@ -240,5 +240,6 @@ struct RiscV
 
 // callbacks when instructions are executed
 
-extern void riscv_invoke_ecall( RiscV & cpu );                  // called when the ecall instruction is executed
+extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
+extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
 
