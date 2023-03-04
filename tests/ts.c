@@ -135,6 +135,10 @@ template <class T> void show_result( T x )
 #pragma GCC optimize ("O0")
 extern "C" int main()
 {
+    uint8_t * pb = (uint8_t *) malloc( 500000 );
+    memset( pb, 0, 500000 );
+    free( pb );
+
     riscv_printf( "top of app\n" );
     riscv_printf( "print an int %d\n", (int32_t) 27 );
     riscv_printf( "print an int64_t %lld\n", (int64_t) 27 );
@@ -309,6 +313,8 @@ extern "C" int main()
     riscv_printf( "  negative int: %d, %x\n", -27, -27 );
     riscv_printf( "  int64_t: %lld, %llx\n", (int64_t) 27, (int64_t) 27 );
     riscv_printf( "  negative int64_t: %lld, %llx\n", (int64_t) -27, (int64_t) -27 );
+    riscv_printf( "  float: %f\n", 3.1415729 );
+    riscv_printf( "  negative float: %f\n", -3.1415729 );
 
     riscv_printf( "stop\n" );
     return 0;
