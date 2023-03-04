@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+extern "C" void riscv_printf( const char * fmt, ... );
+extern "C" int riscv_sprintf( char * pc, const char * fmt, ... );
+
 void swap( char & a, char & b )
 {
     char c = a;
@@ -111,6 +114,12 @@ extern "C" void riscv_print_text( const char * p )
 
 template <class T> void show_result( T x )
 {
+#if true
+    if ( 4 == sizeof( T ) )
+        riscv_printf( "sizeof T: %d, result: %x\n", sizeof( T ), x );
+    else
+        riscv_printf( "sizeof T: %d, result: %llx\n", sizeof( T ), x );
+#else
     static char buf[ 128 ];
 
     if ( sizeof( T ) == 4 )
@@ -120,11 +129,16 @@ template <class T> void show_result( T x )
     riscv_print_text( "result: " );
     riscv_print_text( buf );
     riscv_print_text( "\n" );
+#endif
 } //show_result
 
 #pragma GCC optimize ("O0")
 extern "C" int main()
 {
+    riscv_printf( "top of app\n" );
+    riscv_printf( "print an int %d\n", (int32_t) 27 );
+    riscv_printf( "print an int64_t %lld\n", (int64_t) 27 );
+
     int8_t i8 = -1;
     i8 >>= 1;
     show_result( (uint8_t) i8 );
@@ -157,7 +171,9 @@ extern "C" int main()
     ui64 >>= 1;
     show_result( ui64 );
 
-    riscv_print_text( "now test left shifts\n" );
+    //////////////
+
+    riscv_printf( "now test left shifts\n" );
 
     i8 = -1;
     i8 <<= 1;
@@ -191,7 +207,110 @@ extern "C" int main()
     ui64 <<= 1;
     show_result( ui64 );
 
-    riscv_print_text( "stop\n" );
+    //////////////
+
+    riscv_printf( "now test comparisons\n" );
+
+    bool f0 = i8 == ui8;
+    bool f1 = i8 > ui8;
+    bool f2 = i8 >= ui8;
+    bool f3 = i8 < ui8;
+    bool f4 = i8 <= ui8;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i16 == ui16;
+    f1 = i16 > ui16;
+    f2 = i16 >= ui16;
+    f3 = i16 < ui16;
+    f4 = i16 <= ui16;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i32 == ui32;
+    f1 = i32 > ui32;
+    f2 = i32 >= ui32;
+    f3 = i32 < ui32;
+    f4 = i32 <= ui32;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i64 == ui64;
+    f1 = i64 > ui64;
+    f2 = i64 >- ui64;
+    f3 = i64 < ui64;
+    f4 = i64 <= ui64;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    //////////////
+
+    f0 = i8 == i16;
+    f1 = i8 > i16;
+    f2 = i8 >= i16;
+    f3 = i8 < i16;
+    f4 = i8 <= i16;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i16 == i32;
+    f1 = i16 > i32;
+    f2 = i16 >= i32;
+    f3 = i16 < i32;
+    f4 = i16 <= i32;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i32 == i64;
+    f1 = i32 > i64;
+    f2 = i32 >= i64;
+    f3 = i32 < i64;
+    f4 = i32 <= i64;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i64 == ui8;
+    f1 = i64 > ui8;
+    f2 = i64 >- ui8;
+    f3 = i64 < ui8;
+    f4 = i64 <= ui8;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    //////////////
+
+    f0 = i8 == 16;
+    f1 = i8 > 16;
+    f2 = i8 >= 16;
+    f3 = i8 < 16;
+    f4 = i8 <= 16;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i16 == 32;
+    f1 = i16 > 32;
+    f2 = i16 >= 32;
+    f3 = i16 < 32;
+    f4 = i16 <= 32;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i32 == 64;
+    f1 = i32 > 64;
+    f2 = i32 >= 64;
+    f3 = i32 < 64;
+    f4 = i32 <= 64;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    f0 = i64 == 8;
+    f1 = i64 > 8;
+    f2 = i64 >= 8;
+    f3 = i64 < 8;
+    f4 = i64 <= 8;
+    show_result( f0 | f1 | f2 | f3 | f4 );
+
+    //////////////////
+
+    riscv_printf( "testing printf\n" );
+
+    riscv_printf( "  string: '%s'\n", "hello" );
+    riscv_printf( "  char: '%c'\n", 'h' );
+    riscv_printf( "  int: %d, %x\n", 27, 27 );
+    riscv_printf( "  negative int: %d, %x\n", -27, -27 );
+    riscv_printf( "  int64_t: %lld, %llx\n", (int64_t) 27, (int64_t) 27 );
+    riscv_printf( "  negative int64_t: %lld, %llx\n", (int64_t) -27, (int64_t) -27 );
+
+    riscv_printf( "stop\n" );
     return 0;
 } //main
 

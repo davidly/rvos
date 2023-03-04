@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#pragma GCC optimize ("O0")
+#pragma GCC optimize ("O0")
 
 void swap( char & a, char & b )
 {

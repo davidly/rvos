@@ -1,6 +1,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys\time.h>
+#include <stdint.h>
+#include <vector>
+
+#include "rvos.h"
 
 #define ABPrune true
 #define WinLosePrune true
@@ -267,17 +272,6 @@ int FindSolution( int position )
     int times;
 
     memset( g_board, 0, sizeof g_board );
-/*
-    g_board[ 0 ] = 0;
-    g_board[ 1 ] = 0;
-    g_board[ 2 ] = 0;
-    g_board[ 3 ] = 0;
-    g_board[ 4 ] = 0;
-    g_board[ 5 ] = 0;
-    g_board[ 6 ] = 0;
-    g_board[ 7 ] = 0;
-    g_board[ 8 ] = 0;
-*/
     g_board[ position ] = PieceX;
 
     for ( times = 0; times < Iterations; times++ )
@@ -300,73 +294,48 @@ void * TTTThreadProc( void * param )
     return 0;
 } //TTTThreadProc
 
-void swap( char & a, char & b )
+float elapsed( struct timeval & a, struct timeval & b )
 {
-    char c = a;
-    a = b;
-    b = c;
-} //swap
+// printf shows floats/doubles off by 3 orders of magnitude
+//    printf( "a sec %ld, a usec %ld, b sec %ld, b usec %ld\n", a.tv_sec, a.tv_usec, b.tv_sec, b.tv_usec );
+//    printf( "printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
+//    riscv_printf( "riscv_printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
 
-void reverse( char str[], int length )
+    int64_t sec_diff = b.tv_sec - a.tv_sec;
+    if ( sec_diff < 0 )
+    {
+        riscv_printf( "seconds went backwards\n" );
+        sec_diff = 0;
+    }
+
+    int64_t microsec_diff = b.tv_usec - a.tv_usec;
+    if ( microsec_diff < 0 )
+        microsec_diff = 1000000 + microsec_diff;
+
+    float sec_part = sec_diff * 1000.0f;
+    float microsec_part = microsec_diff / 1000.0f;
+
+//    printf( "printf: sec_part %f, microsec_part %f\n", sec_part, microsec_part );
+
+    return sec_part + microsec_part;
+} //elapsed
+
+extern "C" int main( int argc, char * argv[] )
 {
-    int start = 0;
-    int end = length - 1;
-    while ( start < end )
-    {
-        swap( * ( str + start ), * ( str + end ) );
-        start++;
-        end--;
-    }
-} //reverse
- 
-char * ltoa( long num, char * str, int base )
-{
-    int i = 0;
-    bool isNegative = false;
- 
-    if ( 0 == num )
-    {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
- 
-    if ( num < 0 && 10 == base )
-    {
-        isNegative = true;
-        num = -num;
-    }
- 
-    while ( 0 != num )
-    {
-        int rem = num % base;
-        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
-        num = num/base;
-    }
- 
-    if (isNegative)
-        str[i++] = '-';
- 
-    str[i] = '\0';
- 
-    reverse( str, i );
- 
-    return str;
-} //ltao
+    printf( "starting...\n" );
 
-extern "C" void riscv_print_text( const char * p );
-
-extern "C" int main()
-{
-    static char buf[ 128 ];
-
-    riscv_print_text( "start\n" );
+    struct timeval tv;
+    gettimeofday( &tv, 0 );
 
     ttt();
 
-    ltoa( g_Moves, buf, 10 );
-    riscv_print_text( buf );
-    riscv_print_text( " moves\n" );
+    struct timeval tv_after;
+    gettimeofday( &tv_after, 0 );
+
+    float elap = elapsed( tv, tv_after );
+
+    riscv_printf( "%ld moves\n", g_Moves );
+    riscv_printf( "%f milliseconds\n", elap ); 
 } //main
 
 

@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern "C" void riscv_printf( const char * fmt, ... );
+extern "C" int riscv_sprintf( char * pc, const char * fmt, ... );
+
 void swap( char & a, char & b )
 {
     char c = a;
@@ -63,7 +66,7 @@ template <class T> T myabs( T x )
     return x;
 } //myabs
 
-//#pragma GCC optimize ("O0")
+#pragma GCC optimize ("O0")
 template <class T> T test( T & min, T & max )
 {
     T a[ 340 ];
@@ -109,59 +112,54 @@ template <class T> T test( T & min, T & max )
 
 extern "C" void riscv_print_text( const char * p );
 
-template <class T> void show_result( T x )
+template <class T> void show_result( const char *text, T x )
 {
+#if true
+    riscv_printf( "%s result: %ld\n", text, x );
+#else
     static char buf[ 128 ];
-
     i64toa( x, buf, 10 );
     riscv_print_text( "result: " );
     riscv_print_text( buf );
     riscv_print_text( "\n" );
+#endif
 } //show_result
 
 extern "C" int main()
 {
-    riscv_print_text( "int8_t\n" );
     int8_t i8min = -128, i8max = 127;
     int8_t i8 = test( i8min, i8max );
-    show_result( (int64_t) i8 );
+    show_result( "int8_t", (int64_t) i8 );
 
-    riscv_print_text( "uint8_t\n" );
     uint8_t ui8min = 0, ui8max = 255;
     uint8_t u8 = test( ui8min, ui8max );
-    show_result( (uint64_t) i8 );
+    show_result( "uint8_t", (uint64_t) i8 );
 
-    riscv_print_text( "int16_t\n" );
     int16_t i16min = -228, i16max = 227;
     int16_t i16 = test( i16min, i16max );
-    show_result( (int64_t) i16 );
+    show_result( "int16_t", (int64_t) i16 );
 
-    riscv_print_text( "uint16_t\n" );
     uint16_t ui16min = 0, ui16max = 300;
     uint16_t u16 = test( ui16min, ui16max );
-    show_result( (uint64_t) u16 );
+    show_result( "uint16_t", (uint64_t) u16 );
 
-    riscv_print_text( "int32_t\n" );
     int32_t i32min = -228, i32max = 227;
     int32_t i32 = test( i32min, i32max );
-    show_result( (int64_t) i32 );
+    show_result( "int32_t", (int64_t) i32 );
 
-    riscv_print_text( "uint32_t\n" );
     uint32_t ui32min = 0, ui32max = 300;
     uint32_t u32 = test( ui32min, ui32max );
-    show_result( (uint64_t) u32 );
+    show_result( "uint32_t", (uint64_t) u32 );
 
-    riscv_print_text( "int64_t\n" );
     int64_t i64min = -228, i64max = 227;
     int64_t i64 = test( i64min, i64max );
-    show_result( (int64_t) i64 );
+    show_result( "int64_t", (int64_t) i64 );
 
-    riscv_print_text( "uint64_t\n" );
     uint64_t ui64min = 0, ui64max = 300;
     uint64_t u64 = test( ui64min, ui64max );
-    show_result( (uint64_t) u64 );
+    show_result( "uint64_t", (uint64_t) u64 );
 
-    riscv_print_text( "stop\n" );
+    riscv_printf( "end of the app\n" );
     return 0;
 } //main
 
