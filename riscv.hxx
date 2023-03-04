@@ -14,11 +14,12 @@ struct RiscV
     static const size_t t1 = 6;
     static const size_t t2 = 7;
     static const size_t s0 = 8;
-    static const size_t fp = 8;
+    static const size_t s1 = 9;
     static const size_t a0 = 10;
     static const size_t a1 = 11;
     static const size_t a2 = 12;
     static const size_t a3 = 13;
+    static const size_t a4 = 14;
     static const size_t a5 = 15;
     static const size_t a6 = 16;
     static const size_t a7 = 17;
@@ -28,11 +29,11 @@ struct RiscV
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
-    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_reservation )
+    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit )
     {
         memset( this, 0, sizeof( *this ) );
         pc = start;
-        stack_size = stack_reservation;            // remember how much of the top of RAM is allocated to the stack
+        stack_size = stack_commit;                 // remember how much of the top of RAM is allocated to the stack
         regs[ sp ] = base_address + memory.size(); // points to memory that can't be accessed initially
         base = base_address;                       // lowest valid address in the app's address space
         mem = memory.data();                       // save the pointer, but don't take ownership
@@ -44,8 +45,16 @@ struct RiscV
 
     uint64_t run( uint64_t max_cycles );
     const char * reg_name( uint64_t reg );
+    const char * freg_name( uint64_t reg );
+
+    union floating
+    {
+        float f;
+        double d;
+    };
 
     uint64_t regs[ 32 ]; // x0 through x31
+    floating fregs[ 32 ]; // f0 through f31
     uint64_t pc;
     uint8_t * mem;
     uint8_t * beyond;
@@ -54,6 +63,16 @@ struct RiscV
     uint64_t stack_size;
     uint64_t mem_size;
     bool rvc;
+
+    uint64_t getoffset( uint64_t address )
+    {
+        return address - base;
+    } //getoffset
+
+    uint64_t get_vm_address( uint64_t offset )
+    {
+        return base + offset;
+    } //get_vm_address
 
     uint8_t * getmem( uint64_t offset )
     {
@@ -86,11 +105,13 @@ struct RiscV
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }
     uint16_t getui16( uint64_t o ) { return * (uint16_t *) getmem( o ); }
     uint8_t getui8( uint64_t o ) { return * (uint8_t *) getmem( o ); }
+    float getfloat( uint64_t o ) { return * (float *) getmem( o ); }
 
     void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = val; }
     void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = val; }
     void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = val; }
     void setui8( uint64_t o, uint8_t val ) { * (uint8_t *) getmem( o ) = val; }
+    void setfloat( uint64_t o, float val ) { * (float *) getmem( o ) = val; }
 
   private:
 

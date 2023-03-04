@@ -38,7 +38,6 @@ const byte RType = 6;
 const byte CsrType = 7;
 const byte R4Type = 8;
 const byte ShiftType = 9;
-const byte FType = 10;
 
 static uint32_t g_State = 0;
 
@@ -133,7 +132,6 @@ const char * instruction_types[] =
     "C",
     "r",
     "s",
-    "F",
 };
 
 // for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
@@ -141,26 +139,26 @@ const char * instruction_types[] =
 byte riscv_types[ 32 ] =
 {
     IType,   //  0
-    FType,   //  1
+    IType,   //  1
     IllType, //  2
-    IllType, //  3
+    IType,   //  3
     IType,   //  4
     UType,   //  5
     IType,   //  6
     IllType, //  7
     SType,   //  8
-    IllType, //  9
+    SType,   //  9
     IllType, //  a
     IllType, //  b
     RType,   //  c
     UType,   //  d
     RType,   //  e
     IllType, //  f
-    IllType, // 10
+    RType,   // 10
     IllType, // 11
     IllType, // 12
     IllType, // 13
-    IllType, // 14
+    RType,   // 14
     IllType, // 15
     IllType, // 16
     IllType, // 17
@@ -184,6 +182,14 @@ const char * register_names[ 32 ] =
     "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
 
+const char * fregister_names[ 32 ] =
+{
+    "ft0", "ft1", "ft2",  "ft3",  "ft4", "ft5", "ft6",  "ft7",
+    "fs0", "fs1", "fa0",  "fa1",  "fa2", "fa3", "fa4",  "fa5",
+    "fa6", "fa7", "fs2",  "fs3",  "fs4", "fs5", "fs6",  "fs7",
+    "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11",
+};
+
 const char * RiscV::reg_name( uint64_t reg )
 {
     if ( reg >= 32 )
@@ -191,6 +197,14 @@ const char * RiscV::reg_name( uint64_t reg )
 
     return register_names[ reg ];
 } //reg_name
+
+const char * RiscV::freg_name( uint64_t reg )
+{
+    if ( reg >= 32 )
+        return "invalid f register";
+
+    return fregister_names[ reg ];
+} //freg_name
 
 void unhandled_op16( uint16_t x )
 {
@@ -316,6 +330,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
                 }
                 case 1: // c.fld
                 {
+                    // the g++ tools I'm using only support hardware floats and software doubles, so coding/testing this will come later
                     break;
                 }
                 case 2: // c.lw
@@ -654,10 +669,14 @@ void RiscV::trace_state( uint64_t pcnext )
     byte optype = riscv_types[ opcode_type ];
 
 //    DumpBinaryData( getmem( 0x800004c0 ), 32, 2 );
-//    tracer.Trace( "t0 %8llx t1 %8llx t2 %8llx\n", regs[ t0 ], regs[ t1 ], regs[ t2 ] );
-//    tracer.Trace( "s2 %8llx a3 %8llx a5 %8llx\n", regs[ s2 ], regs[ a3 ], regs[ a5 ] );
-    tracer.Trace( "pc %8llx op %08llx a0 %08llx a1 %08llx a2 %08llx t0 %08llx t1 %08llx ra %08llx sp %08llx opt %2llx %s => ",
-                  pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ t0 ], regs[ t1 ], regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
+
+    static char acExtra[ 10240 ];
+    acExtra[ 0 ] = 0;
+    sprintf( acExtra, "a4 %8llx a5 %8llx s0 %8llx s1 %8llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
+
+    tracer.Trace( "pc %8llx op %8llx a0 %8llx a1 %8llx a2 %8llx a3 %8llx %s ra %8llx sp %8llx t %2llx %s => ",
+                  pc, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
+                  regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
     switch ( optype )
     {
@@ -698,6 +717,18 @@ void RiscV::trace_state( uint64_t pcnext )
                     case 5: tracer.Trace( "lhu     %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
                     case 6: tracer.Trace( "lwu     %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
                 }
+            }
+            else if ( 1 == opcode_type )
+            {
+                switch ( funct3 )
+                {
+                    case 0x2: tracer.Trace( "flw     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) ); break;
+                }
+            }
+            else if ( 3 == opcode_type )
+            {
+                if ( 0x0ff0000f == op )
+                    tracer.Trace( "fence   0xf 0xf\n" );
             }
             else if ( 0x4 == opcode_type )
             {
@@ -760,11 +791,22 @@ void RiscV::trace_state( uint64_t pcnext )
                 {
                     switch( funct3 )
                     {
-                        case 0x2:
+                        case 2:
                         {
-                            if ( 0xc00 == i_imm_u )
-                                tracer.Trace( "csrss   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                            if ( 1 == i_imm_u )
+                                tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                            else if ( 2 == i_imm_u )
+                                tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                            else if ( 0xc00 == i_imm_u )
+                                tracer.Trace( "csrrs   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                            else
+                                tracer.Trace( "csrrs unknown\n" );
                             break;
+                        }
+                        case 6:
+                        {
+                            if ( 1 == i_imm_u )
+                                tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
                         }
                     }
                 }
@@ -804,6 +846,13 @@ void RiscV::trace_state( uint64_t pcnext )
                     case 1: tracer.Trace( "sh      %s, %lld(%s)  #  %4x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] ); break;
                     case 2: tracer.Trace( "sw      %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) ); break;
                     case 3: tracer.Trace( "sd      %s, %lld(%s)  # %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), s_imm, regs[ rs1 ] ); break;
+                }
+            }
+            else if ( 9 == opcode_type )
+            {
+                switch ( funct3 )
+                {
+                    case 2: tracer.Trace( "fsw     %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
                 }
             }
             break;
@@ -893,6 +942,109 @@ void RiscV::trace_state( uint64_t pcnext )
                         tracer.Trace( "sraw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
             }
+            else if ( 0x10 == opcode_type )
+            {
+                decode_R();
+                uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+                uint32_t fmt = ( funct7 & 0x3 );
+
+                if ( 0 == fmt )
+                {
+                    if ( 7 == funct3  )
+                    {
+                        float result = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f;
+                        tracer.Trace( "fmadd.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                                      result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );
+                    }
+                }
+            }
+            else if ( 0x14 == opcode_type )
+            {
+                decode_R();
+
+                if ( 0 == funct7 )
+                {
+                    if ( 7 == funct3  )
+                        tracer.Trace( "fadd.s  %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                      fregs[ rs1 ].f + fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                }
+                else if ( 4 == funct7 )
+                {
+                    if ( 7 == funct3  )
+                        tracer.Trace( "fsub.s  %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                       fregs[ rs1 ].f - fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                }
+                else if ( 8 == funct7 )
+                {
+                    if ( 7 == funct3  )
+                        tracer.Trace( "fmul.s  %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                }
+                else if ( 0xc == funct7 )
+                {
+                    if ( 7 == funct3  )
+                        tracer.Trace( "fdiv.s  %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                      fregs[ rs1 ].f / fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                }
+                else if ( 0x10 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use rs2's sign bit
+
+                        float f = fabs( fregs[ rs1 ].f );
+                        if ( fregs[ rs2 ].f < 0.0 )
+                            f = -f;
+                        tracer.Trace( "fsgnj.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
+                    }
+                    else if ( 1 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
+
+                        float f = fabs( fregs[ rs1 ].f );
+                        if ( fregs[ rs2 ].f >= 0.0 )
+                            f = -f;
+                        tracer.Trace( "fsgnjn.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
+                    }
+                }
+                else if ( 0x2c == funct7 )
+                {
+                    if ( 7 == funct3 )
+                        tracer.Trace( "fsqrt.s %s, %s\n", freg_name( rd ), freg_name( rs1 ) );
+                }
+                else if ( 0x50 == funct7 )
+                {
+                    if ( 1 == funct3 )
+                        tracer.Trace( "flt.s %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than
+                    else if ( 2 == funct3 )
+                        tracer.Trace( "feq.s %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                }
+                else if ( 0x60 == funct7 )
+                {
+                    if ( 1 == funct3 )
+                        tracer.Trace( "fcvt.l.s %s, %s  # %lld = %.2f\n", reg_name( rd ), freg_name( rs1 ), (int64_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to i64
+                }
+                else if ( 0x68 == funct7 )
+                {
+                    if ( 7 == funct3 )
+                        tracer.Trace( "fcvt.s.l %s, %s  # %.2f = %lld\n", freg_name( rd ), reg_name( rs1 ), (float) regs[ rs1 ], regs[ rs1 ] ); // i64 to float
+                    else
+                        unhandled();
+                }
+                else if ( 0x70 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        tracer.Trace( "fmv.x.w %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), fregs[ rs1 ].f );
+                }
+                else if ( 0x78 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        float f;
+                        memcpy( &f, & regs[ rs1 ], 4 );
+                        tracer.Trace( "fmv.w.x %s, %s  # %x = %.2f\n", freg_name( rd ), reg_name( rs1 ), regs[ rs1 ], f ); // copy ui32 to float as-is bit for bit
+                    }
+                }
+            }
             break;
         }
         case CsrType:
@@ -949,7 +1101,30 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
-        case 0x4:
+        case 0x1:
+        {
+            assert_type( IType );
+            decode_I();
+            if ( 0 == rd )
+                break;
+
+            if ( 2 == funct3 ) // flw rd, i_imm(rs1)
+                fregs[ rd ].f = getfloat( regs[ rs1 ] + i_imm );
+            else
+                unhandled();
+            break;
+        }
+        case 3:
+        {
+            if ( 0x0ff0000f == op )
+            {
+                // fence 0xf 0xf -- do nothing
+            }
+            else
+                unhandled();
+            break;
+        }
+        case 4:
         {
             assert_type( IType );
             decode_I();
@@ -1046,6 +1221,17 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 setui32( regs[ rs1 ] + s_imm, (uint32_t) regs[ rs2 ] );
             else if ( 3 == funct3 ) // sd   rs2, imm(rs1)
                 setui64( regs[ rs1 ] + s_imm, regs[ rs2 ] );
+            else
+                unhandled();
+            break;
+        }
+        case 0x9:
+        {
+            assert_type( SType );
+            decode_S();
+
+            if ( 2 == funct3 ) // fsw   rs2, imm(rs1)
+                setfloat( regs[ rs1 ] + s_imm, fregs[ rs2 ].f );
             else
                 unhandled();
             break;
@@ -1187,6 +1373,129 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
+        case 0x10:
+        {
+            assert_type( RType );
+            decode_R();
+
+            uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+            uint32_t fmt = ( funct7 & 0x3 );
+
+            if ( 0 == fmt )
+            {
+                if ( 7 == funct3  )
+                    fregs[ rd ].f = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f; // fmadd.s frd, frs1, frs2, frs3
+                else
+                    unhandled();
+            }
+            else
+                unhandled();
+            break;
+        }
+        case 0x14:
+        {
+            assert_type( RType );
+            decode_R();
+
+            if ( 0 == funct7 )
+            {
+                if ( 7 == funct3  )
+                    fregs[ rd ].f = fregs[ rs1 ].f + fregs[ rs2 ].f; // fadd.s frd, frs1, frs2
+                else
+                    unhandled();
+            }
+            else if ( 4 == funct7 )
+            {
+                if ( 7 == funct3  )
+                    fregs[ rd ].f = fregs[ rs1 ].f - fregs[ rs2 ].f; // fsub.s frd, frs1, frs2
+                else
+                    unhandled();
+            }
+            else if ( 8 == funct7 )
+            {
+                if ( 7 == funct3  )
+                    fregs[ rd ].f = fregs[ rs1 ].f * fregs[ rs2 ].f; // fmul.s frd, frs1, frs2
+                else
+                    unhandled();
+            }
+            else if ( 0xc == funct7 )
+            {
+                if ( 7 == funct3  )
+                    fregs[ rd ].f = fregs[ rs1 ].f / fregs[ rs2 ].f; // fdiv.s frd, frs1, frs2
+                else
+                    unhandled();
+            }
+            else if ( 0x10 == funct7 )
+            {
+                if ( 0 == funct3 )
+                {
+                    // put rs1's absolute value in rd and use rs2's sign bit
+
+                    float f = fabs( fregs[ rs1 ].f );
+                    if ( fregs[ rs2 ].f < 0.0 )
+                        f = -f;
+                    fregs[ rd ].f = f; // fsgnj.s rd, rs1, rs2
+                }
+                else if ( 1 == funct3 )
+                {
+                    // put rs1's absolute value in rd and use opposeite of rs2's sign bit
+
+                    float f = fabs( fregs[ rs1 ].f );
+                    if ( fregs[ rs2 ].f >= 0.0 )
+                        f = -f;
+                    fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
+                }
+                else
+                    unhandled();
+            }
+            else if ( 0x2c == funct7 )
+            {
+                if ( 7 == funct3 )
+                    fregs[ rd ].f = (float) sqrt( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
+                else
+                    unhandled();
+            }
+            else if ( 0x50 == funct7 )
+            {
+                if ( 1 == funct3 )
+                    regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
+                else if ( 2 == funct3 )
+                    regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
+                else
+                    unhandled();
+            }
+            else if ( 0x60 == funct7 )
+            {
+                if ( 1 == funct3 )
+                    regs[ rd ] = (int64_t) fregs[ rs1 ].f; // fcvt.l.s rd, frs1
+                else
+                    unhandled();
+            }
+            else if ( 0x68 == funct7 )
+            {
+                if ( 7 == funct3 )
+                    fregs[ rd ].f = (float) regs[ rs1 ]; // fcvt.s.l frd, rs1   -- converts i64 to float
+                else
+                    unhandled();
+            }
+            else if ( 0x70 == funct7 )
+            {
+                if ( 0 == funct3 )
+                    memcpy( & regs[ rd ], & fregs[ rs1 ].f, 4 ); // fmv.x.w rd, frs1
+                else
+                    unhandled();
+            }
+            else if ( 0x78 == funct7 )
+            {
+                if ( 0 == funct3 )
+                    memcpy( & fregs[ rd ].f, & regs[ rs1 ], 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
+                else
+                    unhandled();
+            }
+            else
+                unhandled();
+            break;
+        }
         case 0x18:
         {
             assert_type( BType );
@@ -1275,7 +1584,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         }
         case 0x1c:
         {
-            if ( 0x73 == op )
+            if ( 0x73 == op ) //code )
                 riscv_invoke_ecall( *this ); // ecall
             else
             {
@@ -1284,10 +1593,25 @@ bool RiscV::execute_instruction( uint64_t pcnext )
 
                 if ( 2 == funct3 )
                 {
-                    if ( 0xc00 == i_imm_u ) // csrss rd, cycle, rs1
+                    if ( 0x1 == i_imm_u )
+                        regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                    else if ( 0x2 == i_imm_u )
+                        regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
+                    else if ( 0xc00 == i_imm_u ) // csrrs rd, cycle, rs1
                     {
                         if ( 0 != rd )
                             regs[ rd ] = 1000 * clock(); // fake microseconds
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 6 == funct3 )
+                {
+                    if ( 1 == i_imm_u )
+                    {
+                        // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
+                        if ( 0 != rd )
+                            regs[ rd ] = 0;
                     }
                     else
                         unhandled();

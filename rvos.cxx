@@ -13,7 +13,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
+#include <sys\stat.h>
 #include <vector>
+#include <chrono>
 
 #include <djltrace.hxx>
 #include <djl_perf.hxx>
@@ -21,13 +23,17 @@
 #include "riscv.hxx"
 
 CDJLTrace tracer;
+bool compressed_rvc = false;                   // is the app compressed risc-v?
+const uint64_t stack_commit = 64 * 1024;       // RAM to allocate for the fixed stack
+const uint64_t brk_commit = 1024 * 1024;       // RAM to reserve if the app calls brk to allocate space
+bool g_terminate = false;                      // the app asked to shut down
+int exit_code = 0;                             // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
 uint64_t base_address = 0;                     // vm address of start of memory
 uint64_t execution_address = 0;                // where the program counter starts
-bool compressed_rvc = false;                   // is the app compressed risc-v?
-const uint64_t stack_reservation = 64 * 1024;  // RAM to allocate for the fixed stack
-bool g_terminate = false;                      // the app asked to shut down
-int exit_code = 0;                             // exit code of the app in the vm
+uint64_t brk_address = 0;                      // offset of brk, initially end_of_data
+uint64_t end_of_data = 0;                      // official end of the loaded app
+uint64_t bottom_of_stack = 0;                  // just beyond where brk might move
 
 #pragma pack( push, 1 )
 
@@ -148,6 +154,23 @@ void usage( char const * perror = 0 )
     exit( 1 );
 } //usage
 
+struct linux_timeval
+{
+    int64_t tv_sec;
+    int64_t tv_usec;
+};
+
+int gettimeofday( linux_timeval * tp, struct timezone* tzp )
+{
+    namespace sc = std::chrono;
+    sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
+    sc::seconds s = sc::duration_cast<sc::seconds>(d);
+    tp->tv_sec = s.count();
+    tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+
+    return 0;
+} //gettimeofday
+
 uint64_t rand64()
 {
     uint64_t r = 0;
@@ -159,15 +182,59 @@ uint64_t rand64()
 } //rand64
 
 // this is called when the risc-v app has an ecall instruction
+// if i get ambitious...
+
+#define SYS_getcwd 17
+#define SYS_dup 23
+#define SYS_fcntl 25
+#define SYS_faccessat 48
+#define SYS_chdir 49
+#define SYS_openat 56
+#define SYS_close 57
+#define SYS_getdents 61
+#define SYS_lseek 62
+#define SYS_read 63
+#define SYS_write 64
+#define SYS_writev 66
+#define SYS_pread 67
+#define SYS_pwrite 68
+#define SYS_fstatat 79
+#define SYS_fstat 80
+#define SYS_exit 93
+#define SYS_exit_group 94
+#define SYS_kill 129
+#define SYS_rt_sigaction 134
+#define SYS_times 153
+#define SYS_uname 160
+#define SYS_gettimeofday 169
+#define SYS_getpid 172
+#define SYS_getuid 174
+#define SYS_geteuid 175
+#define SYS_getgid 176
+#define SYS_getegid 177
+#define SYS_brk 214
+#define SYS_munmap 215
+#define SYS_mremap 216
+#define SYS_mmap 222
+#define SYS_open 1024
+#define SYS_link 1025
+#define SYS_unlink 1026
+#define SYS_mkdir 1030
+#define SYS_access 1033
+#define SYS_stat 1038
+#define SYS_lstat 1039
+#define SYS_time 1062
+#define SYS_getmainvars 2011
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
-    tracer.Trace( "invoke_ecall a7 %llx, a0 %llx, a1 %llx\n", cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ] );
+    tracer.Trace( "invoke_ecall a7 %llx, a0 %llx, a1 %llx, a2 %llx, a3 %llx\n", cpu.regs[ RiscV::a7 ],
+                  cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ] );
 
     switch ( cpu.regs[ RiscV::a7 ] )
     {
         case 1: // exit
-        case 93: // exit 
+        case SYS_exit:
         {
             tracer.Trace( "  rvos command 1: exit app\n" );
             g_terminate = true;
@@ -181,10 +248,84 @@ void riscv_invoke_ecall( RiscV & cpu )
             printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
             break;
         }
-        case 169: // gettimeofday
+        case SYS_fstat:
         {
-            uint8_t * pclock_t = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            * pclock_t = GetTickCount64();
+            tracer.Trace( "  rvos command SYS_fstat\n" );
+            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            if ( 1 == cpu.regs[ RiscV::a0 ] ) // 1 == stdout
+            {
+                pstat->st_mode = S_IFCHR;
+                pstat->st_ino = 3;
+                pstat->st_mode = 0x2190;
+                pstat->st_nlink = 1;
+                pstat->st_uid = 1000;
+                pstat->st_gid = 5;
+                pstat->st_rdev = 1024; // this is st_blksize on linux
+                pstat->st_size = 0;
+                //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+            }
+            break;
+        }
+        case SYS_gettimeofday:
+        {
+            tracer.Trace( "  rvos command SYS_gettimeofday\n" );
+            linux_timeval * ptimeval = (linux_timeval *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            int result = 0;
+            if ( 0 != ptimeval )
+                result = gettimeofday( ptimeval, 0 );
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+        case SYS_write:
+        {
+            tracer.Trace( "  rvos command SYS_write\n" );
+
+            uint64_t handle = cpu.regs[ RiscV::a0 ];
+            uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            uint64_t count = cpu.regs[ RiscV::a2 ];
+
+            if ( 1 == handle || 2 == handle ) // stdout / stderr
+            {
+                tracer.Trace( "  writing '%.*s'\n", (int) count, p );
+                printf( "%.*s", (int) count, p );
+                cpu.regs[ RiscV::a0 ] = count;
+            }
+            break;
+        }
+        case SYS_close:
+        {
+            tracer.Trace( "  rvos command SYS_close\n" );
+
+            uint64_t handle = cpu.regs[ RiscV::a0 ];
+            if ( handle >=0 && handle <= 3 )
+            {
+                // built-in handle stdin, stdout, stderr -- ignore
+            }
+            else
+            {
+            }
+            break;
+        }
+        case SYS_brk:
+        {
+            uint64_t original = brk_address;
+            uint64_t ask = cpu.regs[ RiscV::a0 ];
+            if ( 0 == ask )
+                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( brk_address );
+            else
+            {
+                uint64_t ask_offset = base_address - ask;
+
+                if ( ask_offset >= end_of_data && ask_offset < cpu.getoffset( bottom_of_stack ) )
+                    brk_address = cpu.getoffset( ask );
+                else
+                {
+                    tracer.Trace( "  allocation request was too large, failing it by returning current brk\n" );
+                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( brk_address );
+                }
+            }
+
+            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, brk_address, cpu.regs[ RiscV::a0 ] );
             break;
         }
         case 0x2000: // rand64. returns an unsigned random number in a0
@@ -192,9 +333,17 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = rand64();
             break;
         }
+        case 0x2001: // print_double in a0
+        {
+            double d;
+            memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
+            printf( "%lf", d );
+            break;
+        }
         default:
         {
-            printf( "error; ecall invoked with unknown command %lld\n", cpu.regs[ RiscV::a7 ] );
+            printf( "error; ecall invoked with unknown command %lld, a0 %#llx, a1 %#llx, a2 %#llx\n",
+                    cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
         }
     }
 } //riscv_invoke_ecall
@@ -284,9 +433,22 @@ bool load_image( const char * pimage )
     if ( 0 == base_address )
         usage( "base address of elf image is invalid; physical address required" );
 
-    // allocate space at the end of RAM for the stack
+    // allocate space after uninitialized memory brk to request space and the stack at the end
+    // memory map:
+    //     base_address (offset read from the .elf file)
+    //     code (read from the .elf file)
+    //     initialized data (read from the .elf file)
+    //     uninitalized data (size read from the .elf file)
+    //     end_of_data
+    //     brk_address with uninitialized RAM (same as end_of_data initially)
+    //     bottom_of_stack
+    //     starting stack / one byte beyond RAM for the app
 
-    memory_size += stack_reservation;
+    end_of_data = memory_size;
+    brk_address = memory_size;
+    memory_size += brk_commit;
+    bottom_of_stack = memory_size;
+    memory_size += stack_commit;
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
 
@@ -306,9 +468,15 @@ bool load_image( const char * pimage )
         }
     }
 
+    tracer.Trace( "risc-v compressed instructions: %d\n", compressed_rvc );
     tracer.Trace( "vm base address %llx\n", base_address );
     tracer.Trace( "memory size: %llx\n", memory_size );
-    tracer.Trace( "stack size reserved: %llx\n", stack_reservation );
+    tracer.Trace( "brk size reserved: %llx\n", brk_commit );
+    tracer.Trace( "stack size reserved: %llx\n", stack_commit );
+    tracer.Trace( "initial brk offset: %llx\n", brk_address );
+    tracer.Trace( "end_of_data: %llx\n", end_of_data );
+    tracer.Trace( "bottom_of_stack: %llx\n", bottom_of_stack );
+    tracer.Trace( "initial sp offset: %llx\n", memory_size );
     tracer.Trace( "execution begins at %llx\n", execution_address );
 
     return true;
@@ -406,7 +574,7 @@ void elf_info( const char * pimage )
     printf( "contains 2-byte compressed RVC instructions: %s\n", compressed_rvc ? "yes" : "no" );
     printf( "vm base address %llx\n", base_address );
     printf( "memory size: %llx\n", memory_size );
-    printf( "stack size reserved: %llx\n", stack_reservation );
+    printf( "stack size reserved: %llx\n", stack_commit );
     printf( "execution begins at %llx\n", execution_address );
 } //elf_info
 
@@ -501,7 +669,7 @@ int main( int argc, char * argv[] )
 
     if ( ok )
     {
-        RiscV cpu( memory, base_address, execution_address, compressed_rvc, stack_reservation );
+        RiscV cpu( memory, base_address, execution_address, compressed_rvc, stack_commit );
         cpu.trace_instructions( traceInstructions );
         uint64_t cycles = 0;
 
