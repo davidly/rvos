@@ -127,7 +127,7 @@ template <class T> void show_result( const char *text, T x )
 
 extern "C" int main()
 {
-    int8_t i8min = -128, i8max = 127;
+    int8_t i8min = -127, i8max = 127;
     int8_t i8 = test( i8min, i8max );
     show_result( "int8_t", (int64_t) i8 );
 

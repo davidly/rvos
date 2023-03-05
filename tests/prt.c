@@ -15,7 +15,7 @@
 
 #define MAXBUF ( sizeof( uint64_t ) * 8 )  // enough for binary
 
-void printnum( uint64_t u,   /* number to print */
+static void printnum( uint64_t u,   /* number to print */
                int  base,
                void (*putc)(char))
 {
@@ -33,7 +33,7 @@ void printnum( uint64_t u,   /* number to print */
         (*putc)(*p);
 } //printnum
 
-void printfloat( float f, int precision, void (*putc)(char) )
+static void printfloat( float f, int precision, void (*putc)(char) )
 {
     if ( f < 0.0 )
     {
@@ -47,7 +47,6 @@ void printfloat( float f, int precision, void (*putc)(char) )
     if ( precision > 0 )
     {
         (*putc)( '.' );
-
         float fraction = f - wholePart;
 
         while( precision > 0 )
@@ -76,8 +75,7 @@ void printdouble( double d, int precision, void (*putc)(char) )
     if ( precision > 0 )
     {
         (*putc)( '.' );
-
-        float fraction = d - wholePart;
+        double fraction = d - wholePart;
 
         while( precision > 0 )
         {
@@ -445,10 +443,8 @@ static void _doprnt(
                 {
                     // varargs promotes floats to doubles in va_arg
 
-                    float f = (float) va_arg(*argp, double );
-                    printfloat( f, 6, putc );
-//                    double d = va_arg(*argp, double );
-//                    printdouble( d, 6, putc );
+                    double d = va_arg( *argp, double );
+                    printdouble( d, ( -1 == prec ? 6 : prec ), putc );
                     break;
                 }
 
@@ -465,7 +461,7 @@ static void _doprnt(
 
 extern "C" void riscv_print_text( const char * p );
 
-void conslog_putc( char c)
+static void conslog_putc( char c)
 {
     static char ac[2] = {0};
     ac[0] = c;

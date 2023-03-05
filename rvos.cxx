@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <sys\stat.h>
+#include <fcntl.h>
+#include <io.h>
+#include <errno.h>
 #include <vector>
 #include <chrono>
 
@@ -24,16 +27,20 @@
 
 CDJLTrace tracer;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
+const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
 const uint64_t g_stack_commit = 64 * 1024;     // RAM to allocate for the fixed stack
-const uint64_t g_brk_commit = 1024 * 1024;     // RAM to reserve if the app calls brk to allocate space
+uint64_t g_brk_commit = 1024 * 1024;           // RAM to reserve if the app calls brk to allocate space
 bool g_terminate = false;                      // the app asked to shut down
 int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
 uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
 uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
+uint64_t g_arg_data = 0;                       // where command-line arguments go
+uint64_t g_argc = 0;                           // # of arguments to the app
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
+int * g_perrno = 0;                            // if it exists, it's a pointer to errno for the vm
 
 #pragma pack( push, 1 )
 
@@ -199,10 +206,12 @@ void usage( char const * perror = 0 )
         printf( "error: %s\n", perror );
 
     printf( "usage: rvos <elf_executable>\n" );
-    printf( "   arguments:    -t     enable debug tracing to rvos.log\n" );
+    printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
+    printf( "                 -g     (internal) generate rcvtable.txt\n" );
+    printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 1\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
-    printf( "                 -e     just show information about the elf executable; don't actually run it\n" );
     printf( "                 -p     shows performance information at app exit\n" );
+    printf( "                 -t     enable debug tracing to rvos.log\n" );
     exit( 1 );
 } //usage
 
@@ -304,7 +313,10 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command SYS_fstat\n" );
             struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            if ( 1 == cpu.regs[ RiscV::a0 ] ) // 1 == stdout
+
+            int descriptor = cpu.regs[ RiscV::a0 ];
+
+            if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
             {
                 pstat->st_mode = S_IFCHR;
                 pstat->st_ino = 3;
@@ -313,6 +325,18 @@ void riscv_invoke_ecall( RiscV & cpu )
                 pstat->st_uid = 1000;
                 pstat->st_gid = 5;
                 pstat->st_rdev = 1024; // this is st_blksize on linux
+                pstat->st_size = 0;
+                //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+            }
+            else
+            {
+                pstat->st_mode = S_IFREG;
+                pstat->st_ino = 3;
+                pstat->st_mode = 0x2190;
+                pstat->st_nlink = 1;
+                pstat->st_uid = 1000;
+                pstat->st_gid = 5;
+                pstat->st_rdev = 4096; // this is st_blksize on linux
                 pstat->st_size = 0;
                 //pstat->st_blocks = 0; // this field doesn't exist in Windows.
             }
@@ -325,6 +349,40 @@ void riscv_invoke_ecall( RiscV & cpu )
             int result = 0;
             if ( 0 != ptimeval )
                 result = gettimeofday( ptimeval, 0 );
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+        case SYS_lseek:
+        {
+            tracer.Trace( "  rvos command SYS_lseek\n" );
+
+            int descriptor = cpu.regs[ RiscV::a0 ];
+            int offset = cpu.regs[ RiscV::a1 ];
+            int origin = cpu.regs[ RiscV::a2 ];
+
+            long result = _lseek( descriptor, offset, origin );
+
+            tracer.Trace( "  _lseek result: %ld\n", result );
+
+            if ( ( -1 == result ) && g_perrno )
+                *g_perrno = errno;
+
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+        case SYS_read:
+        {
+            int descriptor = cpu.regs[ RiscV::a0 ];
+            void * buffer = cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            unsigned buffer_size = cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
+
+            int result = _read( descriptor, buffer, buffer_size );
+            tracer.Trace( "  _read result: %ld\n", result );
+
+            if ( ( -1 == result ) && g_perrno )
+                *g_perrno = errno;
+
             cpu.regs[ RiscV::a0 ] = result;
             break;
         }
@@ -344,17 +402,54 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             break;
         }
+        case SYS_open:
+        {
+            tracer.Trace( "  rvos command SYS_open\n" );
+
+            // a0: asciiz string of file to open. a1: flags. a2: mode
+
+            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            int flags = cpu.regs[ RiscV::a1 ];
+            int mode = cpu.regs[ RiscV::a2 ];
+
+            tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
+
+            int descriptor = _open( pname, flags, mode );
+
+            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, errno );
+
+            if ( -1 == descriptor )
+            {
+                if ( g_perrno )
+                    *g_perrno = errno;
+                cpu.regs[ RiscV::a0 ] = ~0;
+            }
+            else
+            {
+                if ( g_perrno )
+                    *g_perrno = 0;
+                cpu.regs[ RiscV::a0 ] = descriptor;
+            }
+            break;
+        }
         case SYS_close:
         {
             tracer.Trace( "  rvos command SYS_close\n" );
 
-            uint64_t handle = cpu.regs[ RiscV::a0 ];
-            if ( handle >=0 && handle <= 3 )
+            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
+
+            if ( descriptor >=0 && descriptor <= 3 )
             {
                 // built-in handle stdin, stdout, stderr -- ignore
             }
             else
             {
+                int result = _close( descriptor );
+
+                if ( -1 == result && g_perrno )
+                    *g_perrno = errno;
+
+                cpu.regs[ RiscV::a0 ] = result;
             }
             break;
         }
@@ -394,6 +489,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             double d;
             memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
             printf( "%lf", d );
+            break;
+        }
+        case 0x2002: // trace_instructions
+        {
+            tracer.Trace( "  rvos command trace_instructions %d\n", cpu.regs[ RiscV::a0 ] );
+            cpu.regs[ RiscV::a0 ] = cpu.trace_instructions( 0 != cpu.regs[ RiscV::a0 ] );
             break;
         }
         default:
@@ -459,7 +560,7 @@ int symbol_compare( const void * a, const void * b )
     return -1;
 } //symbol_compare
 
-bool load_image( const char * pimage )
+bool load_image( const char * pimage, const char * app_args )
 {
     ElfHeader64 ehead = {0};
 
@@ -601,19 +702,43 @@ bool load_image( const char * pimage )
     //     code (read from the .elf file)
     //     initialized data (read from the .elf file)
     //     uninitalized data (size read from the .elf file)
+    //     g_arg_data
     //     g_end_of_data
-    //     g_brk_address with uninitialized RAM (same as g_end_of_data initially)
+    //     g_brk_address with uninitialized RAM (just after g_arg_data initially)
     //     (unallocated space between brk and the bottom of the stack)
     //     g_bottom_of_stack
     //     starting stack / one byte beyond RAM for the app
 
+    // stacks by convention on risc-v are 16-byte aligned. make sure to start aligned
+
+    if ( memory_size & 0xf )
+    {
+        memory_size += 16;
+        memory_size &= ~0xf;
+    }
+
+    g_arg_data = memory_size;
+    memory_size += g_args_commit;
     g_end_of_data = memory_size;
     g_brk_address = memory_size;
     memory_size += g_brk_commit;
+
     g_bottom_of_stack = memory_size;
     memory_size += g_stack_commit;
+
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
+
+    // find errno if it exists
+
+    for ( size_t se = 0; se < g_symbols.size(); se++ )
+    {
+        if ( !strcmp( "errno", & g_string_table[ g_symbols[ se ].name ] ) )
+        {
+            g_perrno = (int *) ( memory.data() + g_symbols[ se ].value - g_base_address );
+            break;
+        }
+    }
 
     // load the program into RAM
 
@@ -631,11 +756,50 @@ bool load_image( const char * pimage )
         }
     }
 
+    // write the command-line arguments into the vm memory in a place where _start can find them.
+    // there's array of pointers to the args followed by the arg strings at offset g_arg_data.
+
+    uint64_t * parg_data = (uint64_t *) ( memory.data() + g_arg_data );
+    const uint32_t max_args = 20;
+    char * buffer_args = ( char *) & ( parg_data[ max_args ] );
+    size_t image_len = strlen( pimage );
+    vector<char> full_command( 2 + image_len + strlen( app_args ) );
+    strcpy( full_command.data(), pimage );
+    full_command[ image_len ] = ' ';
+    strcpy( full_command.data() + image_len + 1, app_args );
+
+    strcpy( buffer_args, full_command.data() );
+    char * pargs = buffer_args;
+
+    while ( *pargs && g_argc < max_args )
+    {
+        while ( ' ' == *pargs )
+            pargs++;
+    
+        char * space = strchr( pargs, ' ' );
+        if ( space )
+            *space = 0;
+
+        uint64_t offset = pargs - buffer_args;
+        parg_data[ g_argc ] = (uint64_t) ( offset + g_arg_data + g_base_address + max_args * sizeof( uint64_t ) );
+        tracer.Trace( "  argument %d is '%s', at vm address %llx\n", g_argc, pargs, parg_data[ g_argc ] );
+
+        g_argc++;
+    
+        pargs += strlen( pargs );
+    
+        if ( space )
+            pargs++;
+    }
+
+    tracer.Trace( "vm memory start:                 %p\n", memory.data() );
+    tracer.Trace( "g_perrno:                        %p\n", g_perrno );
     tracer.Trace( "risc-v compressed instructions:  %d\n", g_compressed_rvc );
     tracer.Trace( "vm g_base_address                %llx\n", g_base_address );
     tracer.Trace( "memory_size:                     %llx\n", memory_size );
     tracer.Trace( "g_brk_commit:                    %llx\n", g_brk_commit );
     tracer.Trace( "g_stack_commit:                  %llx\n", g_stack_commit );
+    tracer.Trace( "g_arg_data:                      %llx\n", g_arg_data );
     tracer.Trace( "g_brk_address:                   %llx\n", g_brk_address );
     tracer.Trace( "g_end_of_data:                   %llx\n", g_end_of_data );
     tracer.Trace( "g_bottom_of_stack:               %llx\n", g_bottom_of_stack );
@@ -828,6 +992,17 @@ int main( int argc, char * argv[] )
                 traceInstructions = true;
             else if ( 'g' == ca )
                 generateRVCTable = true;
+            else if ( 'h' == ca )
+            {
+                if ( ':' != parg[2] )
+                    usage( "the -h argument requires a value" );
+
+                uint64_t heap = _strtoui64( parg+ 3 , 0, 10 );
+                if ( heap > 1024 ) // limit to a gig
+                    usage( "invalid heap size specified" );
+
+                g_brk_commit = heap * 1024 * 1024;
+            }
             else if ( 'e' == ca )
                 elfInfo = true;
             else if ( 'p' == ca )
@@ -876,13 +1051,14 @@ int main( int argc, char * argv[] )
         return 0;
     }
 
-    bool ok = load_image( acApp );
+    bool ok = load_image( acApp, acAppArgs );
 
     CPerfTime perfApp;
 
     if ( ok )
     {
-        RiscV cpu( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit );
+        RiscV cpu( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit,
+                   g_argc, (uint64_t) ( g_base_address + g_arg_data ) );
         cpu.trace_instructions( traceInstructions );
         uint64_t cycles = 0;
 

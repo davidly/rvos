@@ -11,16 +11,15 @@
 _start:
         .cfi_startproc
 
-        # the g++ c runtime tries to get random values in the stack above where it
-        # should probably because this is not its _start, which reserves space
+        # The g++ c runtime tries to get values on the stack above this point.
+        # I'm guessing it's to get redirected streams for input/output.
 
-        addi    sp, sp, -128
+        addi    sp, sp, -256
 
-        mv      a0, zero  # no arguments
-        mv      a1, zero  # no arguments
+        # rvos sets a0 and a1 to argc and argv.
+
         jal     main
 
-        li      a0, 0  # exit code
         li      a7, 1  # exit
         ecall
         .cfi_endproc
@@ -94,6 +93,21 @@ riscv_gettimeofday:
         sd      ra, 16(sp)
 
         li      a7, 169
+        ecall
+
+        ld      ra, 16(sp)
+        addi    sp, sp, 32
+        jr      ra
+        .cfi_endproc
+
+.globl riscv_trace_instructions
+.type riscv_trace_instructions, @function
+riscv_trace_instructions:
+        .cfi_startproc
+        addi    sp, sp, -32
+        sd      ra, 16(sp)
+
+        li      a7, 0x2002
         ecall
 
         ld      ra, 16(sp)

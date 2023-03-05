@@ -44,7 +44,16 @@ static uint32_t g_State = 0;
 const uint32_t stateTraceInstructions = 1;
 const uint32_t stateEndEmulation = 2;
 
-void RiscV::trace_instructions( bool t ) { if ( t ) g_State |= stateTraceInstructions; else g_State &= ~stateTraceInstructions; }
+bool RiscV::trace_instructions( bool t )
+{
+    bool prev = ( 0 != ( g_State & stateTraceInstructions ) );
+    if ( t )
+        g_State |= stateTraceInstructions;
+    else
+        g_State &= ~stateTraceInstructions;
+    return prev;
+} //trace_instructions
+
 void RiscV::end_emulation() { g_State |= stateEndEmulation; }
 
 char * append_hex_nibble( char * p, uint8_t val )
@@ -335,7 +344,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
                 }
                 case 2: // c.lw
                 {
-                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x << 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
+                    p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x >> 4 ) & 0x4 ) | ( ( x << 1 ) & 0x40 );
                     op32 = compose_I( 2, p_rdrs2, p_rs1, p_imm, 0 );
                     break;
                 }
@@ -668,7 +677,7 @@ void RiscV::trace_state( uint64_t pcnext )
 {
     byte optype = riscv_types[ opcode_type ];
 
-//    DumpBinaryData( getmem( 0x800004c0 ), 32, 2 );
+//    DumpBinaryData( getmem( 0x8001cb07 ), 128, 2 );
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
@@ -1314,7 +1323,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == funct3 )
                     regs[ rd ] = regs[ rs1 ] - regs[ rs2 ]; // sub rd, rs1, rs2
                 else if ( 5 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] >> ( 0x1f & regs[ rs2 ] ) ); // sra rd, rs1, rs2
+                    regs[ rd ] = ( regs[ rs1 ] >> ( 0x3f & regs[ rs2 ] ) ); // sra rd, rs1, rs2
                 else
                     unhandled();
             }
@@ -1656,6 +1665,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
         assert( regs[ sp ] <= ( base + mem_size ) );
         assert( pc >= base );
         assert( pc < ( base + mem_size - stack_size ) );
+        assert( 0 == ( regs[ sp ] & 0xf ) ); // by convention, risc-v stacks are 16-byte aligned
         cycles++;
         uint64_t pcnext = decode();
 

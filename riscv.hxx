@@ -3,6 +3,13 @@
 //#define __inline_perf __declspec(noinline)
 #define __inline_perf __forceinline
 
+// callbacks when instructions are executed
+
+struct RiscV;
+
+extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
+extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
+
 struct RiscV
 {
     // only the subset actually used are defined to reduce namespace pollution
@@ -25,11 +32,12 @@ struct RiscV
     static const size_t a7 = 17;
     static const size_t s2 = 18;
 
-    void trace_instructions( bool trace );                // enable/disable tracing each instruction
+    bool trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
-    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit )
+    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit,
+           uint64_t a0_val, uint64_t a1_val )
     {
         memset( this, 0, sizeof( *this ) );
         pc = start;
@@ -41,6 +49,8 @@ struct RiscV
         beyond = mem + memory.size();              // addresses at beyond and later are illegal
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
         rvc = compressed_rvc;
+        regs[ a0 ] = a0_val;                       // pass argc
+        regs[ a1 ] = a1_val;                       // pass argv
     } //RiscV
 
     uint64_t run( uint64_t max_cycles );
@@ -86,13 +96,21 @@ struct RiscV
 
             if ( r >= beyond )
             {
-                tracer.Trace( "memory reference %p beyond address space %p, offset %llx\n", r, beyond, offset );
+                printf( "memory reference %p beyond address space %p, offset %llx, pc %llx, function %s\n",
+                        r, beyond, offset, pc, riscv_symbol_lookup( *this, pc ) );
+                tracer.Trace( "memory reference %p beyond address space %p, offset %llx, pc %llx, function %s\n",
+                               r, beyond, offset, pc, riscv_symbol_lookup( *this, pc ) );
+                trace_state( pc + 4 ); // just a guess
                 assert( !"invalid memory reference beyond address space" );
             }
 
             if ( r < mem )
             {
-                tracer.Trace( "memory reference %p less than start of address space %p, offset %llx\n", r, mem, offset );
+                printf( "memory reference %p less than start of address space %p, offset %llx, pc %llx, function %s\n",
+                        r, mem, offset, pc, riscv_symbol_lookup( *this, pc ) );
+                tracer.Trace( "memory reference %p less than start of address space %p, offset %llx, pc %llx, function %s\n",
+                              r, mem, offset, pc, riscv_symbol_lookup( *this, pc ) );
+                trace_state( pc + 4 ); // just a guess
                 assert( !"invalid memory reference before address space" );
             }
 
@@ -238,8 +256,4 @@ struct RiscV
     void assert_type( byte t );
 }; //RiscV
 
-// callbacks when instructions are executed
-
-extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
-extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
 
