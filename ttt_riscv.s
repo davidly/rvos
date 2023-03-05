@@ -1,6 +1,6 @@
 # RISC-V version of an app to prove you can't win at tic-tac-toe.
-# This code expects an extern "C" function called riscv_print_text() that can display a string.
-# riscv_print_text() will be system-specific, and may send it out a serial port or to an attached display.
+# This code expects an extern "C" function called rvos_print_text() that can display a string.
+# rvos_print_text() will be system-specific, and may send it out a serial port or to an attached display.
 # The main entrypoint is called "bamain" and it takes no arguments. Calling bamain will be system-specific.
 # useful:
 #    https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-cc.adoc
@@ -91,7 +91,7 @@
         sd      s11, 112(sp)
 
         lla     a0, .running_string
-        jal     riscv_print_text
+        jal     rvos_print_text
 
         mv      s1, zero             # global move count -- # of board positions examined
 
@@ -124,27 +124,27 @@
         lla     a1, g_string_buffer
         li      a2, 10
         jal     _my_lltoa
-        jal     riscv_print_text
+        jal     rvos_print_text
         lla     a0, .moves_nl_string
-        jal     riscv_print_text
+        jal     rvos_print_text
 
         # show the runtime in microseconds
         mv      a0, s3
         lla     a1, g_string_buffer
         li      a2, 10
         jal     _my_lltoa
-        jal     riscv_print_text
+        jal     rvos_print_text
         lla     a0, .microseconds_nl_string
-        jal     riscv_print_text
+        jal     rvos_print_text
 
         # show the number of iterations
         li      a0, iterations
         lla     a1, g_string_buffer
         li      a2, 10
         jal     _my_lltoa
-        jal     riscv_print_text
+        jal     rvos_print_text
         lla     a0, .iterations_nl_string
-        jal     riscv_print_text
+        jal     rvos_print_text
 
   .ba_exit:
         ld      ra, 16(sp)
