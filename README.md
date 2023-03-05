@@ -17,7 +17,7 @@ Notes:
     Only a subset of instructions are implemented (enough to to run my test apps).
     Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
     Float instructions are implemented; double are not.
-    I tested with a variety of C apps compiled with g++. 
+    I tested with a variety of C and C++ apps compiled with g++. 
     Some of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf.
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 physical processor when emulated on my AMD 5950x machine.
