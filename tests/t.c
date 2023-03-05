@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern "C" void riscv_printf( const char * fmt, ... );
-extern "C" int riscv_sprintf( char * pc, const char * fmt, ... );
+#include <rvos.h>
 
 void swap( char & a, char & b )
 {
@@ -110,18 +109,16 @@ template <class T> T test( T & min, T & max )
     return a[ 10 ];
 } //template
 
-extern "C" void riscv_print_text( const char * p );
-
 template <class T> void show_result( const char *text, T x )
 {
 #if true
-    riscv_printf( "%s result: %ld\n", text, x );
+    rvos_printf( "%s result: %ld\n", text, x );
 #else
     static char buf[ 128 ];
     i64toa( x, buf, 10 );
-    riscv_print_text( "result: " );
-    riscv_print_text( buf );
-    riscv_print_text( "\n" );
+    rvos_print_text( "result: " );
+    rvos_print_text( buf );
+    rvos_print_text( "\n" );
 #endif
 } //show_result
 
@@ -159,7 +156,7 @@ extern "C" int main()
     uint64_t u64 = test( ui64min, ui64max );
     show_result( "uint64_t", (uint64_t) u64 );
 
-    riscv_printf( "end of the app\n" );
+    rvos_printf( "end of the app\n" );
     return 0;
 } //main
 

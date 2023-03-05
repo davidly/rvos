@@ -24,6 +24,7 @@
 #include <djl_perf.hxx>
 
 #include "riscv.hxx"
+#include "rvos.h"
 
 CDJLTrace tracer;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
@@ -243,49 +244,6 @@ uint64_t rand64()
 } //rand64
 
 // this is called when the risc-v app has an ecall instruction
-// if i get ambitious...
-
-#define SYS_getcwd 17
-#define SYS_dup 23
-#define SYS_fcntl 25
-#define SYS_faccessat 48
-#define SYS_chdir 49
-#define SYS_openat 56
-#define SYS_close 57
-#define SYS_getdents 61
-#define SYS_lseek 62
-#define SYS_read 63
-#define SYS_write 64
-#define SYS_writev 66
-#define SYS_pread 67
-#define SYS_pwrite 68
-#define SYS_fstatat 79
-#define SYS_fstat 80
-#define SYS_exit 93
-#define SYS_exit_group 94
-#define SYS_kill 129
-#define SYS_rt_sigaction 134
-#define SYS_times 153
-#define SYS_uname 160
-#define SYS_gettimeofday 169
-#define SYS_getpid 172
-#define SYS_getuid 174
-#define SYS_geteuid 175
-#define SYS_getgid 176
-#define SYS_getegid 177
-#define SYS_brk 214
-#define SYS_munmap 215
-#define SYS_mremap 216
-#define SYS_mmap 222
-#define SYS_open 1024
-#define SYS_link 1025
-#define SYS_unlink 1026
-#define SYS_mkdir 1030
-#define SYS_access 1033
-#define SYS_stat 1038
-#define SYS_lstat 1039
-#define SYS_time 1062
-#define SYS_getmainvars 2011
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
@@ -294,7 +252,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 
     switch ( cpu.regs[ RiscV::a7 ] )
     {
-        case 1: // exit
+        case rvos_sys_exit: // exit
         case SYS_exit:
         {
             tracer.Trace( "  rvos command 1: exit app\n" );
@@ -303,7 +261,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             g_exit_code = (int) cpu.regs[ RiscV::a0 ];
             break;
         }
-        case 2: // print asciiz in a0
+        case rvos_sys_print_text: // print asciiz in a0
         {
             tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
             printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
@@ -490,13 +448,13 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_address, cpu.regs[ RiscV::a0 ] );
             break;
         }
-        case 0x2000: // rand64. returns an unsigned random number in a0
+        case rvos_sys_rand: // rand64. returns an unsigned random number in a0
         {
             tracer.Trace( "  rvos command generate random number\n" );
             cpu.regs[ RiscV::a0 ] = rand64();
             break;
         }
-        case 0x2001: // print_double in a0
+        case rvos_sys_print_double: // print_double in a0
         {
             tracer.Trace( "  rvos command print double in a0\n" );
             double d;
@@ -504,7 +462,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             printf( "%lf", d );
             break;
         }
-        case 0x2002: // trace_instructions
+        case rvos_sys_trace_instructions:
         {
             tracer.Trace( "  rvos command trace_instructions %d\n", cpu.regs[ RiscV::a0 ] );
             cpu.regs[ RiscV::a0 ] = cpu.trace_instructions( 0 != cpu.regs[ RiscV::a0 ] );

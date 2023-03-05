@@ -3,13 +3,13 @@
 /* Eratosthenes Sieve Prime Number Program in C from Byte Jan 1983
    to compare the speed. */
 
+#include <stdio.h>
+
 #define TRUE 1
 #define FALSE 0
 #define SIZE 8190
 
 char flags[SIZE+1];
-
-extern "C" void riscv_print_text( const char * p );
 
 void swap( char & a, char & b )
 {
@@ -83,11 +83,6 @@ extern "C" int main()
                                 }
                         }
                 }
-//        printf("%d primes.\n",count);           /*primes found in 10th pass */
-        char buf[ 128 ];
-        ltoa( count, buf, 10 );
-        riscv_print_text( buf );
-        riscv_print_text( " primes found\n" );
-        riscv_print_text("sieve.c finished\n");
+        printf("%d primes.\n",count);           /*primes found in 10th pass */
         return 0;
         }

@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-extern "C" void riscv_printf( const char * fmt, ... );
-extern "C" int riscv_sprintf( char * pc, const char * fmt, ... );
+#include <rvos.h>
 
 void swap( char & a, char & b )
 {
@@ -102,8 +101,6 @@ template <class T> T myabs( T x )
     return x;
 } //myabs
 
-extern "C" void riscv_print_text( const char * p );
-
 #if defined( _MSC_VER ) || defined(WIN64)
 
 extern "C" void riscv_print_text( const char * p )
@@ -114,22 +111,10 @@ extern "C" void riscv_print_text( const char * p )
 
 template <class T> void show_result( T x )
 {
-#if true
     if ( 4 == sizeof( T ) )
-        riscv_printf( "sizeof T: %d, result: %x\n", sizeof( T ), x );
+        printf( "sizeof T: %d, result: %x\n", sizeof( T ), x );
     else
-        riscv_printf( "sizeof T: %d, result: %llx\n", sizeof( T ), x );
-#else
-    static char buf[ 128 ];
-
-    if ( sizeof( T ) == 4 )
-        ui32toa( x, buf, 16 );
-    else
-        ui64toa( x, buf, 16 );
-    riscv_print_text( "result: " );
-    riscv_print_text( buf );
-    riscv_print_text( "\n" );
-#endif
+        printf( "sizeof T: %d, result: %llx\n", sizeof( T ), x );
 } //show_result
 
 #pragma GCC optimize ("O0")
@@ -139,9 +124,9 @@ extern "C" int main()
     memset( pb, 0, 500000 );
     free( pb );
 
-    riscv_printf( "top of app\n" );
-    riscv_printf( "print an int %d\n", (int32_t) 27 );
-    riscv_printf( "print an int64_t %lld\n", (int64_t) 27 );
+    printf( "top of app\n" );
+    printf( "print an int %d\n", (int32_t) 27 );
+    printf( "print an int64_t %lld\n", (int64_t) 27 );
 
     int8_t i8 = -1;
     i8 >>= 1;
@@ -177,7 +162,7 @@ extern "C" int main()
 
     //////////////
 
-    riscv_printf( "now test left shifts\n" );
+    printf( "now test left shifts\n" );
 
     i8 = -1;
     i8 <<= 1;
@@ -213,7 +198,7 @@ extern "C" int main()
 
     //////////////
 
-    riscv_printf( "now test comparisons\n" );
+    printf( "now test comparisons\n" );
 
     bool f0 = i8 == ui8;
     bool f1 = i8 > ui8;
@@ -305,18 +290,18 @@ extern "C" int main()
 
     //////////////////
 
-    riscv_printf( "testing printf\n" );
+    printf( "testing printf\n" );
 
-    riscv_printf( "  string: '%s'\n", "hello" );
-    riscv_printf( "  char: '%c'\n", 'h' );
-    riscv_printf( "  int: %d, %x\n", 27, 27 );
-    riscv_printf( "  negative int: %d, %x\n", -27, -27 );
-    riscv_printf( "  int64_t: %lld, %llx\n", (int64_t) 27, (int64_t) 27 );
-    riscv_printf( "  negative int64_t: %lld, %llx\n", (int64_t) -27, (int64_t) -27 );
-    riscv_printf( "  float: %f\n", 3.1415729 );
-    riscv_printf( "  negative float: %f\n", -3.1415729 );
+    printf( "  string: '%s'\n", "hello" );
+    printf( "  char: '%c'\n", 'h' );
+    printf( "  int: %d, %x\n", 27, 27 );
+    printf( "  negative int: %d, %x\n", -27, -27 );
+    printf( "  int64_t: %lld, %llx\n", (int64_t) 27, (int64_t) 27 );
+    printf( "  negative int64_t: %lld, %llx\n", (int64_t) -27, (int64_t) -27 );
+    printf( "  float: %f\n", 3.1415729 );
+    printf( "  negative float: %f\n", -3.1415729 );
 
-    riscv_printf( "stop\n" );
+    printf( "stop\n" );
     return 0;
 } //main
 

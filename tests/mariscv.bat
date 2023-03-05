@@ -9,33 +9,32 @@ path=C:\Users\david\OneDrive\riscv-gcc\bin\libexec\gcc\riscv64-unknown-elf\8.2.0
 rem RVC is instruction compression for risc-v -- 16 bit compact-opcodes for many 32-bit opcodes
 set RVCFLAG=c
 
-rem build the riscv shell with riscv_print_text()
+rem build the rvos shell _start and abi
 
-as -a=riscv_shell.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic riscv_shell.s -o riscv_shell.o
-
-rem build riscv_printf() helper function
-
-rem -nostartfiles
+as -a=rvos_shell.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic rvos_shell.s -o rvos_shell.o
 
 riscv64-unknown-elf-g++ ^
-   prt.c -c ^
+  rvosutil.c -c ^
+  -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss -Os -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
-  -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "prt.o" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
+  -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "rvosutil.o" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 
 rem generate a listing if needed
 riscv64-unknown-elf-g++ ^
-   %1.c ^
+  %1.c ^
+  -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss -Os -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "%1.lst" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group -S
 
 riscv64-unknown-elf-g++ ^
-   %1.c ^
+  %1.c ^
+  -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss -Os -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" ^
-  "prt.o" "riscv_shell.o" ^
+  "rvosutil.o" "rvos_shell.o" ^
   -o "%1.elf" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 
 

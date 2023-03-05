@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "rvos.h"
+#include <rvos.h>
 
 #define ABPrune true
 #define WinLosePrune true
@@ -299,12 +299,12 @@ float elapsed( struct timeval & a, struct timeval & b )
 // printf shows floats/doubles off by 3 orders of magnitude
 //    printf( "a sec %ld, a usec %ld, b sec %ld, b usec %ld\n", a.tv_sec, a.tv_usec, b.tv_sec, b.tv_usec );
 //    printf( "printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
-//    riscv_printf( "riscv_printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
+//    rvos_printf( "rvos_printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
 
     int64_t sec_diff = b.tv_sec - a.tv_sec;
     if ( sec_diff < 0 )
     {
-        riscv_printf( "seconds went backwards\n" );
+        printf( "seconds went backwards\n" );
         sec_diff = 0;
     }
 
@@ -334,8 +334,8 @@ extern "C" int main( int argc, char * argv[] )
 
     float elap = elapsed( tv, tv_after );
 
-    riscv_printf( "%ld moves\n", g_Moves );
-    riscv_printf( "%f milliseconds\n", elap ); 
+    printf( "%ld moves\n", g_Moves );
+    printf( "%f milliseconds\n", elap ); 
 } //main
 
 
