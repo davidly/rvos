@@ -2,8 +2,8 @@
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
     Only a subset of instructions are implemented (enough to to run my test apps).
-    No floating point instructions are implemented.
-    I tested with a variety of C apps compiled with g++ (using C runtime functions that don't call into the OS)
+    float instructions are implemented. double instructions are not
+    I tested with a variety of C apps compiled with g++
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 processor on my AMD 5950x machine.
 
@@ -27,6 +27,11 @@
 #include <djltrace.hxx>
 
 #include "riscv.hxx"
+
+// set to 1 to use the instruction decompression lookup table
+// set to 0 to use the C code or to generate the table
+
+#define USE_RVCTABLE 1
 
 const byte IllType = 0;
 const byte UType = 1;
@@ -222,7 +227,7 @@ void unhandled_op16( uint16_t x )
     exit( 1 );
 } //unhandled_op16
 
-#if true
+#if USE_RVCTABLE
 
     #include "rvctable.txt"
     
@@ -572,7 +577,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
                 }
                 case 2: // c.lwsp
                 {
-                    uint32_t i = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1c ) | ( ( x << 4 ) & 0x180 );
+                    uint32_t i = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1c ) | ( ( x << 4 ) & 0x0c0 );
                     op32 = compose_I( 2, p_rs1rd, sp, i, 0 );
                     break;
                 }
@@ -910,7 +915,7 @@ void RiscV::trace_state( uint64_t pcnext )
                  else if ( 1 == funct7 )
                  {
                     if ( 0 == funct3 )
-                        tracer.Trace( "mul     %s, %s, %s # %llx + %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mul     %s, %s, %s # %llx * %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 4 == funct3 )
                         tracer.Trace( "div     %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 5 == funct3 )
