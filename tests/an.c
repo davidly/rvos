@@ -11,12 +11,12 @@
 #include <mutex>
 #include <chrono>
 
-#include "rvos.h"
+//#include "rvos.h"
 
 using namespace std;
 using namespace std::chrono;
 
-#pragma GCC optimize ("O0")
+//#pragma GCC optimize ("O0")
 
 #ifdef _MSC_VER
 
@@ -1460,7 +1460,6 @@ extern "C" int main( int argc, char * argv[] )
         int cAnagrams = g_Results->Count();
 
         high_resolution_clock::time_point tAfterGenerate = high_resolution_clock::now();
-
         if ( !g_IncrementalProgress )
         {
             unique_ptr<CAnString *> array ( new CAnString * [ cAnagrams ] );

@@ -388,17 +388,30 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_write:
         {
-            tracer.Trace( "  rvos command SYS_write\n" );
+            tracer.Trace( "  rvos command SYS_write. fd %lld, buf %llx, count %lld\n", cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
 
-            uint64_t handle = cpu.regs[ RiscV::a0 ];
+            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
             uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             uint64_t count = cpu.regs[ RiscV::a2 ];
 
-            if ( 1 == handle || 2 == handle ) // stdout / stderr
+            if ( 1 == descriptor || 2 == descriptor ) // stdout / stderr
             {
                 tracer.Trace( "  writing '%.*s'\n", (int) count, p );
                 printf( "%.*s", (int) count, p );
                 cpu.regs[ RiscV::a0 ] = count;
+            }
+            else if ( 0 == descriptor ) // stdin
+            {
+                cpu.regs[ RiscV::a0 ] = -1;
+                if ( g_perrno )
+                    *g_perrno = EACCES;
+            }
+            else
+            {
+                size_t result = _write( descriptor, p, count );
+                if ( ( -1 == result ) && g_perrno )
+                    *g_perrno = errno;
+                cpu.regs[ RiscV::a0 ] = result;
             }
             break;
         }
