@@ -188,7 +188,7 @@ byte riscv_types[ 32 ] =
 
 void RiscV::assert_type( byte t ) { assert( t == riscv_types[ opcode_type ] ); }
 
-const char * register_names[ 32 ] =
+static const char * register_names[ 32 ] =
 {
     "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
     "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
@@ -196,7 +196,7 @@ const char * register_names[ 32 ] =
     "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
 
-const char * fregister_names[ 32 ] =
+static const char * fregister_names[ 32 ] =
 {
     "ft0", "ft1", "ft2",  "ft3",  "ft4", "ft5", "ft6",  "ft7",
     "fs0", "fs1", "fa0",  "fa1",  "fa2", "fa3", "fa4",  "fa5",
@@ -916,6 +916,12 @@ void RiscV::trace_state( uint64_t pcnext )
                  {
                     if ( 0 == funct3 )
                         tracer.Trace( "mul     %s, %s, %s # %llx * %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                    else if ( 1 == funct3 )
+                        tracer.Trace( "mulh    %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                    else if ( 2 == funct3 )
+                        tracer.Trace( "mulhsu  %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "mulhu   %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 4 == funct3 )
                         tracer.Trace( "div     %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 5 == funct3 )
@@ -1300,6 +1306,12 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             {
                 if ( 0 == funct3 )
                     regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
+                else if ( 1 == funct3 ) // mulh rd, rs1, rs2 
+                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] ); // signed, not unsigned, this is wrong
+                else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2 
+                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] ); // signed, not unsigned, this is wrong
+                else if ( 3 == funct3 ) // mulhu rd, rs1, rs2 
+                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] );
                 else if ( 4 == funct3 )
                 {
                     if ( 0 != (int64_t) regs[ rs2 ] )
@@ -1665,12 +1677,26 @@ uint64_t RiscV::run( uint64_t max_cycles )
 
     do
     {
-        assert( 0 == regs[ 0 ] );
-        assert( regs[ sp ] > ( base + mem_size - stack_size ) );
-        assert( regs[ sp ] <= ( base + mem_size ) );
-        assert( pc >= base );
-        assert( pc < ( base + mem_size - stack_size ) );
-        assert( 0 == ( regs[ sp ] & 0xf ) ); // by convention, risc-v stacks are 16-byte aligned
+        #ifndef NDEBUG
+            if ( 0 != regs[ 0 ] )
+                riscv_hard_termination( *this, "zero register isn't 0:", regs[ zero ] );
+
+            if ( regs[ sp ] <= ( base + mem_size - stack_size ) )
+                riscv_hard_termination( *this, "stack pointer is below stack memory:", regs[ sp ] );
+
+            if ( regs[ sp ] > ( base + mem_size ) )
+                riscv_hard_termination( *this, "stack pointer is above the top of memory:", regs[ sp ] );
+
+            if ( pc < base )
+                riscv_hard_termination( *this, "pc is lower than memory:", pc );
+
+            if ( pc >= ( base + mem_size - stack_size ) )
+                riscv_hard_termination( *this, "pc executing the stack:", pc );
+
+            if ( 0 != ( regs[ sp ] & 0xf ) ) // by convention, risc-v stacks are 16-byte aligned
+                riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
+        #endif
+
         cycles++;
         uint64_t pcnext = decode();
 

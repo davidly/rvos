@@ -1,0 +1,158 @@
+int8_t result: 6
+uint8_t result: 6
+int16_t result: 6
+uint16_t result: 6
+int32_t result: 6
+uint32_t result: 6
+int64_t result: 6
+uint64_t result: 6
+int128_t result: 6
+uint128_t result: 6
+end of the app
+top of app
+print an int 27
+print an int64_t 27
+sizeof T: 1, result: ff
+sizeof T: 1, result: 7f
+sizeof T: 2, result: ffff
+sizeof T: 2, result: 7fff
+sizeof T: 4, result: ffffffff
+sizeof T: 4, result: 7fffffff
+sizeof T: 8, result: ffffffffffffffff
+sizeof T: 8, result: 7fffffffffffffff
+now test left shifts
+sizeof T: 1, result: fe
+sizeof T: 1, result: fe
+sizeof T: 2, result: fffe
+sizeof T: 2, result: fffe
+sizeof T: 4, result: fffffffe
+sizeof T: 4, result: fffffffe
+sizeof T: 8, result: fffffffffffffffe
+sizeof T: 8, result: fffffffffffffffe
+now test comparisons
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+testing printf
+  string: 'hello'
+  char: 'h'
+  int: 27, 1b
+  negative int: -27, ffffffe5
+  int64_t: 27, 1b
+  negative int64_t: -27, ffffffffffffffe5
+  float: 3.141573
+  negative float: -3.141573
+stop
+1899 primes.
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+done
+starting... should tend towards 1.2020569031595942854...
+  at 10 iterations: 1.19753198567419305576
+  at 100 iterations: 1.20200740065967814907
+  at 1000 iterations: 1.20205640365934329772
+  at 10000 iterations: 1.20205689816009808624
+  at 100000 iterations: 1.20205690310973234425
+  at 1000000 iterations: 1.20205690315032098781
+next implementation...
+  at 10 iterations: 1.25000000000000000000
+  at 100 iterations: 1.26582278481012666660
+  at 1000 iterations: 1.20048019207683065446
+  at 10000 iterations: 1.19360229171640019885
+  at 100000 iterations: 1.20284834488067748914
+  at 1000000 iterations: 1.20236240164675556308
+done
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+should tend towards 1.61803398874989484820458683436563811772030
+  at  5 iterations: 1.6250000000000000
+  at 10 iterations: 1.6179775280898876
+  at 15 iterations: 1.6180344478216819
+  at 20 iterations: 1.6180339850173580
+  at 25 iterations: 1.6180339887802426
+  at 30 iterations: 1.6180339887496482
+  at 35 iterations: 1.6180339887498969
+  at 40 iterations: 1.6180339887498949
+done
+rvos fatal error: memory reference prior to address space: 200
+pc: 80000002 main
+address space 80000000 to 801105c0
+  zero:                0,   ra:         800000d6,   sp:         801104c0,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2:                0, 
+    s0:                0,   s1:                0,   a0:                1,   a1:         800001c0, 
+    a2:                0,   a3:                0,   a4:                0,   a5:                a, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+  
+starting...
+6493000 moves
+5574.325195 milliseconds
+hello from printf
+float converted by floattoa: -1.234567
+float converted by floattoa: 1.234567
+float converted by floattoa: 34.567001
+float from printf: 45.677999
+division result: 333.333343, square root 18.257419
+calling floattoa
+float converted with rvos_floattoa: -27.108400
+result of 20.2 * -1.342: -27.108400
+now printing fr as a double:
+result of 20.2 * -1.342 as a double: -27.108400
+stop
+sprintf double 3.14159265358979311600
+sorting tests\words.txt ==> tests\sorted.txt
+sorting
+writing...
+done
+a delve id
+a delved i
+a die veld
+a dive led
+a dived le
+a led vied
+add ive le
+add le vie
+addle ive
+addle vie
+aid delve
+aide veld
+ale dived
+ave did le
+ave id led
+ave idled
+dad ive le
+dad le vie
+dale dive
+dale vied
+david eel
+david lee
+dead evil
+dead levi
+dead live
+dead veil
+dead vile
+deal dive
+deal vied
+dee valid
+deed vial
+did leave
+died vale
+died veal
+dive lade
+dive lead
+dived lea
+evade lid
+eve id lad
+id leaved
+idea veld
+lade vied
+lead vied

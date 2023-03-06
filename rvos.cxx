@@ -522,6 +522,35 @@ int symbol_find_compare( const void * a, const void * b )
     return -1;
 } //symbol_find_compare
 
+static const char * register_names[ 32 ] =
+{
+    "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
+    "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
+    "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
+    "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
+};
+
+void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value )
+{
+    tracer.Trace( "rvos fatal error: %s %llx\n", pcerr, error_value );
+    printf( "rvos fatal error: %s %llx\n", pcerr, error_value );
+
+    tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
+    printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
+
+    printf( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
+
+    printf( "  " );
+    for ( size_t i = 0; i < 32; i++ )
+    {
+        printf( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
+        if ( 3 == ( i & 3 ) )
+            printf( "\n  " );
+    }
+    printf( "\n" );
+    exit( -1 );
+} //riscv_hard_termination
+
 // returns the best guess for a symbol name for the address
 
 const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address )

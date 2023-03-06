@@ -156,6 +156,15 @@ extern "C" int main()
     uint64_t u64 = test( ui64min, ui64max );
     show_result( "uint64_t", (uint64_t) u64 );
 
+    __int128 i128min = -228, i128max = 227;
+    __int128 i128 = test( i128min, i128max );
+    show_result( "int128_t", (int64_t) i128 );
+
+    unsigned __int128 ui128min = 0, ui128max = 300;
+    unsigned __int128 u128 = test( ui128min, ui128max );
+
+    show_result( "uint128_t", (uint64_t) u128 );
+
     rvos_printf( "end of the app\n" );
     return 0;
 } //main

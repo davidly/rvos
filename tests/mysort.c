@@ -420,6 +420,7 @@ int main(int argc,char *argv[])
             }
 
             free( asz );
+            printf( "done\n" );
         }
         else
         {

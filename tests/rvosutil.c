@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <rvos.h>
+
 #define isdigit(d) ((d) >= '0' && (d) <= '9')
 #define Ctod(c) ((c) - '0')
 
@@ -459,22 +461,20 @@ static void _doprnt(
         }
 } //_doprnt
 
-extern "C" void riscv_print_text( const char * p );
-
 static void conslog_putc( char c)
 {
     static char ac[2] = {0};
     ac[0] = c;
-    riscv_print_text( ac );
+    rvos_print_text( ac );
 }
 
-extern "C" void riscv_printf( const char *fmt, ... )
+extern "C" void rvos_printf( const char *fmt, ... )
 {
     va_list listp;
     va_start(listp, fmt);
     _doprnt(fmt, &listp, conslog_putc, 16);
     va_end(listp);
-} //riscv_printf
+} //rvos_printf
 
 static char *copybyte_str;
 
@@ -484,7 +484,7 @@ static void copybyte( char byte )
   *copybyte_str = '\0';
 } //copybyte
 
-extern "C" int riscv_sprintf( char *buf, const char *fmt, ... )
+extern "C" int rvos_sprintf( char *buf, const char *fmt, ... )
 {
     va_list listp;
     va_start(listp, fmt);
@@ -492,14 +492,14 @@ extern "C" int riscv_sprintf( char *buf, const char *fmt, ... )
     _doprnt(fmt, &listp, copybyte, 16);
     va_end(listp);
     return strlen(buf);
-} //riscv_sprintf
+} //rvos_sprintf
 
-extern "C" char * riscv_floattoa( char * buffer, float f, int precision )
+extern "C" char * rvos_floattoa( char * buffer, float f, int precision )
 {
     copybyte_str = buffer;
     printfloat( f, 6, copybyte );
     return buffer;
-} //riscv_floattoa
+} //rvos_floattoa
 
 // no threads = no locks. satisify the Gnu C runtime's requirements so other parts of the runtime work
 
@@ -514,9 +514,9 @@ int main()
 {
     char ac[100];
 
-    riscv_sprintf( ac, "hello %d\n", 27 );
-    riscv_print_text( ac );
-    riscv_printf( "and now from printf: %d\n", 37 );
+    rvos_sprintf( ac, "hello %d\n", 27 );
+    rvos_print_text( ac );
+    rvos_printf( "and now from printf: %d\n", 37 );
     return 0;
 }
 #endif

@@ -9,6 +9,7 @@ struct RiscV;
 
 extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
 extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
+extern void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
 
 struct RiscV
 {
@@ -95,24 +96,10 @@ struct RiscV
             uint8_t * r = membase + offset;
 
             if ( r >= beyond )
-            {
-                printf( "memory reference %p beyond address space %p, offset %llx, pc %llx, function %s\n",
-                        r, beyond, offset, pc, riscv_symbol_lookup( *this, pc ) );
-                tracer.Trace( "memory reference %p beyond address space %p, offset %llx, pc %llx, function %s\n",
-                               r, beyond, offset, pc, riscv_symbol_lookup( *this, pc ) );
-                trace_state( pc + 4 ); // just a guess
-                assert( !"invalid memory reference beyond address space" );
-            }
+                riscv_hard_termination( *this, "memory reference beyond address space:", offset );
 
             if ( r < mem )
-            {
-                printf( "memory reference %p less than start of address space %p, offset %llx, pc %llx, function %s\n",
-                        r, mem, offset, pc, riscv_symbol_lookup( *this, pc ) );
-                tracer.Trace( "memory reference %p less than start of address space %p, offset %llx, pc %llx, function %s\n",
-                              r, mem, offset, pc, riscv_symbol_lookup( *this, pc ) );
-                trace_state( pc + 4 ); // just a guess
-                assert( !"invalid memory reference before address space" );
-            }
+                riscv_hard_termination( *this, "memory reference prior to address space:", offset );
 
             return r;
 
@@ -251,9 +238,9 @@ struct RiscV
         rs2 = ( op >> 20 ) & 0x1f;
     } //decode_R
 
-    void trace_state( uint64_t pcnext );
     bool execute_instruction( uint64_t pcnext );
     void assert_type( byte t );
+    void trace_state( uint64_t pcnext );                  // trace the machine current status
 }; //RiscV
 
 
