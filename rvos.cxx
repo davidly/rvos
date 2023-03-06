@@ -37,6 +37,7 @@ vector<uint8_t> memory;                        // RAM for the vm
 uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
 uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
+uint64_t g_highwater_brk = 0;                  // highest brk seen during app
 uint64_t g_arg_data = 0;                       // where command-line arguments go
 uint64_t g_argc = 0;                           // # of arguments to the app
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
@@ -385,9 +386,26 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
+            // Microsoft C uses different constants for flags than linux:
+            // O_CREAT == 0x100 msft, 0x200 linux
+            // O_TRUNC == 0x200 msft, 0x400 linux
+
+            if ( flags & 0x200 )
+            {
+                flags |= 0x100;
+                flags &= ~ 0x200;
+            }
+            if ( flags & 0x400 )
+            {
+                flags |= 0x200;
+                flags &= ~ 0x400;
+            }
+
+            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+
             int descriptor = _open( pname, flags, mode );
 
-            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, errno );
+            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
 
             if ( -1 == descriptor )
             {
@@ -437,7 +455,11 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  ask_offset %llx, g_end_of_data %llx, end_of_stack %llx\n", ask_offset, g_end_of_data, g_bottom_of_stack );
 
                 if ( ask_offset >= g_end_of_data && ask_offset < g_bottom_of_stack )
+                {
                     g_brk_address = cpu.getoffset( ask );
+                    if ( g_brk_address > g_highwater_brk )
+                        g_highwater_brk = g_brk_address;
+                }
                 else
                 {
                     tracer.Trace( "  allocation request was too large, failing it by returning current brk\n" );
@@ -692,6 +714,7 @@ bool load_image( const char * pimage, const char * app_args )
     memory_size += g_args_commit;
     g_end_of_data = memory_size;
     g_brk_address = memory_size;
+    g_highwater_brk = memory_size;
     memory_size += g_brk_commit;
 
     g_bottom_of_stack = memory_size;
@@ -1059,6 +1082,7 @@ int main( int argc, char * argv[] )
         }
     }
 
+    tracer.Trace( "highwater brk heap usage: %lld bytes\n", g_highwater_brk - g_end_of_data );
     tracer.Shutdown();
 
     return g_exit_code;
