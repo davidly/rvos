@@ -689,8 +689,7 @@ void RiscV::trace_state( uint64_t pcnext )
     sprintf( acExtra, "a4 %llx a5 %llx s0 %llx s1 %llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
 
     static const char * previous_symbol = 0;
-    const char * symbol_name = "";
-    symbol_name = riscv_symbol_lookup( *this, pc );
+    const char * symbol_name = riscv_symbol_lookup( *this, pc );
     if ( symbol_name == previous_symbol )
         symbol_name = "";
     else

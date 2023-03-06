@@ -498,30 +498,6 @@ void riscv_invoke_ecall( RiscV & cpu )
     }
 } //riscv_invoke_ecall
 
-vector<char> g_string_table;                   // strings in the elf image
-vector<ElfSymbol64> g_symbols;                 // symbols in the elf image
-
-int symbol_find_compare( const void * a, const void * b )
-{
-    ElfSymbol64 & sa = * (ElfSymbol64 *) a;
-    ElfSymbol64 & sb = * (ElfSymbol64 *) b;
-
-    if ( 0 == sa.size ) // a is the key
-    {
-        if ( sa.value >= sb.value && sa.value < ( sb.value + sb.size ) )
-            return 0;
-    }
-    else // b is the key
-    {
-        if ( sb.value >= sa.value && sb.value < ( sa.value + sa.size ) )
-            return 0;
-    }
-
-    if ( sa.value > sb.value )
-        return 1;
-    return -1;
-} //symbol_find_compare
-
 static const char * register_names[ 32 ] =
 {
     "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
@@ -550,6 +526,30 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
     printf( "\n" );
     exit( -1 );
 } //riscv_hard_termination
+
+vector<char> g_string_table;                   // strings in the elf image
+vector<ElfSymbol64> g_symbols;                 // symbols in the elf image
+
+int symbol_find_compare( const void * a, const void * b )
+{
+    ElfSymbol64 & sa = * (ElfSymbol64 *) a;
+    ElfSymbol64 & sb = * (ElfSymbol64 *) b;
+
+    if ( 0 == sa.size ) // a is the key
+    {
+        if ( sa.value >= sb.value && sa.value < ( sb.value + sb.size ) )
+            return 0;
+    }
+    else // b is the key
+    {
+        if ( sb.value >= sa.value && sb.value < ( sa.value + sa.size ) )
+            return 0;
+    }
+
+    if ( sa.value > sb.value )
+        return 1;
+    return -1;
+} //symbol_find_compare
 
 // returns the best guess for a symbol name for the address
 
@@ -697,8 +697,6 @@ bool load_image( const char * pimage, const char * app_args )
         }
     }
 
-    tracer.Trace( "elf image has %zd symbols\n", g_symbols.size() );
-
     // void out the entries that don't have symbol names
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
@@ -713,7 +711,21 @@ bool load_image( const char * pimage, const char * app_args )
         g_symbols.erase( g_symbols.begin() );
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
-        tracer.Trace( "    symbol %llx == %s\n", g_symbols[se].value, & g_string_table[ g_symbols[ se ].name ] );
+    {
+        if ( 0 == g_symbols[se].size )
+        {
+            if ( se < ( g_symbols.size() - 1 ) )
+                g_symbols[se].size = g_symbols[ se + 1 ].value - g_symbols[ se ].value;
+            else
+                g_symbols[se].size = g_base_address + memory_size - g_symbols[ se ].value;
+        }
+    }
+
+    tracer.Trace( "elf image has %zd symbols:\n", g_symbols.size() );
+    tracer.Trace( "             address              size  name\n" );
+
+    for ( size_t se = 0; se < g_symbols.size(); se++ )
+        tracer.Trace( "    %16llx  %16llx  %s\n", g_symbols[ se ].value, g_symbols[ se ].size, & g_string_table[ g_symbols[ se ].name ] );
 
     if ( 0 == g_base_address )
         usage( "base address of elf image is invalid; physical address required" );
