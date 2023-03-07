@@ -14,6 +14,7 @@ rvos tests\tcrash sph >>test_rvos.txt
 rvos tests\tcrash spm >>test_rvos.txt
 rvos tests\ttt >>test_rvos.txt
 rvos tests\tf >>test_rvos.txt
+rvos tests\ba tests\tp.bas >>test_rvos.txt
 rvos tests\ttime >>test_rvos.txt
 rvos tests\td >>test_rvos.txt
 rvos /h:2 tests\mysort /q /u tests\words.txt tests\sorted.txt >>test_rvos.txt

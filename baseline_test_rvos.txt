@@ -88,22 +88,22 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 rvos fatal error: memory reference prior to address space: 200
-pc: 80000334 main
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         80000190,   sp:         80119b50,   gp:                0, 
+pc: 800003d4 main
+address space 80000000 to 8011a030
+  zero:                0,   ra:         800001b0,   sp:         80119ed0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:                0,   a1:         80007e9b, 
+    s0:         80119f30,   s1:                0,   a0:                0,   a1:         8000824b, 
     a2:                0,   a3:                0,   a4:                a,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: memory reference beyond address space: 2000000000000000
-pc: 80000296 main
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         800001b6,   sp:         80119b50,   gp:                0, 
+pc: 80000318 main
+address space 80000000 to 8011a030
+  zero:                0,   ra:         800001e4,   sp:         80119ed0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:                0,   a1:         80007ea3, 
+    s0:         80119f30,   s1:                0,   a0:                0,   a1:         80008253, 
     a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -111,10 +111,10 @@ address space 80000000 to 80119cb0
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: pc is lower than memory: 200
 pc: 200 
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         800002b2,   sp:         80119b50,   gp:                0, 
+address space 80000000 to 8011a030
+  zero:                0,   ra:         80000338,   sp:         80119ed0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:                0,   a1:         80007eac, 
+    s0:         80119f30,   s1:                0,   a0:                0,   a1:         8000825c, 
     a2:                0,   a3:                0,   a4:                1,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -122,43 +122,43 @@ address space 80000000 to 80119cb0
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         800002d0,   sp:         80119b50,   gp:                0, 
+address space 80000000 to 8011a030
+  zero:                0,   ra:         80000360,   sp:         80119ed0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:                0,   a1:         80007eb4, 
+    s0:         80119f30,   s1:                0,   a0:                0,   a1:         80008264, 
     a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is below stack memory: 80109c60
-pc: 80001a74 _svfprintf_r
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         80001968,   sp:         80109c60,   gp:                0, 
+  rvos fatal error: stack pointer is below stack memory: 80109fe0
+pc: 80001e16 _svfprintf_r
+address space 80000000 to 8011a030
+  zero:                0,   ra:         80001d0a,   sp:         80109fe0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         8010a3d0,   s1:                0,   a0:         80008690,   a1:         80109eb8, 
-    a2:         80007e88,   a3:         80109f80,   a4:               3d,   a5:         800097b0, 
+    s0:         8010a750,   s1:                0,   a0:         80008a40,   a1:         8010a238, 
+    a2:         80008238,   a3:         8010a300,   a4:               3d,   a5:         80009b60, 
     a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                b,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is above the top of memory: 80219b50
-pc: 80000ce6 rvos_sp_add
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         80000308,   sp:         80219b50,   gp:                0, 
+  rvos fatal error: stack pointer is above the top of memory: 80219ed0
+pc: 80001088 rvos_sp_add
+address space 80000000 to 8011a030
+  zero:                0,   ra:         800003a0,   sp:         80219ed0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:           100000,   a1:         80007ec4, 
+    s0:         80119f30,   s1:                0,   a0:           100000,   a1:         80008274, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: the stack pointer isn't 16-byte aligned: 80119b52
-pc: 80000ce6 rvos_sp_add
-address space 80000000 to 80119cb0
-  zero:                0,   ra:         8000031c,   sp:         80119b52,   gp:                0, 
+  rvos fatal error: the stack pointer isn't 16-byte aligned: 80119ed2
+pc: 80001088 rvos_sp_add
+address space 80000000 to 8011a030
+  zero:                0,   ra:         800003b8,   sp:         80119ed2,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:         80119bb0,   s1:                0,   a0:                2,   a1:         80007ecc, 
+    s0:         80119f30,   s1:                0,   a0:                2,   a1:         8000827c, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -166,7 +166,7 @@ address space 80000000 to 80119cb0
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 6493000 moves
-4492.185059 milliseconds
+4156.389160 milliseconds
 hello from printf
 float converted by floattoa: -1.234567
 float converted by floattoa: 1.234567
@@ -179,7 +179,13 @@ result of 20.2 * -1.342: -27.108400
 now printing fr as a double:
 result of 20.2 * -1.342 as a double: -27.108400
 stop
-year: 2023, month 3, day 6, hour 19, min 2, sec 15
+parsing input file tests\tp.bas
+start time: 16:15:40
+37,000 ms for 100 iterations
+end time: 16:16:17
+final move count 6493
+exiting the basic interpreter
+year: 2023, month 3, day 7, hour 8, min 16, sec 17
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 double: 3.14159265358979311599

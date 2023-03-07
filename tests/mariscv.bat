@@ -14,7 +14,7 @@ path=c:\users\david\onedrive\riscv-gcc\riscv64-unknown-elf\bin;%path%
 path=C:\Users\david\OneDrive\riscv-gcc\bin\libexec\gcc\riscv64-unknown-elf\8.2.0;%path%
 
 rem RVC is instruction compression for risc-v -- 16 bit compact-opcodes for many 32-bit opcodes
-set RVCFLAG=c
+rem set RVCFLAG=c
 
 rem build the rvos shell _start and abi
 
@@ -37,7 +37,7 @@ rem   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "%1.lst" -Wl,--start-group -lgc
 
 riscv64-unknown-elf-g++ ^
   %1.c ^
-  -I .. ^
+  -I .. -I ..\..\djl ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" ^
