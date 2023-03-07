@@ -1,7 +1,35 @@
 #pragma once
 
+#include <stdint.h>
+
+#ifdef _MSC_VER
+
 //#define __inline_perf __declspec(noinline)
 #define __inline_perf __forceinline
+
+#else
+
+#define __inline_perf
+
+template <class T> T __max( T a, T b )
+{
+    if ( a > b )
+        return a;
+    return b;
+}
+
+template <class T> T __min( T a, T b )
+{
+    if ( a < b )
+        return a;
+    return b;
+}
+
+template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
+
+#define _stricmp strcasecmp
+
+#endif
 
 // callbacks when instructions are executed
 
@@ -165,7 +193,10 @@ struct RiscV
     // when inlined, the compiler uses btc for bits. when non-inlined it does the slow thing
     // bits is the 1-based high bit that will be extended to the left.
 
-    __forceinline static int64_t sign_extend( uint64_t x, uint64_t bits )
+#ifdef _MSC_VER
+    __forceinline
+#endif
+    static int64_t sign_extend( uint64_t x, uint64_t bits )
     {
         const int64_t m = ( (uint64_t) 1 ) << ( bits - 1 );
         return ( x ^ m ) - m;
@@ -239,7 +270,7 @@ struct RiscV
     } //decode_R
 
     bool execute_instruction( uint64_t pcnext );
-    void assert_type( byte t );
+    void assert_type( uint8_t t );
     void trace_state( uint64_t pcnext );                  // trace the machine current status
 }; //RiscV
 

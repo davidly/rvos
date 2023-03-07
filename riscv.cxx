@@ -22,7 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 #include <vector>
+
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
 
 #include <djltrace.hxx>
 
@@ -33,16 +38,16 @@
 
 #define USE_RVCTABLE 1
 
-const byte IllType = 0;
-const byte UType = 1;
-const byte JType = 2;
-const byte IType = 3;
-const byte BType = 4;
-const byte SType = 5;
-const byte RType = 6;
-const byte CsrType = 7;
-const byte R4Type = 8;
-const byte ShiftType = 9;
+const uint8_t IllType = 0;
+const uint8_t UType = 1;
+const uint8_t JType = 2;
+const uint8_t IType = 3;
+const uint8_t BType = 4;
+const uint8_t SType = 5;
+const uint8_t RType = 6;
+const uint8_t CsrType = 7;
+const uint8_t R4Type = 8;
+const uint8_t ShiftType = 9;
 
 static uint32_t g_State = 0;
 
@@ -84,9 +89,9 @@ char * append_hex_word( char * p, uint16_t val )
 
 void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
 {
-    __int64 offset = 0;
-    __int64 beyond = length;
-    const __int64 bytesPerRow = 32;
+    int64_t offset = 0;
+    int64_t beyond = length;
+    const int64_t bytesPerRow = 32;
     uint8_t buf[ bytesPerRow ];
     char acLine[ 200 ];
 
@@ -101,12 +106,12 @@ void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
         *pline++ = ' ';
         *pline++ = ' ';
 
-        __int64 cap = __min( offset + bytesPerRow, beyond );
-        __int64 toread = ( ( offset + bytesPerRow ) > beyond ) ? ( length % bytesPerRow ) : bytesPerRow;
+        int64_t cap = __min( offset + bytesPerRow, beyond );
+        int64_t toread = ( ( offset + bytesPerRow ) > beyond ) ? ( length % bytesPerRow ) : bytesPerRow;
 
         memcpy( buf, pData + offset, toread );
 
-        for ( __int64 o = offset; o < cap; o++ )
+        for ( int64_t o = offset; o < cap; o++ )
         {
             pline = append_hex_byte( pline, buf[ o - offset ] );
             *pline++ = ' ';
@@ -117,7 +122,7 @@ void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
         for ( uint64_t sp = 0; sp < ( 1 + spaceNeeded ); sp++ )
             *pline++ = ' ';
 
-        for ( __int64 o = offset; o < cap; o++ )
+        for ( int64_t o = offset; o < cap; o++ )
         {
             char ch = buf[ o - offset ];
 
@@ -150,7 +155,7 @@ const char * instruction_types[] =
 
 // for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
 
-byte riscv_types[ 32 ] =
+uint8_t riscv_types[ 32 ] =
 {
     IType,   //  0
     IType,   //  1
@@ -186,7 +191,7 @@ byte riscv_types[ 32 ] =
     IllType, // 1f
 };
 
-void RiscV::assert_type( byte t ) { assert( t == riscv_types[ opcode_type ] ); }
+void RiscV::assert_type( uint8_t t ) { assert( t == riscv_types[ opcode_type ] ); }
 
 static const char * register_names[ 32 ] =
 {
@@ -680,7 +685,7 @@ bool RiscV::generate_rvc_table( const char * path )
 
 void RiscV::trace_state( uint64_t pcnext )
 {
-    byte optype = riscv_types[ opcode_type ];
+    uint8_t optype = riscv_types[ opcode_type ];
 
 //    DumpBinaryData( getmem( 0x8001cb07 ), 128, 2 );
 
@@ -1033,6 +1038,16 @@ void RiscV::trace_state( uint64_t pcnext )
                             f = -f;
                         tracer.Trace( "fsgnjn.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
+                    else if ( 2 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use the xor of the two sign bits
+
+                        bool resultneg = ( ( fregs[ rs1 ].f < 0.0 ) ^ ( fregs[ rs2 ].f < 0.0 ) );
+                        float f = fabs( fregs[ rs1 ].f );
+                        if ( resultneg )
+                            f = -f;
+                        tracer.Trace( "fsgnjnx.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
+                    }
                 }
                 else if ( 0x2c == funct7 )
                 {
@@ -1090,7 +1105,10 @@ void RiscV::trace_state( uint64_t pcnext )
     }
 } //trace_state
 
-__declspec(noinline) void RiscV::unhandled()
+#ifdef _MSC_VER
+__declspec(noinline)
+#endif
+void RiscV::unhandled()
 {
     printf( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     tracer.Trace( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
@@ -1307,27 +1325,45 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
                 else if ( 1 == funct3 ) // mulh rd, rs1, rs2     signed * signed
                 {
-                    int64_t high;
-                    Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                    regs[ rd ] = high;
+                    #ifdef _MSC_VER
+                        int64_t high;
+                        _mul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        regs[ rd ] = high;
+                    #else
+                        __int128 result = (__int128) regs[ rs1 ] * (__int128) regs[ rs2 ];
+                        result >>= 64;
+                        regs[ rd ] = (int64_t) result;
+                    #endif
                 }
                 else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
                 {
-                    int64_t reg1 = regs[ rs1 ];
-                    bool negative = ( reg1 < 0 );
-                    uint64_t ureg1 = negative ? -reg1 : reg1;
-                    uint64_t high;
-                    UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                    int64_t result = (int64_t) high;
-                    if ( negative )
-                        result = -result;
-                    regs[ rd ] = result;
+                    #ifdef _MSC_VER
+                        int64_t reg1 = regs[ rs1 ];
+                        bool negative = ( reg1 < 0 );
+                        uint64_t ureg1 = negative ? -reg1 : reg1;
+                        uint64_t high;
+                        _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        int64_t result = (int64_t) high;
+                        if ( negative )
+                            result = -result;
+                        regs[ rd ] = result;
+                    #else
+                        __int128 result = (__int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
+                        result >>= 64;
+                        regs[ rd ] = (int64_t) result;
+                    #endif
                 }
                 else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
                 {
-                    uint64_t high;
-                    UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                    regs[ rd ] = high;
+                    #ifdef _MSC_VER
+                        uint64_t high;
+                        _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        regs[ rd ] = high;
+                    #else
+                        unsigned __int128 result = (unsigned __int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
+                        result >>= 64;
+                        regs[ rd ] = (uint64_t) result;
+                    #endif
                 }
                 else if ( 4 == funct3 )
                 {
@@ -1504,6 +1540,16 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     if ( fregs[ rs2 ].f >= 0.0 )
                         f = -f;
                     fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
+                }
+                else if ( 2 == funct3 )
+                {
+                    // put rs1's absolute value in rd and use the xor of the two sign bits
+
+                    bool resultneg = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
+                    float f = fabs( fregs[ rs1 ].f );
+                    if ( resultneg )
+                        f = -f;
+                    fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
                 }
                 else
                     unhandled();

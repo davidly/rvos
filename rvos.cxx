@@ -5,23 +5,27 @@
     Written by David Lee in February 2023
 */
 
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#include <windows.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-#include <io.h>
+#include <ctype.h>
 #include <errno.h>
 #include <vector>
 #include <chrono>
 
+#ifdef _MSC_VER
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <djltrace.hxx>
-#include <djl_perf.hxx>
+
+using namespace std;
+using namespace std::chrono;
 
 #include "riscv.hxx"
 #include "rvos.h"
@@ -271,9 +275,12 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_fstat:
         {
             tracer.Trace( "  rvos command SYS_fstat\n" );
-            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-
             int descriptor = cpu.regs[ RiscV::a0 ];
+
+#ifdef _MSC_VER
+
+            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            cpu.regs[ RiscV::a0 ] = 0;
 
             if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
             {
@@ -299,6 +306,14 @@ void riscv_invoke_ecall( RiscV & cpu )
                 pstat->st_size = 0;
                 //pstat->st_blocks = 0; // this field doesn't exist in Windows.
             }
+
+#else
+
+            struct stat *pstat = (struct stat *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            cpu.regs[ RiscV::a0 ] = fstat( descriptor, pstat );
+
+#endif
+
             break;
         }
         case SYS_gettimeofday:
@@ -320,9 +335,9 @@ void riscv_invoke_ecall( RiscV & cpu )
             int offset = cpu.regs[ RiscV::a1 ];
             int origin = cpu.regs[ RiscV::a2 ];
 
-            long result = _lseek( descriptor, offset, origin );
+            long result = lseek( descriptor, offset, origin );
 
-            tracer.Trace( "  _lseek result: %ld\n", result );
+            tracer.Trace( "  lseek result: %ld\n", result );
 
             if ( ( -1 == result ) && g_perrno )
                 *g_perrno = errno;
@@ -337,8 +352,8 @@ void riscv_invoke_ecall( RiscV & cpu )
             unsigned buffer_size = cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
 
-            int result = _read( descriptor, buffer, buffer_size );
-            tracer.Trace( "  _read result: %ld\n", result );
+            int result = read( descriptor, buffer, buffer_size );
+            tracer.Trace( "  read result: %ld\n", result );
 
             if ( ( -1 == result ) && g_perrno )
                 *g_perrno = errno;
@@ -368,7 +383,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             else
             {
-                size_t result = _write( descriptor, p, count );
+                size_t result = write( descriptor, p, count );
                 if ( ( -1 == result ) && g_perrno )
                     *g_perrno = errno;
                 cpu.regs[ RiscV::a0 ] = result;
@@ -387,6 +402,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
+#ifdef _MSC_VER
             // Microsoft C uses different constants for flags than linux:
             // O_CREAT == 0x100 msft, 0x200 linux
             // O_TRUNC == 0x200 msft, 0x400 linux
@@ -402,9 +418,12 @@ void riscv_invoke_ecall( RiscV & cpu )
                 flags &= ~ 0x400;
             }
 
-            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+            flags |= O_BINARY; // this is assumed on Linux systems
 
-            int descriptor = _open( pname, flags, mode );
+            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+#endif
+
+            int descriptor = open( pname, flags, mode );
 
             tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
 
@@ -434,7 +453,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             else
             {
-                int result = _close( descriptor );
+                int result = close( descriptor );
 
                 if ( -1 == result && g_perrno )
                     *g_perrno = errno;
@@ -634,7 +653,7 @@ bool load_image( const char * pimage, const char * app_args )
         ElfProgramHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.program_header_table_size ), 1, fp );
+        read = fread( &head, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), 1, fp );
         if ( 1 != read )
             usage( "can't read program header" );
 
@@ -660,8 +679,8 @@ bool load_image( const char * pimage, const char * app_args )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
-        if ( 1 != read )
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        if ( 0 == read )
             usage( "can't read section header" );
 
         if ( 3 == head.type )
@@ -684,8 +703,8 @@ bool load_image( const char * pimage, const char * app_args )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
-        if ( 1 != read )
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        if ( 0 == read )
             usage( "can't read section header" );
 
         tracer.Trace( "  type: %u / %s\n", head.type, head.show_type() );
@@ -698,8 +717,8 @@ bool load_image( const char * pimage, const char * app_args )
         {
             g_symbols.resize( head.size / sizeof( ElfSymbol64 ) );
             fseek( fp, (long) head.offset, SEEK_SET );
-            read = fread( g_symbols.data(), head.size, 1, fp );
-            if ( 1 != read )
+            read = fread( g_symbols.data(), 1, head.size, fp );
+            if ( 0 == read )
                 usage( "can't read symbol table\n" );
         }
     }
@@ -789,12 +808,12 @@ bool load_image( const char * pimage, const char * app_args )
         size_t o = ehead.program_header_table + ( ph * ehead.program_header_table_size );
         ElfProgramHeader64 head = {0};
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.program_header_table_size ), 1, fp );
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
 
         if ( 0 != head.file_size )
         {
             fseek( fp, (long) head.offset_in_image, SEEK_SET );
-            fread( memory.data() + head.physical_address - g_base_address, head.file_size, 1, fp );
+            fread( memory.data() + head.physical_address - g_base_address, 1, head.file_size, fp );
         }
     }
 
@@ -860,9 +879,9 @@ void elf_info( const char * pimage )
         usage( "can't open image file" );
 
     CFile file( fp );
-    size_t read = fread( &ehead, sizeof ehead, 1, fp );
+    size_t read = fread( &ehead, 1, sizeof ehead, fp );
 
-    if ( 1 != read )
+    if ( 0 == read )
     {
         printf( "image file is invalid; can't read data\n" );
         return;
@@ -900,8 +919,8 @@ void elf_info( const char * pimage )
         ElfProgramHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.program_header_table_size ), 1, fp );
-        if ( 1 != read )
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
+        if ( 0 == read )
             usage( "can't read program header" );
 
         printf( "  type: %u / %s\n", head.type, head.show_type() );
@@ -928,16 +947,16 @@ void elf_info( const char * pimage )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
-        if ( 1 != read )
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        if ( 0 == read )
             usage( "can't read section header" );
 
         if ( 3 == head.type )
         {
             string_table.resize( head.size );
             fseek( fp, (long) head.offset, SEEK_SET );
-            read = fread( string_table.data(), head.size, 1, fp );
-            if ( 1 != read )
+            read = fread( string_table.data(), 1, head.size, fp );
+            if ( 0 == read )
                 usage( "can't read string table\n" );
 
             break;
@@ -952,8 +971,8 @@ void elf_info( const char * pimage )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), ehead.section_header_table_size ), 1, fp );
-        if ( 1 != read )
+        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        if ( 0 == read )
             usage( "can't read section header" );
 
         printf( "  type: %u / %s\n", head.type, head.show_type() );
@@ -967,8 +986,8 @@ void elf_info( const char * pimage )
             vector<ElfSymbol64> symbols;
             symbols.resize( head.size / sizeof( ElfSymbol64 ) );
             fseek( fp, (long) head.offset, SEEK_SET );
-            read = fread( symbols.data(), head.size, 1, fp );
-            if ( 1 != read )
+            read = fread( symbols.data(), 1, head.size, fp );
+            if ( 0 == read )
                 usage( "can't read symbol table\n" );
 
             size_t count = head.size / sizeof( ElfSymbol64 );
@@ -982,7 +1001,7 @@ void elf_info( const char * pimage )
                 printf( "     other: %x == %s\n",   sym_entry.other, sym_entry.show_other() );
                 printf( "     shndx: %x\n",   sym_entry.shndx );
                 printf( "     value: %llx\n", sym_entry.value );
-                printf( "     size:  %lld\n", sym_entry.size );
+                printf( "     size:  %llu\n", sym_entry.size );
             }
         }
     }
@@ -1008,6 +1027,25 @@ int ends_with( const char * str, const char * end )
     return ( 0 == _stricmp( str + len - lenend, end ) );
 } //ends_with
 
+void PrintNumberWithCommas( long long n )
+{
+    if ( n < 0 )
+    {
+        printf( "-" );
+        PrintNumberWithCommas( -n );
+        return;
+    }
+   
+    if ( n < 1000 )
+    {
+        printf( "%lld", n );
+        return;
+    }
+
+    PrintNumberWithCommas( n / 1000 );
+    printf( ",%03lld", n % 1000 );
+} //PrintNumberWithCommas
+
 int main( int argc, char * argv[] )
 {
     bool trace = false;
@@ -1017,7 +1055,7 @@ int main( int argc, char * argv[] )
     bool elfInfo = false;
     bool generateRVCTable = false;
     static char acAppArgs[1024] = {0};
-    static char acApp[MAX_PATH] = {0};
+    static char acApp[1024] = {0};
 
     for ( int i = 1; i < argc; i++ )
     {
@@ -1039,7 +1077,8 @@ int main( int argc, char * argv[] )
                 if ( ':' != parg[2] )
                     usage( "the -h argument requires a value" );
 
-                uint64_t heap = _strtoui64( parg+ 3 , 0, 10 );
+                uint64_t heap = strtoull( parg+ 3 , 0, 10 );
+                //uint64_t heap = _strtoui64( parg+ 3 , 0, 10 );
                 if ( heap > 1024 ) // limit to a gig
                     usage( "invalid heap size specified" );
 
@@ -1095,7 +1134,7 @@ int main( int argc, char * argv[] )
 
     bool ok = load_image( acApp, acAppArgs );
 
-    CPerfTime perfApp;
+    high_resolution_clock::time_point tStart = high_resolution_clock::now();
 
     if ( ok )
     {
@@ -1111,21 +1150,10 @@ int main( int argc, char * argv[] )
 
         if ( showPerformance )
         {
-            LONGLONG elapsed = 0;
-            FILETIME creationFT, exitFT, kernelFT, userFT;
-            perfApp.CumulateSince( elapsed );
-            GetProcessTimes( GetCurrentProcess(), &creationFT, &exitFT, &kernelFT, &userFT );
-    
-            ULARGE_INTEGER ullK, ullU;
-            ullK.HighPart = kernelFT.dwHighDateTime;
-            ullK.LowPart = kernelFT.dwLowDateTime;
-            ullU.HighPart = userFT.dwHighDateTime;
-            ullU.LowPart = userFT.dwLowDateTime;
-        
-            printf( "kernel CPU ms:    %16ws\n", perfApp.RenderDurationInMS( ullK.QuadPart ) );
-            printf( "user CPU ms:      %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart ) );
-            printf( "total CPU ms:     %16ws\n", perfApp.RenderDurationInMS( ullU.QuadPart + ullK.QuadPart ) );
-            printf( "elapsed ms:       %16ws\n", perfApp.RenderDurationInMS( elapsed ) );
+            high_resolution_clock::time_point tDone = high_resolution_clock::now();
+            long long totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
+
+            printf( "elapsed milliseconds:  " ); PrintNumberWithCommas( totalTime); printf( "\n" );
             printf( "app exit code:    %16d\n", g_exit_code );
         }
     }
