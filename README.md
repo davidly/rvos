@@ -1,5 +1,5 @@
 # rvos
-RISC-V emulator and minimal "OS". Loads and runs .elf files on Linux and Windows.
+Loads and runs Linux RISC-V .elf files on Linux and Windows.
 
     usage: rvos <elf_executable>
 
