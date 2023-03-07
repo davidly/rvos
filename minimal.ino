@@ -5,7 +5,7 @@ Sipeed_ST7789 lcd(320, 240, spi_);
 
 extern "C" int bamain( void );
 
-extern "C" void riscv_print_text( const char * pc )
+extern "C" void rvos_print_text( const char * pc )
 {
     int y = lcd.getCursorY();
     if ( ( y + 8 ) >= lcd.height() )
@@ -15,7 +15,7 @@ extern "C" void riscv_print_text( const char * pc )
     }
 
     lcd.print( pc );
-} //riscv_print_text
+} //rvos_print_text
 
 void setup() 
 {
