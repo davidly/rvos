@@ -223,7 +223,7 @@ struct linux_timeval
     int64_t tv_usec;
 };
 
-int gettimeofday( linux_timeval * tp, struct timezone* tzp )
+int gettimeofday( linux_timeval * tp, struct timezone * tzp )
 {
     namespace sc = std::chrono;
     sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
@@ -308,6 +308,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int result = 0;
             if ( 0 != ptimeval )
                 result = gettimeofday( ptimeval, 0 );
+
             cpu.regs[ RiscV::a0 ] = result;
             break;
         }
@@ -514,16 +515,22 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
     tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
     printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
 
+    tracer.Trace( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
     printf( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
 
+    tracer.Trace( "  " );
     printf( "  " );
     for ( size_t i = 0; i < 32; i++ )
     {
+        tracer.Trace( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
         printf( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
+
         if ( 3 == ( i & 3 ) )
+        {
+            tracer.Trace( "\n  " );
             printf( "\n  " );
+        }
     }
-    printf( "\n" );
     exit( -1 );
 } //riscv_hard_termination
 

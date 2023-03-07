@@ -115,3 +115,12 @@ rvos_trace_instructions:
         jr      ra
         .cfi_endproc
 
+# function to set sp to invalid values for testing
+.globl rvos_sp_add
+.type rvos_sp_add, @function
+rvos_sp_add:
+        .cfi_startproc
+        add     sp, sp, a0
+        jr      ra
+        .cfi_endproc
+

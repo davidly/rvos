@@ -503,6 +503,8 @@ extern "C" char * rvos_floattoa( char * buffer, float f, int precision )
 
 // no threads = no locks. satisify the Gnu C runtime's requirements so other parts of the runtime work
 
+extern "C" void _lock_acquire( _lock_t * ) {}
+extern "C" void _lock_release( _lock_t * ) {}
 extern "C" void _lock_acquire_recursive( _lock_t * ) {}
 extern "C" void _lock_release_recursive( _lock_t * ) {}
 extern "C" void _lock_close_recursive( _lock_t * ) {}

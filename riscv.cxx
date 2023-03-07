@@ -916,11 +916,11 @@ void RiscV::trace_state( uint64_t pcnext )
                     if ( 0 == funct3 )
                         tracer.Trace( "mul     %s, %s, %s # %llx * %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 1 == funct3 )
-                        tracer.Trace( "mulh    %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulh    %s, %s, %s  # %lld * %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 2 == funct3 )
-                        tracer.Trace( "mulhsu  %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulhsu  %s, %s, %s  # %lld * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 3 == funct3 )
-                        tracer.Trace( "mulhu   %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulhu   %s, %s, %s  # %llu * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 4 == funct3 )
                         tracer.Trace( "div     %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 5 == funct3 )
@@ -1094,7 +1094,7 @@ __declspec(noinline) void RiscV::unhandled()
 {
     printf( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     tracer.Trace( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
-    exit( 1 );
+    riscv_hard_termination( *this, "opcode not handed:", op );
 } //unhandled
 
 #ifndef DEBUG
@@ -1305,12 +1305,30 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             {
                 if ( 0 == funct3 )
                     regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
-                else if ( 1 == funct3 ) // mulh rd, rs1, rs2 
-                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] ); // signed, not unsigned, this is wrong
-                else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2 
-                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] ); // signed, not unsigned, this is wrong
-                else if ( 3 == funct3 ) // mulhu rd, rs1, rs2 
-                    regs[ rd ] = __mulh( regs[ rs1 ], regs[ rs2 ] );
+                else if ( 1 == funct3 ) // mulh rd, rs1, rs2     signed * signed
+                {
+                    int64_t high;
+                    Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                    regs[ rd ] = high;
+                }
+                else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
+                {
+                    int64_t reg1 = regs[ rs1 ];
+                    bool negative = ( reg1 < 0 );
+                    uint64_t ureg1 = negative ? -reg1 : reg1;
+                    uint64_t high;
+                    UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                    int64_t result = (int64_t) high;
+                    if ( negative )
+                        result = -result;
+                    regs[ rd ] = result;
+                }
+                else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
+                {
+                    uint64_t high;
+                    UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                    regs[ rd ] = high;
+                }
                 else if ( 4 == funct3 )
                 {
                     if ( 0 != (int64_t) regs[ rs2 ] )
@@ -1690,7 +1708,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 riscv_hard_termination( *this, "pc is lower than memory:", pc );
 
             if ( pc >= ( base + mem_size - stack_size ) )
-                riscv_hard_termination( *this, "pc executing the stack:", pc );
+                riscv_hard_termination( *this, "pc is higher than it should be:", pc );
 
             if ( 0 != ( regs[ sp ] & 0xf ) ) // by convention, risc-v stacks are 16-byte aligned
                 riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );

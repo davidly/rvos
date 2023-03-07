@@ -109,6 +109,59 @@ template <class T> T test( T & min, T & max )
     return a[ 10 ];
 } //template
 
+void validate_128mul()
+{
+    // the gnu compiler generates mulhu for each of these, not mulh or mulhsu
+
+    __int128 a = 0x4000000000000000;
+    printf( "a: %llx %llx\n", (uint64_t) ( a >> 64) , (uint64_t) a );
+    a <<= 4;
+    printf( "a: %llx %llx\n", (uint64_t) ( a >> 64) , (uint64_t) a );
+
+    __int128 b = 2;
+    __int128 c = a * b;
+
+    if ( 0 != ( 0xffffffff & c ) )
+        printf( "failure 1: lower part of multiply isn't 0\n" );
+
+    if ( ( c >> 64 ) != 0x8 )
+        printf( "failure 2: upper part of multiply isn't 0x8: %llx\n", (uint64_t) ( c >> 64 ) );
+
+    unsigned __int128 ua = 0x4000000000000000;
+    printf( "ua: %llx %llx\n", (uint64_t) ( ua >> 64) , (uint64_t) ua );
+    ua <<= 4;
+    printf( "ua: %llx %llx\n", (uint64_t) ( ua >> 64) , (uint64_t) ua );
+
+    unsigned __int128 ub = 2;
+    unsigned __int128 uc = ua * ub;
+
+    if ( 0 != ( 0xffffffff & uc ) )
+        printf( "failure 3: lower part of multiply isn't 0\n" );
+
+    if ( ( uc >> 64 ) != 0x8 )
+        printf( "failure 4: upper part of multiply isn't 0x8: %llx\n", (uint64_t) ( uc >> 64 ) );
+
+    a = -1;
+    printf( "a: %llx %llx\n", (uint64_t) ( a >> 64) , (uint64_t) a );
+
+    a = -33;
+    printf( "a: %llx %llx = %lld\n", (uint64_t) ( a >> 64) , (uint64_t) a, (int64_t) a );
+
+    c = a * b;
+    if ( -66 != c )
+        printf( "failure 5: c: %llx %llx = %lld\n", (uint64_t) ( c >> 64) , (uint64_t) c, (int64_t) c );
+
+    c = a * ub;
+    if ( -66 != c )
+        printf( "failure 6: c: %llx %llx = %lld\n", (uint64_t) ( c >> 64) , (uint64_t) c, (int64_t) c );
+
+    a = -7;
+    b = -3;
+    c = a * b;
+    if ( 21 != c )
+        printf( "failure 7: c: %llx %llx = %lld\n", (uint64_t) ( c >> 64) , (uint64_t) c, (int64_t) c );
+} // validate_128mul
+
 template <class T> void show_result( const char *text, T x )
 {
 #if true
@@ -124,6 +177,8 @@ template <class T> void show_result( const char *text, T x )
 
 extern "C" int main()
 {
+    validate_128mul();
+
     int8_t i8min = -127, i8max = 127;
     int8_t i8 = test( i8min, i8max );
     show_result( "int8_t", (int64_t) i8 );
@@ -162,7 +217,6 @@ extern "C" int main()
 
     unsigned __int128 ui128min = 0, ui128max = 300;
     unsigned __int128 u128 = test( ui128min, ui128max );
-
     show_result( "uint128_t", (uint64_t) u128 );
 
     rvos_printf( "end of the app\n" );

@@ -57,4 +57,5 @@ extern "C" char * rvos_floattoa( char *buffer, float f, int precision );
 extern "C" void rvos_print_double( double d );
 extern "C" int rvos_gettimeofday( struct timeval * p, void * x );
 extern "C" bool rvos_trace_instructions( bool enable );
+extern "C" void rvos_sp_add( uint64_t val );
 

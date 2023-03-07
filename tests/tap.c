@@ -44,25 +44,27 @@ int randi()
 
 void first_implementation()
 {
-    const uint64_t total = 1000000;
-    double sofar = 0;
-    uint64_t prev = 1;
+    // use 128 bit ints for testing but also because the loop can go futher without integer overflow
 
-    for ( uint64_t i = 1; i <= total; i++ )
+    const unsigned __int128 total = 1000000;
+    double sofar = 0;
+    unsigned __int128 prev = 1;
+
+    for ( unsigned __int128 i = 1; i <= total; i++ )
     {
-        sofar += 1.0 / (double) ( i * i * i );
+        sofar += (double) 1.0 / (double) ( i * i * i );
 
         if ( i == ( prev * 10 ) )
         {
             prev = i;
-            printf( "  at %llu iterations: %.20lf\n", i, sofar );
+            printf( "  at %12llu iterations: %.20lf\n", (uint64_t) i, sofar );
         }
     }
 } //first_implementation
 
 int main()
 {
-    printf( "starting... should tend towards 1.2020569031595942854...\n" );
+    printf( "starting, should tend towards 1.2020569031595942854...\n" );
 
     first_implementation();
 
@@ -86,7 +88,7 @@ int main()
         if ( i == ( prev * 10 ) )
         {
             prev = i;
-            printf( "  at %d iterations: %.20lf\n", i, (double) i / (double) totalCoprimes );
+            printf( "  at %12d iterations: %.20lf\n", i, (double) i / (double) totalCoprimes );
         }
     }
 
