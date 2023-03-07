@@ -37,7 +37,7 @@ rem   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "%1.lst" -Wl,--start-group -lgc
 
 riscv64-unknown-elf-g++ ^
   %1.c ^
-  -I .. -I ..\..\djl ^
+  -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" ^
