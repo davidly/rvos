@@ -70,17 +70,22 @@ class CDJLTrace
 
                 if ( NULL == pcLogFile )
                 {
-                    const size_t path_len = 1000;
-                    unique_ptr<char> tempPath( new char[ 1 + path_len ] );
-                    tempPath.get()[0] = 0;
-
+                    const char * tracefile = "tracer.txt";
+                    size_t len = strlen( tracefile );
+                    vector<char> tempPath( 1 + len );
+                    tempPath[0] = 0;
+                   
                     const char * ptmp = getenv( "TEMP" );
                     if ( ptmp )
-                        strcpy( tempPath.get(), ptmp );
+                    {
+                        tempPath.resize( 1 + len + strlen( ptmp ) );
+                        strcpy( tempPath.data(), ptmp );
+                        strcat( tempPath.data(), "/" );
+                    }
 
-                    strcat( tempPath.get(), "tracer.txt" );
+                    strcat( tempPath.data(), "tracer.txt" );
 
-                    fp = fopen( tempPath.get(), mode );
+                    fp = fopen( tempPath.data(), mode );
                 }
                 else
                 {
