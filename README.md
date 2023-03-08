@@ -1,5 +1,5 @@
 # rvos
-RISC-V emulator and minimal "OS". Loads and runs .elf files on Linux and Windows.
+Loads and runs Linux RISC-V .elf files on Linux and Windows.
 
     usage: rvos <elf_executable>
 
@@ -52,6 +52,13 @@ Other files:
 The tests folder has a number of small C/C++ programs that can be compiled using mariscv.bat. The .elf files produced
 can be run by rvos. If the app will use more 1 meg of RAM for the heap, uses rvos' /h argument to specify how much
 RAM to allocate. The anagram generater an can use up to 30MB in some cases.
+
+To run rvos in the rvos emulator, on Linux or Windows issue a command like:
+
+    rvos /h:60 rvos.elf /h:40 an phoebe bridgers
+    
+That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
+tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes.
 
 RVOS has a few simple checks for memory references outside of bounds. When detected it shows some stat and exits.
 For example:
