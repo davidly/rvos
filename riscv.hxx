@@ -4,32 +4,32 @@
 
 #ifdef _MSC_VER
 
-//#define __inline_perf __declspec(noinline)
-#define __inline_perf __forceinline
+    //#define __inline_perf __declspec(noinline)
+    #define __inline_perf __forceinline
 
-#else
+#else // MacOS + Linux
 
-#define __inline_perf
+    #define __inline_perf
+    
+    template <class T> T __max( T a, T b )
+    {
+        if ( a > b )
+            return a;
+        return b;
+    }
+    
+    template <class T> T __min( T a, T b )
+    {
+        if ( a < b )
+            return a;
+        return b;
+    }
+    
+    template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
+    
+    #define _stricmp strcasecmp
 
-template <class T> T __max( T a, T b )
-{
-    if ( a > b )
-        return a;
-    return b;
-}
-
-template <class T> T __min( T a, T b )
-{
-    if ( a < b )
-        return a;
-    return b;
-}
-
-template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
-
-#define _stricmp strcasecmp
-
-#endif
+#endif // _MSC_VER
 
 // callbacks when instructions are executed
 

@@ -1154,7 +1154,7 @@ int main( int argc, char * argv[] )
             long long totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
 
             printf( "elapsed milliseconds:  " ); PrintNumberWithCommas( totalTime); printf( "\n" );
-            printf( "app exit code:    %16d\n", g_exit_code );
+            printf( "app exit code: %d\n", g_exit_code );
         }
     }
 

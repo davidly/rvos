@@ -26,7 +26,11 @@
 #include <vector>
 
 #ifdef _MSC_VER
-#include <intrin.h>
+    #include <intrin.h>
+    
+    #ifdef _M_ARM64
+        #include <windows.h> // needed for 128-bit multiply on arm64
+    #endif
 #endif
 
 #include <djltrace.hxx>
@@ -1372,7 +1376,13 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 {
                     #ifdef _MSC_VER
                         int64_t high;
-                        _mul128( regs[ rs1 ], regs[ rs2 ], &high );
+
+                        #ifdef _M_ARM64
+                            Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #else
+                            _mul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #endif
+
                         regs[ rd ] = high;
                     #else
                         __int128 result = (__int128) regs[ rs1 ] * (__int128) regs[ rs2 ];
@@ -1387,7 +1397,13 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         bool negative = ( reg1 < 0 );
                         uint64_t ureg1 = negative ? -reg1 : reg1;
                         uint64_t high;
-                        _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+
+                        #ifdef _M_ARM64
+                            UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #else
+                            _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #endif
+
                         int64_t result = (int64_t) high;
                         if ( negative )
                             result = -result;
@@ -1402,7 +1418,13 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 {
                     #ifdef _MSC_VER
                         uint64_t high;
-                        _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+
+                        #ifdef _M_ARM64
+                            UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #else
+                            _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                        #endif
+
                         regs[ rd ] = high;
                     #else
                         unsigned __int128 result = (unsigned __int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
