@@ -1226,7 +1226,13 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == i_top2 ) // srli rd, rs1, i_shamt
                     regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
                 else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
-                    regs[ rd ] = ( ( (int64_t) regs[ rs1 ] ) >> i_shamt6 );
+                {
+                    // g++ for RISC-V doesn't sign extend on right shifts for signed integers. It does for amd64 code gen
+                    // work around this.
+
+                    uint64_t result = regs[ rs1 ] >> i_shamt6;
+                    regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
+                }
                 else
                     unhandled();
             }
@@ -1432,7 +1438,11 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == funct3 )
                     regs[ rd ] = regs[ rs1 ] - regs[ rs2 ]; // sub rd, rs1, rs2
                 else if ( 5 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] >> ( 0x3f & regs[ rs2 ] ) ); // sra rd, rs1, rs2
+                {
+                    uint64_t shift = ( 0x3f & regs[ rs2 ] );
+                    uint64_t result = regs[ rs1 ] >> shift;
+                    regs[ rd ] = sign_extend( result, 64 - shift ); // sra rd, rs1, rs2
+                }
                 else
                     unhandled();
             }
@@ -1514,7 +1524,12 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 0 == funct3 )
                     regs[ rd ] = (int64_t) ( (int32_t) ( 0xffffffff & regs[ rs1 ] ) - (int32_t) ( 0xffffffff & regs[ rs2 ] ) ); // subw rd, rs1, rs2
                 else if ( 5 == funct3 )
-                    regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) >> ( 0xffffffff & regs[ rs2 ] ); // sraw rd, rs1, rs2
+                {
+                    uint64_t shift = ( 0x1f & regs[ rs2 ] );
+                    uint64_t result = ( 0xffffffff & regs[ rs1 ] ) >> shift;
+                    result = sign_extend( result, 32 - shift );
+                    regs[ rd ] = result; // sraw rd, rs1, rs2
+                }
                 else
                     unhandled();
             }

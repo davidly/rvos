@@ -46,7 +46,7 @@ void first_implementation()
 {
     // use 128 bit ints for testing but also because the loop can go futher without integer overflow
 
-    const unsigned __int128 total = 1000000;
+    const unsigned __int128 total = 10000; //00;
     double sofar = 0;
     unsigned __int128 prev = 1;
 
@@ -70,7 +70,7 @@ int main()
 
     printf( "next implementation...\n" );
 
-    const int totalEntries = 1000000;
+    const int totalEntries = 10000; //00;
     int totalCoprimes = 0;
 
     int prev = 1;
