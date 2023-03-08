@@ -785,18 +785,30 @@ void RiscV::trace_state( uint64_t pcnext )
 
                 switch( funct3 )
                 {
-                    case 0: tracer.Trace( "addiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm  ); break;
+                    case 0:
+                    {
+                        uint32_t x = ( 0xffffffff & regs[ rs1 ] ) + i_imm;
+                        uint64_t ext = sign_extend( x, 32 );
+                        tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
+                        break;
+                    }
                     case 1:
                     {
                         if ( 0 == i_top2 )
-                            tracer.Trace( "slliw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 );
+                        {
+                            uint32_t val = (uint32_t) regs[ rs1 ];
+                            uint32_t result = val << i_shamt5;
+                            uint32_t result64 = sign_extend( result, 32 );
+                            tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
+                        }
                         break;
                     }
                     case 5:
                     {
                         switch( i_top2 )
                         {
-                            case 0: tracer.Trace( "srliw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  ); break;
+                            case 0: tracer.Trace( "srliw   %s, %s, %lld  # %x >> %d = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
+                                                  ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 )  ); break;
                             case 1: tracer.Trace( "sraiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  ); break;
                         }
                         break;
@@ -948,16 +960,31 @@ void RiscV::trace_state( uint64_t pcnext )
                 if ( 0 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "addw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                    {
+                        int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
+                        uint64_t result = sign_extend( (uint32_t) val, 32 );
+                        tracer.Trace( "addw    %s, %s, %s  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                                      regs[ rs1 ], regs[ rs2 ], result );
+                    }
                     else if ( 1 == funct3 )
-                        tracer.Trace( "sllw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                    {
+                        uint32_t val = (uint32_t) regs[ rs1 ];
+                        uint32_t amount = 0x1f & regs[ rs2 ];
+                        uint32_t result = val << amount;
+                        uint64_t result64 = sign_extend( result, 32 );
+                        tracer.Trace( "sllw    %s, %s, %s  # %x << %d = %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), val, amount, result64 );
+                    }
                     else if ( 5 == funct3 )
                         tracer.Trace( "srlw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
                 else if ( 1 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "mulw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                    {
+                        uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
+                        uint64_t ext = sign_extend( x, 32 );
+                        tracer.Trace( "mulw    %s, %s, %s  # %d * %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ], ext );
+                    }
                     else if ( 4 == funct3 )
                         tracer.Trace( "divw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 5 == funct3 )
@@ -1056,7 +1083,9 @@ void RiscV::trace_state( uint64_t pcnext )
                 }
                 else if ( 0x50 == funct7 )
                 {
-                    if ( 1 == funct3 )
+                    if ( 0 == funct3 )
+                        tracer.Trace( "fle.s %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than or equal
+                    else if ( 1 == funct3 )
                         tracer.Trace( "flt.s %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than
                     else if ( 2 == funct3 )
                         tracer.Trace( "feq.s %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
@@ -1240,18 +1269,28 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             {
                 // 5, not 6 per https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
                 if ( 0 == i_top2 )
-                    regs[ rd ] = ( regs[ rs1 ] << i_shamt5 );  // slliw rd, rs1, i_shamt5
+                {
+                    uint32_t val = (uint32_t) regs[ rs1 ];
+                    uint32_t result = val << i_shamt5;
+                    uint32_t result64 = sign_extend( result, 32 );
+                    regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
+                }
                 else
                     unhandled();
             }
             else if ( 5 == funct3 )
             {
                 if ( 0 == i_top2 )
-                    regs[ rd ] = ( ( 0xffffffff  & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
+                    regs[ rd ] = ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
                 else if ( 1 == i_top2 )
                 {
+                    // the g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
+                    // msvc and the g++ compiler that targets AMD64 both do sign-extend right shifts on signed numbers
+                    // work around this by manually sign extending the result.
+
                     uint32_t t = regs[ rs1 ] & 0xffffffff;
-                    regs[ rd ] = ( ( (int32_t) t ) >> i_shamt5 ); // sraiw rd, rs1, i_imm
+                    uint64_t result = sign_extend( t >> i_shamt5, 32 - i_shamt5 );
+                    regs[ rd ] = result; // sraiw rd, rs1, i_imm
                 }
                 else
                     unhandled();
@@ -1421,9 +1460,19 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             if ( 0 == funct7 )
             {
                 if ( 0 == funct3 )
-                    regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] ); // addw rd, rs1, rs2
+                {
+                    int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
+                    uint64_t result = sign_extend( (uint32_t) val, 32 );
+                    regs[ rd ] = result; // addw rd, rs1, rs2
+                }
                 else if ( 1 == funct3 )
-                    regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) << ( 0xffffffff & regs[ rs2 ] ); // sllw rd, rs1, rs2
+                {
+                    uint32_t val = (uint32_t) regs[ rs1 ];
+                    uint32_t amount = 0x1f & regs[ rs2 ];
+                    uint32_t result = val << amount;
+                    uint64_t result64 = sign_extend( result, 32 );
+                    regs[ rd ] = result64; // sllw rd, rs1, rs2
+                }
                 else if ( 5 == funct3 )
                     regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) >> ( 0x1f & regs[ rs2 ] ); // srlw rd, rs1, rs2
                 else
@@ -1432,7 +1481,11 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             else if ( 1 == funct7 )
             {
                 if ( 0 == funct3 )
-                    regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] ); // mulw rd, rs1, rs2
+                {
+                    uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
+                    uint64_t ext = sign_extend( x, 32 );
+                    regs[ rd ] = ext; // mulw rd, rs1, rs2
+                }
                 else if ( 4 == funct3 )
                 {
                     if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
@@ -1563,7 +1616,9 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             }
             else if ( 0x50 == funct7 )
             {
-                if ( 1 == funct3 )
+                if ( 0 == funct3 )
+                    regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
+                else if ( 1 == funct3 )
                     regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
                 else if ( 2 == funct3 )
                     regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
