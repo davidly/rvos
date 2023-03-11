@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <rvos.h>
-
 void swap( char & a, char & b )
 {
     char c = a;

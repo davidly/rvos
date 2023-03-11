@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <rvos.h>
-
 template <class T> T __max( T a, T b )
 {
     if ( a > b )

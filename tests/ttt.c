@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <vector>
 
-#include <rvos.h>
-
 #define ABPrune true
 #define WinLosePrune true
 #define SCORE_WIN 6

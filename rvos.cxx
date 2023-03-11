@@ -730,9 +730,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int descriptor = cpu.regs[ RiscV::a0 ];
 
 #ifdef _MSC_VER
-
             // ignore the folder argument on Windows
-
             struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             cpu.regs[ RiscV::a0 ] = 0;
             fill_pstat_windows( descriptor, pstat );
@@ -1505,8 +1503,7 @@ int main( int argc, char * argv[] )
                 if ( ':' != parg[2] )
                     usage( "the -h argument requires a value" );
 
-                uint64_t heap = strtoull( parg+ 3 , 0, 10 );
-                //uint64_t heap = _strtoui64( parg+ 3 , 0, 10 );
+                uint64_t heap = strtoull( parg + 3 , 0, 10 );
                 if ( heap > 1024 ) // limit to a gig
                     usage( "invalid heap size specified" );
 
