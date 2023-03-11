@@ -16,13 +16,18 @@ Notes:
     Only physical memory is supported.
     Only a subset of instructions are implemented (enough to to run my test apps).
     Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
-    Float instructions are implemented; double are not.
+    Float and double instructions are implemented.
+    Atomic instructions are implemented assuming there is just one core.
     I tested with a variety of C and C++ apps compiled with g++. 
-    Some of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf.
+    Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf.
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
-    It's slightly faster than the 400Mhz K210 physical processor when emulated on my AMD 5950x machine.
-    The tests folder has test apps written in C.
-    rvos can run rvos on both Windows and Linux; the emulator is good enough to emulate itself.
+    The emulator is faster than the 400Mhz K210 physical processor when emulated on an AMD 5950x.
+    The tests folder has test apps written in C. These build with both old and new g++ for RISC-V.
+    rvos can run rvos on both Windows and Linux; the emulator can emulate itself (slowly).
+    Linux system call emulation isn't great. It's just good enough to test RISC-V emulation.
+
+Both the really old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
+https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported.
 
 ttt_riscv.s is a sample app. This requires rvos_shell.s, which has _start and a function to print text to the console
 that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
@@ -61,7 +66,7 @@ That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN an
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes.
 
 RVOS has a few simple checks for memory references outside of bounds. When detected it shows some state and exits.
-For example:
+Real RISC-V memory protection instructions are not implemented. For example:
 
     rvos fatal error: memory reference prior to address space: 200
     pc: 80000002 main
