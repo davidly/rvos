@@ -850,10 +850,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             clockid_t cid = (clockid_t) cpu.regs[ RiscV::a0 ];
 
             #ifdef __APPLE__ // Linux vs MacOS
-                if ( 5 == cid )
+                if ( 1 == cid )
+                    cid = CLOCK_REALTIME;
+                else if ( 5 == cid )
                     cid = CLOCK_REALTIME;
             #endif
-            
+
             int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
