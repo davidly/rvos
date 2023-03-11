@@ -22,17 +22,16 @@ using namespace std;
 
 #ifdef _MSC_VER
 
-#ifndef _WINDOWS_
-extern "C" uint32_t GetCurrentThreadId(void);
-#endif
-
-#define do_gettid() GetCurrentThreadId()
+    #ifndef _WINDOWS_
+    extern "C" uint32_t GetCurrentThreadId(void);
+    #endif
+    
+    #define do_gettid() GetCurrentThreadId()
 
 #else
 
-#include <sys/unistd.h>
-
-#define do_gettid() 0
+    #include <unistd.h>
+    #define do_gettid() 0
 
 #endif
 
