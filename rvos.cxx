@@ -684,6 +684,10 @@ void riscv_invoke_ecall( RiscV & cpu )
             // a0: asciiz string of file to open. a1: flags. a2: mode
 
             int directory = (int) cpu.regs[ RiscV::a0 ];
+#ifdef __APPLE__
+            if ( -100 == directory )
+                directory = -2; // Linux vs. MacOS
+#endif
             const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             int flags = cpu.regs[ RiscV::a2 ];
             int mode = cpu.regs[ RiscV::a3 ];
