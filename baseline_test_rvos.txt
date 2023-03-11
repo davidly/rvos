@@ -165,7 +165,7 @@ address space 10000 to 196570
     t3: ffffffffffffffff,   t4:            6df68,   t5:            69386,   t6:            10000, 
   starting...
 64930 moves
-1107.454956 milliseconds
+41.761002 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -174,19 +174,19 @@ now printing fr as a double:
 result of 20.2 * -1.342 as a double: -27.108400
 stop
 parsing input file linux\tp.bas
-start time: 00:59:48
-1,695 ms for 1 iterations
-end time: 00:59:49
+start time: 16:29:03
+407 ms for 1 iterations
+end time: 16:29:04
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 10, hour 16, min 59, sec 49
+year: 2023, month 3, day 11, hour 8, min 29, sec 4
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
 double from printf r: -3.776373
 sin of 30 degress is 0.500000
-cos of 30 degrees is 0.866187
-tan of 30 degrees is -0.096225
+cos of 30 degrees is 0.866025
+tan of 30 degrees is 0.577350
 mantissa: 0.785398, exponent 2
 stop
 sorting linux\words.txt ==> linux\sorted.txt

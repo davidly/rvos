@@ -178,7 +178,7 @@ uint8_t riscv_types[ 32 ] =
     RType,   //  e
     IllType, //  f
     RType,   // 10
-    IllType, // 11
+    RType,   // 11
     RType,   // 12
     IllType, // 13
     RType,   // 14
@@ -1094,7 +1094,7 @@ void RiscV::trace_state( uint64_t pcnext )
                     }
                 }
             }
-            else if ( 0x12 == opcode_type )
+            else if ( 0x11 == opcode_type || 0x12 == opcode_type ) // 11 and 12 seem the same
             {
                 uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
                 uint32_t fmt = ( funct7 & 0x3 );
@@ -1104,7 +1104,7 @@ void RiscV::trace_state( uint64_t pcnext )
                     if ( 7 == funct3 )
                     {
                         double result = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) - fregs[ rs3 ].d;
-                        tracer.Trace( "fmsub.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                        tracer.Trace( "fmsub.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                       result, fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d );                        
                     }
                 }
@@ -1271,6 +1271,8 @@ void RiscV::trace_state( uint64_t pcnext )
                 {
                     if ( 0 == funct3 )
                         tracer.Trace( "fcvt.d.w %s, %s  # %ld = %.2f\n", freg_name( rd ), reg_name( rs1 ), (int32_t) regs[ rs1 ], (double) (int32_t) regs[ rs1 ] );
+                    else if ( 7 == funct3 )
+                        tracer.Trace( "fcvt.d.l %s, %s  # %lld = %.2f\n", freg_name( rd ), reg_name( rs1 ), (int64_t) regs[ rs1 ], (double) (int64_t) regs[ rs1 ] );
                 }
                 else if ( 0x70 == funct7 )
                 {
@@ -1869,6 +1871,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
+        case 0x11: // 11 and 12 seem identical
         case 0x12:
         {
             assert_type( RType );
@@ -2093,10 +2096,9 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             else if ( 0x69 == funct7 )
             {
                 if ( 0 == funct3 ) // fcvt.d.w rd, rs1   -- converts i32 to double
-                {
-                    int32_t value = (int32_t) regs[ rs1 ];
-                    fregs[ rd ].d = (double) value;
-                }
+                    fregs[ rd ].d = (double) (int32_t) regs[ rs1 ];
+                else if ( 7 == funct3 ) // fcvt.d.l rd, rs1   -- converts i64 to double
+                    fregs[ rd ].d = (double) (int64_t) regs[ rs1 ];
                 else
                     unhandled();
             }

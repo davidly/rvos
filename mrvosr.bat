@@ -18,7 +18,7 @@ set RVCFLAG=c
 
 riscv64-unknown-elf-g++ ^
   rvos.cxx riscv.cxx ^
-  -I . -I ..\djl -D DEBUG -D OLDGCC ^
+  -I . -I ..\djl -D NDEBUG -D OLDGCC ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax -T "rvos.ld" ^

@@ -1186,7 +1186,9 @@ bool load_image( const char * pimage, const char * app_args )
         if ( 0 != head.file_size && 0 != head.physical_address )
         {
             fseek( fp, (long) head.offset_in_image, SEEK_SET );
-            fread( memory.data() + head.physical_address - g_base_address, 1, head.file_size, fp );
+            read = fread( memory.data() + head.physical_address - g_base_address, 1, head.file_size, fp );
+            if ( 0 == fread )
+                usage( "can't read image" );
         }
     }
 
