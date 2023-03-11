@@ -21,14 +21,15 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     * The emulator is faster than the 400Mhz K210 physical processor when emulated on an AMD 5950x.
     * The tests folder has test apps written in C. These build with both old and new g++ for RISC-V.
-    * rvos can run rvos on both Windows and Linux; the emulator can emulate itself nested arbitrarily deeply (slowly).
+    * rvos can run rvos on Windows, MacOS, and Linux; the emulator can emulate itself nested arbitrarily deeply (slowly).
     * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
 
 Both the  old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
 https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported. 
-They each use different C runtimes and call into Linux syscalls differently.
+They each use different C runtimes and call into Linux syscalls differently. RVOS built with
+riscv-gnu-toolchain for RISC-V can run itself nested and rvos built with the older toolchain.
 
 ttt_riscv.s is a sample app. This requires rvos_shell.s, which has _start and a function to print text to the console
 that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
