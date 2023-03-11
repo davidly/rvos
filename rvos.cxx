@@ -847,7 +847,14 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_clock_gettime:
         {
-            int result = clock_gettime( (clockid_t) cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            clockid_t cid = (clockid_t) cpu.regs[ RiscV::a0 ];
+
+            #ifdef __APPLE__ // Linux vs MacOS
+                if ( 5 == cid )
+                    cid = CLOCK_REALTIME;
+            #endif
+            
+            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
             cpu.regs[ RiscV::a0 ] = result;
