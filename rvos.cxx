@@ -1,7 +1,9 @@
 /*
     This emulates an extemely simple RISC-V OS.
-    It can load and execute 64-bit RISC-V apps build with Gnu tools in .elf files.
-    The OS supports 2 ABI: exit and print string
+    Per file:///C:/Users/david/Downloads/riscv-privileged-20211203.pdf:
+    It's an AEE (Application Execution Environment) that exposes an ABI (Application Binary Inferface) for an Application.
+    It runs in RISC-V M mode, similar to embedded systems.
+    It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files.
     Written by David Lee in February 2023
 */
 
@@ -17,9 +19,21 @@
 #include <chrono>
 
 #ifdef _MSC_VER
-#include <io.h>
+    #include <windows.h>
+    #include <io.h>
+    #include <direct.h>
+
+    struct iovec
+    {
+       void * iov_base; /* Starting address */
+       size_t iov_len; /* Length in bytes */
+    };
 #else
-#include <unistd.h>
+    #include <unistd.h>
+    #ifndef OLDGCC
+        #include <sys/uio.h>
+        #include <sys/sysinfo.h>
+    #endif
 #endif
 
 #include <djltrace.hxx>
@@ -33,7 +47,7 @@ using namespace std::chrono;
 CDJLTrace tracer;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
-const uint64_t g_stack_commit = 64 * 1024;     // RAM to allocate for the fixed stack
+const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
 uint64_t g_brk_commit = 1024 * 1024;           // RAM to reserve if the app calls brk to allocate space
 bool g_terminate = false;                      // the app asked to shut down
 int g_exit_code = 0;                           // exit code of the app in the vm
@@ -46,9 +60,21 @@ uint64_t g_arg_data = 0;                       // where command-line arguments g
 uint64_t g_argc = 0;                           // # of arguments to the app
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
+uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 int * g_perrno = 0;                            // if it exists, it's a pointer to errno for the vm
 
 #pragma pack( push, 1 )
+
+struct AuxProcessStart
+{
+    uint64_t a_type; // AT_xxx ID from elf.h
+    union
+    {
+        uint64_t a_val;
+        void * a_ptr;
+        void ( *a_fcn)();
+    } a_un;
+};
 
 struct ElfHeader64
 {
@@ -143,6 +169,20 @@ struct ElfProgramHeader64
             return "unused";
         if ( 1 == type )
             return "load";
+        if ( 2 == type )
+            return "dynamic";
+        if ( 3 == type )
+            return "interp";
+        if ( 4 == type )
+            return "note";
+        if ( 5 == type )
+            return "shlib";
+        if ( 6 == type )
+            return "phdr";
+        if ( 7 == type )
+            return "tls";
+        if ( 8 == type )
+            return "num";
         return "unknown";
     }
 };
@@ -248,22 +288,151 @@ uint64_t rand64()
     return r;
 } //rand64
 
+#ifdef _MSC_VER
+
+void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
+{
+    if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
+    {
+        pstat->st_mode = S_IFCHR;
+        pstat->st_ino = 3;
+        pstat->st_mode = 0x2190;
+        pstat->st_nlink = 1;
+        pstat->st_uid = 1000;
+        pstat->st_gid = 5;
+        pstat->st_rdev = 1024; // this is st_blksize on linux
+        pstat->st_size = 0;
+        //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+    }
+    else
+    {
+        pstat->st_mode = S_IFREG;
+        pstat->st_ino = 3;
+        pstat->st_mode = 0x2190;
+        pstat->st_nlink = 1;
+        pstat->st_uid = 1000;
+        pstat->st_gid = 5;
+        pstat->st_rdev = 4096; // this is st_blksize on linux
+        pstat->st_size = 0;
+        //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+    }
+} //fill_pstat_windows
+
+int clock_gettime( int unused, struct timespec *tv ) // stolen from stackoverflow
+{
+    static int initialized = 0;
+    static LARGE_INTEGER freq, startCount;
+    static struct timespec tv_start;
+
+    if ( !initialized )
+    {
+        QueryPerformanceFrequency( &freq );
+        QueryPerformanceCounter( &startCount );
+        timespec_get( &tv_start, TIME_UTC );
+        initialized = 1;
+    }
+
+    LARGE_INTEGER curCount;
+    QueryPerformanceCounter( &curCount );
+    curCount.QuadPart -= startCount.QuadPart;
+    time_t sec_part = curCount.QuadPart / freq.QuadPart;
+    long nsec_part = (long) ( ( curCount.QuadPart - ( sec_part * freq.QuadPart ) ) * 1000000000UL / freq.QuadPart );
+
+    tv->tv_sec = tv_start.tv_sec + sec_part;
+    tv->tv_nsec = tv_start.tv_nsec + nsec_part;
+    if ( tv->tv_nsec >= 1000000000UL )
+    {
+        tv->tv_sec += 1;
+        tv->tv_nsec -= 1000000000UL;
+    }
+    return 0;
+} //clock_gettime
+
+#endif
+
+struct SysCall
+{
+    const char * name;
+    uint64_t id;
+};
+
+const SysCall syscalls[] =
+{
+    { "SYS_mkdirat", SYS_mkdirat },
+    { "SYS_unlinkat", SYS_unlinkat },
+    { "SYS_chdir", SYS_chdir },
+    { "SYS_openat", SYS_openat },
+    { "SYS_close", SYS_close },
+    { "SYS_lseek", SYS_lseek },
+    { "SYS_read", SYS_read },
+    { "SYS_write", SYS_write },
+    { "SYS_writev", SYS_writev },
+    { "SYS_readlinkat", SYS_readlinkat },
+    { "SYS_newfstat", SYS_newfstat },
+    { "SYS_fstat", SYS_fstat },
+    { "SYS_fdatasync", SYS_fdatasync },
+    { "SYS_exit", SYS_exit },
+    { "SYS_exit_group", SYS_exit_group },
+    { "SYS_set_tid_address", SYS_set_tid_address },
+    { "SYS_futex", SYS_futex },
+    { "SYS_set_robust_list", SYS_set_robust_list },
+    { "SYS_clock_gettime", SYS_clock_gettime },
+    { "SYS_tgkill", SYS_tgkill },
+    { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
+    { "SYS_gettimeofday", SYS_gettimeofday },
+    { "SYS_getpid", SYS_getpid },
+    { "SYS_gettid", SYS_gettid },
+    { "SYS_sysinfo", SYS_sysinfo },
+    { "SYS_brk", SYS_brk },
+    { "SYS_mmap", SYS_mmap },
+    { "SYS_mprotect", SYS_mprotect },
+    { "SYS_prlimit64", SYS_prlimit64 },
+    { "SYS_getrandom", SYS_getrandom },
+};
+
+const char * lookup_syscall( uint64_t x )
+{
+    for ( size_t i = 0; i < _countof( syscalls ); i++ )
+        if ( x == syscalls[ i ].id )
+            return syscalls[ i ].name;
+
+    return "unknown";
+} //lookup_syscall
+
 // this is called when the risc-v app has an ecall instruction
+// https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
-    tracer.Trace( "invoke_ecall a7 %llx, a0 %llx, a1 %llx, a2 %llx, a3 %llx\n", cpu.regs[ RiscV::a7 ],
-                  cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ] );
+    if ( tracer.IsEnabled() )
+        tracer.Trace( "invoke_ecall %s a7 %llx = %lld, a0 %llx, a1 %llx, a2 %llx, a3 %llx\n", 
+                      lookup_syscall( cpu.regs[ RiscV::a7] ), cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ],
+                      cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ] );
 
     switch ( cpu.regs[ RiscV::a7 ] )
     {
         case rvos_sys_exit: // exit
         case SYS_exit:
+        case SYS_exit_group:
+        case SYS_tgkill:
         {
             tracer.Trace( "  rvos command 1: exit app\n" );
             g_terminate = true;
             cpu.end_emulation();
             g_exit_code = (int) cpu.regs[ RiscV::a0 ];
+            break;
+        }
+        case SYS_sysinfo:
+        {
+#if defined(_MSC_VER)
+            cpu.regs[ RiscV::a0 ] = -1;
+#elif defined(OLDGCC)
+#else
+            int ret = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            if ( -1 == ret && 0 != g_perrno )
+                *g_perrno = ret;
+            cpu.regs[ RiscV::a0 ] = ret;
+#endif
             break;
         }
         case rvos_sys_print_text: // print asciiz in a0
@@ -281,31 +450,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             cpu.regs[ RiscV::a0 ] = 0;
-
-            if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
-            {
-                pstat->st_mode = S_IFCHR;
-                pstat->st_ino = 3;
-                pstat->st_mode = 0x2190;
-                pstat->st_nlink = 1;
-                pstat->st_uid = 1000;
-                pstat->st_gid = 5;
-                pstat->st_rdev = 1024; // this is st_blksize on linux
-                pstat->st_size = 0;
-                //pstat->st_blocks = 0; // this field doesn't exist in Windows.
-            }
-            else
-            {
-                pstat->st_mode = S_IFREG;
-                pstat->st_ino = 3;
-                pstat->st_mode = 0x2190;
-                pstat->st_nlink = 1;
-                pstat->st_uid = 1000;
-                pstat->st_gid = 5;
-                pstat->st_rdev = 4096; // this is st_blksize on linux
-                pstat->st_size = 0;
-                //pstat->st_blocks = 0; // this field doesn't exist in Windows.
-            }
+            fill_pstat_windows( descriptor, pstat );
 
 #else
 
@@ -336,7 +481,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             int origin = cpu.regs[ RiscV::a2 ];
 
             long result = lseek( descriptor, offset, origin );
-
             tracer.Trace( "  lseek result: %ld\n", result );
 
             if ( ( -1 == result ) && g_perrno )
@@ -390,6 +534,62 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             break;
         }
+#if !defined(OLDGCC)
+        case SYS_openat:
+        {
+            tracer.Trace( "  rvos command SYS_openat\n" );
+            // a0: asciiz string of file to open. a1: flags. a2: mode
+
+            int directory = (int) cpu.regs[ RiscV::a0 ];
+            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int flags = cpu.regs[ RiscV::a2 ];
+            int mode = cpu.regs[ RiscV::a3 ];
+
+            tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
+
+#ifdef _MSC_VER
+            // Microsoft C uses different constants for flags than linux:
+            // O_CREAT == 0x100 msft, 0x200 linux
+            // O_TRUNC == 0x200 msft, 0x400 linux
+
+            if ( flags & 0x200 )
+            {
+                flags |= 0x100;
+                flags &= ~ 0x200;
+            }
+            if ( flags & 0x400 )
+            {
+                flags |= 0x200;
+                flags &= ~ 0x400;
+            }
+
+            flags |= O_BINARY; // this is assumed on Linux systems
+
+            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+
+            // bugbug: directory ignored and assumed to be local
+            int descriptor = open( pname, flags, mode );
+#else
+            int descriptor = openat( directory, pname, flags, mode );
+#endif
+
+            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
+
+            if ( -1 == descriptor )
+            {
+                if ( g_perrno )
+                    *g_perrno = errno;
+                cpu.regs[ RiscV::a0 ] = ~0;
+            }
+            else
+            {
+                if ( g_perrno )
+                    *g_perrno = 0;
+                cpu.regs[ RiscV::a0 ] = descriptor;
+            }
+            break;
+        }
+#endif
         case SYS_open:
         {
             tracer.Trace( "  rvos command SYS_open\n" );
@@ -424,7 +624,6 @@ void riscv_invoke_ecall( RiscV & cpu )
 #endif
 
             int descriptor = open( pname, flags, mode );
-
             tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
 
             if ( -1 == descriptor )
@@ -444,7 +643,6 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_close:
         {
             tracer.Trace( "  rvos command SYS_close\n" );
-
             uint64_t descriptor = cpu.regs[ RiscV::a0 ];
 
             if ( descriptor >=0 && descriptor <= 3 )
@@ -510,10 +708,177 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = cpu.trace_instructions( 0 != cpu.regs[ RiscV::a0 ] );
             break;
         }
+        case SYS_mmap:
+        {
+            tracer.Trace( "  SYS_mmap\n" );
+            cpu.regs[ RiscV::a0 ] = -1;
+            break;
+        }
+#if !defined(OLDGCC)
+        case SYS_newfstat:
+        {
+            const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            tracer.Trace( " rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
+            int descriptor = cpu.regs[ RiscV::a0 ];
+
+#ifdef _MSC_VER
+
+            // ignore the folder argument on Windows
+
+            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            cpu.regs[ RiscV::a0 ] = 0;
+            fill_pstat_windows( descriptor, pstat );
+
+#else
+            int ret = fstatat( descriptor, path, (struct stat *) cpu.getmem( cpu.regs[ RiscV::a2 ] ), cpu.regs[ RiscV::a3 ]  );
+            tracer.Trace( "  return code from fstatat: %d, errno %d\n", ret, errno );
+            if ( -1 == ret && 0 != g_perrno )
+                *g_perrno = ret;
+            cpu.regs[ RiscV::a0 ] = ret;
+#endif
+
+            break;
+        }
+        case SYS_chdir:
+        {
+            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  rvos command SYS_chdir path %s", path );
+#ifdef _MSC_VER
+            int result = _chdir( path );
+#else
+            int result = chdir( path );
+#endif
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;            
+            break;
+        }
+        case SYS_mkdirat:
+        {
+            int directory = (int) cpu.regs[ RiscV::a0 ];
+            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+#ifdef _MSC_VER // on windows ignore the directory argument
+            tracer.Trace( "  rvos command SYS_mkdirat path %s\n", path );
+            int result = _mkdir( path );
+#else
+            mode_t mode = (mode_t) cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  rvos command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
+
+            int result = mkdirat( directory, path, mode );
+#endif
+
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;            
+            break;
+        }
+        case SYS_unlinkat:
+        {
+            int directory = (int) cpu.regs[ RiscV::a0 ];
+            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int flags = (int) cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x", directory, path, flags );
+#ifdef _MSC_VER // on windows ignore the directory argument
+            int result = _unlink( path );
+#else
+            int result = unlinkat( directory, path, flags );
+#endif
+
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+        case SYS_futex: 
+        {
+            uint32_t * paddr = (uint32_t *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            int futex_op = (int) cpu.regs[ RiscV::a1 ] & (~128); // strip "private" flags
+            uint32_t value = (uint32_t) cpu.regs[ RiscV::a2 ];
+
+            //tracer.Trace( "  futex all paddr %p (%d), futex_op %d, val %d\n", paddr, ( 0 == paddr ) ? -666 : *paddr, futex_op, value );
+
+            // EAGAIN is 11
+
+            if ( 0 == futex_op ) // FUTEX_WAIT
+            {
+                if ( *paddr != value )
+                    cpu.regs[ RiscV::a0 ] = 11; // EAGAIN
+                else
+                    cpu.regs[ RiscV::a0 ] = 0;
+            }    
+            else if ( 1 == futex_op ) // FUTEX_WAKE
+                cpu.regs[ RiscV::a0 ] = 0;
+            else    
+                cpu.regs[ RiscV::a0 ] = -1; // fail this until/unless there is a real-world use
+            break;
+        }
+        case SYS_writev:
+        {
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            const struct iovec * pvec = (const struct iovec *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            if ( 1 == descriptor || 2 == descriptor )
+                tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (uint64_t) pvec->iov_base ) );
+
+#ifdef _MSC_VER
+            size_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), pvec->iov_len );
+#else
+            struct iovec vec_local;
+            vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
+            vec_local.iov_len = pvec->iov_len;
+            size_t result = writev( descriptor, &vec_local, cpu.regs[ RiscV::a2 ] );
+#endif
+
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+#endif
+        case SYS_fdatasync:
+        {
+            cpu.regs[ RiscV::a0 ] = -1;
+            break;
+        }
+        case SYS_rt_sigprocmask:
+        {
+            cpu.regs[ RiscV::a0 ] = -1;
+            break;
+        }
+        case SYS_getpid:
+        {
+            cpu.regs[ RiscV::a0 ] = getpid();
+            break;
+        }
+        case SYS_gettid:
+        {
+            cpu.regs[ RiscV::a0 ] = 1;
+            break;
+        }
+#if !defined(OLDGCC)
+        case SYS_clock_gettime:
+        {
+            int result = clock_gettime( cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+#endif
+        case SYS_set_tid_address:
+        case SYS_set_robust_list:
+        case SYS_prlimit64:
+        case SYS_readlinkat:
+        case SYS_getrandom:
+        case SYS_mprotect:
+        {
+            // ignore for now
+            break;
+        }
         default:
         {
-            printf( "error; ecall invoked with unknown command %lld, a0 %#llx, a1 %#llx, a2 %#llx\n",
-                    cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+            printf( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
+                    cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+            //cpu.regs[ RiscV::a0 ] = -1;
         }
     }
 } //riscv_invoke_ecall
@@ -610,6 +975,8 @@ int symbol_compare( const void * a, const void * b )
 
 bool load_image( const char * pimage, const char * app_args )
 {
+    tracer.Trace( "loading image %s\n", pimage );
+
     ElfHeader64 ehead = {0};
 
     FILE * fp = fopen( pimage, "rb" );
@@ -657,7 +1024,7 @@ bool load_image( const char * pimage, const char * app_args )
         if ( 1 != read )
             usage( "can't read program header" );
 
-        tracer.Trace( "  type: %u / %s\n", head.type, head.show_type() );
+        tracer.Trace( "  type: %x / %s\n", head.type, head.show_type() );
         tracer.Trace( "  offset in image: %llx\n", head.offset_in_image );
         tracer.Trace( "  virtual address: %llx\n", head.virtual_address );
         tracer.Trace( "  physical address: %llx\n", head.physical_address );
@@ -665,9 +1032,15 @@ bool load_image( const char * pimage, const char * app_args )
         tracer.Trace( "  memory size: %llx\n", head.mem_size );
         tracer.Trace( "  alignment: %llx\n", head.alignment );
 
+        if ( 2 == head.type )
+        {
+            printf( "dynamic linking is not supported by rvos. link with -static\n" );
+            exit( 1 );
+        }
+
         memory_size += head.mem_size;
 
-        if ( 0 == ph )
+        if ( ( 0 != head.physical_address ) && ( ( 0 == g_base_address ) || g_base_address > head.physical_address ) )
             g_base_address = head.physical_address;
     }
 
@@ -707,7 +1080,7 @@ bool load_image( const char * pimage, const char * app_args )
         if ( 0 == read )
             usage( "can't read section header" );
 
-        tracer.Trace( "  type: %u / %s\n", head.type, head.show_type() );
+        tracer.Trace( "  type: %x / %s\n", head.type, head.show_type() );
         tracer.Trace( "  flags: %llx / %s\n", head.flags, head.show_flags() );
         tracer.Trace( "  address: %llx\n", head.address );
         tracer.Trace( "  offset: %llx\n", head.offset );
@@ -810,7 +1183,7 @@ bool load_image( const char * pimage, const char * app_args )
         fseek( fp, (long) o, SEEK_SET );
         read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
 
-        if ( 0 != head.file_size )
+        if ( 0 != head.file_size && 0 != head.physical_address )
         {
             fseek( fp, (long) head.offset_in_image, SEEK_SET );
             fread( memory.data() + head.physical_address - g_base_address, 1, head.file_size, fp );
@@ -853,6 +1226,51 @@ bool load_image( const char * pimage, const char * app_args )
             pargs++;
     }
 
+    // put the Linux startup info at the top of the stack. this consists of:
+    //   two 8-byte random numbers used for stack and pointer guards
+    //   AT_NULL aux record
+    //   AT_RANDOM aux record
+    //   0 environment termination
+    //   0..n environment string pointers
+    //   0 argv termination
+    //   1..n argv string pointers
+    //   argc  <<<==== sp should point here when the entrypoint is invoked
+
+    uint64_t * pstack = (uint64_t *) ( memory.data() + memory_size );
+
+    pstack--;
+    *pstack = rand64();
+    pstack--;
+    *pstack = rand64();
+    uint64_t prandom = g_base_address + memory_size - 16;
+
+    // ensure that after all of this the stack is 16-byte aligned
+
+    if ( 0 == ( 1 & g_argc ) )
+        pstack--;
+
+    pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
+
+    pstack -= 2;
+    AuxProcessStart * paux = (AuxProcessStart *) pstack;    
+    paux->a_type = 25; // AT_RANDOM
+    paux->a_un.a_val = prandom;
+
+    pstack--; // no environment is supported yet
+    pstack--; // the last argv is 0 to indicate the end
+
+    for ( int iarg = g_argc - 1; iarg >= 0; iarg-- )
+    {
+        pstack--;
+        *pstack = parg_data[ iarg ];
+    }
+
+    pstack--;
+    *pstack = g_argc;
+
+    uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
+    g_top_of_stack = g_base_address + memory_size - diff;
+
     tracer.Trace( "vm memory start:                 %p\n", memory.data() );
     tracer.Trace( "g_perrno:                        %p\n", g_perrno );
     tracer.Trace( "risc-v compressed instructions:  %d\n", g_compressed_rvc );
@@ -864,7 +1282,8 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "g_brk_address:                   %llx\n", g_brk_address );
     tracer.Trace( "g_end_of_data:                   %llx\n", g_end_of_data );
     tracer.Trace( "g_bottom_of_stack:               %llx\n", g_bottom_of_stack );
-    tracer.Trace( "initial sp offset (memory_size): %llx\n", memory_size );
+    tracer.Trace( "g_top_of_stack:                  %llx\n", g_top_of_stack );
+    tracer.Trace( "space used by startup data:      %llx\n", diff );
     tracer.Trace( "execution_addess                 %llx\n", g_execution_address );
 
     return true;
@@ -923,7 +1342,7 @@ void elf_info( const char * pimage )
         if ( 0 == read )
             usage( "can't read program header" );
 
-        printf( "  type: %u / %s\n", head.type, head.show_type() );
+        printf( "  type: %x / %s\n", head.type, head.show_type() );
         printf( "  offset in image: %llx\n", head.offset_in_image );
         printf( "  virtual address: %llx\n", head.virtual_address );
         printf( "  physical address: %llx\n", head.physical_address );
@@ -975,7 +1394,7 @@ void elf_info( const char * pimage )
         if ( 0 == read )
             usage( "can't read section header" );
 
-        printf( "  type: %u / %s\n", head.type, head.show_type() );
+        printf( "  type: %x / %s\n", head.type, head.show_type() );
         printf( "  flags: %llx / %s\n", head.flags, head.show_flags() );
         printf( "  address: %llx\n", head.address );
         printf( "  offset: %llx\n", head.offset );
@@ -1133,19 +1552,16 @@ int main( int argc, char * argv[] )
     }
 
     bool ok = load_image( acApp, acAppArgs );
-
-    high_resolution_clock::time_point tStart = high_resolution_clock::now();
-
     if ( ok )
     {
-        RiscV cpu( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit,
-                   g_argc, (uint64_t) ( g_base_address + g_arg_data ) );
-        cpu.trace_instructions( traceInstructions );
+        unique_ptr<RiscV> cpu( new RiscV( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit, g_top_of_stack ) );
+        cpu->trace_instructions( traceInstructions );
         uint64_t cycles = 0;
+        high_resolution_clock::time_point tStart = high_resolution_clock::now();
 
         do
         {
-            cycles += cpu.run( 1000 );
+            cycles += cpu->run( 1000 );
         } while( !g_terminate );
 
         if ( showPerformance )
@@ -1154,7 +1570,7 @@ int main( int argc, char * argv[] )
             long long totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
 
             printf( "elapsed milliseconds:  " ); PrintNumberWithCommas( totalTime); printf( "\n" );
-            printf( "app exit code: %d\n", g_exit_code );
+            printf( "app exit code:         %d\n", g_exit_code );
         }
     }
 

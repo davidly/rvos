@@ -9,6 +9,10 @@
 #include <malloc.h>
 #include <vector>
 
+#ifndef _MSC_VER
+    #define _stricmp strcasecmp
+#endif
+
 using namespace std;
 
 static uint32_t s_ulColumn = 0;
@@ -278,23 +282,22 @@ int main(int argc,char *argv[])
   
     for ( int j = 1; j < argc; j++ )
     {
-        strlwr(argv[j]);
-
         if (argv[j][0] == '-' || argv[j][0] == '/')
         {
-            if (argv[j][1] == 'i')
+            char val = tolower( argv[j][1] );
+            if (val == 'i')
                 s_fIgnoreCase = true;
-            else if (argv[j][1] == 'r')
+            else if (val == 'r')
                 s_fReverse = true;
-            else if (argv[j][1] == 'u')
+            else if (val == 'u')
                 s_fUnique = true;
-            else if (argv[j][1] == 'n')
+            else if (val == 'n')
                 s_fNumeric = true;
-            else if (argv[j][1] == 'q')
+            else if (val == 'q')
                 use_quicksort = true;
-            else if (argv[j][1] == 'l')
+            else if (val == 'l')
                 s_fLineLen = true;
-            else if (argv[j][1] == 'c')
+            else if (val == 'c')
             {
                 j++;
                 if (j < argc)

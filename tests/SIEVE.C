@@ -67,7 +67,7 @@ char * ltoa( long num, char * str, int base )
 
 extern "C" int main()
         {
-        register int i,k;
+        int i,k;
         int prime,count,iter;
 
         for (iter = 1; iter <= 10; iter++) {    /* do program 10 times */

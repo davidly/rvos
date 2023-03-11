@@ -3,10 +3,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdint.h>
 
-#include <rvos.h>
-
-// doubles don't work. it may be my bug or a bug in the gnu's double emulation
+#if 0
 char *ftoa( char *buffer, double d, int precision )
 {
     rvos_print_text( "top of ftoa, d: \n" );
@@ -54,6 +53,7 @@ char *ftoa( char *buffer, double d, int precision )
 
     return buffer;
 } //ftoa
+#endif
 
 #pragma GCC optimize ("O0")
 extern "C" int main()
@@ -62,14 +62,16 @@ extern "C" int main()
 
     printf( "hello from printf\n" );
 
+#if false
     rvos_floattoa( ac, -1.234567, 8 );
     rvos_printf( "float converted by floattoa: %s\n", ac );
     rvos_floattoa( ac, 1.234567, 8 );
     rvos_printf( "float converted by floattoa: %s\n", ac );
     rvos_floattoa( ac, 34.567, 8 );
     rvos_printf( "float converted by floattoa: %s\n", ac );
+#endif    
 
-    rvos_printf( "float from printf: %f\n", 45.678 );
+    printf( "float from printf: %f\n", 45.678 );
 
     float f1 = 1.0;
     float f2 = 20.2;
@@ -78,21 +80,21 @@ extern "C" int main()
     float fd = 1000.0 / 3.0;
     float fs = sqrt( fd );
 
-    rvos_printf( "division result: %f, square root %f\n", fd, fs );
+    printf( "division result: %f, square root %f\n", fd, fs );
 
-    // The tool chain is broken and only supports hardware floats and software doubles.
-
+#if 0
     rvos_print_text( "calling floattoa\n" );
     rvos_floattoa( ac, fr, 6 );
     rvos_printf( "float converted with rvos_floattoa: %s\n", ac );
+#endif    
 
-    rvos_printf( "result of 20.2 * -1.342: %f\n", fr );
+    printf( "result of 20.2 * -1.342: %f\n", fr );
 
     double d = (double) fr;
-    rvos_print_text( "now printing fr as a double:\n" );
-    rvos_printf( "result of 20.2 * -1.342 as a double: %lf\n", d );
+    printf( "now printing fr as a double:\n" );
+    printf( "result of 20.2 * -1.342 as a double: %lf\n", d );
 
-    rvos_print_text( "stop\n" );
+    printf( "stop\n" );
     exit( 0 );
 } //main
 

@@ -1,3 +1,4 @@
+#define DEBUG
 // A very basic BASIC interpreter.
 // Also, compilers for x64 on Windows, arm64 on Apple Silicon and Windows, 8080 on cp/m 2.2,
 // Arm32 for Linux (tested on Raspberry PI 3B and 4), 6502 for the Apple 1, 8086 for DOS,

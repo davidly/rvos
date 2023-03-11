@@ -51,6 +51,18 @@ using namespace std::chrono;
         template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
     #endif
 
+    char * strlwr( char * str )
+    {
+        unsigned char *p = (unsigned char *) str;
+    
+        while ( *p )
+        {
+            *p = (unsigned char) tolower( *p );
+            p++;
+        }
+        return str;
+    }//strlwr
+
 #endif
 
 class CAnagramSet;

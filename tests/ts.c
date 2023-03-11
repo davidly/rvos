@@ -120,11 +120,12 @@ template <class T> void show_result( T x )
 #pragma GCC optimize ("O0")
 extern "C" int main()
 {
+    printf( "top of app\n" );
+
     uint8_t * pb = (uint8_t *) malloc( 500000 );
     memset( pb, 0, 500000 );
     free( pb );
 
-    printf( "top of app\n" );
     printf( "print an int %d\n", (int32_t) 27 );
     printf( "print an int64_t %lld\n", (int64_t) 27 );
 

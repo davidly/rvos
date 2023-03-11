@@ -65,21 +65,18 @@ struct RiscV
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
-    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit,
-           uint64_t a0_val, uint64_t a1_val )
+    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit, uint64_t top_of_stack )
     {
         memset( this, 0, sizeof( *this ) );
         pc = start;
         stack_size = stack_commit;                 // remember how much of the top of RAM is allocated to the stack
-        regs[ sp ] = base_address + memory.size(); // points to memory that can't be accessed initially
+        regs[ sp ] = top_of_stack;                 // points at argc with argv, penv, and aux records above it
         base = base_address;                       // lowest valid address in the app's address space
         mem = memory.data();                       // save the pointer, but don't take ownership
         mem_size = memory.size();
         beyond = mem + memory.size();              // addresses at beyond and later are illegal
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
         rvc = compressed_rvc;
-        regs[ a0 ] = a0_val;                       // pass argc
-        regs[ a1 ] = a1_val;                       // pass argv
     } //RiscV
 
     uint64_t run( uint64_t max_cycles );
@@ -139,12 +136,14 @@ struct RiscV
     uint16_t getui16( uint64_t o ) { return * (uint16_t *) getmem( o ); }
     uint8_t getui8( uint64_t o ) { return * (uint8_t *) getmem( o ); }
     float getfloat( uint64_t o ) { return * (float *) getmem( o ); }
+    double getdouble( uint64_t o ) { return * (double *) getmem( o ); }
 
     void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = val; }
     void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = val; }
     void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = val; }
     void setui8( uint64_t o, uint8_t val ) { * (uint8_t *) getmem( o ) = val; }
     void setfloat( uint64_t o, float val ) { * (float *) getmem( o ) = val; }
+    void setdouble( uint64_t o, double val ) { * (double *) getmem( o ) = val; }
 
   private:
 

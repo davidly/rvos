@@ -18,10 +18,10 @@ rem set RVCFLAG=c
 
 riscv64-unknown-elf-g++ ^
   rvos.cxx riscv.cxx ^
-  -I . -I ..\djl ^
+  -I . -I ..\djl -D DEBUG -D OLDGCC ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
-  -Wl,-EL -Wl,--no-relax -T "kendryte.ld" ^
+  -Wl,-EL -Wl,--no-relax -T "rvos.ld" ^
   "tests\rvosutil.o" "tests\rvos_shell.o" ^
   -o "rvos.elf" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 

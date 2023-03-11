@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <rvos.h>
-
 extern "C" int main()
 {
     char ac[100];

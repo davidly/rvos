@@ -1,8 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <rvos.h>
+#include <stdint.h>
 
 void swap( char & a, char & b )
 {
@@ -164,15 +163,7 @@ void validate_128mul()
 
 template <class T> void show_result( const char *text, T x )
 {
-#if true
-    rvos_printf( "%s result: %ld\n", text, x );
-#else
-    static char buf[ 128 ];
-    i64toa( x, buf, 10 );
-    rvos_print_text( "result: " );
-    rvos_print_text( buf );
-    rvos_print_text( "\n" );
-#endif
+    printf( "%s result: %ld\n", text, x );
 } //show_result
 
 extern "C" int main()
@@ -219,7 +210,7 @@ extern "C" int main()
     unsigned __int128 u128 = test( ui128min, ui128max );
     show_result( "uint128_t", (uint64_t) u128 );
 
-    rvos_printf( "end of the app\n" );
+    printf( "end of the app\n" );
     return 0;
 } //main
 

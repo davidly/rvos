@@ -1,6 +1,5 @@
 #include <stdio.h>
-
-#include "rvos.h"
+#include <stdint.h>
 
 int main() {
     const int HIGH_MARK = 500; // 2800;

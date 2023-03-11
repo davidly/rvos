@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys\time.h>
+#include <sys/time.h>
 #include <stdint.h>
 #include <vector>
 
@@ -336,6 +336,7 @@ extern "C" int main( int argc, char * argv[] )
 
     printf( "%ld moves\n", g_Moves );
     printf( "%f milliseconds\n", elap ); 
+    fflush( stdout );
 } //main
 
 

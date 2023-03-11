@@ -37,7 +37,8 @@ int gcd( int m, int n )
 
 int randi()
 {
-    return rvos_rand() & 0x7fffffff;
+    //return rvos_rand() & 0x7fffffff;
+    return rand();
 } //randi
 
 // https://en.wikipedia.org/wiki/Ap%C3%A9ry%27s_theorem

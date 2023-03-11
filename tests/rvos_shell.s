@@ -11,16 +11,14 @@
 _start:
         .cfi_startproc
 
-        # The g++ c runtime tries to get values on the stack above this point.
-        # I'm guessing it's to get redirected streams for input/output.
+        # arguments are up the stack just like Linux
 
-        addi    sp, sp, -256
-
-        # rvos sets a0 and a1 to argc and argv.
+        ld      a0, 0(sp)
+        addi    a1, sp, 8
 
         jal     main
 
-        li      a7, 0x2003 # rvos_sys_exit
+        li      a7, 93 # linux exit function for risc-v
         ecall
         .cfi_endproc
 .endif

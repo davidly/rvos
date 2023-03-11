@@ -1,5 +1,8 @@
-rvos tests\t >test_rvos.txt
+echo running t... > test_rvos.txt
+rvos tests\t >>test_rvos.txt
+echo runing ts... >> test_rvos.txt
 rvos tests\ts >>test_rvos.txt
+echo running sieve... >> test_rvos.txt
 rvos tests\sieve >>test_rvos.txt
 rvos tests\e >>test_rvos.txt
 rvos tests\tap >>test_rvos.txt

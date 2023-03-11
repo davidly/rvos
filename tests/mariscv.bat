@@ -25,7 +25,7 @@ riscv64-unknown-elf-g++ ^
   -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss -Os -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
-  -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "rvosutil.o" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
+  -Wl,-EL -Wl,--no-relax -o "rvosutil.o" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 
 rem generate a listing if needed
 rem riscv64-unknown-elf-g++ ^
@@ -33,15 +33,15 @@ rem   %1.c ^
 rem   -I .. ^
 rem   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
 rem   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
-rem   -Wl,-EL -Wl,--no-relax -T "kendryte.ld" -o "%1.lst" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group -S
+rem   -Wl,-EL -Wl,--no-relax -o "%1.lst" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group -S
 
 riscv64-unknown-elf-g++ ^
   %1.c ^
   -I .. ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
-  -Wl,-EL -Wl,--no-relax -T "kendryte.ld" ^
-  "rvosutil.o" "rvos_shell.o" ^
+  -Wl,-EL -Wl,--no-relax ^
+  "rvosutil.o" "rvos_shell.o" -T rvos.ld ^
   -o "%1.elf" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 
 
