@@ -32,7 +32,9 @@
     #include <unistd.h>
     #ifndef OLDGCC
         #include <sys/uio.h>
-        #include <sys/sysinfo.h>
+        #ifndef __APPLE__
+            #include <sys/sysinfo.h>
+        #endif
     #endif
 #endif
 
@@ -339,7 +341,9 @@ void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
     }
 } //fill_pstat_windows
 
-int clock_gettime( int unused, struct timespec *tv ) // stolen from stackoverflow
+typedef int clockid_t;
+
+int clock_gettime( clockid_t unused, struct timespec *tv ) // stolen from stackoverflow
 {
     static int initialized = 0;
     static LARGE_INTEGER freq, startCount;
@@ -713,7 +717,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_sysinfo:
         {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__APPLE__)
             cpu.regs[ RiscV::a0 ] = -1;
 #else
             int ret = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
@@ -839,7 +843,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_clock_gettime:
         {
-            int result = clock_gettime( cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = clock_gettime( (clockid_t) cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
             cpu.regs[ RiscV::a0 ] = result;
@@ -1190,7 +1194,7 @@ bool load_image( const char * pimage, const char * app_args )
         {
             fseek( fp, (long) head.offset_in_image, SEEK_SET );
             read = fread( memory.data() + head.physical_address - g_base_address, 1, head.file_size, fp );
-            if ( 0 == fread )
+            if ( 0 == read )
                 usage( "can't read image" );
         }
     }
