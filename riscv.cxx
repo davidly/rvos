@@ -765,7 +765,7 @@ void RiscV::trace_state( uint64_t pcnext )
             else if ( 3 == opcode_type )
             {
                 uint32_t check = op & 0xf000000f;
-                if ( 0xf == op )
+                if ( 0xf == check )
                     tracer.Trace( "fence\n" );
             }
             else if ( 0x4 == opcode_type )
@@ -947,7 +947,9 @@ void RiscV::trace_state( uint64_t pcnext )
                 }
                 else if ( 4 == funct7 )
                 {
-                    if ( 3 == funct3 )
+                    if ( 2 == funct3 )
+                        tracer.Trace( "amoswap.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
                         tracer.Trace( "amoswap.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
                 else if ( 6 == funct7 )

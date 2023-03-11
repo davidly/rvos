@@ -56,8 +56,6 @@ uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
 uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
 uint64_t g_highwater_brk = 0;                  // highest brk seen during app
-uint64_t g_arg_data = 0;                       // where command-line arguments go
-uint64_t g_argc = 0;                           // # of arguments to the app
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
@@ -72,7 +70,7 @@ struct AuxProcessStart
     {
         uint64_t a_val;
         void * a_ptr;
-        void ( *a_fcn)();
+        void ( * a_fcn )();
     } a_un;
 };
 
@@ -290,6 +288,29 @@ uint64_t rand64()
 
 #ifdef _MSC_VER
 
+int windows_translate_flags( int flags )
+{
+    // Microsoft C uses different constants for flags than linux:
+    // O_CREAT == 0x100 msft, 0x200 linux
+    // O_TRUNC == 0x200 msft, 0x400 linux
+
+    if ( flags & 0x200 )
+    {
+        flags |= 0x100;
+        flags &= ~ 0x200;
+    }
+    if ( flags & 0x400 )
+    {
+        flags |= 0x200;
+        flags &= ~ 0x400;
+    }
+
+    flags |= O_BINARY; // this is assumed on Linux systems
+
+    tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+    return flags;
+} //windows_translate_flags
+
 void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
 {
     if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
@@ -390,11 +411,35 @@ const SysCall syscalls[] =
     { "SYS_getrandom", SYS_getrandom },
 };
 
+int syscall_find_compare( const void * a, const void * b )
+{
+    SysCall & sa = * (SysCall *) a;
+    SysCall & sb = * (SysCall *) b;
+
+    if ( sa.id > sb.id )
+        return 1;
+
+    if ( sa.id < sb.id )
+        return -1;
+
+    return 0;
+} //syscall_find_compare
+
 const char * lookup_syscall( uint64_t x )
 {
-    for ( size_t i = 0; i < _countof( syscalls ); i++ )
-        if ( x == syscalls[ i ].id )
-            return syscalls[ i ].name;
+#ifndef NDEBUG
+
+    // ensure they're sorted
+    for ( size_t i = 0; i < _countof( syscalls ) - 1; i++ )
+        assert( syscalls[ i ].id < syscalls[ i + 1 ].id );
+
+#endif
+
+    SysCall key = { 0, x };
+    SysCall * presult = (SysCall *) bsearch( &key, syscalls, _countof( syscalls ), sizeof( key ), syscall_find_compare );
+
+    if ( 0 != presult )
+        return presult->name;
 
     return "unknown";
 } //lookup_syscall
@@ -420,19 +465,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             g_terminate = true;
             cpu.end_emulation();
             g_exit_code = (int) cpu.regs[ RiscV::a0 ];
-            break;
-        }
-        case SYS_sysinfo:
-        {
-#if defined(_MSC_VER)
-            cpu.regs[ RiscV::a0 ] = -1;
-#elif defined(OLDGCC)
-#else
-            int ret = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
-            if ( -1 == ret && 0 != g_perrno )
-                *g_perrno = ret;
-            cpu.regs[ RiscV::a0 ] = ret;
-#endif
             break;
         }
         case rvos_sys_print_text: // print asciiz in a0
@@ -534,62 +566,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             break;
         }
-#if !defined(OLDGCC)
-        case SYS_openat:
-        {
-            tracer.Trace( "  rvos command SYS_openat\n" );
-            // a0: asciiz string of file to open. a1: flags. a2: mode
-
-            int directory = (int) cpu.regs[ RiscV::a0 ];
-            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            int flags = cpu.regs[ RiscV::a2 ];
-            int mode = cpu.regs[ RiscV::a3 ];
-
-            tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
-
-#ifdef _MSC_VER
-            // Microsoft C uses different constants for flags than linux:
-            // O_CREAT == 0x100 msft, 0x200 linux
-            // O_TRUNC == 0x200 msft, 0x400 linux
-
-            if ( flags & 0x200 )
-            {
-                flags |= 0x100;
-                flags &= ~ 0x200;
-            }
-            if ( flags & 0x400 )
-            {
-                flags |= 0x200;
-                flags &= ~ 0x400;
-            }
-
-            flags |= O_BINARY; // this is assumed on Linux systems
-
-            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
-
-            // bugbug: directory ignored and assumed to be local
-            int descriptor = open( pname, flags, mode );
-#else
-            int descriptor = openat( directory, pname, flags, mode );
-#endif
-
-            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
-
-            if ( -1 == descriptor )
-            {
-                if ( g_perrno )
-                    *g_perrno = errno;
-                cpu.regs[ RiscV::a0 ] = ~0;
-            }
-            else
-            {
-                if ( g_perrno )
-                    *g_perrno = 0;
-                cpu.regs[ RiscV::a0 ] = descriptor;
-            }
-            break;
-        }
-#endif
         case SYS_open:
         {
             tracer.Trace( "  rvos command SYS_open\n" );
@@ -603,24 +579,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
 #ifdef _MSC_VER
-            // Microsoft C uses different constants for flags than linux:
-            // O_CREAT == 0x100 msft, 0x200 linux
-            // O_TRUNC == 0x200 msft, 0x400 linux
-
-            if ( flags & 0x200 )
-            {
-                flags |= 0x100;
-                flags &= ~ 0x200;
-            }
-            if ( flags & 0x400 )
-            {
-                flags |= 0x200;
-                flags &= ~ 0x400;
-            }
-
-            flags |= O_BINARY; // this is assumed on Linux systems
-
-            tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
+            flags = windows_translate_flags( flags );
 #endif
 
             int descriptor = open( pname, flags, mode );
@@ -714,7 +673,56 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = -1;
             break;
         }
-#if !defined(OLDGCC)
+#if !defined(OLDGCC) // the syscalls below aren't invoked from the old g++ compiler and runtime
+        case SYS_openat:
+        {
+            tracer.Trace( "  rvos command SYS_openat\n" );
+            // a0: asciiz string of file to open. a1: flags. a2: mode
+
+            int directory = (int) cpu.regs[ RiscV::a0 ];
+            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int flags = cpu.regs[ RiscV::a2 ];
+            int mode = cpu.regs[ RiscV::a3 ];
+
+            tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
+
+#ifdef _MSC_VER
+            flags = windows_translate_flags( flags );
+
+            // bugbug: directory ignored and assumed to be local
+            int descriptor = open( pname, flags, mode );
+#else
+            int descriptor = openat( directory, pname, flags, mode );
+#endif
+
+            tracer.Trace( "  descriptor: %d, errno %d\n", descriptor, ( -1 == descriptor ) ? errno : 0 );
+
+            if ( -1 == descriptor )
+            {
+                if ( g_perrno )
+                    *g_perrno = errno;
+                cpu.regs[ RiscV::a0 ] = ~0;
+            }
+            else
+            {
+                if ( g_perrno )
+                    *g_perrno = 0;
+                cpu.regs[ RiscV::a0 ] = descriptor;
+            }
+            break;
+        }
+        case SYS_sysinfo:
+        {
+#if defined(_MSC_VER)
+            cpu.regs[ RiscV::a0 ] = -1;
+#else
+            int ret = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            if ( -1 == ret && 0 != g_perrno )
+                *g_perrno = ret;
+            cpu.regs[ RiscV::a0 ] = ret;
+#endif
+            break;
+        }
         case SYS_newfstat:
         {
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
@@ -797,8 +805,6 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             //tracer.Trace( "  futex all paddr %p (%d), futex_op %d, val %d\n", paddr, ( 0 == paddr ) ? -666 : *paddr, futex_op, value );
 
-            // EAGAIN is 11
-
             if ( 0 == futex_op ) // FUTEX_WAIT
             {
                 if ( *paddr != value )
@@ -833,7 +839,14 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = result;
             break;
         }
-#endif
+        case SYS_clock_gettime:
+        {
+            int result = clock_gettime( cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
         case SYS_fdatasync:
         {
             cpu.regs[ RiscV::a0 ] = -1;
@@ -854,16 +867,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = 1;
             break;
         }
-#if !defined(OLDGCC)
-        case SYS_clock_gettime:
-        {
-            int result = clock_gettime( cpu.regs[ RiscV::a0 ], (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
-            if ( -1 == result && 0 != g_perrno )
-                *g_perrno = errno;
-            cpu.regs[ RiscV::a0 ] = result;
-            break;
-        }
-#endif
         case SYS_set_tid_address:
         case SYS_set_robust_list:
         case SYS_prlimit64:
@@ -874,6 +877,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             // ignore for now
             break;
         }
+#endif // !defined(OLDGCC)
         default:
         {
             printf( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
@@ -949,9 +953,8 @@ const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address )
     if ( address < g_base_address || address > ( g_base_address + memory.size() ) )
         return "";
 
-    ElfSymbol64 key;
+    ElfSymbol64 key = {0};
     key.value = address;
-    key.size = 0;
 
     ElfSymbol64 * psym = (ElfSymbol64 *) bsearch( &key, g_symbols.data(), g_symbols.size(), sizeof( key ), symbol_find_compare );
 
@@ -1130,17 +1133,19 @@ bool load_image( const char * pimage, const char * app_args )
         usage( "base address of elf image is invalid; physical address required" );
 
     // allocate space after uninitialized memory brk to request space and the stack at the end
-    // memory map:
+    // memory map from low addresses to high:
     //     g_base_address (offset read from the .elf file)
     //     code (read from the .elf file)
     //     initialized data (read from the .elf file)
     //     uninitalized data (size read from the .elf file)
-    //     g_arg_data
+    //     arg_data
     //     g_end_of_data
-    //     g_brk_address with uninitialized RAM (just after g_arg_data initially)
+    //     g_brk_address with uninitialized RAM (just after arg_data initially)
     //     (unallocated space between brk and the bottom of the stack)
     //     g_bottom_of_stack
-    //     starting stack / one byte beyond RAM for the app
+    //     g_top_of_stack
+    //     Linux start data on the stack (see details below)
+    //     <end of allocated memory>
 
     // stacks by convention on risc-v are 16-byte aligned. make sure to start aligned
 
@@ -1150,7 +1155,7 @@ bool load_image( const char * pimage, const char * app_args )
         memory_size &= ~0xf;
     }
 
-    g_arg_data = memory_size;
+    uint64_t arg_data = memory_size;
     memory_size += g_args_commit;
     g_end_of_data = memory_size;
     g_brk_address = memory_size;
@@ -1163,7 +1168,7 @@ bool load_image( const char * pimage, const char * app_args )
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
 
-    // find errno if it exists
+    // find errno if it exists (only works with older C runtimes that use a global variable)
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
@@ -1193,10 +1198,10 @@ bool load_image( const char * pimage, const char * app_args )
     }
 
     // write the command-line arguments into the vm memory in a place where _start can find them.
-    // there's array of pointers to the args followed by the arg strings at offset g_arg_data.
+    // there's array of pointers to the args followed by the arg strings at offset arg_data.
 
-    uint64_t * parg_data = (uint64_t *) ( memory.data() + g_arg_data );
-    const uint32_t max_args = 20;
+    uint64_t * parg_data = (uint64_t *) ( memory.data() + arg_data );
+    const uint32_t max_args = 40;
     char * buffer_args = ( char *) & ( parg_data[ max_args ] );
     size_t image_len = strlen( pimage );
     vector<char> full_command( 2 + image_len + strlen( app_args ) );
@@ -1207,7 +1212,8 @@ bool load_image( const char * pimage, const char * app_args )
     strcpy( buffer_args, full_command.data() );
     char * pargs = buffer_args;
 
-    while ( *pargs && g_argc < max_args )
+    uint64_t app_argc = 0;
+    while ( *pargs && app_argc < max_args )
     {
         while ( ' ' == *pargs )
             pargs++;
@@ -1217,10 +1223,10 @@ bool load_image( const char * pimage, const char * app_args )
             *space = 0;
 
         uint64_t offset = pargs - buffer_args;
-        parg_data[ g_argc ] = (uint64_t) ( offset + g_arg_data + g_base_address + max_args * sizeof( uint64_t ) );
-        tracer.Trace( "  argument %d is '%s', at vm address %llx\n", g_argc, pargs, parg_data[ g_argc ] );
+        parg_data[ app_argc ] = (uint64_t) ( offset + arg_data + g_base_address + max_args * sizeof( uint64_t ) );
+        tracer.Trace( "  argument %d is '%s', at vm address %llx\n", app_argc, pargs, parg_data[ app_argc ] );
 
-        g_argc++;
+        app_argc++;
     
         pargs += strlen( pargs );
     
@@ -1230,8 +1236,9 @@ bool load_image( const char * pimage, const char * app_args )
 
     // put the Linux startup info at the top of the stack. this consists of:
     //   two 8-byte random numbers used for stack and pointer guards
+    //   optional filler to make sure alignment of all startup info is 16 bytes
     //   AT_NULL aux record
-    //   AT_RANDOM aux record
+    //   AT_RANDOM aux record -- point to the 2 random 8-byte numbers above
     //   0 environment termination
     //   0..n environment string pointers
     //   0 argv termination
@@ -1248,7 +1255,7 @@ bool load_image( const char * pimage, const char * app_args )
 
     // ensure that after all of this the stack is 16-byte aligned
 
-    if ( 0 == ( 1 & g_argc ) )
+    if ( 0 == ( 1 & app_argc ) )
         pstack--;
 
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
@@ -1261,14 +1268,14 @@ bool load_image( const char * pimage, const char * app_args )
     pstack--; // no environment is supported yet
     pstack--; // the last argv is 0 to indicate the end
 
-    for ( int iarg = g_argc - 1; iarg >= 0; iarg-- )
+    for ( int iarg = app_argc - 1; iarg >= 0; iarg-- )
     {
         pstack--;
         *pstack = parg_data[ iarg ];
     }
 
     pstack--;
-    *pstack = g_argc;
+    *pstack = app_argc;
 
     uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
     g_top_of_stack = g_base_address + memory_size - diff;
@@ -1280,7 +1287,7 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "memory_size:                     %llx\n", memory_size );
     tracer.Trace( "g_brk_commit:                    %llx\n", g_brk_commit );
     tracer.Trace( "g_stack_commit:                  %llx\n", g_stack_commit );
-    tracer.Trace( "g_arg_data:                      %llx\n", g_arg_data );
+    tracer.Trace( "arg_data:                        %llx\n", arg_data );
     tracer.Trace( "g_brk_address:                   %llx\n", g_brk_address );
     tracer.Trace( "g_end_of_data:                   %llx\n", g_end_of_data );
     tracer.Trace( "g_bottom_of_stack:               %llx\n", g_bottom_of_stack );
