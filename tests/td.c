@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#pragma GCC optimize ("O0")
+
 extern "C" int main()
 {
     double pi = 3.14159265358979323846264338327952884197169399375105820974944592307;
@@ -19,6 +21,9 @@ extern "C" int main()
 
     double r = -f * pi;
     printf( "double from printf r: %lf\n", r );
+
+    double sq = sqrt( pi );
+    printf( "sqrt of pi: %lf\n", sq );
 
     double radians = pi / 180.0 * 30.0;
 

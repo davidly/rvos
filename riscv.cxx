@@ -2,7 +2,6 @@
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
     Only a subset of instructions are implemented (enough to to run my test apps).
-    float instructions are implemented. double instructions are not
     I tested with a variety of C apps compiled with g++
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 processor on my AMD 5950x machine.
@@ -143,7 +142,7 @@ void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
     }
 } //DumpBinaryData
 
-const char * instruction_types[] =
+static const char * instruction_types[] =
 {
     "!",
     "U",
@@ -159,7 +158,7 @@ const char * instruction_types[] =
 
 // for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
 
-uint8_t riscv_types[ 32 ] =
+static const uint8_t riscv_types[ 32 ] =
 {
     IType,   //  0
     IType,   //  1
@@ -663,7 +662,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
     return op32;
 } //uncompress_rvc
 
-#endif // use code for rvc uncompression, not a table
+#endif // use code for rvc decompression, not a table
 
 bool RiscV::generate_rvc_table( const char * path )
 {
@@ -1145,7 +1144,8 @@ void RiscV::trace_state( uint64_t pcnext )
                 else if ( 9 == funct7 )
                 {
                     if ( 7 == funct3  )
-                        tracer.Trace( "fmul.d  %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                        tracer.Trace( "fmul.d  %s, %s, %s  # %.2f = %.2f * %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                      fregs[ rs1 ].d * fregs[ rs2 ].d, fregs[ rs1 ].d, fregs[ rs2 ].d );
                 }
                 else if ( 0xc == funct7 )
                 {
@@ -1244,18 +1244,18 @@ void RiscV::trace_state( uint64_t pcnext )
                 else if ( 0x50 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "fle.s %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than or equal
+                        tracer.Trace( "fle.s %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than or equal
                     else if ( 1 == funct3 )
-                        tracer.Trace( "flt.s %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than
+                        tracer.Trace( "flt.s %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // float less than
                     else if ( 2 == funct3 )
                         tracer.Trace( "feq.s %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 }
                 else if ( 0x51 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "fle.d %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // double less than or equal
+                        tracer.Trace( "fle.d %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // double less than or equal
                     else if ( 1 == funct3 )
-                        tracer.Trace( "flt.d %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // double less than
+                        tracer.Trace( "flt.d %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) ); // double less than
                     else if ( 2 == funct3 )
                         tracer.Trace( "feq.d %s, %s, %s\n", reg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 }                
@@ -1267,7 +1267,7 @@ void RiscV::trace_state( uint64_t pcnext )
                 else if ( 0x61 == funct7 )
                 {
                     if ( 1 == funct3 )
-                        tracer.Trace( "fcvt.w.d %s, %s  # %ld = %.2f\n", reg_name( rd ), freg_name( rs1 ), (int32_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to i32
+                        tracer.Trace( "fcvt.w.d %s, %s  # %ld = %.2f\n", reg_name( rd ), freg_name( rs1 ), (int32_t) fregs[ rs1 ].f, fregs[ rs1 ].d ); // double to i32
                 }                
                 else if ( 0x68 == funct7 )
                 {
@@ -1373,8 +1373,6 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         {
             assert_type( IType );
             decode_I();
-            if ( 0 == rd )
-                break;
 
             if ( 2 == funct3 ) // flw rd, i_imm(rs1)
                 fregs[ rd ].f = getfloat( regs[ rs1 ] + i_imm );
