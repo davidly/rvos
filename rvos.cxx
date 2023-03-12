@@ -893,7 +893,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             unsigned int flags = (unsigned int) cpu.regs[ RiscV::a2 ];
             ssize_t result = 0;
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__APPLE__)
             int * pbuf = (int *) buf;
             int count = buflen / sizeof( int );
             for ( int i = 0; i < count; i++ )
