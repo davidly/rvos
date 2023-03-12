@@ -95,6 +95,21 @@ template <class T> T test( T & min, T & max )
             a[ myabs( i + 11 ) ] = ( a[ myabs( i ) + 8 ] << 3 );
             a[ myabs( i + 12 ) ] = ( a[ myabs( i ) + 8 ] >> 4 );
 
+            if ( a[ myabs( i + 12 ) ] > a[ myabs( i + 13 ) ] )
+                a[ myabs( i + 14 ) ] += 3;
+
+            if ( a[ myabs( i + 12 ) ] < a[ myabs( i + 13 ) ] )
+                a[ myabs( i + 14 ) ] += 7;
+
+            if ( a[ myabs( i + 12 ) ] >= a[ myabs( i + 13 ) ] )
+                a[ myabs( i + 14 ) ] += 3;
+
+            if ( a[ myabs( i + 12 ) ] <= a[ myabs( i + 13 ) ] )
+                a[ myabs( i + 14 ) ] += 7;
+
+            if ( a[ myabs( i + 12 ) ] == a[ myabs( i + 13 ) ] )
+                a[ myabs( i + 14 ) ] += 9;
+
             a[ myabs( i + 12 ) ] &= 0x10;
             a[ myabs( i + 13 ) ] |= 0x10;
             a[ myabs( i + 14 ) ] ^= 0x10;

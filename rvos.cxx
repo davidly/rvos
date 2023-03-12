@@ -28,8 +28,11 @@
        void * iov_base; /* Starting address */
        size_t iov_len; /* Length in bytes */
     };
+
+    typedef SSIZE_T ssize_t;
 #else
     #include <unistd.h>
+    #include <sys/random.h>
     #ifndef OLDGCC
         #include <sys/uio.h>
         #ifndef __APPLE__
@@ -413,6 +416,7 @@ const SysCall syscalls[] =
     { "SYS_mprotect", SYS_mprotect },
     { "SYS_prlimit64", SYS_prlimit64 },
     { "SYS_getrandom", SYS_getrandom },
+    { "SYS_open", SYS_open }, // only called for older systems
 };
 
 int syscall_find_compare( const void * a, const void * b )
@@ -882,11 +886,32 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = 1;
             break;
         }
+        case SYS_getrandom:
+        {
+            void * buf = cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            size_t buflen = cpu.regs[ RiscV::a1 ];
+            unsigned int flags = (unsigned int) cpu.regs[ RiscV::a2 ];
+            ssize_t result = 0;
+
+#ifdef _MSC_VER
+            int * pbuf = (int *) buf;
+            int count = buflen / sizeof( int );
+            for ( int i = 0; i < count; i++ )
+                pbuf[ i ] = rand();
+            result = buflen;
+#else
+            result = getrandom( buf, buflen, flags );
+#endif
+
+            if ( -1 == result && 0 != g_perrno )
+                *g_perrno = errno;
+            cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
         case SYS_set_tid_address:
         case SYS_set_robust_list:
         case SYS_prlimit64:
         case SYS_readlinkat:
-        case SYS_getrandom:
         case SYS_mprotect:
         {
             // ignore for now

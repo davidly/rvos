@@ -613,8 +613,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
                     else
                     {
                         if ( 0 == p_rs1rd ) // c.ebreak;
-                        {
-                        }
+                            op32 = 0x00100073;
                         else
                         {
                             if ( 0 == p_rs2 ) // c.jalr
@@ -763,8 +762,7 @@ void RiscV::trace_state( uint64_t pcnext )
             }
             else if ( 3 == opcode_type )
             {
-                uint32_t check = op & 0xf000000f;
-                if ( 0xf == check )
+                if ( 0 == funct3 || 1 == funct3 )
                     tracer.Trace( "fence\n" );
             }
             else if ( 0x4 == opcode_type )
@@ -943,15 +941,10 @@ void RiscV::trace_state( uint64_t pcnext )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "amoadd.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
-                }
-                else if ( 4 == funct7 )
-                {
-                    if ( 2 == funct3 )
-                        tracer.Trace( "amoswap.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                     else if ( 3 == funct3 )
-                        tracer.Trace( "amoswap.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "amoadd.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
-                else if ( 6 == funct7 )
+                else if ( 4 == funct7 || 6 == funct7 )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "amoswap.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
@@ -1344,7 +1337,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
 {
     switch( opcode_type )
     {
-        case 0x0:
+        case 0:
         {
             assert_type( IType );
             decode_I();
@@ -1369,7 +1362,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
-        case 0x1:
+        case 1:
         {
             assert_type( IType );
             decode_I();
@@ -1384,8 +1377,10 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         }
         case 3:
         {
-            uint32_t check = op & 0xf000000f;
-            if ( 0xf == check )
+            assert_type( IType );
+            decode_I();
+
+            if ( 0 == funct3 || 1 == funct3 ) // fence or fence.i
             {
                 // fence -- do nothing
             }
@@ -1438,7 +1433,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
-        case 0x5:
+        case 5:
         {
             assert_type( UType );
             decode_U();
@@ -1450,7 +1445,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             regs[ rd ] = pc + ( u_imm << 12 );
             break;
         }
-        case 0x6:
+        case 6:
         {
             assert_type( IType );
             decode_I();
@@ -1499,7 +1494,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
-        case 0x8:
+        case 8:
         {
             assert_type( SType );
             decode_S();
@@ -1516,7 +1511,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 unhandled();
             break;
         }
-        case 0x9:
+        case 9:
         {
             assert_type( SType );
             decode_S();
@@ -1543,10 +1538,17 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         regs[ rd ] = sign_extend( value, 32 );
                     setui32( regs[ rs1 ], regs[ rs2 ] + value );
                 }
+                else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], regs[ rs2 ] + value );
+                }
                 else
                     unhandled();
             }
-            else if ( 4 == funct7 )
+            else if ( 4 == funct7 || 6 == funct7 )
             {
                 if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
                 {
@@ -1567,29 +1569,6 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
-            else if ( 6 == funct7 )
-            {
-                if ( 3 == funct3 ) // amoswap.d rd, rs2, (rs1)
-                {
-                    uint64_t memval = getui64( regs[ rs1 ] );
-                    uint64_t regval = regs[ rs2 ];
-                    if ( 0 != rd )
-                        regs[ rd ] = memval;
-                    setui64( regs[ rs1 ], regval );
-                }
-#if false            
-                else if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
-                {
-                    uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 32 );
-                    uint32_t regval = regs[ rs2 ];
-                    if ( 0 != rd )
-                        regs[ rd ] = memval;
-                    setui32( regs[ rs1 ], regval );
-                }
-#endif            
-                else
-                    unhandled();
-            } 
             else if ( 8 == funct7 )
             {
                 if ( 2 == funct3 ) // lr.w rd, (rs1)

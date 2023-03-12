@@ -23,4 +23,4 @@ rvos linux\td >>test_rvos.txt
 rvos /h:2 linux\mysort /q /u linux\words.txt linux\sorted.txt >>test_rvos.txt
 rvos /h:40 linux\an david lee >>test_rvos.txt
 
-start windiff baseline_test_rvos.txt test_rvos.txt
+diff baseline_test_rvos.txt test_rvos.txt

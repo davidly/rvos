@@ -20,4 +20,4 @@ rvos /h:40 rvos.elf tests\td >>test_rvos.txt
 rvos /h:40 rvos.elf /h:2 tests\mysort /q /u tests\words.txt tests\sorted.txt >>test_rvos.txt
 rvos /h:60 rvos.elf /h:40 tests\an david lee >>test_rvos.txt
 
-start windiff baseline_test_rvos.txt test_rvos.txt
+diff baseline_test_rvos.txt test_rvos.txt
