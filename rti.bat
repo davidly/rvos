@@ -1,9 +1,13 @@
-rvos /h:40 rvos.elf tests\t >test_rvos.txt
+echo running t... > test_rvos.txt
+rvos /h:40 rvos.elf tests\t >>test_rvos.txt
+echo runing ts... >> test_rvos.txt
 rvos /h:40 rvos.elf tests\ts >>test_rvos.txt
+echo running sieve... >> test_rvos.txt
 rvos /h:40 rvos.elf tests\sieve >>test_rvos.txt
 rvos /h:40 rvos.elf tests\e >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tap >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tpi >>test_rvos.txt
+rvos /h:40 rvos.elf tests\tins >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tphi >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tcrash ml >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tcrash mh >>test_rvos.txt

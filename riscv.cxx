@@ -835,6 +835,8 @@ void RiscV::trace_state( uint64_t pcnext )
             {
                 if ( 0x73 == op )
                     tracer.Trace( "ecall\n" );
+                else if ( 0x100073 == op )
+                    tracer.Trace( "ebreak\n" );
                 else
                 {
                     switch( funct3 )
@@ -876,15 +878,7 @@ void RiscV::trace_state( uint64_t pcnext )
         case BType:
         {
             decode_B();
-            if ( 0xb == opcode_type )
-            {
-                if ( 2 == funct3 )
-                {
-                    if ( 4 == funct7 )
-                        tracer.Trace( "amoswap.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
-                }
-            }
-            else if ( 0x18 == opcode_type )
+            if ( 0x18 == opcode_type )
             {
                 if ( 0 == funct3 )
                     tracer.Trace( "beq     %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
@@ -937,34 +931,65 @@ void RiscV::trace_state( uint64_t pcnext )
 
             if ( 0xb == opcode_type )
             {
-                if ( 2 == funct7 )
+                uint32_t top5 = funct7 >> 2;
+                if ( 0 == top5 )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "amoadd.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                     else if ( 3 == funct3 )
                         tracer.Trace( "amoadd.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
-                else if ( 4 == funct7 || 6 == funct7 )
+                else if ( 1 == top5 )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "amoswap.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                     else if ( 3 == funct3 )
                         tracer.Trace( "amoswap.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
-                else if ( 8 == funct7 )
+                else if ( 2 == top5 )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "lr.w %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
                 }
-                else if ( 0xc == funct7 )
+                else if ( 3 == top5 )
                 {
                     if ( 2 == funct3 )
                         tracer.Trace( "sc.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
-                else if ( 0xe == funct7 )
+                else if ( 4 == top5 )
                 {
                     if ( 2 == funct3 )
-                        tracer.Trace( "sc.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "amoxor.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "amoxor.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                }
+                else if ( 8 == top5 )
+                {
+                    if ( 2 == funct3 )
+                        tracer.Trace( "amoor.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "amoor.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                }
+                else if ( 0xc == top5 )
+                {
+                    if ( 2 == funct3 )
+                        tracer.Trace( "amoand.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "amoand.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                }
+                else if ( 0x10 == top5 )
+                {
+                    if ( 2 == funct3 )
+                        tracer.Trace( "amomin.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "amomin.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                }
+                else if ( 0x14 == top5 )
+                {
+                    if ( 2 == funct3 )
+                        tracer.Trace( "amomax.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                    else if ( 3 == funct3 )
+                        tracer.Trace( "amomax.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
             }
             else if ( 0xc == opcode_type )
@@ -1416,8 +1441,8 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
                 else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
                 {
-                    // g++ for RISC-V doesn't sign extend on right shifts for signed integers. It does for amd64 code gen
-                    // work around this.
+                    // The old g++ for RISC-V doesn't sign extend on right shifts for signed integers.
+                    // It does for amd64 code gen. work around this.
 
                     uint64_t result = regs[ rs1 ] >> i_shamt6;
                     regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
@@ -1529,7 +1554,9 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             assert_type( RType );
             decode_R();
 
-            if ( 2 == funct7 )
+            uint32_t top5 = funct7 >> 2;
+
+            if ( 0 == top5 )
             {
                 if ( 2 == funct3 ) // amoadd.w rd, rs2, (rs1)
                 {
@@ -1548,7 +1575,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
-            else if ( 4 == funct7 || 6 == funct7 )
+            else if ( 1 == top5 )
             {
                 if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
                 {
@@ -1569,7 +1596,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
-            else if ( 8 == funct7 )
+            else if ( 2 == top5 )
             {
                 if ( 2 == funct3 ) // lr.w rd, (rs1)
                 {
@@ -1580,9 +1607,9 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
-            else if ( 0xc == funct7 )
+            else if ( 3 == top5 )
             {
-                if ( 2 == funct3 ) // sc.w rd, rs2, (rs1 )
+                if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
                 {
                     setui32( regs[ rs1 ], rs2 );
                     if ( 0 != rd )
@@ -1591,13 +1618,97 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
-            else if ( 0xe == funct7 )
+            else if ( 4 == top5 )
             {
-                if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
+                if ( 2 == funct3 ) // amoxor.w rd, rs2, (rs1)
                 {
-                    setui32( regs[ rs1 ], rs2 );
+                    uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
-                        regs[ rd ] = 0;
+                        regs[ rd ] = sign_extend( value, 32 );
+                    setui32( regs[ rs1 ], regs[ rs2 ] ^ value );
+                }
+                else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
+                }
+                else
+                    unhandled();
+            }
+            else if ( 8 == top5 )
+            {
+                if ( 2 == funct3 ) // amoor.w rd, rs2, (rs1)
+                {
+                    uint32_t value = getui32( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = sign_extend( value, 32 );
+                    setui32( regs[ rs1 ], regs[ rs2 ] | value );
+                }
+                else if ( 3 == funct3 ) // amoord.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], regs[ rs2 ] | value );
+                }
+                else
+                    unhandled();
+            }
+            else if ( 0xc == top5 )
+            {
+                if ( 2 == funct3 ) // amoand.w rd, rs2, (rs1)
+                {
+                    uint32_t value = getui32( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = sign_extend( value, 32 );
+                    setui32( regs[ rs1 ], regs[ rs2 ] & value );
+                }
+                else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], regs[ rs2 ] & value );
+                }
+                else
+                    unhandled();
+            }
+            else if ( 0x10 == top5 )
+            {
+                if ( 2 == funct3 ) // amomin.w rd, rs2, (rs1)
+                {
+                    uint32_t value = getui32( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = sign_extend( value, 32 );
+                    setui32( regs[ rs1 ], __min( (uint32_t) regs[ rs2 ], value ) );
+                }
+                else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], __min( regs[ rs2 ], value ) );
+                }
+                else
+                    unhandled();
+            }
+            else if ( 0x14 == top5 )
+            {
+                if ( 2 == funct3 ) // amomax.w rd, rs2, (rs1)
+                {
+                    uint32_t value = getui32( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = sign_extend( value, 32 );
+                    setui32( regs[ rs1 ], __max( (uint32_t) regs[ rs2 ], value ) );
+                }
+                else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
+                {
+                    uint64_t value = getui64( regs[ rs1 ] );
+                    if ( 0 != rd )
+                        regs[ rd ] = value;
+                    setui64( regs[ rs1 ], __max( regs[ rs2 ], value ) );
                 }
                 else
                     unhandled();
@@ -2214,8 +2325,12 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         }
         case 0x1c:
         {
-            if ( 0x73 == op ) //code )
+            if ( 0x73 == op ) 
                 riscv_invoke_ecall( *this ); // ecall
+            else if ( 0x100073 == op )
+            {
+                // ebreak.  Ignore for now
+            }
             else
             {
                 assert_type( IType );

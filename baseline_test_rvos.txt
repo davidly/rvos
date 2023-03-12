@@ -88,6 +88,8 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
+hello
+test instructions is complete
 rvos fatal error: memory reference prior to address space: 200
 pc: 103d4 main
 address space 10000 to 13a030
@@ -167,7 +169,7 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 64930 moves
-43.106003 milliseconds
+42.058002 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -176,12 +178,12 @@ now printing fr as a double:
 result of 20.2 * -1.342 as a double: -27.108400
 stop
 parsing input file tests\tp.bas
-start time: 17:40:50
+start time: 21:51:37
 1,000 ms for 1 iterations
-end time: 17:40:51
+end time: 21:51:38
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 12, hour 9, min 40, sec 51
+year: 2023, month 3, day 12, hour 13, min 51, sec 38
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

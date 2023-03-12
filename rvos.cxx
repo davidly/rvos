@@ -32,8 +32,8 @@
     typedef SSIZE_T ssize_t;
 #else
     #include <unistd.h>
-    #include <sys/random.h>
     #ifndef OLDGCC
+        #include <sys/random.h>
         #include <sys/uio.h>
         #ifndef __APPLE__
             #include <sys/sysinfo.h>
