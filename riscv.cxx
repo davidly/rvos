@@ -1236,6 +1236,11 @@ void RiscV::trace_state( uint64_t pcnext )
                     if ( 7 == funct3 )
                         tracer.Trace( "fsqrt.s %s, %s\n", freg_name( rd ), freg_name( rs1 ) );
                 }
+                else if ( 0x2d == funct7 )
+                {
+                    if ( 7 == funct7 )
+                        tracer.Trace( "fsqrt.d %s, %s\n", freg_name( rd ), freg_name( rs1 ) );
+                }
                 else if ( 0x50 == funct7 )
                 {
                     if ( 0 == funct3 )
@@ -2031,14 +2036,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             else if ( 0x20 == funct7 )
             {
                 if ( 1 == rs2 && 0 == funct3 )
-                    fregs[ rd ].f = fregs[ rs1 ].d;
+                    fregs[ rd ].f = fregs[ rs1 ].d; // fcvt.s.d rd, rs1
                 else
                     unhandled();
             }                
             else if ( 0x21 == funct7 )
             {
                 if ( 0 == rs2 && 0 == funct3 )
-                    fregs[ rd ].d = fregs[ rs1 ].f;
+                    fregs[ rd ].d = fregs[ rs1 ].f; // fcvt.d.s rd, rs1
                 else
                     unhandled();
             }     
@@ -2046,6 +2051,13 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             {
                 if ( 7 == funct3 )
                     fregs[ rd ].f = (float) sqrt( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
+                else
+                    unhandled();
+            }
+            else if ( 0x2d == funct7 )
+            {
+                if ( 7 == funct3 )
+                    fregs[ rd ].d = sqrt( fregs[ rs1 ].d ); // fsqrt.d rd, rs1
                 else
                     unhandled();
             }
@@ -2213,10 +2225,11 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         {
             assert_type( JType );
             decode_J();
-            if ( 0 != rd )
-                regs[ rd ] = pcnext;
 
             // jal offset
+
+            if ( 0 != rd )
+                regs[ rd ] = pcnext;
 
             int64_t offset = j_imm_u;
             pc = pc + offset;
