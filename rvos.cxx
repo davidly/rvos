@@ -168,23 +168,25 @@ struct ElfProgramHeader64
 
     const char * show_type()
     {
-        if ( 0 == type )
+        uint32_t basetype = ( type & 0xf );
+
+        if ( 0 == basetype )
             return "unused";
-        if ( 1 == type )
+        if ( 1 == basetype )
             return "load";
-        if ( 2 == type )
+        if ( 2 == basetype )
             return "dynamic";
-        if ( 3 == type )
+        if ( 3 == basetype )
             return "interp";
-        if ( 4 == type )
+        if ( 4 == basetype )
             return "note";
-        if ( 5 == type )
+        if ( 5 == basetype )
             return "shlib";
-        if ( 6 == type )
+        if ( 6 == basetype )
             return "phdr";
-        if ( 7 == type )
+        if ( 7 == basetype )
             return "tls";
-        if ( 8 == type )
+        if ( 8 == basetype )
             return "num";
         return "unknown";
     }
@@ -205,18 +207,34 @@ struct ElfSectionHeader64
 
     const char * show_type()
     {
-        if ( 0 == type )
+        uint32_t basetype = ( type & 0xf );
+
+        if ( 0 == basetype )
             return "unused";
-        if ( 1 == type )
+        if ( 1 == basetype )
             return "program data";
-        if ( 2 == type )
+        if ( 2 == basetype )
             return "symbol table";
-        if ( 3 == type )
+        if ( 3 == basetype )
             return "string table";
-        if ( 4 == type )
+        if ( 4 == basetype )
             return "relocation entries";
-        if ( 5 == type )
+        if ( 5 == basetype )
             return "symbol hash table";
+        if ( 6 == basetype )
+            return "dynamic";
+        if ( 7 == basetype )
+            return "note";
+        if ( 8 == basetype )
+            return "nobits";
+        if ( 9 == basetype )
+            return "rel";
+        if ( 10 == basetype )
+            return "shlib";
+        if ( 11 == basetype )
+            return "dynsym";
+        if ( 12 == basetype )
+            return "num";
         return "unknown";
     }
 
@@ -1401,7 +1419,7 @@ void elf_info( const char * pimage )
 
         memory_size += head.mem_size;
 
-        if ( 0 == ph )
+        if ( ( 0 != head.physical_address ) && ( ( 0 == g_base_address ) || g_base_address > head.physical_address ) )
             g_base_address = head.physical_address;
     }
 

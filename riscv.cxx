@@ -773,7 +773,7 @@ void RiscV::trace_state( uint64_t pcnext )
                 {
                     case 0: tracer.Trace( "addi    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 1: tracer.Trace( "slli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 ); break;
-                    case 2: tracer.Trace( "stli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 2: tracer.Trace( "slti    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 3: tracer.Trace( "sltiu   %s, %s, %llu\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 4: tracer.Trace( "xori    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 5:
