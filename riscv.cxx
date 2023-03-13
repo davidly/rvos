@@ -109,7 +109,7 @@ void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
         *pline++ = ' ';
         *pline++ = ' ';
 
-        int64_t cap = __min( offset + bytesPerRow, beyond );
+        int64_t cap = get_min( offset + bytesPerRow, beyond );
         int64_t toread = ( ( offset + bytesPerRow ) > beyond ) ? ( length % bytesPerRow ) : bytesPerRow;
 
         memcpy( buf, pData + offset, toread );
@@ -1752,14 +1752,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], __min( (uint32_t) regs[ rs2 ], value ) );
+                    setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
                 }
                 else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
                 {
                     uint64_t value = getui64( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = value;
-                    setui64( regs[ rs1 ], __min( regs[ rs2 ], value ) );
+                    setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
                 }
                 else
                     unhandled();
@@ -1771,14 +1771,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], __max( (uint32_t) regs[ rs2 ], value ) );
+                    setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
                 }
                 else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
                 {
                     uint64_t value = getui64( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = value;
-                    setui64( regs[ rs1 ], __max( regs[ rs2 ], value ) );
+                    setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
                 }
                 else
                     unhandled();
@@ -2164,16 +2164,16 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             else if ( 0x14 == funct7 )
             {
                 if ( 0 == funct3 )
-                    fregs[ rd ].f = __min( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
+                    fregs[ rd ].f = get_min( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
                 else if ( 1 == funct3 )
-                    fregs[ rd ].f = __max( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
+                    fregs[ rd ].f = get_max( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
             }
             else if ( 0x15 == funct7 )
             {
                 if ( 0 == funct3 )
-                    fregs[ rd ].d = __min( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
+                    fregs[ rd ].d = get_min( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
                 else if ( 1 == funct3 )
-                    fregs[ rd ].d = __max( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
+                    fregs[ rd ].d = get_max( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
             }
             else if ( 0x20 == funct7 )
             {
@@ -2301,14 +2301,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         float f = fregs[ rs1 ].f;
                         if ( isnan( f ) )
                         {
-#if !defined(_MSC_VER) && !defined(OLDGCC)
+#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                             if ( issignaling( f ) )
                                 result = 0x100;
                             else
 #endif
                                 result = 0x200;
                         }
-#if !defined(_MSC_VER) && !defined(OLDGCC)
+#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                         else if ( issubnormal( f ) )
                         {
                             if ( f >= 0.0 )
@@ -2350,14 +2350,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         double d = fregs[ rs1 ].d;
                         if ( isnan( d ) )
                         {
-#if !defined(_MSC_VER) && !defined(OLDGCC)
+#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                             if ( issignaling( d ) )
                                 result = 0x100;
                             else
 #endif
                                 result = 0x200;
                         }
-#if !defined(_MSC_VER) && !defined(OLDGCC)
+#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                         else if ( issubnormal( d ) )
                         {
                             if ( d >= 0.0 )

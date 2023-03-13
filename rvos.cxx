@@ -1091,7 +1091,7 @@ bool load_image( const char * pimage, const char * app_args )
         ElfProgramHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), 1, fp );
+        read = fread( &head, get_min( sizeof( head ), (size_t) ehead.program_header_table_size ), 1, fp );
         if ( 1 != read )
             usage( "can't read program header" );
 
@@ -1123,7 +1123,7 @@ bool load_image( const char * pimage, const char * app_args )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
         if ( 0 == read )
             usage( "can't read section header" );
 
@@ -1147,7 +1147,7 @@ bool load_image( const char * pimage, const char * app_args )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
         if ( 0 == read )
             usage( "can't read section header" );
 
@@ -1254,7 +1254,7 @@ bool load_image( const char * pimage, const char * app_args )
         size_t o = ehead.program_header_table + ( ph * ehead.program_header_table_size );
         ElfProgramHeader64 head = {0};
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
 
         if ( 0 != head.file_size && 0 != head.physical_address )
         {
@@ -1415,7 +1415,7 @@ void elf_info( const char * pimage )
         ElfProgramHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.program_header_table_size ), fp );
         if ( 0 == read )
             usage( "can't read program header" );
 
@@ -1443,7 +1443,7 @@ void elf_info( const char * pimage )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
         if ( 0 == read )
             usage( "can't read section header" );
 
@@ -1467,7 +1467,7 @@ void elf_info( const char * pimage )
         ElfSectionHeader64 head = {0};
 
         fseek( fp, (long) o, SEEK_SET );
-        read = fread( &head, 1, __min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
+        read = fread( &head, 1, get_min( sizeof( head ), (size_t) ehead.section_header_table_size ), fp );
         if ( 0 == read )
             usage( "can't read section header" );
 
