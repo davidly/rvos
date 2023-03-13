@@ -36,10 +36,48 @@ extern "C" int main()
     double t = tan( radians );
     printf( "tan of 30 degrees is %lf\n", t );
 
+    double d = atof( "1.0" );
+    double at = atan( d );
+    printf( "atan of %lf is %lf\n", d, at );
+
+    at = atan2( 0.3, 0.2 );
+    printf( "atan2 of 0.3, 0.2 is %lf\n", at );
+
+    c = acos( 0.3 );
+    printf( "acos of 0.3 is %lf\n", c );
+
+    s = asin( 0.3 );
+    printf( "asin of 0.3 is %lf\n", s );
+
+    d = tanh( 2.2 );
+    printf( "tanh of 2.2 is %lf\n", s );
+    
+    d = log( 0.3 );
+    printf( "log of 0.3: %lf\n", d );
+
+    d = log10( 300.0 );
+    printf( "log10 of 300: %lf\n", d );
+    
+    double b = 2.7;
+    for ( double a = 2.0; a < 3.0; a += 0.1 )
+    {
+        if ( a > b )
+            printf( "g," );
+        if ( a >= b )
+            printf( "ge," );
+        if ( a == b )
+            printf( "eq," );
+        if ( a < b )
+            printf( "l," );
+        if ( a <= b )
+            printf( "le," );
+    }
+    printf( "\n" );
+
     int exponent;
     double mantissa = frexp( pi, &exponent );
-    printf( "mantissa: %lf, exponent %d\n", mantissa, exponent );
-
+    printf( "pi has mantissa: %lf, exponent %d\n", mantissa, exponent );
+    
     printf( "stop\n" );
     return 0;
 } //main

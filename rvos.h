@@ -37,6 +37,7 @@
 #define SYS_brk 214
 #define SYS_mmap 222
 #define SYS_mprotect 226
+#define SYS_riscv_flush_icache 259
 #define SYS_prlimit64 261
 #define SYS_getrandom 278
 

@@ -41,7 +41,7 @@ riscv64-unknown-elf-g++ ^
   -mcmodel=medany -mabi=lp64f -march=rv64imaf%RVCFLAG% -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields ^
   -fno-zero-initialized-in-bss %OPTFLAGS% -ggdb -static -Wl,--gc-sections -Wl,-static -Wl,--whole-archive -Wl,--no-whole-archive ^
   -Wl,-EL -Wl,--no-relax ^
-  "rvosutil.o" "rvos_shell.o" -T rvos.ld ^
+  "rvosutil.o" "rvos_shell.o" -T rvos.ld -DNDEBUG ^
   -o "%1.elf" -Wl,--start-group -lgcc -lm -lc -Wl,-lgcc -lm -lc -Wl,--end-group
 
 

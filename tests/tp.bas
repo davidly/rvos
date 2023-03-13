@@ -6,12 +6,9 @@
 6  rem l%   -- Top-level loop iteration
 7  rem wi%  -- The winning piece (0 none, 1 X, 2, O )
 8  rem re%  -- Resulting score of 4000/minmax board position. 5 draw, 6 X win, 4 Y win
-9  rem sx%  -- Stack array for "recursion" X can be P, V, A, or B for those variables.
 10 rem v%   -- Value of a board position
 11 rem st%  -- Stack Pointer. Even for alpha/beta pruning Minimize plys, Odd for Maximize
 12 rem p%   -- Current position where a new piece is played
-14 rem rw%  -- Row in the Winner function (2000)
-15 rem cw%  -- Column in the Winner function (2000)
 18 rem mc%  -- Move count total for debugging. Should be a multiple of 6493
 19 rem Note: Can't use real recursion with GOSUB because stack is limited to roughly 5 deep
 20 rem       BASIC doesn't support goto/gosub using arrays for target line numbers

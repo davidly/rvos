@@ -78,7 +78,7 @@ extern "C" int main()
     float fm1 = -1.342;
     float fr = f2 * fm1;
     float fd = 1000.0 / 3.0;
-    float fs = sqrt( fd );
+    float fs = sqrtf( fd );
 
     printf( "division result: %f, square root %f\n", fd, fs );
 
@@ -91,8 +91,61 @@ extern "C" int main()
     printf( "result of 20.2 * -1.342: %f\n", fr );
 
     double d = (double) fr;
-    printf( "now printing fr as a double:\n" );
     printf( "result of 20.2 * -1.342 as a double: %lf\n", d );
+
+    float pi = 3.14159265358979323846264338327952884197169399375105820974944592307;
+    float radians = pi / 180.0 * 30.0;
+
+    float s = sinf( radians );
+    printf( "sinf of 30 degress is %lf\n", s );
+
+    float c = cosf( radians );
+    printf( "cosf of 30 degrees is %lf\n", c );
+
+    float t = tanf( radians );
+    printf( "tanf of 30 degrees is %lf\n", t );
+
+    float f = atof( "1.0" );
+    float at = atanf( f );
+    printf( "atanf of %lf is %lf\n", f, at );
+
+    at = atan2f( 0.3, 0.2 );
+    printf( "atan2f of 0.3, 0.2 is %lf\n", at );
+
+    c = acosf( 0.3 );
+    printf( "acosf of 0.3 is %lf\n", c );
+
+    s = asinf( 0.3 );
+    printf( "asinf of 0.3 is %lf\n", s );
+
+    f = tanhf( 2.2 );
+    printf( "tanhf of 2.2 is %lf\n", s );
+    
+    f = logf( 0.3 );
+    printf( "logf of 0.3: %lf\n", f );
+
+    f = log10f( 300.0 );
+    printf( "log10f of 300: %lf\n", f );
+    
+    int exponent;
+    float mantissa = frexpf( pi, &exponent );
+    printf( "pi has mantissa: %lf, exponent %d\n", mantissa, exponent );
+
+    float b = 2.7;
+    for ( float a = 2.0; a < 3.0; a += 0.1 )
+    {
+        if ( a > b )
+            printf( "g," );
+        if ( a >= b )
+            printf( "ge," );
+        if ( a == b )
+            printf( "eq," );
+        if ( a < b )
+            printf( "l," );
+        if ( a <= b )
+            printf( "le," );
+    }
+    printf( "\n" );
 
     printf( "stop\n" );
     exit( 0 );

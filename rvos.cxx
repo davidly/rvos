@@ -284,12 +284,16 @@ void usage( char const * perror = 0 )
 
 struct linux_timeval
 {
-    int64_t tv_sec;
-    int64_t tv_usec;
+    uint64_t tv_sec;       // time_t
+    uint64_t tv_usec;      // suseconds_t
 };
 
 int gettimeofday( linux_timeval * tp, struct timezone * tzp )
 {
+    // the OLDGCC's chrono implementation is built on time(), which calls this but
+    // has only second resolution. So the microseconds returned here are lost.
+    // All other C++ implementations do the right thing.
+
     namespace sc = std::chrono;
     sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
     sc::seconds s = sc::duration_cast<sc::seconds>(d);
@@ -432,6 +436,7 @@ const SysCall syscalls[] =
     { "SYS_brk", SYS_brk },
     { "SYS_mmap", SYS_mmap },
     { "SYS_mprotect", SYS_mprotect },
+    { "SYS_riscv_flush_icache", SYS_riscv_flush_icache },
     { "SYS_prlimit64", SYS_prlimit64 },
     { "SYS_getrandom", SYS_getrandom },
     { "SYS_open", SYS_open }, // only called for older systems
@@ -924,6 +929,11 @@ void riscv_invoke_ecall( RiscV & cpu )
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
             cpu.regs[ RiscV::a0 ] = result;
+            break;
+        }
+        case SYS_riscv_flush_icache :
+        {
+            cpu.regs[ RiscV::a0 ] = 0;
             break;
         }
         case SYS_set_tid_address:

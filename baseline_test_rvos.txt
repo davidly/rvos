@@ -169,21 +169,32 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 64930 moves
-42.058002 milliseconds
+43.126003 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
 result of 20.2 * -1.342: -27.108400
-now printing fr as a double:
 result of 20.2 * -1.342 as a double: -27.108400
+sinf of 30 degress is 0.500000
+cosf of 30 degrees is 0.866025
+tanf of 30 degrees is 0.577350
+atanf of 1.000000 is 0.785398
+atan2f of 0.3, 0.2 is 0.982794
+acosf of 0.3 is 1.266104
+asinf of 0.3 is 0.304693
+tanhf of 2.2 is 0.304693
+logf of 0.3: -1.203973
+log10f of 300: 2.477121
+pi has mantissa: 0.785398, exponent 2
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 parsing input file tests\tp.bas
-start time: 21:51:37
+start time: 15:08:03
 1,000 ms for 1 iterations
-end time: 21:51:38
+end time: 15:08:04
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 12, hour 13, min 51, sec 38
+year: 2023, month 3, day 13, hour 7, min 8, sec 4
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
@@ -192,7 +203,15 @@ sqrt of pi: 1.772454
 sin of 30 degress is 0.500000
 cos of 30 degrees is 0.866025
 tan of 30 degrees is 0.577350
-mantissa: 0.785398, exponent 2
+atan of 1.000000 is 0.785398
+atan2 of 0.3, 0.2 is 0.982794
+acos of 0.3 is 1.266104
+asin of 0.3 is 0.304693
+tanh of 2.2 is 0.304693
+log of 0.3: -1.203973
+log10 of 300: 2.477121
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+pi has mantissa: 0.785398, exponent 2
 stop
 sorting tests\words.txt ==> tests\sorted.txt
 sorting

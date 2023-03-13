@@ -1256,6 +1256,20 @@ void RiscV::trace_state( uint64_t pcnext )
                         tracer.Trace( "fsgnjnx.d %s, %s, %s  # %.2f\n", freg_name( rd ), freg_name( rs1 ) , freg_name( rs2 ), d );
                     }
                 }
+                else if ( 0x14 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        tracer.Trace( "fmin.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                    else if ( 1 == funct3 )
+                        tracer.Trace( "fmin.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                }
+                else if ( 0x15 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        tracer.Trace( "fmin.d %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                    else if ( 1 == funct3 )
+                        tracer.Trace( "fmin.d %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                }
                 else if ( 0x20 == funct7 )
                 {
                     if ( 1 == rs2 )
@@ -1318,7 +1332,11 @@ void RiscV::trace_state( uint64_t pcnext )
                 }                
                 else if ( 0x68 == funct7 )
                 {
-                    if ( 2 == rs2 )
+                    if ( 0 == rs2 )
+                        tracer.Trace( "fcvt.s.w %s, %s  # %.2f = %d\n", freg_name( rd ), reg_name( rs1 ), (float) regs[ rs1 ], (int32_t) regs[ rs1 ] ); // i32 to float
+                    else if ( 1 == rs2 )
+                        tracer.Trace( "fcvt.s.wu %s, %s  # %.2f = %u\n", freg_name( rd ), reg_name( rs1 ), (float) regs[ rs1 ], (uint32_t) regs[ rs1 ] ); // u32 to float
+                    else if ( 2 == rs2 )
                         tracer.Trace( "fcvt.s.l %s, %s  # %.2f = %lld\n", freg_name( rd ), reg_name( rs1 ), (float) regs[ rs1 ], regs[ rs1 ] ); // i64 to float
                     else if ( 3 == rs2 )
                         tracer.Trace( "fcvt.s.lu %s, %s  # %.2f = %llu\n", freg_name( rd ), reg_name( rs1 ), (float) regs[ rs1 ], regs[ rs1 ] ); // ui64 to float
@@ -1544,7 +1562,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     regs[ rd ] = ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
                 else if ( 1 == i_top2 )
                 {
-                    // the g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
+                    // the old g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
                     // msvc and the g++ compiler that targets AMD64 both do sign-extend right shifts on signed numbers
                     // work around this by manually sign extending the result.
 
@@ -2143,6 +2161,20 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else
                     unhandled();
             }
+            else if ( 0x14 == funct7 )
+            {
+                if ( 0 == funct3 )
+                    fregs[ rd ].f = __min( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
+                else if ( 1 == funct3 )
+                    fregs[ rd ].f = __max( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
+            }
+            else if ( 0x15 == funct7 )
+            {
+                if ( 0 == funct3 )
+                    fregs[ rd ].d = __min( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
+                else if ( 1 == funct3 )
+                    fregs[ rd ].d = __max( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
+            }
             else if ( 0x20 == funct7 )
             {
                 if ( 1 == rs2 )
@@ -2221,7 +2253,11 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             }
             else if ( 0x68 == funct7 )
             {
-                if ( 2 == rs2 )
+                if ( 0 == rs2 )
+                    fregs[ rd ].f = (float) (int32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.w frd, rs1   -- converts i32 to float
+                else if ( 1 == rs2 )
+                    fregs[ rd ].f = (float) (uint32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.wu frd, rs1   -- converts ui32 to float
+                else if ( 2 == rs2 )
                     fregs[ rd ].f = (float) (int64_t) regs[ rs1 ]; // fcvt.s.l frd, rs1   -- converts i64 to float
                 else if ( 3 == rs2 )
                     fregs[ rd ].f = (float) regs[ rs1 ]; // fcvt.s.lu frd, rs1   -- converts ui64 to float
