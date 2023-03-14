@@ -11,35 +11,25 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
                   -t     enable debug tracing to rvos.log
 
 * Notes:
-    * This is a simplistic 64-bit RISC-V emulator.
+    * This is a simplistic 64-bit RISC-V M Mode emulator; it's an AEE (Application Execution Environment) that exposes a Linux-like ABI.
     * Only physical memory is supported.
-    * Only a subset of instructions are implemented; just the ones used by test apps that I could validate using g++.
     * Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
     * Float and double instructions are implemented.
     * Atomic and fence instructions are implemented assuming there is just one core.
-    * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf.
-    * I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
-    * The emulator is faster than the 400Mhz K210 physical processor when emulated on an AMD 5950x.
+    * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf, math, etc.
+    * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
+    * The emulator is faster than the 400Mhz K210 physical processor when run on an AMD 5950x.
     * The tests folder has test apps written in C. These build with both old and new g++ for RISC-V.
     * rvos can run rvos on Windows, MacOS, and Linux; the emulator can emulate itself nested arbitrarily deeply (slowly).
     * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
+    * Gnu CC torture execution tests were run on the emulator.
 
 Both the  old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
 https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported. 
 They each use different C runtimes and call into Linux syscalls differently. RVOS built with
-riscv-gnu-toolchain for RISC-V can run itself nested and rvos built with the older toolchain.
-
-ttt_riscv.s is a sample app. This requires rvos_shell.s, which has _start and a function to print text to the console
-that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
-different on the actual hardware -- it calls bamain (not main) and the text print function prints to the device's LCD.
-
-* Sample assembler files:
-    * make_s.bat:     test app build script. compiles and links ttt_riscv.s and riscv_shell.s to make ttt_riscv.elf
-    * ttt_riscv.s:    app to prove you can't win a nuclear war per War Games
-    * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
-    * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
+riscv-gnu-toolchain for RISC-V can run itself nested as well as rvos built with the older toolchain.
 
 * Other files:
     * riscv.?xx       Emulates a RISC-V processor
@@ -84,12 +74,23 @@ heap, use rvos' /h argument to specify how much RAM to allocate. The anagram gen
     * ttime.c     Tests retrieving and showing the current time
     * ttt.c       Proves you can't win at tic-tac-toe
     
-To run rvos in the rvos emulator, on Linux or Windows issue a command like:
+To run the rvos emulator in the rvos emulator, on Linux, MacOS, or Windows issue a command like:
 
     rvos /h:60 rvos.elf /h:40 an phoebe bridgers
     
 That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
-tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes.
+tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
+in the emulator makes it aout 100x slower.
+
+ttt_riscv.s is a sample app. This requires rvos_shell.s, which has _start and a function to print text to the console
+that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
+different on the actual hardware -- it calls bamain (not main) and the text print function prints to the device's LCD.
+
+* Sample assembler files:
+    * make_s.bat:     test app build script. compiles and links ttt_riscv.s and riscv_shell.s to make ttt_riscv.elf
+    * ttt_riscv.s:    app to prove you can't win a nuclear war per War Games
+    * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
+    * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
 
 RVOS has a few simple checks for memory references outside of bounds with debug builds. When detected it shows 
 some state and exits. Real RISC-V memory protection instructions are not implemented. For example:
