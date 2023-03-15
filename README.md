@@ -14,7 +14,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * This is a simplistic 64-bit RISC-V M Mode emulator; it's an AEE (Application Execution Environment) that exposes a Linux-like ABI.
     * Only physical memory is supported.
     * Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
-    * Float and double instructions are implemented.
+    * Single and double precision floating point instructions are implemented.
     * Atomic and fence instructions are implemented assuming there is just one core.
     * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf, math, etc.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
