@@ -32,7 +32,7 @@
     typedef SSIZE_T ssize_t;
 #else
     #include <unistd.h>
-    #ifndef OLDGCC
+    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
         #include <sys/random.h>
         #include <sys/uio.h>
         #ifndef __APPLE__
@@ -990,9 +990,6 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
     exit( -1 );
 } //riscv_hard_termination
 
-vector<char> g_string_table;                   // strings in the elf image
-vector<ElfSymbol64> g_symbols;                 // symbols in the elf image
-
 int symbol_find_compare( const void * a, const void * b )
 {
     ElfSymbol64 & sa = * (ElfSymbol64 *) a;
@@ -1013,6 +1010,9 @@ int symbol_find_compare( const void * a, const void * b )
         return 1;
     return -1;
 } //symbol_find_compare
+
+vector<char> g_string_table;      // strings in the elf image
+vector<ElfSymbol64> g_symbols;    // symbols in the elf image
 
 // returns the best guess for a symbol name for the address
 
@@ -1191,7 +1191,7 @@ bool load_image( const char * pimage, const char * app_args )
         }
     }
 
-    tracer.Trace( "elf image has %zd symbols:\n", g_symbols.size() );
+    tracer.Trace( "elf image has %zd usable symbols:\n", g_symbols.size() );
     tracer.Trace( "             address              size  name\n" );
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
@@ -1200,20 +1200,20 @@ bool load_image( const char * pimage, const char * app_args )
     if ( 0 == g_base_address )
         usage( "base address of elf image is invalid; physical address required" );
 
-    // allocate space after uninitialized memory brk to request space and the stack at the end
-    // memory map from low addresses to high:
-    //     g_base_address (offset read from the .elf file)
-    //     code (read from the .elf file)
-    //     initialized data (read from the .elf file)
-    //     uninitalized data (size read from the .elf file)
-    //     arg_data
-    //     g_end_of_data
-    //     g_brk_address with uninitialized RAM (just after arg_data initially)
-    //     (unallocated space between brk and the bottom of the stack)
-    //     g_bottom_of_stack
-    //     g_top_of_stack
-    //     Linux start data on the stack (see details below)
+    // allocate space after uninitialized memory for brk to request space and the stack at the end
+    // memory map from high to low addresses:
     //     <end of allocated memory>
+    //     Linux start data on the stack (see details below)
+    //     g_top_of_stack
+    //     g_bottom_of_stack
+    //     (unallocated space between brk and the bottom of the stack)
+    //     g_brk_address with uninitialized RAM (just after arg_data initially)
+    //     g_end_of_data
+    //     arg_data
+    //     uninitalized data (size read from the .elf file)
+    //     initialized data (read from the .elf file)
+    //     code (read from the .elf file)
+    //     g_base_address (offset read from the .elf file)
 
     // stacks by convention on risc-v are 16-byte aligned. make sure to start aligned
 
@@ -1266,7 +1266,7 @@ bool load_image( const char * pimage, const char * app_args )
     }
 
     // write the command-line arguments into the vm memory in a place where _start can find them.
-    // there's array of pointers to the args followed by the arg strings at offset arg_data.
+    // there's an array of pointers to the args followed by the arg strings at offset arg_data.
 
     uint64_t * parg_data = (uint64_t *) ( memory.data() + arg_data );
     const uint32_t max_args = 40;
@@ -1295,14 +1295,13 @@ bool load_image( const char * pimage, const char * app_args )
         tracer.Trace( "  argument %d is '%s', at vm address %llx\n", app_argc, pargs, parg_data[ app_argc ] );
 
         app_argc++;
-    
         pargs += strlen( pargs );
     
         if ( space )
             pargs++;
     }
 
-    // put the Linux startup info at the top of the stack. this consists of:
+    // put the Linux startup info at the top of the stack. this consists of (from high to low):
     //   two 8-byte random numbers used for stack and pointer guards
     //   optional filler to make sure alignment of all startup info is 16 bytes
     //   AT_NULL aux record
@@ -1311,7 +1310,7 @@ bool load_image( const char * pimage, const char * app_args )
     //   0..n environment string pointers
     //   0 argv termination
     //   1..n argv string pointers
-    //   argc  <<<==== sp should point here when the entrypoint is invoked
+    //   argc  <<<==== sp should point here when the entrypoint (likely _start) is invoked
 
     uint64_t * pstack = (uint64_t *) ( memory.data() + memory_size );
 
@@ -1348,20 +1347,28 @@ bool load_image( const char * pimage, const char * app_args )
     uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
     g_top_of_stack = g_base_address + memory_size - diff;
 
+    tracer.Trace( "memory map from highest to lowest addresses:\n" );
+    tracer.Trace( "  first byte beyond allocated memory:                 %llx\n", g_base_address + memory_size );
+    tracer.Trace( "  <random, alignment, aux recs, env, argv>            (%lld bytes)\n", diff );
+    tracer.Trace( "  initial stack pointer g_top_of_stack:               %llx\n", g_top_of_stack );
+    tracer.Trace( "  <stack>                                             (%lld bytes)\n", g_stack_commit );
+    tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %llx\n", g_bottom_of_stack );
+    tracer.Trace( "  <unallocated space between brk and the stack>       (%lld bytes)\n", g_brk_commit );
+    tracer.Trace( "  end_of_data / current brk:                          %llx\n", g_base_address + g_end_of_data );
+    tracer.Trace( "  <argv data, pointed to by argv array above>\n" );
+    tracer.Trace( "  start of argv data:                                 %llx\n", g_base_address + arg_data );
+    tracer.Trace( "  <uninitialized data per the .elf file>\n" );
+    tracer.Trace( "  <initialized data from the .elf file>\n" );
+    tracer.Trace( "  <code from the .elf file>\n" );
+    tracer.Trace( "  initial pc execution_addess:                        %llx\n", g_execution_address );
+    tracer.Trace( "  <code per the .elf file>\n" );
+    tracer.Trace( "  start of the address space per the .elf file:       %llx\n", g_base_address );
+
+    tracer.Trace( "vm memory first byte beyond:     %p\n", memory.data() + memory_size );
     tracer.Trace( "vm memory start:                 %p\n", memory.data() );
+    tracer.Trace( "memory_size:                     %#llx == %lld\n", memory_size, memory_size );
     tracer.Trace( "g_perrno:                        %p\n", g_perrno );
-    tracer.Trace( "risc-v compressed instructions:  %d\n", g_compressed_rvc );
-    tracer.Trace( "vm g_base_address                %llx\n", g_base_address );
-    tracer.Trace( "memory_size:                     %llx\n", memory_size );
-    tracer.Trace( "g_brk_commit:                    %llx\n", g_brk_commit );
-    tracer.Trace( "g_stack_commit:                  %llx\n", g_stack_commit );
-    tracer.Trace( "arg_data:                        %llx\n", arg_data );
-    tracer.Trace( "g_brk_address:                   %llx\n", g_brk_address );
-    tracer.Trace( "g_end_of_data:                   %llx\n", g_end_of_data );
-    tracer.Trace( "g_bottom_of_stack:               %llx\n", g_bottom_of_stack );
-    tracer.Trace( "g_top_of_stack:                  %llx\n", g_top_of_stack );
-    tracer.Trace( "space used by startup data:      %llx\n", diff );
-    tracer.Trace( "execution_addess                 %llx\n", g_execution_address );
+    tracer.Trace( "risc-v compressed instructions:  %s\n", g_compressed_rvc ? "yes" : "no" );
 
     return true;
 } //load_image

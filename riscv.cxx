@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-#include <vector>
 
 #ifdef _MSC_VER
     #include <intrin.h>
@@ -41,6 +40,8 @@
 
 #define USE_RVCTABLE 1
 
+// these instruction types are mostly just useful for debugging
+
 const uint8_t IllType = 0;
 const uint8_t UType = 1;
 const uint8_t JType = 2;
@@ -51,6 +52,12 @@ const uint8_t RType = 6;
 const uint8_t CsrType = 7;
 const uint8_t R4Type = 8;
 const uint8_t ShiftType = 9;
+
+static const char instruction_types[] =
+{
+    '!', 'U', 'J', 'I', 'B', 'S', 'R', 'C', 'r', 's',
+};
+
 
 static uint32_t g_State = 0;
 
@@ -141,20 +148,6 @@ void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
         tracer.TraceQuiet( "%s\n", acLine );
     }
 } //DumpBinaryData
-
-static const char * instruction_types[] =
-{
-    "!",
-    "U",
-    "J",
-    "I",
-    "B",
-    "S",
-    "R",
-    "C",
-    "r",
-    "s",
-};
 
 // for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
 
@@ -708,7 +701,7 @@ void RiscV::trace_state( uint64_t pcnext )
     else
         previous_symbol = symbol_name;
 
-    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx %s ra %llx sp %llx t %2llx %s => ",
+    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx %s ra %llx sp %llx t %2llx %c => ",
                   pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
                   regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
@@ -754,11 +747,10 @@ void RiscV::trace_state( uint64_t pcnext )
             }
             else if ( 1 == opcode_type )
             {
-                switch ( funct3 )
-                {
-                    case 0x2: tracer.Trace( "flw     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) ); break;
-                    case 0x3: tracer.Trace( "fld     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) ); break;
-                }
+                if ( 2 == funct3 )
+                    tracer.Trace( "flw     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) );
+                else if ( 3 == funct3 )
+                    tracer.Trace( "fld     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) );
             }
             else if ( 3 == opcode_type )
             {
@@ -792,44 +784,35 @@ void RiscV::trace_state( uint64_t pcnext )
             {
                 decode_I_shift();
 
-                switch( funct3 )
+                if ( 0 == funct3 )
                 {
-                    case 0:
+                    uint32_t x = ( 0xffffffff & regs[ rs1 ] ) + i_imm;
+                    uint64_t ext = sign_extend( x, 32 );
+                    tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
+                }
+                else if ( 1 == funct3 )
+                {
+                    if ( 0 == i_top2 )
                     {
-                        uint32_t x = ( 0xffffffff & regs[ rs1 ] ) + i_imm;
-                        uint64_t ext = sign_extend( x, 32 );
-                        tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
-                        break;
+                        uint32_t val = (uint32_t) regs[ rs1 ];
+                        uint32_t result = val << i_shamt5;
+                        uint32_t result64 = sign_extend( result, 32 );
+                        tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
                     }
-                    case 1:
-                    {
-                        if ( 0 == i_top2 )
-                        {
-                            uint32_t val = (uint32_t) regs[ rs1 ];
-                            uint32_t result = val << i_shamt5;
-                            uint32_t result64 = sign_extend( result, 32 );
-                            tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
-                        }
-                        break;
-                    }
-                    case 5:
-                    {
-                        switch( i_top2 )
-                        {
-                            case 0: tracer.Trace( "srliw   %s, %s, %lld  # %x >> %d = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
-                                                  ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 )  ); break;
-                            case 1: tracer.Trace( "sraiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  ); break;
-                        }
-                        break;
-                    }
+                }
+                else if ( 5 == funct3 )
+                {
+                    if ( 0 == i_top2 )
+                        tracer.Trace( "srliw   %s, %s, %lld  # %x >> %d = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
+                                      ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 )  );
+                    else if ( 1 == i_top2 )
+                        tracer.Trace( "sraiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  );
                 }
             }
             else if ( 0x19 == opcode_type )
             {
-                switch( funct3 )
-                {
-                    case 0: tracer.Trace( "jalr    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
-                }
+                if ( 0 == funct3 )
+                    tracer.Trace( "jalr    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm );
             }
             else if ( 0x1c == opcode_type )
             {
@@ -839,37 +822,32 @@ void RiscV::trace_state( uint64_t pcnext )
                     tracer.Trace( "ebreak\n" );
                 else
                 {
-                    switch( funct3 )
+                    if ( 1 == funct3 )
                     {
-                        case 1:
-                        {
-                            if ( 1 == i_imm_u )
-                                tracer.Trace( "csrrw   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
-                            else if ( 2 == i_imm_u )
-                                tracer.Trace( "csrrw   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
-                            else if ( 0xc00 == i_imm_u )
-                                tracer.Trace( "csrrw   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
-                            else
-                                tracer.Trace( "csrrw unknown\n" );
-                            break;
-                        }
-                        case 2:
-                        {
-                            if ( 1 == i_imm_u )
-                                tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
-                            else if ( 2 == i_imm_u )
-                                tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
-                            else if ( 0xc00 == i_imm_u )
-                                tracer.Trace( "csrrs   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
-                            else
-                                tracer.Trace( "csrrs unknown\n" );
-                            break;
-                        }
-                        case 6:
-                        {
-                            if ( 1 == i_imm_u )
-                                tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
-                        }
+                        if ( 1 == i_imm_u )
+                            tracer.Trace( "csrrw   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                        else if ( 2 == i_imm_u )
+                            tracer.Trace( "csrrw   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                        else if ( 0xc00 == i_imm_u )
+                            tracer.Trace( "csrrw   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                        else
+                            tracer.Trace( "csrrw unknown\n" );
+                    }
+                    else if ( 2 == funct3 )
+                    {
+                        if ( 1 == i_imm_u )
+                            tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                        else if ( 2 == i_imm_u )
+                            tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                        else if ( 0xc00 == i_imm_u )
+                            tracer.Trace( "csrrs   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                        else
+                            tracer.Trace( "csrrs unknown\n" );
+                    }
+                    else if ( 6 == funct3 )
+                    {
+                        if ( 1 == i_imm_u )
+                            tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
                     }
                 }
             }
@@ -902,21 +880,21 @@ void RiscV::trace_state( uint64_t pcnext )
 
             if ( 8 == opcode_type )
             {
-                switch ( funct3 )
-                {
-                    case 0: tracer.Trace( "sb      %s, %lld(%s)  #  %2x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] ); break;
-                    case 1: tracer.Trace( "sh      %s, %lld(%s)  #  %4x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] ); break;
-                    case 2: tracer.Trace( "sw      %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) ); break;
-                    case 3: tracer.Trace( "sd      %s, %lld(%s)  # %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), s_imm, regs[ rs1 ] ); break;
-                }
+                if ( 0 == funct3 )
+                    tracer.Trace( "sb      %s, %lld(%s)  #  %2x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                else if ( 1 == funct3 )
+                    tracer.Trace( "sh      %s, %lld(%s)  #  %4x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                else if ( 2 == funct3 )
+                    tracer.Trace( "sw      %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) );
+                else if ( 3 == funct3 )
+                    tracer.Trace( "sd      %s, %lld(%s)  # %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), s_imm, regs[ rs1 ] );
             }
             else if ( 9 == opcode_type )
             {
-                switch ( funct3 )
-                {
-                    case 2: tracer.Trace( "fsw     %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
-                    case 3: tracer.Trace( "fsd     %s, %lld(%s), # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
-                }
+                if ( 2 == funct3 )
+                    tracer.Trace( "fsw     %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
+                else if ( 3 == funct3 )
+                    tracer.Trace( "fsd     %s, %lld(%s), # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
             }
             break;
         }
@@ -1408,8 +1386,8 @@ __declspec(noinline)
 #endif
 void RiscV::unhandled()
 {
-    printf( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
-    tracer.Trace( "unhandled op %llx optype %llx == %s\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
+    printf( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
+    tracer.Trace( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     riscv_hard_termination( *this, "opcode not handed:", op );
 } //unhandled
 
@@ -1500,7 +1478,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
                 {
                     // The old g++ for RISC-V doesn't sign extend on right shifts for signed integers.
-                    // It does for amd64 code gen. work around this.
+                    // The new g++ does for amd64 code gen. work around this.
 
                     uint64_t result = regs[ rs1 ] >> i_shamt6;
                     regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
@@ -2301,14 +2279,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         float f = fregs[ rs1 ].f;
                         if ( isnan( f ) )
                         {
-#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                             if ( issignaling( f ) )
                                 result = 0x100;
                             else
-#endif
+                            #endif
                                 result = 0x200;
                         }
-#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                        #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                         else if ( issubnormal( f ) )
                         {
                             if ( f >= 0.0 )
@@ -2316,7 +2294,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                             else
                                 result = 4;
                         }
-#endif
+                        #endif
                         else if ( !isfinite( f ) )
                         {
                             if ( f >= 0.0 )
@@ -2350,14 +2328,14 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                         double d = fregs[ rs1 ].d;
                         if ( isnan( d ) )
                         {
-#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                             if ( issignaling( d ) )
                                 result = 0x100;
                             else
-#endif
+                            #endif
                                 result = 0x200;
                         }
-#if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                        #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
                         else if ( issubnormal( d ) )
                         {
                             if ( d >= 0.0 )
@@ -2365,7 +2343,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                             else
                                 result = 4;
                         }
-#endif
+                        #endif
                         else if ( !isfinite( d ) )
                         {
                             if ( d >= 0.0 )
@@ -2409,57 +2387,29 @@ bool RiscV::execute_instruction( uint64_t pcnext )
         {
             assert_type( BType );
             decode_B();
+            bool branch = false;
 
             if ( 0 == funct3 )  // beq rs1, rs2, bimm
-            {
-                if ( regs[ rs1 ] == regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch =  ( regs[ rs1 ] == regs[ rs2 ] );
             else if ( 1 == funct3 )  // bne rs1, rs2, bimm
-            {
-                if ( regs[ rs1 ] != regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch = ( regs[ rs1 ] != regs[ rs2 ] );
             else if ( 4 == funct3 )  // blt rs1, rs2, bimm
-            {
-                if ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] );
             else if ( 5 == funct3 ) // bge rs1, rs2, b_imm
-            {
-                if ( (int64_t) regs[ rs1 ] >= (int64_t) regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch = ( (int64_t) regs[ rs1 ] >= (int64_t) regs[ rs2 ] );
             else if ( 6 == funct3 )  // bltu rs1, rs2, bimm
-            {
-                if ( regs[ rs1 ] < regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch = ( regs[ rs1 ] < regs[ rs2 ] );
             else if ( 7 == funct3 )  // bgeu rs1, rs2, bimm
-            {
-                if ( regs[ rs1 ] >= regs[ rs2 ] )
-                {
-                    pc += b_imm;
-                    return true;
-                }
-            }
+                branch = ( regs[ rs1 ] >= regs[ rs2 ] );
             else
                 unhandled();
+
+            if ( branch )
+            {
+                pc += b_imm;
+                return true;
+            }
+
             break;
         }
         case 0x19:

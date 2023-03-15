@@ -8,7 +8,7 @@ int main() {
     int b, d;
     int iteration;
 
-    const int iterations = 100;
+    const int iterations = 1;
 
     for ( iteration = 0; iteration < iterations; iteration++ ) {
         int c = 0;

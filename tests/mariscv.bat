@@ -18,7 +18,7 @@ rem set RVCFLAG=c
 
 rem build the rvos shell _start and abi
 
-as -a=rvos_shell.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic rvos_shell.s -o rvos_shell.o
+as -a=rvos_shell.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% --defsym DEFINESTART=1 -fpic rvos_shell.s -o rvos_shell.o
 
 riscv64-unknown-elf-g++ ^
   rvosutil.c -c ^

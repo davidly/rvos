@@ -5,7 +5,7 @@
 .text
 .align 3
 
-.if 1
+.ifdef DEFINESTART
 .globl _start
 .type _start, @function
 _start:
