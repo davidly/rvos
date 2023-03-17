@@ -14,7 +14,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * This is a simplistic 64-bit RISC-V M Mode emulator; it's an AEE (Application Execution Environment) that exposes a Linux-like ABI.
     * Only physical memory is supported.
     * Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
-    * Float and double instructions are implemented.
+    * Single and double precision floating point instructions are implemented.
     * Atomic and fence instructions are implemented assuming there is just one core.
     * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf, math, etc.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
@@ -25,6 +25,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
     * Gnu CC torture execution tests were run on the emulator.
+    * Also tested with the Apple 1 emulator in my ntvao repo built for RISC-V.
 
 Both the  old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
 https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported. 
