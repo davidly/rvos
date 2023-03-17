@@ -7,8 +7,11 @@
 #define rvos_sys_print_text         0x2004
 
 // Linux syscall numbers differ by ISA. InSAne. These are RISC
+// Note that there are differences between these two sets. which is correct?
 // https://marcin.juszkiewicz.com.pl/download/tables/syscalls.html
+// https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/arch/s390/kernel/syscalls/syscall.tbl
 
+#define SYS_ioctl 29
 #define SYS_mkdirat 34
 #define SYS_unlinkat 35
 #define SYS_chdir 49
@@ -18,6 +21,7 @@
 #define SYS_read 63
 #define SYS_write 64
 #define SYS_writev 66
+#define SYS_pselect6 72   // or sigsuspend?
 #define SYS_readlinkat 78
 #define SYS_newfstat 79
 #define SYS_fstat 80

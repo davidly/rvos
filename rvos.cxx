@@ -408,6 +408,7 @@ struct SysCall
 
 const SysCall syscalls[] =
 {
+    { "SYS_ioctl", SYS_ioctl },
     { "SYS_mkdirat", SYS_mkdirat },
     { "SYS_unlinkat", SYS_unlinkat },
     { "SYS_chdir", SYS_chdir },
@@ -417,6 +418,7 @@ const SysCall syscalls[] =
     { "SYS_read", SYS_read },
     { "SYS_write", SYS_write },
     { "SYS_writev", SYS_writev },
+    { "SYS_pselect6", SYS_pselect6 },
     { "SYS_readlinkat", SYS_readlinkat },
     { "SYS_newfstat", SYS_newfstat },
     { "SYS_fstat", SYS_fstat },
@@ -507,7 +509,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_fstat:
         {
             tracer.Trace( "  rvos command SYS_fstat\n" );
-            int descriptor = cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
 #ifdef _MSC_VER
 
@@ -539,9 +541,9 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command SYS_lseek\n" );
 
-            int descriptor = cpu.regs[ RiscV::a0 ];
-            int offset = cpu.regs[ RiscV::a1 ];
-            int origin = cpu.regs[ RiscV::a2 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            int offset = (int) cpu.regs[ RiscV::a1 ];
+            int origin = (int) cpu.regs[ RiscV::a2 ];
 
             long result = lseek( descriptor, offset, origin );
             tracer.Trace( "  lseek result: %ld\n", result );
@@ -554,9 +556,9 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_read:
         {
-            int descriptor = cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
             void * buffer = cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            unsigned buffer_size = cpu.regs[ RiscV::a2 ];
+            unsigned buffer_size = (unsigned) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
 
             int result = read( descriptor, buffer, buffer_size );
@@ -572,7 +574,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command SYS_write. fd %lld, buf %llx, count %lld\n", cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
 
-            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
             uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             uint64_t count = cpu.regs[ RiscV::a2 ];
 
@@ -590,7 +592,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             else
             {
-                size_t result = write( descriptor, p, count );
+                size_t result = write( descriptor, p, (int) count );
                 if ( ( -1 == result ) && g_perrno )
                     *g_perrno = errno;
                 cpu.regs[ RiscV::a0 ] = result;
@@ -604,8 +606,8 @@ void riscv_invoke_ecall( RiscV & cpu )
             // a0: asciiz string of file to open. a1: flags. a2: mode
 
             const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            int flags = cpu.regs[ RiscV::a1 ];
-            int mode = cpu.regs[ RiscV::a2 ];
+            int flags = (int) cpu.regs[ RiscV::a1 ];
+            int mode = (int) cpu.regs[ RiscV::a2 ];
 
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
@@ -633,7 +635,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_close:
         {
             tracer.Trace( "  rvos command SYS_close\n" );
-            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
             if ( descriptor >=0 && descriptor <= 3 )
             {
@@ -716,8 +718,8 @@ void riscv_invoke_ecall( RiscV & cpu )
                 directory = -2; // Linux vs. MacOS
 #endif
             const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            int flags = cpu.regs[ RiscV::a2 ];
-            int mode = cpu.regs[ RiscV::a3 ];
+            int flags = (int) cpu.regs[ RiscV::a2 ];
+            int mode = (int) cpu.regs[ RiscV::a3 ];
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
 
@@ -762,7 +764,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             tracer.Trace( " rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
-            int descriptor = cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
 #ifdef _MSC_VER
             // ignore the folder argument on Windows
@@ -859,7 +861,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (uint64_t) pvec->iov_base ) );
 
 #ifdef _MSC_VER
-            size_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), pvec->iov_len );
+            size_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), (unsigned) pvec->iov_len );
 #else
             struct iovec vec_local;
             vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
@@ -918,8 +920,8 @@ void riscv_invoke_ecall( RiscV & cpu )
 
 #if defined(_MSC_VER) || defined(__APPLE__)
             int * pbuf = (int *) buf;
-            int count = buflen / sizeof( int );
-            for ( int i = 0; i < count; i++ )
+            size_t count = buflen / sizeof( int );
+            for ( size_t i = 0; i < count; i++ )
                 pbuf[ i ] = rand();
             result = buflen;
 #else
@@ -941,8 +943,10 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_prlimit64:
         case SYS_readlinkat:
         case SYS_mprotect:
+        case SYS_ioctl:
+        case SYS_pselect6:
         {
-            // ignore for now
+            // ignore for now as apps seem to run ok anyway
             break;
         }
 #endif // !defined(OLDGCC)
@@ -1335,7 +1339,7 @@ bool load_image( const char * pimage, const char * app_args )
     pstack--; // no environment is supported yet
     pstack--; // the last argv is 0 to indicate the end
 
-    for ( int iarg = app_argc - 1; iarg >= 0; iarg-- )
+    for ( int iarg = (int) app_argc - 1; iarg >= 0; iarg-- )
     {
         pstack--;
         *pstack = parg_data[ iarg ];
@@ -1530,24 +1534,32 @@ int ends_with( const char * str, const char * end )
     return ( 0 == _stricmp( str + len - lenend, end ) );
 } //ends_with
 
-void PrintNumberWithCommas( long long n )
+static void RenderNumber( long long n, char * ac )
 {
     if ( n < 0 )
     {
-        printf( "-" );
-        PrintNumberWithCommas( -n );
+        strcat( ac, "-" );
+        RenderNumber( -n, ac );
         return;
     }
    
     if ( n < 1000 )
     {
-        printf( "%lld", n );
+        sprintf( ac + strlen( ac ), "%lld", n );
         return;
     }
 
-    PrintNumberWithCommas( n / 1000 );
-    printf( ",%03lld", n % 1000 );
-} //PrintNumberWithCommas
+    RenderNumber( n / 1000, ac );
+    sprintf( ac + strlen( ac ), ",%03lld", n % 1000 );
+    return;
+} //RenderNumber
+
+static char * RenderNumberWithCommas( long long n, char * ac )
+{
+    ac[ 0 ] = 0;
+    RenderNumber( n, ac );
+    return ac;
+} //RenderNumberWithCommas
 
 int main( int argc, char * argv[] )
 {
@@ -1644,20 +1656,23 @@ int main( int argc, char * argv[] )
 
         do
         {
-            cycles += cpu->run( 1000 );
+            cycles += cpu->run( 1000000 );
         } while( !g_terminate );
 
+        char ac[ 100 ];
         if ( showPerformance )
         {
             high_resolution_clock::time_point tDone = high_resolution_clock::now();
             long long totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
 
-            printf( "elapsed milliseconds:  " ); PrintNumberWithCommas( totalTime); printf( "\n" );
-            printf( "app exit code:         %d\n", g_exit_code );
+            printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
+            printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
+            printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
+            printf( "app exit code:         %15d\n", g_exit_code );
         }
-    }
 
-    tracer.Trace( "highwater brk heap usage: %lld bytes\n", g_highwater_brk - g_end_of_data );
+        tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
+    }
     tracer.Shutdown();
 
     return g_exit_code;

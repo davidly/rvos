@@ -148,7 +148,6 @@ struct RiscV
   private:
 
     uint64_t op;
-    uint64_t opcode;
     uint64_t opcode_type;
     uint64_t funct3;
     uint64_t funct7;
@@ -168,24 +167,21 @@ struct RiscV
 
     void unhandled( void );
 
-    static uint32_t uncompress_rvc( uint32_t x, bool failOnError = true );
+    static uint32_t uncompress_rvc( uint32_t x );
 
     __inline_perf uint64_t decode()
     {
         op = getui32( pc );
-        uint64_t pc_next;
+        uint64_t pc_next = pc + 4;
 
-        if ( 3 == ( op & 0x3 ) )
-            pc_next = pc + 4;
-        else
+        if ( 3 != ( op & 0x3 ) )
         {
             assert( rvc );
             op = uncompress_rvc( op & 0xffff );
             pc_next = pc + 2;
         }
 
-        opcode = op & 0x7f;
-        opcode_type = ( opcode >> 2 );
+        opcode_type = ( 0x1f & ( op >> 2 ) );
         return pc_next;
     } //decode
 
@@ -239,11 +235,23 @@ struct RiscV
 
     __inline_perf void decode_I()
     {
+#if true // this is faster, for reasons I don't understand
+        uint64_t theop = op >> 7;
+        rd = theop & 0x1f;
+        theop >>= 5;
+        funct3 = theop & 0x7;
+        theop >>= 3;
+        rs1 = theop & 0x1f;
+        theop >>= 5;
+        i_imm_u = theop & 0xfff;
+        i_imm = sign_extend( i_imm_u, 12 );
+#else
         funct3 = ( op >> 12 ) & 0x7;
         rd = ( op >> 7 ) & 0x1f;
         rs1 = ( op >> 15 ) & 0x1f;
         i_imm_u = ( op >> 20 ) & 0xfff;
         i_imm = sign_extend( i_imm_u, 12 );
+#endif
     } //decode_I
 
     __inline_perf void decode_I_shift()

@@ -221,21 +221,23 @@ const char * RiscV::freg_name( uint64_t reg )
     return fregister_names[ reg ];
 } //freg_name
 
-void unhandled_op16( uint16_t x )
+static void unhandled_op16( uint16_t x )
 {
     printf( "compressed opcode not handled: %04x\n", x );
     tracer.Trace( "compressed opcode not handled: %04x\n", x );
     exit( 1 );
 } //unhandled_op16
 
+static bool g_failOnUncompressError = true;
+
 #if USE_RVCTABLE
 
     #include "rvctable.txt"
     
-    uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
+    uint32_t RiscV::uncompress_rvc( uint32_t x )
     {
         uint32_t op32 = rvc_lookup[ x ];
-        if ( 0 == op32 && failOnError )
+        if ( 0 == op32 )
             unhandled_op16( x );
     
         return op32;
@@ -243,7 +245,7 @@ void unhandled_op16( uint16_t x )
 
 #else // code, not a table
 
-uint32_t compose_I( uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t imm, uint32_t opcode_type )
+static uint32_t compose_I( uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t imm, uint32_t opcode_type )
 {
     //if ( g_State & stateTraceInstructions )
     //    tracer.Trace( "  composing I funct3 %02x, rd %x, rs1 %x, imm %d, opcode_type %x\n", funct3, rd, rs1, imm, opcode_type );
@@ -251,7 +253,7 @@ uint32_t compose_I( uint32_t funct3, uint32_t rd, uint32_t rs1, uint32_t imm, ui
     return ( funct3 << 12 ) | ( rd << 7 ) | ( rs1 << 15 ) | ( imm << 20 ) | ( opcode_type << 2 ) | 0x3;
 } //compose_I
 
-uint32_t compose_R( uint32_t funct3, uint32_t funct7, uint32_t rd, uint32_t rs1, uint32_t rs2, uint32_t opcode_type )
+static uint32_t compose_R( uint32_t funct3, uint32_t funct7, uint32_t rd, uint32_t rs1, uint32_t rs2, uint32_t opcode_type )
 {
     //if ( g_State & stateTraceInstructions )
     //    tracer.Trace( "  composing R funct3 %02x, funct7 %02x, rd %x, rs1 %x, rs2 %x, opcode_type %x\n", funct3, funct7, rd, rs1, rs2, opcode_type );
@@ -259,7 +261,7 @@ uint32_t compose_R( uint32_t funct3, uint32_t funct7, uint32_t rd, uint32_t rs1,
     return ( funct3 << 12 ) | ( funct7 << 25 ) | ( rd << 7 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | ( opcode_type << 2 ) | 0x3;
 } //compose_R
 
-uint32_t compose_S( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
+static uint32_t compose_S( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
 {
     //if ( g_State & stateTraceInstructions )
     //    tracer.Trace( "  composing S funct3 %02x, rs1 %x, rs2 %x, imm %d, opcode_type %x\n", funct3, rs1, rs2, imm, opcode_type );
@@ -269,12 +271,12 @@ uint32_t compose_S( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, u
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | i | ( opcode_type << 2 ) | 0x3;
 } //compose_S
 
-uint32_t compose_U( uint32_t rd, uint32_t imm, uint32_t opcode_type )
+static uint32_t compose_U( uint32_t rd, uint32_t imm, uint32_t opcode_type )
 {
     return ( rd << 7 ) | ( imm << 12 ) | ( opcode_type << 2 ) | 0x3;
 } //compose_U
 
-uint32_t compose_J( uint32_t offset, uint32_t opcode_type )
+static uint32_t compose_J( uint32_t offset, uint32_t opcode_type )
 {
     //                                            31 30   20 19
     // j itself decodes from upper 20 bits as imm[20|10:1|11|19:12]
@@ -288,7 +290,7 @@ uint32_t compose_J( uint32_t offset, uint32_t opcode_type )
     return offset | ( opcode_type << 2 ) | 0x3;
 } //compose_J
 
-uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
+static uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, uint32_t opcode_type )
 {
     // offset 12..1
 
@@ -298,7 +300,7 @@ uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t imm, u
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
 } //compose_B
 
-uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
+uint32_t RiscV::uncompress_rvc( uint32_t x )
 {
     uint32_t op32 = 0;
     uint16_t op2 = x & 0x3;
@@ -648,7 +650,7 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
         }
     }
 
-    if ( 0 == op32 && failOnError )
+    if ( 0 == op32 && g_failOnUncompressError )
         unhandled_op16( x );
 
     return op32;
@@ -658,6 +660,8 @@ uint32_t RiscV::uncompress_rvc( uint32_t x, bool failOnError )
 
 bool RiscV::generate_rvc_table( const char * path )
 {
+    g_failOnUncompressError = false;
+
     FILE * fp = fopen( path, "w" );
     if ( fp )
     {
@@ -670,7 +674,7 @@ bool RiscV::generate_rvc_table( const char * path )
 
             uint32_t op32 = 0;
             if ( 0x3 != ( i & 0x3 ) )
-                op32 = uncompress_rvc( (uint16_t) i, false );
+                op32 = uncompress_rvc( (uint16_t) i );
 
             fprintf( fp, ( 0 == op32 ) ? "%x, " : "0x%x, ", op32 );
         }
@@ -786,7 +790,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
                 if ( 0 == funct3 )
                 {
-                    uint32_t x = ( 0xffffffff & regs[ rs1 ] ) + i_imm;
+                    uint32_t x = (uint32_t) ( ( 0xffffffff & regs[ rs1 ] ) + i_imm );
                     uint64_t ext = sign_extend( x, 32 );
                     tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
                 }
@@ -796,7 +800,7 @@ void RiscV::trace_state( uint64_t pcnext )
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t result = val << i_shamt5;
-                        uint32_t result64 = sign_extend( result, 32 );
+                        uint64_t result64 = sign_extend( result, 32 );
                         tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
                     }
                 }
@@ -909,7 +913,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
             if ( 0xb == opcode_type )
             {
-                uint32_t top5 = funct7 >> 2;
+                uint32_t top5 = (uint32_t) ( funct7 >> 2 );
                 if ( 0 == top5 )
                 {
                     if ( 2 == funct3 )
@@ -1116,7 +1120,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
                 if ( 0 == fmt )
                 {
-                    float result = ( -1.0 * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f;
+                    float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f;
                     tracer.Trace( "fnmsub.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
                 }
@@ -1136,7 +1140,7 @@ void RiscV::trace_state( uint64_t pcnext )
 
                 if ( 0 == fmt )
                 {
-                    float result = ( -1.0 * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f;
+                    float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f;
                     tracer.Trace( "fnmadd.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
                 }
@@ -1178,7 +1182,7 @@ void RiscV::trace_state( uint64_t pcnext )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
 
-                        float f = fabs( fregs[ rs1 ].f );
+                        float f = fabsf( fregs[ rs1 ].f );
                         if ( fregs[ rs2 ].f < 0.0 )
                             f = -f;
                         tracer.Trace( "fsgnj.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
@@ -1187,7 +1191,7 @@ void RiscV::trace_state( uint64_t pcnext )
                     {
                         // put rs1's absolute value in rd and use opposeite of rs2's sign bit
 
-                        float f = fabs( fregs[ rs1 ].f );
+                        float f = fabsf( fregs[ rs1 ].f );
                         if ( fregs[ rs2 ].f >= 0.0 )
                             f = -f;
                         tracer.Trace( "fsgnjn.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
@@ -1197,7 +1201,7 @@ void RiscV::trace_state( uint64_t pcnext )
                         // put rs1's absolute value in rd and use the xor of the two sign bits
 
                         bool resultneg = ( ( fregs[ rs1 ].f < 0.0 ) ^ ( fregs[ rs2 ].f < 0.0 ) );
-                        float f = fabs( fregs[ rs1 ].f );
+                        float f = fabsf( fregs[ rs1 ].f );
                         if ( resultneg )
                             f = -f;
                         tracer.Trace( "fsgnjnx.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
@@ -1528,7 +1532,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 {
                     uint32_t val = (uint32_t) regs[ rs1 ];
                     uint32_t result = val << i_shamt5;
-                    uint32_t result64 = sign_extend( result, 32 );
+                    uint64_t result64 = sign_extend( result, 32 );
                     regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
                 }
                 else
@@ -1590,7 +1594,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             assert_type( RType );
             decode_R();
 
-            uint32_t top5 = funct7 >> 2;
+            uint32_t top5 = (uint32_t) ( funct7 >> 2 );
 
             if ( 0 == top5 )
             {
@@ -1599,7 +1603,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], regs[ rs2 ] + value );
+                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
                 }
                 else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
                 {
@@ -1616,7 +1620,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
                 {
                     uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 32 );
-                    uint32_t regval = regs[ rs2 ];
+                    uint32_t regval = (uint32_t) regs[ rs2 ];
                     if ( 0 != rd )
                         regs[ rd ] = memval;
                     setui32( regs[ rs1 ], regval );
@@ -1653,7 +1657,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             {
                 if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
                 {
-                    setui32( regs[ rs1 ], rs2 );
+                    setui32( regs[ rs1 ], (uint32_t) rs2 );
                     if ( 0 != rd )
                         regs[ rd ] = 0;
                 }
@@ -1673,7 +1677,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], regs[ rs2 ] ^ value );
+                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
                 }
                 else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
                 {
@@ -1692,7 +1696,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     uint32_t value = getui32( regs[ rs1 ] );
                     if ( 0 != rd )
                         regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], regs[ rs2 ] | value );
+                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
                 }
                 else if ( 3 == funct3 ) // amoord.d rd, rs2, (rs1)
                 {
@@ -2029,7 +2033,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             uint32_t fmt = ( funct7 & 0x3 );
 
             if ( 0 == fmt )
-                fregs[ rd ].f = ( -1.0 * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f; // fnmsub.s frd, frs1, frs2, frs3
+                fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f; // fnmsub.s frd, frs1, frs2, frs3
             else if ( 1 == fmt )
                 fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) + fregs[ rs3 ].d; // fnmsub.d frd, frs1, frs2, frs3
             else
@@ -2045,7 +2049,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             uint32_t fmt = ( funct7 & 0x3 );
 
             if ( 0 == fmt )
-                fregs[ rd ].f = ( -1.0 * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f; // fnmadd.s frd, frs1, frs2, frs3
+                fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f; // fnmadd.s frd, frs1, frs2, frs3
             else if ( 1 == fmt )
                 fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) - fregs[ rs3 ].d; // fnmadd.d frd, frs1, frs2, frs3
             else
@@ -2079,7 +2083,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 {
                     // put rs1's absolute value in rd and use rs2's sign bit
 
-                    float f = fabs( fregs[ rs1 ].f );
+                    float f = fabsf( fregs[ rs1 ].f );
                     if ( fregs[ rs2 ].f < 0.0 )
                         f = -f;
                     fregs[ rd ].f = f; // fsgnj.s rd, rs1, rs2
@@ -2088,7 +2092,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                 {
                     // put rs1's absolute value in rd and use opposeite of rs2's sign bit
 
-                    float f = fabs( fregs[ rs1 ].f );
+                    float f = fabsf( fregs[ rs1 ].f );
                     if ( fregs[ rs2 ].f >= 0.0 )
                         f = -f;
                     fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
@@ -2098,7 +2102,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
                     // put rs1's absolute value in rd and use the xor of the two sign bits
 
                     bool resultneg = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
-                    float f = fabs( fregs[ rs1 ].f );
+                    float f = fabsf( fregs[ rs1 ].f );
                     if ( resultneg )
                         f = -f;
                     fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
@@ -2156,7 +2160,7 @@ bool RiscV::execute_instruction( uint64_t pcnext )
             else if ( 0x20 == funct7 )
             {
                 if ( 1 == rs2 )
-                    fregs[ rd ].f = fregs[ rs1 ].d; // fcvt.s.d rd, rs1
+                    fregs[ rd ].f = (float) fregs[ rs1 ].d; // fcvt.s.d rd, rs1
                 else
                     unhandled();
             }                
