@@ -688,7 +688,7 @@ bool RiscV::generate_rvc_table( const char * path )
     return true;
 } //generate_rvc_table
 
-void RiscV::trace_state( uint64_t pcnext )
+void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
 
@@ -1395,1121 +1395,6 @@ void RiscV::unhandled()
     riscv_hard_termination( *this, "opcode not handed:", op );
 } //unhandled
 
-#ifndef DEBUG
-__inline_perf
-#endif
-bool RiscV::execute_instruction( uint64_t pcnext )
-{
-    switch( opcode_type )
-    {
-        case 0:
-        {
-            assert_type( IType );
-            decode_I();
-            if ( 0 == rd )
-                break;
-
-            if ( 0 == funct3 ) // lb rd, imm(rs1)
-                regs[ rd ] = (int8_t) getui8( regs[ rs1 ] + i_imm ); // sign extend
-            else if ( 1 == funct3 ) // lh rd, imm(rs1)
-                regs[ rd ] = (int16_t) getui16( regs[ rs1 ] + i_imm ); // sign extend
-            else if ( 2 == funct3 ) // lw    rd, imm(rs1)
-                regs[ rd ] = (int32_t) getui32( regs[ rs1 ] + i_imm ); // sign extend
-            else if ( 3 == funct3 ) // ld    rd, imm(rs1)
-                regs[ rd ] = getui64( regs[ rs1 ] + i_imm );
-            else if ( 4 == funct3 ) // lbu   rd, imm(rs1)
-                regs[ rd ] = getui8( regs[ rs1 ] + i_imm );
-            else if ( 5 == funct3 ) // lhu rd, imm(rs1)
-                regs[ rd ] = getui16( regs[ rs1 ] + i_imm );
-            else if ( 6 == funct3 ) // lwu rd, imm(rs1)
-                regs[ rd ] = getui32( regs[ rs1 ] + i_imm );
-            else
-                unhandled();
-            break;
-        }
-        case 1:
-        {
-            assert_type( IType );
-            decode_I();
-
-            if ( 2 == funct3 ) // flw rd, i_imm(rs1)
-                fregs[ rd ].f = getfloat( regs[ rs1 ] + i_imm );
-            else if ( 3 == funct3 ) // fld rd, i_imm(rs1)
-                fregs[ rd ].d = getdouble( regs[ rs1 ] + i_imm );
-            else
-                unhandled();
-            break;
-        }
-        case 3:
-        {
-            assert_type( IType );
-            decode_I();
-
-            if ( 0 == funct3 || 1 == funct3 ) // fence or fence.i
-            {
-                // fence -- do nothing
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 4:
-        {
-            assert_type( IType );
-            decode_I();
-            if ( 0 == rd )
-                break;
-
-            if ( 0 == funct3 ) // addi rd, rs1, imm
-                regs[ rd ] =  i_imm + regs[ rs1 ];
-            else if ( 1 == funct3 ) // slli rd, rs1, imm
-            {
-                decode_I_shift();
-                regs[ rd ] =  regs[ rs1 ] << i_shamt6;
-            }
-            else if ( 2 == funct3 ) // slti rd, rs1, imm
-                regs[ rd ] =  ( (int64_t) regs[ rs1 ] < i_imm );
-            else if ( 3 == funct3 ) // sltiu rd, rs1, imm
-                regs[ rd ] =  regs[ rs1 ] < i_imm_u;
-            else if ( 4 == funct3 ) // xori rd, rs1, imm
-                regs[ rd ] =  i_imm ^ regs[ rs1 ];
-            else if ( 5 == funct3 )
-            {
-                decode_I_shift();
-
-                if ( 0 == i_top2 ) // srli rd, rs1, i_shamt
-                    regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
-                else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
-                {
-                    // The old g++ for RISC-V doesn't sign extend on right shifts for signed integers.
-                    // The new g++ does for amd64 code gen. work around this.
-
-                    uint64_t result = regs[ rs1 ] >> i_shamt6;
-                    regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 6 == funct3 ) // ori rd, rs1, imm
-                regs[ rd ] =  i_imm | regs[ rs1 ];
-            else if ( 7 == funct3 ) // andi rd, rs1, imm
-                regs[ rd ] =  i_imm & regs[ rs1 ];
-            else
-                unhandled();
-            break;
-        }
-        case 5:
-        {
-            assert_type( UType );
-            decode_U();
-            if ( 0 == rd )
-                break;
-
-            // auipc imm.    rd <= pc + ( imm << 12 )
-
-            regs[ rd ] = pc + ( u_imm << 12 );
-            break;
-        }
-        case 6:
-        {
-            assert_type( IType );
-            decode_I();
-            decode_I_shift();
-            if ( 0 == rd )
-                break;
-
-            if ( 0 == funct3 ) // addiw rd, rs1, i_imm  (sign-extend both i_imm and rd)
-            {
-                int32_t val = 0xffffffff & regs[ rs1 ];
-                int32_t imm = (int32_t) i_imm;
-                int32_t result = val + imm;
-                regs[ rd ] = sign_extend( (uint32_t) result, 32 );
-            }
-            else if ( 1 == funct3 )
-            {
-                // 5, not 6 per https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
-                if ( 0 == i_top2 )
-                {
-                    uint32_t val = (uint32_t) regs[ rs1 ];
-                    uint32_t result = val << i_shamt5;
-                    uint64_t result64 = sign_extend( result, 32 );
-                    regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
-                }
-                else
-                    unhandled();
-            }
-            else if ( 5 == funct3 )
-            {
-                if ( 0 == i_top2 )
-                    regs[ rd ] = ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
-                else if ( 1 == i_top2 )
-                {
-                    // the old g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
-                    // msvc and the g++ compiler that targets AMD64 both do sign-extend right shifts on signed numbers
-                    // work around this by manually sign extending the result.
-
-                    uint32_t t = regs[ rs1 ] & 0xffffffff;
-                    uint64_t result = sign_extend( t >> i_shamt5, 32 - i_shamt5 );
-                    regs[ rd ] = result; // sraiw rd, rs1, i_imm
-                }
-                else
-                    unhandled();
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 8:
-        {
-            assert_type( SType );
-            decode_S();
-
-            if ( 0 == funct3 ) // sb   rs2, imm(rs1)
-                setui8( regs[ rs1 ] + s_imm, (uint8_t) regs[ rs2 ] );
-            else if ( 1 == funct3 ) // sh   rs2, imm(rs1)
-                setui16( regs[ rs1 ] + s_imm, (uint16_t) regs[ rs2 ] );
-            else if ( 2 == funct3 ) // sw   rs2, imm(rs1)
-                setui32( regs[ rs1 ] + s_imm, (uint32_t) regs[ rs2 ] );
-            else if ( 3 == funct3 ) // sd   rs2, imm(rs1)
-                setui64( regs[ rs1 ] + s_imm, regs[ rs2 ] );
-            else
-                unhandled();
-            break;
-        }
-        case 9:
-        {
-            assert_type( SType );
-            decode_S();
-
-            if ( 2 == funct3 ) // fsw   rs2, imm(rs1)
-                setfloat( regs[ rs1 ] + s_imm, fregs[ rs2 ].f );
-            else if ( 3 == funct3 ) // fsd  rs2, imm(rs1)
-                setdouble( regs[ rs1 ] + s_imm, fregs[ rs2 ].d );
-            else
-                unhandled();
-            break;
-        }
-        case 0xb:
-        {
-            assert_type( RType );
-            decode_R();
-
-            uint32_t top5 = (uint32_t) ( funct7 >> 2 );
-
-            if ( 0 == top5 )
-            {
-                if ( 2 == funct3 ) // amoadd.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
-                }
-                else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], regs[ rs2 ] + value );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 1 == top5 )
-            {
-                if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
-                {
-                    uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 32 );
-                    uint32_t regval = (uint32_t) regs[ rs2 ];
-                    if ( 0 != rd )
-                        regs[ rd ] = memval;
-                    setui32( regs[ rs1 ], regval );
-                }
-                else if ( 3 == funct3 ) // amoswap.d rd, rs2, (rs1)
-                {
-                    uint64_t memval = getui64( regs[ rs1 ] );
-                    uint64_t regval = regs[ rs2 ];
-                    if ( 0 != rd )
-                        regs[ rd ] = memval;
-                    setui64( regs[ rs1 ], regval );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 2 == top5 )
-            {
-                if ( 2 == funct3 ) // lr.w rd, (rs1)
-                {
-                    uint32_t val = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( val, 32 );
-                }
-                else if ( 3 == funct3 ) // lr.d rd, (rs1)
-                {
-                    uint64_t val = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = val;
-                }
-                else
-                    unhandled();
-            }
-            else if ( 3 == top5 )
-            {
-                if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
-                {
-                    setui32( regs[ rs1 ], (uint32_t) rs2 );
-                    if ( 0 != rd )
-                        regs[ rd ] = 0;
-                }
-                else if ( 3 == funct3 ) // sc.d rd, rs2, (rs1)
-                {
-                    setui64( regs[ rs1 ], rs2 );
-                    if ( 0 != rd )
-                        regs[ rd ] = 0;
-                }
-                else
-                    unhandled();
-            }
-            else if ( 4 == top5 )
-            {
-                if ( 2 == funct3 ) // amoxor.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
-                }
-                else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 8 == top5 )
-            {
-                if ( 2 == funct3 ) // amoor.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
-                }
-                else if ( 3 == funct3 ) // amoord.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], regs[ rs2 ] | value );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0xc == top5 )
-            {
-                if ( 2 == funct3 ) // amoand.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], regs[ rs2 ] & value );
-                }
-                else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], regs[ rs2 ] & value );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x10 == top5 )
-            {
-                if ( 2 == funct3 ) // amomin.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
-                }
-                else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x14 == top5 )
-            {
-                if ( 2 == funct3 ) // amomax.w rd, rs2, (rs1)
-                {
-                    uint32_t value = getui32( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = sign_extend( value, 32 );
-                    setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
-                }
-                else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
-                {
-                    uint64_t value = getui64( regs[ rs1 ] );
-                    if ( 0 != rd )
-                        regs[ rd ] = value;
-                    setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
-                }
-                else
-                    unhandled();
-            }
-            else
-                unhandled();
-
-            break;
-        }
-        case 0xc:
-        {
-            assert_type( RType );
-            decode_R();
-
-            if ( 0 == rd )
-                break;
-
-            if ( 0 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = regs[ rs1 ] + regs[ rs2 ]; // add rd, rs1, rs2
-                else if ( 1 == funct3 )
-                    //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
-                    regs[ rd ] = ( regs[ rs1 ] << ( regs[ rs2 ] & 0x3f ) ); // sll rd, rs1, rs2  // slr rd, rs1, rs2
-                else if ( 2 == funct3 )
-                    regs[ rd ] = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] ); // slt rd, rs1, rs2
-                else if ( 3 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] < regs[ rs2 ] ); // sltu rd, rs1, rs2
-                else if ( 4 == funct3 )
-                    regs[ rd ] = ( regs[ rs1 ] ^ regs[ rs2 ] ); // xor rd, rs1, rs2
-                else if ( 5 == funct3 )
-                    //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
-                    regs[ rd ] = ( regs[ rs1 ] >> ( regs[ rs2 ] & 0x3f ) ); // slr rd, rs1, rs2
-                else if ( 6 == funct3 )
-                    regs[ rd ] = regs[ rs1 ] | regs[ rs2 ]; // or rd, rs1, rs2
-                else if ( 7 == funct3 )
-                    regs[ rd ] = regs[ rs1 ] & regs[ rs2 ]; // and rd, rs1, rs2
-                else
-                    unhandled();
-            }
-            else if ( 1 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
-                else if ( 1 == funct3 ) // mulh rd, rs1, rs2     signed * signed
-                {
-                    #ifdef _MSC_VER
-                        int64_t high;
-
-                        #ifdef _M_ARM64
-                            Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #else
-                            _mul128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #endif
-
-                        regs[ rd ] = high;
-                    #else
-                        __int128 result = (__int128) regs[ rs1 ] * (__int128) regs[ rs2 ];
-                        result >>= 64;
-                        regs[ rd ] = (int64_t) result;
-                    #endif
-                }
-                else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
-                {
-                    #ifdef _MSC_VER
-                        int64_t reg1 = regs[ rs1 ];
-                        bool negative = ( reg1 < 0 );
-                        uint64_t ureg1 = negative ? -reg1 : reg1;
-                        uint64_t high;
-
-                        #ifdef _M_ARM64
-                            UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #else
-                            _umul128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #endif
-
-                        int64_t result = (int64_t) high;
-                        if ( negative )
-                            result = -result;
-                        regs[ rd ] = result;
-                    #else
-                        __int128 result = (__int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
-                        result >>= 64;
-                        regs[ rd ] = (int64_t) result;
-                    #endif
-                }
-                else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
-                {
-                    #ifdef _MSC_VER
-                        uint64_t high;
-
-                        #ifdef _M_ARM64
-                            UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #else
-                            _umul128( regs[ rs1 ], regs[ rs2 ], &high );
-                        #endif
-
-                        regs[ rd ] = high;
-                    #else
-                        unsigned __int128 result = (unsigned __int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
-                        result >>= 64;
-                        regs[ rd ] = (uint64_t) result;
-                    #endif
-                }
-                else if ( 4 == funct3 )
-                {
-                    if ( 0 != (int64_t) regs[ rs2 ] )
-                        regs[ rd ] = (int64_t) regs[ rs1 ] / (int64_t) regs[ rs2 ]; // div rd, rs1, rs2
-                }
-                else if ( 5 == funct3 )
-                {
-                    if ( 0 != regs[ rs2 ] )
-                        regs[ rd ] = regs[ rs1 ] / regs[ rs2 ]; // udiv rd, rs1, rs2
-                }
-                else if ( 6 == funct3 )
-                {
-                    if ( 0 != (int64_t) regs[ rs2 ] )
-                        regs[ rd ] = (int64_t) regs[ rs1 ] % (int64_t) regs[ rs2 ]; // rem rd, rs1, rs2
-                }
-                else if ( 7 == funct3 )
-                {
-                    if ( 0 != regs[ rs2 ] )
-                        regs[ rd ] = regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x20 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = regs[ rs1 ] - regs[ rs2 ]; // sub rd, rs1, rs2
-                else if ( 5 == funct3 )
-                {
-                    uint64_t shift = ( 0x3f & regs[ rs2 ] );
-                    uint64_t result = regs[ rs1 ] >> shift;
-                    regs[ rd ] = sign_extend( result, 64 - shift ); // sra rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 0xd: // lui rd, uimm
-        {
-            assert_type( UType );
-            decode_U();
-            if ( 0 == rd )
-                break;
-
-            regs[ rd ] = ( u_imm << 12 );
-            break;
-        }
-        case 0xe:
-        {
-            assert_type( RType );
-            decode_R();
-            if ( 0 == rd )
-                break;
-
-            if ( 0 == funct7 )
-            {
-                if ( 0 == funct3 )
-                {
-                    int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                    uint64_t result = sign_extend( (uint32_t) val, 32 );
-                    regs[ rd ] = result; // addw rd, rs1, rs2
-                }
-                else if ( 1 == funct3 )
-                {
-                    uint32_t val = (uint32_t) regs[ rs1 ];
-                    uint32_t amount = 0x1f & regs[ rs2 ];
-                    uint32_t result = val << amount;
-                    uint64_t result64 = sign_extend( result, 32 );
-                    regs[ rd ] = result64; // sllw rd, rs1, rs2
-                }
-                else if ( 5 == funct3 )
-                    regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) >> ( 0x1f & regs[ rs2 ] ); // srlw rd, rs1, rs2
-                else
-                    unhandled();
-            }
-            else if ( 1 == funct7 )
-            {
-                if ( 0 == funct3 )
-                {
-                    uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
-                    uint64_t ext = sign_extend( x, 32 );
-                    regs[ rd ] = ext; // mulw rd, rs1, rs2
-                }
-                else if ( 4 == funct3 )
-                {
-                    if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                        regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) / (int32_t) ( 0xffffffff & regs[ rs2 ] ); // divw rd, rs1, rs2
-                }
-                else if ( 5 == funct3 )
-                {
-                    if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                        regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) / ( 0xffffffff & regs[ rs2 ] ); // divuw rd, rs1, rs2
-                }
-                else if ( 6 == funct3 )
-                {
-                    if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                        regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) % (int32_t) ( 0xffffffff & regs[ rs2 ] ); // remw rd, rs1, rs2
-                }
-                else if ( 7 == funct3 )
-                {
-                    if ( 0 != ( 0xffffffff & regs[ rs2 ] ) )
-                        regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) % ( 0xffffffff & regs[ rs2 ] ); // remuw rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x20 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = (int64_t) ( (int32_t) ( 0xffffffff & regs[ rs1 ] ) - (int32_t) ( 0xffffffff & regs[ rs2 ] ) ); // subw rd, rs1, rs2
-                else if ( 5 == funct3 )
-                {
-                    uint64_t shift = ( 0x1f & regs[ rs2 ] );
-                    uint64_t result = ( 0xffffffff & regs[ rs1 ] ) >> shift;
-                    result = sign_extend( result, 32 - shift );
-                    regs[ rd ] = result; // sraw rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 0x10:
-        {
-            assert_type( RType );
-            decode_R();
-
-            uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
-            uint32_t fmt = ( funct7 & 0x3 );
-
-            if ( 0 == fmt )
-                fregs[ rd ].f = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f; // fmadd.s frd, frs1, frs2, frs3
-            else if ( 1 == fmt )
-                fregs[ rd ].d = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) + fregs[ rs3 ].d; // fmadd.d frd, frs1, frs2, frs3
-            else
-                unhandled();
-            break;
-        }
-        case 0x11:
-        {
-            assert_type( RType );
-            decode_R();
-
-            uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
-            uint32_t fmt = ( funct7 & 0x3 );
-
-            if ( 0 == fmt )
-                fregs[ rd ].f = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) - fregs[ rs3 ].f; // fmsub.s frd, frs1, frs2, frs3
-            else if ( 1 == fmt )
-                fregs[ rd ].d = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) - fregs[ rs3 ].d; // fmsub.d frd, frs1, frs2, frs3
-            else
-                unhandled();
-            break;
-        }
-        case 0x12:
-        {
-            assert_type( RType );
-            decode_R();
-
-            uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
-            uint32_t fmt = ( funct7 & 0x3 );
-
-            if ( 0 == fmt )
-                fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f; // fnmsub.s frd, frs1, frs2, frs3
-            else if ( 1 == fmt )
-                fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) + fregs[ rs3 ].d; // fnmsub.d frd, frs1, frs2, frs3
-            else
-                unhandled();
-            break;
-        }
-        case 0x13:
-        {
-            assert_type( RType );
-            decode_R();
-
-            uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
-            uint32_t fmt = ( funct7 & 0x3 );
-
-            if ( 0 == fmt )
-                fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f; // fnmadd.s frd, frs1, frs2, frs3
-            else if ( 1 == fmt )
-                fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) - fregs[ rs3 ].d; // fnmadd.d frd, frs1, frs2, frs3
-            else
-                unhandled();
-            break;
-        }
-        case 0x14:
-        {
-            assert_type( RType );
-            decode_R();
-
-            if ( 0 == funct7 )
-                fregs[ rd ].f = fregs[ rs1 ].f + fregs[ rs2 ].f; // fadd.s frd, frs1, frs2
-            else if ( 1 == funct7 )
-                fregs[ rd ].d = fregs[ rs1 ].d + fregs[ rs2 ].d; // fadd.d frd, frs1, frs2
-            else if ( 4 == funct7 )
-                fregs[ rd ].f = fregs[ rs1 ].f - fregs[ rs2 ].f; // fsub.s frd, frs1, frs2
-            else if ( 5 == funct7 )
-                fregs[ rd ].d = fregs[ rs1 ].d - fregs[ rs2 ].d; // fsub.d frd, frs1, frs2
-            else if ( 8 == funct7 )
-                fregs[ rd ].f = fregs[ rs1 ].f * fregs[ rs2 ].f; // fmul.s frd, frs1, frs2
-            else if ( 9 == funct7 )
-                fregs[ rd ].d = fregs[ rs1 ].d * fregs[ rs2 ].d; // fmul.d frd, frs1, frs2
-            else if ( 0xc == funct7 )
-                fregs[ rd ].f = fregs[ rs1 ].f / fregs[ rs2 ].f; // fdiv.s frd, frs1, frs2
-            else if ( 0xd == funct7 )
-                fregs[ rd ].d = fregs[ rs1 ].d / fregs[ rs2 ].d; // fdiv.d frd, frs1, frs2
-            else if ( 0x10 == funct7 )
-            {
-                if ( 0 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use rs2's sign bit
-
-                    float f = fabsf( fregs[ rs1 ].f );
-                    if ( fregs[ rs2 ].f < 0.0 )
-                        f = -f;
-                    fregs[ rd ].f = f; // fsgnj.s rd, rs1, rs2
-                }
-                else if ( 1 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use opposeite of rs2's sign bit
-
-                    float f = fabsf( fregs[ rs1 ].f );
-                    if ( fregs[ rs2 ].f >= 0.0 )
-                        f = -f;
-                    fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
-                }
-                else if ( 2 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use the xor of the two sign bits
-
-                    bool resultneg = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
-                    float f = fabsf( fregs[ rs1 ].f );
-                    if ( resultneg )
-                        f = -f;
-                    fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x11 == funct7 )
-            {
-                if ( 0 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use rs2's sign bit
-
-                    double d = fabs( fregs[ rs1 ].d );
-                    if ( fregs[ rs2 ].d < 0.0 )
-                        d = -d;
-                    fregs[ rd ].d = d; // fsgnj.d rd, rs1, rs2
-                }
-                else if ( 1 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use opposeite of rs2's sign bit
-
-                    double d = fabs( fregs[ rs1 ].d );
-                    if ( fregs[ rs2 ].d >= 0.0 )
-                        d = -d;
-                    fregs[ rd ].d = d; // fsgnjn.d rd, rs1, rs2
-                }
-                else if ( 2 == funct3 )
-                {
-                    // put rs1's absolute value in rd and use the xor of the two sign bits
-
-                    bool resultneg = ( ( fregs[ rs1 ].d < 0.0) ^ ( fregs[ rs2 ].d < 0.0 ) );
-                    double d = fabs( fregs[ rs1 ].d );
-                    if ( resultneg )
-                        d = -d;
-                    fregs[ rd ].d = d; // fsgnjnx.d rd, rs1, rs2
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x14 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    fregs[ rd ].f = get_min( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
-                else if ( 1 == funct3 )
-                    fregs[ rd ].f = get_max( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
-            }
-            else if ( 0x15 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    fregs[ rd ].d = get_min( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
-                else if ( 1 == funct3 )
-                    fregs[ rd ].d = get_max( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
-            }
-            else if ( 0x20 == funct7 )
-            {
-                if ( 1 == rs2 )
-                    fregs[ rd ].f = (float) fregs[ rs1 ].d; // fcvt.s.d rd, rs1
-                else
-                    unhandled();
-            }                
-            else if ( 0x21 == funct7 )
-            {
-                if ( 0 == rs2 )
-                    fregs[ rd ].d = fregs[ rs1 ].f; // fcvt.d.s rd, rs1
-                else
-                    unhandled();
-            }     
-            else if ( 0x2c == funct7 )
-            {
-                if ( 0 == rs2 )
-                    fregs[ rd ].f = (float) sqrt( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
-                else
-                    unhandled();
-            }
-            else if ( 0x2d == funct7 )
-            {
-                if ( 0 == rs2 )
-                    fregs[ rd ].d = sqrt( fregs[ rs1 ].d ); // fsqrt.d rd, rs1
-                else
-                    unhandled();
-            }
-            else if ( 0x50 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
-                else if ( 1 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
-                else if ( 2 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
-                else
-                    unhandled();
-            }
-            else if ( 0x51 == funct7 )
-            {
-                if ( 0 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].d <= fregs[ rs2 ].d ); // fle.d rd, frs1, frs2
-                else if ( 1 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].d < fregs[ rs2 ].d ); // flt.d rd, frs1, frs2
-                else if ( 2 == funct3 )
-                    regs[ rd ] = ( fregs[ rs1 ].d == fregs[ rs2 ].d ); // feq.d rd, frs1, frs2
-                else
-                    unhandled();
-            }            
-            else if ( 0x60 == funct7 )
-            {
-                if ( 0 == rs2 )
-                    regs[ rd ] = (int32_t) fregs[ rs1 ].f; // fcvt.w.s rd, frs1
-                else if ( 1 == rs2 )
-                    regs[ rd ] = (uint32_t) fregs[ rs1 ].f; // fcvt.wus rd, frs1
-                else if ( 2 == rs2 )
-                    regs[ rd ] = (int64_t) fregs[ rs1 ].f; // fcvt.l.s rd, frs1
-                else if ( 3 == rs2 )
-                    regs[ rd ] = (uint64_t) fregs[ rs1 ].f; // fcvt.lu.s rd, frs1
-                else
-                    unhandled();
-            }
-            else if ( 0x61 == funct7 )
-            {
-                if ( 0 == rs2 )
-                    regs[ rd ] = (int32_t) fregs[ rs1 ].d; // fcvt.w.d rd, frs1
-                else if ( 1 == rs2 )
-                    regs[ rd ] = (uint32_t) fregs[ rs1 ].d; // fcvt.wu.d rd, frs1
-                else if ( 2 == rs2 )
-                    regs[ rd ] = (int64_t) fregs[ rs1 ].d; // fcvt.l.d rd, frs1
-                else if ( 3 == rs2 )
-                    regs[ rd ] = (uint64_t) fregs[ rs1 ].d; // fcvt.lu.d rd, frs1
-                else
-                    unhandled();
-            }
-            else if ( 0x68 == funct7 )
-            {
-                if ( 0 == rs2 )
-                    fregs[ rd ].f = (float) (int32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.w frd, rs1   -- converts i32 to float
-                else if ( 1 == rs2 )
-                    fregs[ rd ].f = (float) (uint32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.wu frd, rs1   -- converts ui32 to float
-                else if ( 2 == rs2 )
-                    fregs[ rd ].f = (float) (int64_t) regs[ rs1 ]; // fcvt.s.l frd, rs1   -- converts i64 to float
-                else if ( 3 == rs2 )
-                    fregs[ rd ].f = (float) regs[ rs1 ]; // fcvt.s.lu frd, rs1   -- converts ui64 to float
-                else
-                    unhandled();
-            }
-            else if ( 0x69 == funct7 )
-            {
-                if ( 0 == rs2 ) // fcvt.d.w rd, rs1   -- converts i32 to double
-                    fregs[ rd ].d = (double) (int32_t) regs[ rs1 ];
-                else if ( 1 == rs2 ) // fcvt.d.wu rd, rs1   -- converts ui32 to double
-                    fregs[ rd ].d = (double) (uint32_t) regs[ rs1 ];
-                else if ( 2 == rs2 ) // fcvt.d.l rd, rs1   -- converts i64 to double
-                    fregs[ rd ].d = (double) (int64_t) regs[ rs1 ];
-                else if ( 3 == rs2 ) // fcvt.d.lu rd, rs1   -- converts ui64 to double
-                    fregs[ rd ].d = (double) (uint64_t) regs[ rs1 ];
-                else
-                    unhandled();
-            }
-            else if ( 0x70 == funct7 )
-            {
-                if ( 0 == rs2 )
-                {
-                    if ( 0 == funct3 ) // fmv.x.w rd, frs1
-                        memcpy( & regs[ rd ], & fregs[ rs1 ].f, 4 );
-                    else if ( 1 == funct3 ) // fclass.s
-                    {
-                        // rd bit Meaning
-                        // 0 rs1 is - infinity
-                        // 1 rs1 is a negative normal number.
-                        // 2 rs1 is a negative subnormal number.
-                        // 3 rs1 is -0
-                        // 4 rs1 is +0
-                        // 5 rs1 is a positive subnormal number.
-                        // 6 rs1 is a positive normal number.
-                        // 7 rs1 is + infinity
-                        // 8 rs1 is a signaling NaN.
-                        // 9 rs1 is a quiet NaN
-
-                        uint64_t result = 0;
-                        float f = fregs[ rs1 ].f;
-                        if ( isnan( f ) )
-                        {
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
-                            if ( issignaling( f ) )
-                                result = 0x100;
-                            else
-                            #endif
-                                result = 0x200;
-                        }
-                        #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
-                        else if ( issubnormal( f ) )
-                        {
-                            if ( f >= 0.0 )
-                                result = 0x20;
-                            else
-                                result = 4;
-                        }
-                        #endif
-                        else if ( !isfinite( f ) )
-                        {
-                            if ( f >= 0.0 )
-                                result = 0x80;
-                            else
-                                result = 1;
-                        }
-                        else
-                        {
-                            if ( f >= 0.0 )
-                                result = 0x40;
-                            else
-                                result = 2;
-                        }
-                    }
-                    else
-                        unhandled();
-                }
-                else
-                    unhandled();
-            }
-            else if ( 0x71 == funct7 )
-            {
-                if ( 0 == rs2 )
-                {
-                    if ( 0 == funct3 ) // fmv.x.d rd, frs1
-                        memcpy( & regs[ rd ], & fregs[ rs1 ].d, 8 );
-                    else if ( 1 == funct3 ) // fclass.d
-                    {
-                        uint64_t result = 0;
-                        double d = fregs[ rs1 ].d;
-                        if ( isnan( d ) )
-                        {
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
-                            if ( issignaling( d ) )
-                                result = 0x100;
-                            else
-                            #endif
-                                result = 0x200;
-                        }
-                        #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
-                        else if ( issubnormal( d ) )
-                        {
-                            if ( d >= 0.0 )
-                                result = 0x20;
-                            else
-                                result = 4;
-                        }
-                        #endif
-                        else if ( !isfinite( d ) )
-                        {
-                            if ( d >= 0.0 )
-                                result = 0x80;
-                            else
-                                result = 1;
-                        }
-                        else
-                        {
-                            if ( d >= 0.0 )
-                                result = 0x40;
-                            else
-                                result = 2;
-                        }
-                    }
-                    else
-                        unhandled();
-                }
-                else
-                    unhandled();
-            }            
-            else if ( 0x78 == funct7 )
-            {
-                if ( 0 == rs2 && 0 == funct3 )
-                    memcpy( & fregs[ rd ].f, & regs[ rs1 ], 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
-                else
-                    unhandled();
-            }
-            else if ( 0x79 == funct7 )
-            {
-                if ( 0 == rs2 && 0 == funct3 )
-                    memcpy( & fregs[ rd ].d, & regs[ rs1 ], 8 ); // fmv.d.x frd, rs1    rs1 is probably r0
-                else
-                    unhandled();
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 0x18:
-        {
-            assert_type( BType );
-            decode_B();
-            bool branch = false;
-
-            if ( 0 == funct3 )  // beq rs1, rs2, bimm
-                branch =  ( regs[ rs1 ] == regs[ rs2 ] );
-            else if ( 1 == funct3 )  // bne rs1, rs2, bimm
-                branch = ( regs[ rs1 ] != regs[ rs2 ] );
-            else if ( 4 == funct3 )  // blt rs1, rs2, bimm
-                branch = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] );
-            else if ( 5 == funct3 ) // bge rs1, rs2, b_imm
-                branch = ( (int64_t) regs[ rs1 ] >= (int64_t) regs[ rs2 ] );
-            else if ( 6 == funct3 )  // bltu rs1, rs2, bimm
-                branch = ( regs[ rs1 ] < regs[ rs2 ] );
-            else if ( 7 == funct3 )  // bgeu rs1, rs2, bimm
-                branch = ( regs[ rs1 ] >= regs[ rs2 ] );
-            else
-                unhandled();
-
-            if ( branch )
-            {
-                pc += b_imm;
-                return true;
-            }
-
-            break;
-        }
-        case 0x19:
-        {
-            assert_type( IType );
-            decode_I();
-
-            if ( 0 == funct3 )
-            {
-                pc = ( regs[ rs1 ] + i_imm ); // jalr (rs1) + i_imm
-                if ( 0 != rd )
-                    regs[ rd ] = pcnext;
-                return true;
-            }
-            else
-                unhandled();
-            break;
-        }
-        case 0x1b:
-        {
-            assert_type( JType );
-            decode_J();
-
-            // jal offset
-
-            if ( 0 != rd )
-                regs[ rd ] = pcnext;
-
-            int64_t offset = j_imm_u;
-            pc = pc + offset;
-            return true;
-        }
-        case 0x1c:
-        {
-            if ( 0x73 == op ) 
-                riscv_invoke_ecall( *this ); // ecall
-            else if ( 0x100073 == op )
-            {
-                // ebreak.  Ignore for now
-            }
-            else
-            {
-                assert_type( IType );
-                decode_I();
-
-                if ( 1 == funct3 )
-                {
-                    if ( 0x1 == i_imm_u )
-                        regs[ rd ] = 0; // csrrw   rd, fflags, rs1.  read fp exception flags. 0 means all clear
-                    else if ( 0x2 == i_imm_u )
-                        regs[ rd ] = 0; // csrrw   rd, frm, rs1.  read rounding mode. 0 means nearest
-                    else if ( 0xc00 == i_imm_u ) // csrrw rd, cycle, rs1
-                    {
-                        if ( 0 != rd )
-                            regs[ rd ] = 1000 * clock(); // fake microseconds
-                    }
-                    else
-                        unhandled();
-                }
-                else if ( 2 == funct3 )
-                {
-                    if ( 0x1 == i_imm_u )
-                        regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
-                    else if ( 0x2 == i_imm_u )
-                        regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
-                    else if ( 0xc00 == i_imm_u ) // csrrs rd, cycle, rs1
-                    {
-                        if ( 0 != rd )
-                            regs[ rd ] = 1000 * clock(); // fake microseconds
-                    }
-                    else
-                        unhandled();
-                }
-                else if ( 6 == funct3 )
-                {
-                    if ( 1 == i_imm_u )
-                    {
-                        // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
-                        if ( 0 != rd )
-                            regs[ rd ] = 0;
-                    }
-                    else
-                        unhandled();
-                }
-                else
-                    unhandled();
-            }
-            break;
-        }
-        default:
-            unhandled();
-    }
-
-    return false;
-} //execute_instruction
-
 uint64_t RiscV::run( uint64_t max_cycles )
 {
     uint64_t cycles = 0;
@@ -2536,10 +1421,9 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
         #endif
 
-        cycles++;
-        uint64_t pcnext = decode();
+        uint64_t pcnext = decode();   // 18% of runtime
 
-        if ( 0 != g_State )
+        if ( 0 != g_State )           // 1.1% of runtime
         {
             if ( g_State & stateEndEmulation )
             {
@@ -2548,12 +1432,1114 @@ uint64_t RiscV::run( uint64_t max_cycles )
             }
 
             if ( g_State & stateTraceInstructions )
-                trace_state( pcnext );
+                trace_state();
         }
 
-        bool jump = execute_instruction( pcnext );
-        if ( !jump )
-            pc = pcnext;
+        switch( opcode_type )         // 18.5% of runtime setting up for the jump table
+        {
+            case 0:
+            {
+                assert_type( IType );
+                decode_I();
+                if ( 0 == rd )
+                    break;
+    
+                if ( 0 == funct3 ) // lb rd, imm(rs1)
+                    regs[ rd ] = (int8_t) getui8( regs[ rs1 ] + i_imm ); // sign extend
+                else if ( 1 == funct3 ) // lh rd, imm(rs1)
+                    regs[ rd ] = (int16_t) getui16( regs[ rs1 ] + i_imm ); // sign extend
+                else if ( 2 == funct3 ) // lw    rd, imm(rs1)
+                    regs[ rd ] = (int32_t) getui32( regs[ rs1 ] + i_imm ); // sign extend
+                else if ( 3 == funct3 ) // ld    rd, imm(rs1)
+                    regs[ rd ] = getui64( regs[ rs1 ] + i_imm );
+                else if ( 4 == funct3 ) // lbu   rd, imm(rs1)
+                    regs[ rd ] = getui8( regs[ rs1 ] + i_imm );
+                else if ( 5 == funct3 ) // lhu rd, imm(rs1)
+                    regs[ rd ] = getui16( regs[ rs1 ] + i_imm );
+                else if ( 6 == funct3 ) // lwu rd, imm(rs1)
+                    regs[ rd ] = getui32( regs[ rs1 ] + i_imm );
+                else
+                    unhandled();
+                break;
+            }
+            case 1:
+            {
+                assert_type( IType );
+                decode_I();
+    
+                if ( 2 == funct3 ) // flw rd, i_imm(rs1)
+                    fregs[ rd ].f = getfloat( regs[ rs1 ] + i_imm );
+                else if ( 3 == funct3 ) // fld rd, i_imm(rs1)
+                    fregs[ rd ].d = getdouble( regs[ rs1 ] + i_imm );
+                else
+                    unhandled();
+                break;
+            }
+            case 3:
+            {
+                assert_type( IType );
+                decode_I();
+    
+                if ( 0 == funct3 || 1 == funct3 ) // fence or fence.i
+                {
+                    // fence -- do nothing
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 4:
+            {
+                assert_type( IType );
+                decode_I();
+                if ( 0 == rd )
+                    break;
+    
+                if ( 0 == funct3 ) // addi rd, rs1, imm
+                    regs[ rd ] =  i_imm + regs[ rs1 ];
+                else if ( 1 == funct3 ) // slli rd, rs1, imm
+                {
+                    decode_I_shift();
+                    regs[ rd ] =  regs[ rs1 ] << i_shamt6;
+                }
+                else if ( 2 == funct3 ) // slti rd, rs1, imm
+                    regs[ rd ] =  ( (int64_t) regs[ rs1 ] < i_imm );
+                else if ( 3 == funct3 ) // sltiu rd, rs1, imm
+                    regs[ rd ] =  regs[ rs1 ] < i_imm_u;
+                else if ( 4 == funct3 ) // xori rd, rs1, imm
+                    regs[ rd ] =  i_imm ^ regs[ rs1 ];
+                else if ( 5 == funct3 )
+                {
+                    decode_I_shift();
+    
+                    if ( 0 == i_top2 ) // srli rd, rs1, i_shamt
+                        regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
+                    else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
+                    {
+                        // The old g++ for RISC-V doesn't sign extend on right shifts for signed integers.
+                        // The new g++ does for amd64 code gen. work around this.
+    
+                        uint64_t result = regs[ rs1 ] >> i_shamt6;
+                        regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 6 == funct3 ) // ori rd, rs1, imm
+                    regs[ rd ] =  i_imm | regs[ rs1 ];
+                else if ( 7 == funct3 ) // andi rd, rs1, imm
+                    regs[ rd ] =  i_imm & regs[ rs1 ];
+                else
+                    unhandled();
+                break;
+            }
+            case 5:
+            {
+                assert_type( UType );
+                decode_U();
+                if ( 0 == rd )
+                    break;
+    
+                // auipc imm.    rd <= pc + ( imm << 12 )
+    
+                regs[ rd ] = pc + ( u_imm << 12 );
+                break;
+            }
+            case 6:
+            {
+                assert_type( IType );
+                decode_I();
+                decode_I_shift();
+                if ( 0 == rd )
+                    break;
+    
+                if ( 0 == funct3 ) // addiw rd, rs1, i_imm  (sign-extend both i_imm and rd)
+                {
+                    int32_t val = 0xffffffff & regs[ rs1 ];
+                    int32_t imm = (int32_t) i_imm;
+                    int32_t result = val + imm;
+                    regs[ rd ] = sign_extend( (uint32_t) result, 32 );
+                }
+                else if ( 1 == funct3 )
+                {
+                    // 5, not 6 per https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
+                    if ( 0 == i_top2 )
+                    {
+                        uint32_t val = (uint32_t) regs[ rs1 ];
+                        uint32_t result = val << i_shamt5;
+                        uint64_t result64 = sign_extend( result, 32 );
+                        regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 5 == funct3 )
+                {
+                    if ( 0 == i_top2 )
+                        regs[ rd ] = ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
+                    else if ( 1 == i_top2 )
+                    {
+                        // the old g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
+                        // msvc and the g++ compiler that targets AMD64 both do sign-extend right shifts on signed numbers
+                        // work around this by manually sign extending the result.
+    
+                        uint32_t t = regs[ rs1 ] & 0xffffffff;
+                        uint64_t result = sign_extend( t >> i_shamt5, 32 - i_shamt5 );
+                        regs[ rd ] = result; // sraiw rd, rs1, i_imm
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 8:
+            {
+                assert_type( SType );
+                decode_S();
+    
+                if ( 0 == funct3 ) // sb   rs2, imm(rs1)
+                    setui8( regs[ rs1 ] + s_imm, (uint8_t) regs[ rs2 ] );
+                else if ( 1 == funct3 ) // sh   rs2, imm(rs1)
+                    setui16( regs[ rs1 ] + s_imm, (uint16_t) regs[ rs2 ] );
+                else if ( 2 == funct3 ) // sw   rs2, imm(rs1)
+                    setui32( regs[ rs1 ] + s_imm, (uint32_t) regs[ rs2 ] );
+                else if ( 3 == funct3 ) // sd   rs2, imm(rs1)
+                    setui64( regs[ rs1 ] + s_imm, regs[ rs2 ] );
+                else
+                    unhandled();
+                break;
+            }
+            case 9:
+            {
+                assert_type( SType );
+                decode_S();
+    
+                if ( 2 == funct3 ) // fsw   rs2, imm(rs1)
+                    setfloat( regs[ rs1 ] + s_imm, fregs[ rs2 ].f );
+                else if ( 3 == funct3 ) // fsd  rs2, imm(rs1)
+                    setdouble( regs[ rs1 ] + s_imm, fregs[ rs2 ].d );
+                else
+                    unhandled();
+                break;
+            }
+            case 0xb:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                uint32_t top5 = (uint32_t) ( funct7 >> 2 );
+    
+                if ( 0 == top5 )
+                {
+                    if ( 2 == funct3 ) // amoadd.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
+                    }
+                    else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], regs[ rs2 ] + value );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 1 == top5 )
+                {
+                    if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
+                    {
+                        uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 32 );
+                        uint32_t regval = (uint32_t) regs[ rs2 ];
+                        if ( 0 != rd )
+                            regs[ rd ] = memval;
+                        setui32( regs[ rs1 ], regval );
+                    }
+                    else if ( 3 == funct3 ) // amoswap.d rd, rs2, (rs1)
+                    {
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        uint64_t regval = regs[ rs2 ];
+                        if ( 0 != rd )
+                            regs[ rd ] = memval;
+                        setui64( regs[ rs1 ], regval );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 2 == top5 )
+                {
+                    if ( 2 == funct3 ) // lr.w rd, (rs1)
+                    {
+                        uint32_t val = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( val, 32 );
+                    }
+                    else if ( 3 == funct3 ) // lr.d rd, (rs1)
+                    {
+                        uint64_t val = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = val;
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 3 == top5 )
+                {
+                    if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
+                    {
+                        setui32( regs[ rs1 ], (uint32_t) rs2 );
+                        if ( 0 != rd )
+                            regs[ rd ] = 0;
+                    }
+                    else if ( 3 == funct3 ) // sc.d rd, rs2, (rs1)
+                    {
+                        setui64( regs[ rs1 ], rs2 );
+                        if ( 0 != rd )
+                            regs[ rd ] = 0;
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 4 == top5 )
+                {
+                    if ( 2 == funct3 ) // amoxor.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
+                    }
+                    else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 8 == top5 )
+                {
+                    if ( 2 == funct3 ) // amoor.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
+                    }
+                    else if ( 3 == funct3 ) // amoord.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], regs[ rs2 ] | value );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0xc == top5 )
+                {
+                    if ( 2 == funct3 ) // amoand.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], regs[ rs2 ] & value );
+                    }
+                    else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], regs[ rs2 ] & value );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x10 == top5 )
+                {
+                    if ( 2 == funct3 ) // amomin.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
+                    }
+                    else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x14 == top5 )
+                {
+                    if ( 2 == funct3 ) // amomax.w rd, rs2, (rs1)
+                    {
+                        uint32_t value = getui32( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = sign_extend( value, 32 );
+                        setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
+                    }
+                    else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
+                    {
+                        uint64_t value = getui64( regs[ rs1 ] );
+                        if ( 0 != rd )
+                            regs[ rd ] = value;
+                        setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+    
+                break;
+            }
+            case 0xc:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                if ( 0 == rd )
+                    break;
+    
+                if ( 0 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = regs[ rs1 ] + regs[ rs2 ]; // add rd, rs1, rs2
+                    else if ( 1 == funct3 )
+                        //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
+                        regs[ rd ] = ( regs[ rs1 ] << ( regs[ rs2 ] & 0x3f ) ); // sll rd, rs1, rs2  // slr rd, rs1, rs2
+                    else if ( 2 == funct3 )
+                        regs[ rd ] = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] ); // slt rd, rs1, rs2
+                    else if ( 3 == funct3 )
+                        regs[ rd ] = ( regs[ rs1 ] < regs[ rs2 ] ); // sltu rd, rs1, rs2
+                    else if ( 4 == funct3 )
+                        regs[ rd ] = ( regs[ rs1 ] ^ regs[ rs2 ] ); // xor rd, rs1, rs2
+                    else if ( 5 == funct3 )
+                        //  n.b. the risc-v spec says lower 5 bits of rs2. Gnu floating point code assumes lower 6 bits.
+                        regs[ rd ] = ( regs[ rs1 ] >> ( regs[ rs2 ] & 0x3f ) ); // slr rd, rs1, rs2
+                    else if ( 6 == funct3 )
+                        regs[ rd ] = regs[ rs1 ] | regs[ rs2 ]; // or rd, rs1, rs2
+                    else if ( 7 == funct3 )
+                        regs[ rd ] = regs[ rs1 ] & regs[ rs2 ]; // and rd, rs1, rs2
+                    else
+                        unhandled();
+                }
+                else if ( 1 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
+                    else if ( 1 == funct3 ) // mulh rd, rs1, rs2     signed * signed
+                    {
+                        #ifdef _MSC_VER
+                            int64_t high;
+    
+                            #ifdef _M_ARM64
+                                Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #else
+                                _mul128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #endif
+    
+                            regs[ rd ] = high;
+                        #else
+                            __int128 result = (__int128) regs[ rs1 ] * (__int128) regs[ rs2 ];
+                            result >>= 64;
+                            regs[ rd ] = (int64_t) result;
+                        #endif
+                    }
+                    else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
+                    {
+                        #ifdef _MSC_VER
+                            int64_t reg1 = regs[ rs1 ];
+                            bool negative = ( reg1 < 0 );
+                            uint64_t ureg1 = negative ? -reg1 : reg1;
+                            uint64_t high;
+    
+                            #ifdef _M_ARM64
+                                UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #else
+                                _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #endif
+    
+                            int64_t result = (int64_t) high;
+                            if ( negative )
+                                result = -result;
+                            regs[ rd ] = result;
+                        #else
+                            __int128 result = (__int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
+                            result >>= 64;
+                            regs[ rd ] = (int64_t) result;
+                        #endif
+                    }
+                    else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
+                    {
+                        #ifdef _MSC_VER
+                            uint64_t high;
+    
+                            #ifdef _M_ARM64
+                                UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #else
+                                _umul128( regs[ rs1 ], regs[ rs2 ], &high );
+                            #endif
+    
+                            regs[ rd ] = high;
+                        #else
+                            unsigned __int128 result = (unsigned __int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
+                            result >>= 64;
+                            regs[ rd ] = (uint64_t) result;
+                        #endif
+                    }
+                    else if ( 4 == funct3 )
+                    {
+                        if ( 0 != (int64_t) regs[ rs2 ] )
+                            regs[ rd ] = (int64_t) regs[ rs1 ] / (int64_t) regs[ rs2 ]; // div rd, rs1, rs2
+                    }
+                    else if ( 5 == funct3 )
+                    {
+                        if ( 0 != regs[ rs2 ] )
+                            regs[ rd ] = regs[ rs1 ] / regs[ rs2 ]; // udiv rd, rs1, rs2
+                    }
+                    else if ( 6 == funct3 )
+                    {
+                        if ( 0 != (int64_t) regs[ rs2 ] )
+                            regs[ rd ] = (int64_t) regs[ rs1 ] % (int64_t) regs[ rs2 ]; // rem rd, rs1, rs2
+                    }
+                    else if ( 7 == funct3 )
+                    {
+                        if ( 0 != regs[ rs2 ] )
+                            regs[ rd ] = regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x20 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = regs[ rs1 ] - regs[ rs2 ]; // sub rd, rs1, rs2
+                    else if ( 5 == funct3 )
+                    {
+                        uint64_t shift = ( 0x3f & regs[ rs2 ] );
+                        uint64_t result = regs[ rs1 ] >> shift;
+                        regs[ rd ] = sign_extend( result, 64 - shift ); // sra rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 0xd: // lui rd, uimm
+            {
+                assert_type( UType );
+                decode_U();
+                if ( 0 == rd )
+                    break;
+    
+                regs[ rd ] = ( u_imm << 12 );
+                break;
+            }
+            case 0xe:
+            {
+                assert_type( RType );
+                decode_R();
+                if ( 0 == rd )
+                    break;
+    
+                if ( 0 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
+                        uint64_t result = sign_extend( (uint32_t) val, 32 );
+                        regs[ rd ] = result; // addw rd, rs1, rs2
+                    }
+                    else if ( 1 == funct3 )
+                    {
+                        uint32_t val = (uint32_t) regs[ rs1 ];
+                        uint32_t amount = 0x1f & regs[ rs2 ];
+                        uint32_t result = val << amount;
+                        uint64_t result64 = sign_extend( result, 32 );
+                        regs[ rd ] = result64; // sllw rd, rs1, rs2
+                    }
+                    else if ( 5 == funct3 )
+                        regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) >> ( 0x1f & regs[ rs2 ] ); // srlw rd, rs1, rs2
+                    else
+                        unhandled();
+                }
+                else if ( 1 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
+                        uint64_t ext = sign_extend( x, 32 );
+                        regs[ rd ] = ext; // mulw rd, rs1, rs2
+                    }
+                    else if ( 4 == funct3 )
+                    {
+                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
+                            regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) / (int32_t) ( 0xffffffff & regs[ rs2 ] ); // divw rd, rs1, rs2
+                    }
+                    else if ( 5 == funct3 )
+                    {
+                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
+                            regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) / ( 0xffffffff & regs[ rs2 ] ); // divuw rd, rs1, rs2
+                    }
+                    else if ( 6 == funct3 )
+                    {
+                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
+                            regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) % (int32_t) ( 0xffffffff & regs[ rs2 ] ); // remw rd, rs1, rs2
+                    }
+                    else if ( 7 == funct3 )
+                    {
+                        if ( 0 != ( 0xffffffff & regs[ rs2 ] ) )
+                            regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) % ( 0xffffffff & regs[ rs2 ] ); // remuw rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x20 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = (int64_t) ( (int32_t) ( 0xffffffff & regs[ rs1 ] ) - (int32_t) ( 0xffffffff & regs[ rs2 ] ) ); // subw rd, rs1, rs2
+                    else if ( 5 == funct3 )
+                    {
+                        uint64_t shift = ( 0x1f & regs[ rs2 ] );
+                        uint64_t result = ( 0xffffffff & regs[ rs1 ] ) >> shift;
+                        result = sign_extend( result, 32 - shift );
+                        regs[ rd ] = result; // sraw rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 0x10:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+                uint32_t fmt = ( funct7 & 0x3 );
+    
+                if ( 0 == fmt )
+                    fregs[ rd ].f = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f; // fmadd.s frd, frs1, frs2, frs3
+                else if ( 1 == fmt )
+                    fregs[ rd ].d = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) + fregs[ rs3 ].d; // fmadd.d frd, frs1, frs2, frs3
+                else
+                    unhandled();
+                break;
+            }
+            case 0x11:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+                uint32_t fmt = ( funct7 & 0x3 );
+    
+                if ( 0 == fmt )
+                    fregs[ rd ].f = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) - fregs[ rs3 ].f; // fmsub.s frd, frs1, frs2, frs3
+                else if ( 1 == fmt )
+                    fregs[ rd ].d = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) - fregs[ rs3 ].d; // fmsub.d frd, frs1, frs2, frs3
+                else
+                    unhandled();
+                break;
+            }
+            case 0x12:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+                uint32_t fmt = ( funct7 & 0x3 );
+    
+                if ( 0 == fmt )
+                    fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f; // fnmsub.s frd, frs1, frs2, frs3
+                else if ( 1 == fmt )
+                    fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) + fregs[ rs3 ].d; // fnmsub.d frd, frs1, frs2, frs3
+                else
+                    unhandled();
+                break;
+            }
+            case 0x13:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                uint32_t rs3 = ( ( funct7 >> 2 ) & 0x1f );
+                uint32_t fmt = ( funct7 & 0x3 );
+    
+                if ( 0 == fmt )
+                    fregs[ rd ].f = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f; // fnmadd.s frd, frs1, frs2, frs3
+                else if ( 1 == fmt )
+                    fregs[ rd ].d = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) - fregs[ rs3 ].d; // fnmadd.d frd, frs1, frs2, frs3
+                else
+                    unhandled();
+                break;
+            }
+            case 0x14:
+            {
+                assert_type( RType );
+                decode_R();
+    
+                if ( 0 == funct7 )
+                    fregs[ rd ].f = fregs[ rs1 ].f + fregs[ rs2 ].f; // fadd.s frd, frs1, frs2
+                else if ( 1 == funct7 )
+                    fregs[ rd ].d = fregs[ rs1 ].d + fregs[ rs2 ].d; // fadd.d frd, frs1, frs2
+                else if ( 4 == funct7 )
+                    fregs[ rd ].f = fregs[ rs1 ].f - fregs[ rs2 ].f; // fsub.s frd, frs1, frs2
+                else if ( 5 == funct7 )
+                    fregs[ rd ].d = fregs[ rs1 ].d - fregs[ rs2 ].d; // fsub.d frd, frs1, frs2
+                else if ( 8 == funct7 )
+                    fregs[ rd ].f = fregs[ rs1 ].f * fregs[ rs2 ].f; // fmul.s frd, frs1, frs2
+                else if ( 9 == funct7 )
+                    fregs[ rd ].d = fregs[ rs1 ].d * fregs[ rs2 ].d; // fmul.d frd, frs1, frs2
+                else if ( 0xc == funct7 )
+                    fregs[ rd ].f = fregs[ rs1 ].f / fregs[ rs2 ].f; // fdiv.s frd, frs1, frs2
+                else if ( 0xd == funct7 )
+                    fregs[ rd ].d = fregs[ rs1 ].d / fregs[ rs2 ].d; // fdiv.d frd, frs1, frs2
+                else if ( 0x10 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use rs2's sign bit
+    
+                        float f = fabsf( fregs[ rs1 ].f );
+                        if ( fregs[ rs2 ].f < 0.0 )
+                            f = -f;
+                        fregs[ rd ].f = f; // fsgnj.s rd, rs1, rs2
+                    }
+                    else if ( 1 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
+    
+                        float f = fabsf( fregs[ rs1 ].f );
+                        if ( fregs[ rs2 ].f >= 0.0 )
+                            f = -f;
+                        fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
+                    }
+                    else if ( 2 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use the xor of the two sign bits
+    
+                        bool resultneg = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
+                        float f = fabsf( fregs[ rs1 ].f );
+                        if ( resultneg )
+                            f = -f;
+                        fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x11 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use rs2's sign bit
+    
+                        double d = fabs( fregs[ rs1 ].d );
+                        if ( fregs[ rs2 ].d < 0.0 )
+                            d = -d;
+                        fregs[ rd ].d = d; // fsgnj.d rd, rs1, rs2
+                    }
+                    else if ( 1 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
+    
+                        double d = fabs( fregs[ rs1 ].d );
+                        if ( fregs[ rs2 ].d >= 0.0 )
+                            d = -d;
+                        fregs[ rd ].d = d; // fsgnjn.d rd, rs1, rs2
+                    }
+                    else if ( 2 == funct3 )
+                    {
+                        // put rs1's absolute value in rd and use the xor of the two sign bits
+    
+                        bool resultneg = ( ( fregs[ rs1 ].d < 0.0) ^ ( fregs[ rs2 ].d < 0.0 ) );
+                        double d = fabs( fregs[ rs1 ].d );
+                        if ( resultneg )
+                            d = -d;
+                        fregs[ rd ].d = d; // fsgnjnx.d rd, rs1, rs2
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x14 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        fregs[ rd ].f = get_min( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
+                    else if ( 1 == funct3 )
+                        fregs[ rd ].f = get_max( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
+                }
+                else if ( 0x15 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        fregs[ rd ].d = get_min( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
+                    else if ( 1 == funct3 )
+                        fregs[ rd ].d = get_max( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
+                }
+                else if ( 0x20 == funct7 )
+                {
+                    if ( 1 == rs2 )
+                        fregs[ rd ].f = (float) fregs[ rs1 ].d; // fcvt.s.d rd, rs1
+                    else
+                        unhandled();
+                }                
+                else if ( 0x21 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        fregs[ rd ].d = fregs[ rs1 ].f; // fcvt.d.s rd, rs1
+                    else
+                        unhandled();
+                }     
+                else if ( 0x2c == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        fregs[ rd ].f = (float) sqrt( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
+                    else
+                        unhandled();
+                }
+                else if ( 0x2d == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        fregs[ rd ].d = sqrt( fregs[ rs1 ].d ); // fsqrt.d rd, rs1
+                    else
+                        unhandled();
+                }
+                else if ( 0x50 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
+                    else if ( 1 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
+                    else if ( 2 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
+                    else
+                        unhandled();
+                }
+                else if ( 0x51 == funct7 )
+                {
+                    if ( 0 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].d <= fregs[ rs2 ].d ); // fle.d rd, frs1, frs2
+                    else if ( 1 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].d < fregs[ rs2 ].d ); // flt.d rd, frs1, frs2
+                    else if ( 2 == funct3 )
+                        regs[ rd ] = ( fregs[ rs1 ].d == fregs[ rs2 ].d ); // feq.d rd, frs1, frs2
+                    else
+                        unhandled();
+                }            
+                else if ( 0x60 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        regs[ rd ] = (int32_t) fregs[ rs1 ].f; // fcvt.w.s rd, frs1
+                    else if ( 1 == rs2 )
+                        regs[ rd ] = (uint32_t) fregs[ rs1 ].f; // fcvt.wus rd, frs1
+                    else if ( 2 == rs2 )
+                        regs[ rd ] = (int64_t) fregs[ rs1 ].f; // fcvt.l.s rd, frs1
+                    else if ( 3 == rs2 )
+                        regs[ rd ] = (uint64_t) fregs[ rs1 ].f; // fcvt.lu.s rd, frs1
+                    else
+                        unhandled();
+                }
+                else if ( 0x61 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        regs[ rd ] = (int32_t) fregs[ rs1 ].d; // fcvt.w.d rd, frs1
+                    else if ( 1 == rs2 )
+                        regs[ rd ] = (uint32_t) fregs[ rs1 ].d; // fcvt.wu.d rd, frs1
+                    else if ( 2 == rs2 )
+                        regs[ rd ] = (int64_t) fregs[ rs1 ].d; // fcvt.l.d rd, frs1
+                    else if ( 3 == rs2 )
+                        regs[ rd ] = (uint64_t) fregs[ rs1 ].d; // fcvt.lu.d rd, frs1
+                    else
+                        unhandled();
+                }
+                else if ( 0x68 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                        fregs[ rd ].f = (float) (int32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.w frd, rs1   -- converts i32 to float
+                    else if ( 1 == rs2 )
+                        fregs[ rd ].f = (float) (uint32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.wu frd, rs1   -- converts ui32 to float
+                    else if ( 2 == rs2 )
+                        fregs[ rd ].f = (float) (int64_t) regs[ rs1 ]; // fcvt.s.l frd, rs1   -- converts i64 to float
+                    else if ( 3 == rs2 )
+                        fregs[ rd ].f = (float) regs[ rs1 ]; // fcvt.s.lu frd, rs1   -- converts ui64 to float
+                    else
+                        unhandled();
+                }
+                else if ( 0x69 == funct7 )
+                {
+                    if ( 0 == rs2 ) // fcvt.d.w rd, rs1   -- converts i32 to double
+                        fregs[ rd ].d = (double) (int32_t) regs[ rs1 ];
+                    else if ( 1 == rs2 ) // fcvt.d.wu rd, rs1   -- converts ui32 to double
+                        fregs[ rd ].d = (double) (uint32_t) regs[ rs1 ];
+                    else if ( 2 == rs2 ) // fcvt.d.l rd, rs1   -- converts i64 to double
+                        fregs[ rd ].d = (double) (int64_t) regs[ rs1 ];
+                    else if ( 3 == rs2 ) // fcvt.d.lu rd, rs1   -- converts ui64 to double
+                        fregs[ rd ].d = (double) (uint64_t) regs[ rs1 ];
+                    else
+                        unhandled();
+                }
+                else if ( 0x70 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                    {
+                        if ( 0 == funct3 ) // fmv.x.w rd, frs1
+                            memcpy( & regs[ rd ], & fregs[ rs1 ].f, 4 );
+                        else if ( 1 == funct3 ) // fclass.s
+                        {
+                            // rd bit Meaning
+                            // 0 rs1 is - infinity
+                            // 1 rs1 is a negative normal number.
+                            // 2 rs1 is a negative subnormal number.
+                            // 3 rs1 is -0
+                            // 4 rs1 is +0
+                            // 5 rs1 is a positive subnormal number.
+                            // 6 rs1 is a positive normal number.
+                            // 7 rs1 is + infinity
+                            // 8 rs1 is a signaling NaN.
+                            // 9 rs1 is a quiet NaN
+    
+                            uint64_t result = 0;
+                            float f = fregs[ rs1 ].f;
+                            if ( isnan( f ) )
+                            {
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                                if ( issignaling( f ) )
+                                    result = 0x100;
+                                else
+                                #endif
+                                    result = 0x200;
+                            }
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            else if ( issubnormal( f ) )
+                            {
+                                if ( f >= 0.0 )
+                                    result = 0x20;
+                                else
+                                    result = 4;
+                            }
+                            #endif
+                            else if ( !isfinite( f ) )
+                            {
+                                if ( f >= 0.0 )
+                                    result = 0x80;
+                                else
+                                    result = 1;
+                            }
+                            else
+                            {
+                                if ( f >= 0.0 )
+                                    result = 0x40;
+                                else
+                                    result = 2;
+                            }
+                        }
+                        else
+                            unhandled();
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 0x71 == funct7 )
+                {
+                    if ( 0 == rs2 )
+                    {
+                        if ( 0 == funct3 ) // fmv.x.d rd, frs1
+                            memcpy( & regs[ rd ], & fregs[ rs1 ].d, 8 );
+                        else if ( 1 == funct3 ) // fclass.d
+                        {
+                            uint64_t result = 0;
+                            double d = fregs[ rs1 ].d;
+                            if ( isnan( d ) )
+                            {
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                                if ( issignaling( d ) )
+                                    result = 0x100;
+                                else
+                                #endif
+                                    result = 0x200;
+                            }
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            else if ( issubnormal( d ) )
+                            {
+                                if ( d >= 0.0 )
+                                    result = 0x20;
+                                else
+                                    result = 4;
+                            }
+                            #endif
+                            else if ( !isfinite( d ) )
+                            {
+                                if ( d >= 0.0 )
+                                    result = 0x80;
+                                else
+                                    result = 1;
+                            }
+                            else
+                            {
+                                if ( d >= 0.0 )
+                                    result = 0x40;
+                                else
+                                    result = 2;
+                            }
+                        }
+                        else
+                            unhandled();
+                    }
+                    else
+                        unhandled();
+                }            
+                else if ( 0x78 == funct7 )
+                {
+                    if ( 0 == rs2 && 0 == funct3 )
+                        memcpy( & fregs[ rd ].f, & regs[ rs1 ], 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
+                    else
+                        unhandled();
+                }
+                else if ( 0x79 == funct7 )
+                {
+                    if ( 0 == rs2 && 0 == funct3 )
+                        memcpy( & fregs[ rd ].d, & regs[ rs1 ], 8 ); // fmv.d.x frd, rs1    rs1 is probably r0
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 0x18:
+            {
+                assert_type( BType );
+                decode_B();
+                bool branch = false;
+    
+                if ( 0 == funct3 )  // beq rs1, rs2, bimm
+                    branch =  ( regs[ rs1 ] == regs[ rs2 ] );
+                else if ( 1 == funct3 )  // bne rs1, rs2, bimm
+                    branch = ( regs[ rs1 ] != regs[ rs2 ] );
+                else if ( 4 == funct3 )  // blt rs1, rs2, bimm
+                    branch = ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] );
+                else if ( 5 == funct3 ) // bge rs1, rs2, b_imm
+                    branch = ( (int64_t) regs[ rs1 ] >= (int64_t) regs[ rs2 ] );
+                else if ( 6 == funct3 )  // bltu rs1, rs2, bimm
+                    branch = ( regs[ rs1 ] < regs[ rs2 ] );
+                else if ( 7 == funct3 )  // bgeu rs1, rs2, bimm
+                    branch = ( regs[ rs1 ] >= regs[ rs2 ] );
+                else
+                    unhandled();
+    
+                if ( branch )
+                    pcnext = pc + b_imm;
+                break;
+            }
+            case 0x19:
+            {
+                assert_type( IType );
+                decode_I();
+    
+                if ( 0 == funct3 )
+                {
+                    uint64_t temp = ( regs[ rs1 ] + i_imm ); // jalr (rs1) + i_imm
+                    if ( 0 != rd )
+                        regs[ rd ] = pcnext;
+                    pcnext = temp;
+                }
+                else
+                    unhandled();
+                break;
+            }
+            case 0x1b:
+            {
+                assert_type( JType );
+                decode_J();
+    
+                // jal offset
+    
+                if ( 0 != rd )
+                    regs[ rd ] = pcnext;
+    
+                int64_t offset = j_imm_u;
+                pcnext = pc + offset;
+                break;
+            }
+            case 0x1c:
+            {
+                if ( 0x73 == op ) 
+                    riscv_invoke_ecall( *this ); // ecall
+                else if ( 0x100073 == op )
+                {
+                    // ebreak.  Ignore for now
+                }
+                else
+                {
+                    assert_type( IType );
+                    decode_I();
+    
+                    if ( 1 == funct3 )
+                    {
+                        if ( 0x1 == i_imm_u )
+                            regs[ rd ] = 0; // csrrw   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                        else if ( 0x2 == i_imm_u )
+                            regs[ rd ] = 0; // csrrw   rd, frm, rs1.  read rounding mode. 0 means nearest
+                        else if ( 0xc00 == i_imm_u ) // csrrw rd, cycle, rs1
+                        {
+                            if ( 0 != rd )
+                                regs[ rd ] = 1000 * clock(); // fake microseconds
+                        }
+                        else
+                            unhandled();
+                    }
+                    else if ( 2 == funct3 )
+                    {
+                        if ( 0x1 == i_imm_u )
+                            regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                        else if ( 0x2 == i_imm_u )
+                            regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
+                        else if ( 0xc00 == i_imm_u ) // csrrs rd, cycle, rs1
+                        {
+                            if ( 0 != rd )
+                                regs[ rd ] = 1000 * clock(); // fake microseconds
+                        }
+                        else
+                            unhandled();
+                    }
+                    else if ( 6 == funct3 )
+                    {
+                        if ( 1 == i_imm_u )
+                        {
+                            // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
+                            if ( 0 != rd )
+                                regs[ rd ] = 0;
+                        }
+                        else
+                            unhandled();
+                    }
+                    else
+                        unhandled();
+                }
+                break;
+            }
+            default:
+                unhandled();
+        } // switch( opcode_type )
+
+        pc = pcnext;
+        cycles++;
     } while ( cycles < max_cycles );
 
     return cycles;

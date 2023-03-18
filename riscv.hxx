@@ -178,7 +178,7 @@ struct RiscV
         {
             assert( rvc );
             op = uncompress_rvc( op & 0xffff );
-            pc_next = pc + 2;
+            pc_next -= 2;
         }
 
         opcode_type = ( 0x1f & ( op >> 2 ) );
@@ -235,7 +235,6 @@ struct RiscV
 
     __inline_perf void decode_I()
     {
-#if true // this is faster, for reasons I don't understand
         uint64_t theop = op >> 7;
         rd = theop & 0x1f;
         theop >>= 5;
@@ -245,13 +244,6 @@ struct RiscV
         theop >>= 5;
         i_imm_u = theop & 0xfff;
         i_imm = sign_extend( i_imm_u, 12 );
-#else
-        funct3 = ( op >> 12 ) & 0x7;
-        rd = ( op >> 7 ) & 0x1f;
-        rs1 = ( op >> 15 ) & 0x1f;
-        i_imm_u = ( op >> 20 ) & 0xfff;
-        i_imm = sign_extend( i_imm_u, 12 );
-#endif
     } //decode_I
 
     __inline_perf void decode_I_shift()
@@ -276,9 +268,9 @@ struct RiscV
         rs2 = ( op >> 20 ) & 0x1f;
     } //decode_R
 
-    bool execute_instruction( uint64_t pcnext );
+    void execute_instruction( uint64_t pcnext );
     void assert_type( uint8_t t );
-    void trace_state( uint64_t pcnext );                  // trace the machine current status
+    void trace_state( void );                  // trace the machine current status
 }; //RiscV
 
 

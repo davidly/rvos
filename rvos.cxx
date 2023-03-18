@@ -19,8 +19,10 @@
 #include <chrono>
 
 #ifdef _MSC_VER
+    #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
     #include <io.h>
+    #include <time.h>
     #include <direct.h>
 
     struct iovec
@@ -368,33 +370,24 @@ void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
 
 typedef int clockid_t;
 
-int clock_gettime( clockid_t unused, struct timespec *tv ) // stolen from stackoverflow
+int clock_gettime( clockid_t unused, struct timespec * tv )
 {
-    static int initialized = 0;
-    static LARGE_INTEGER freq, startCount;
-    static struct timespec tv_start;
+    // assume CLOCK_MONOTONIC
+
+    static bool initialized = false;
+    high_resolution_clock::time_point tInitial;
 
     if ( !initialized )
     {
-        QueryPerformanceFrequency( &freq );
-        QueryPerformanceCounter( &startCount );
-        timespec_get( &tv_start, TIME_UTC );
-        initialized = 1;
+        high_resolution_clock::time_point tInitial = high_resolution_clock::now();
+        initialized = true;
     }
 
-    LARGE_INTEGER curCount;
-    QueryPerformanceCounter( &curCount );
-    curCount.QuadPart -= startCount.QuadPart;
-    time_t sec_part = curCount.QuadPart / freq.QuadPart;
-    long nsec_part = (long) ( ( curCount.QuadPart - ( sec_part * freq.QuadPart ) ) * 1000000000UL / freq.QuadPart );
+    high_resolution_clock::time_point tNow = high_resolution_clock::now();
+    uint64_t diff = duration_cast<std::chrono::nanoseconds>( tNow - tInitial ).count();
 
-    tv->tv_sec = tv_start.tv_sec + sec_part;
-    tv->tv_nsec = tv_start.tv_nsec + nsec_part;
-    if ( tv->tv_nsec >= 1000000000UL )
-    {
-        tv->tv_sec += 1;
-        tv->tv_nsec -= 1000000000UL;
-    }
+    tv->tv_sec = diff / 1000000000UL;
+    tv->tv_nsec = diff % 1000000000UL;
     return 0;
 } //clock_gettime
 
@@ -1534,7 +1527,7 @@ int ends_with( const char * str, const char * end )
     return ( 0 == _stricmp( str + len - lenend, end ) );
 } //ends_with
 
-static void RenderNumber( long long n, char * ac )
+static void RenderNumber( int64_t n, char * ac )
 {
     if ( n < 0 )
     {
@@ -1554,7 +1547,7 @@ static void RenderNumber( long long n, char * ac )
     return;
 } //RenderNumber
 
-static char * RenderNumberWithCommas( long long n, char * ac )
+static char * RenderNumberWithCommas( int64_t n, char * ac )
 {
     ac[ 0 ] = 0;
     RenderNumber( n, ac );
@@ -1663,7 +1656,7 @@ int main( int argc, char * argv[] )
         if ( showPerformance )
         {
             high_resolution_clock::time_point tDone = high_resolution_clock::now();
-            long long totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
+            int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
 
             printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
             printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
