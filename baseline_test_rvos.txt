@@ -92,10 +92,10 @@ hello
 test instructions is complete
 rvos fatal error: memory reference prior to address space: 200
 pc: 103d4 main
-address space 10000 to 13a030
-  zero:                0,   ra:            101b0,   sp:           139f70,   gp:                0, 
+address space 10000 to 13a070
+  zero:                0,   ra:            101b0,   sp:           139fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:                0,   a1:            1824b, 
+    s0:           13a010,   s1:                0,   a0:                0,   a1:            1826b, 
     a2:                0,   a3:                0,   a4:                a,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -103,10 +103,10 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main
-address space 10000 to 13a030
-  zero:                0,   ra:            101e4,   sp:           139f70,   gp:                0, 
+address space 10000 to 13a070
+  zero:                0,   ra:            101e4,   sp:           139fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:                0,   a1:            18253, 
+    s0:           13a010,   s1:                0,   a0:                0,   a1:            18273, 
     a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -114,10 +114,10 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: pc is lower than memory: 200
 pc: 200 
-address space 10000 to 13a030
-  zero:                0,   ra:            10338,   sp:           139f70,   gp:                0, 
+address space 10000 to 13a070
+  zero:                0,   ra:            10338,   sp:           139fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:                0,   a1:            1825c, 
+    s0:           13a010,   s1:                0,   a0:                0,   a1:            1827c, 
     a2:                0,   a3:                0,   a4:                1,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -125,43 +125,43 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   rvos fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
-address space 10000 to 13a030
-  zero:                0,   ra:            10360,   sp:           139f70,   gp:                0, 
+address space 10000 to 13a070
+  zero:                0,   ra:            10360,   sp:           139fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:                0,   a1:            18264, 
+    s0:           13a010,   s1:                0,   a0:                0,   a1:            18284, 
     a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is below stack memory: 119ff0
+  rvos fatal error: stack pointer is below stack memory: 11a030
 pc: 100c8 _Z7recursemPKc
-address space 10000 to 13a030
-  zero:                0,   ra:            10130,   sp:           119ff0,   gp:                0, 
+address space 10000 to 13a070
+  zero:                0,   ra:            10130,   sp:           11a030,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           11a830,   s1:                0,   a0:               7c,   a1:           11a420, 
-    a2:                1,   a3:                a,   a4:           11a420,   a5:               7c, 
+    s0:           11a870,   s1:                0,   a0:               7c,   a1:           11a460, 
+    a2:                1,   a3:                a,   a4:           11a460,   a5:               7c, 
     a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is above the top of memory: 239f70
-pc: 11088 rvos_sp_add
-address space 10000 to 13a030
-  zero:                0,   ra:            103a0,   sp:           239f70,   gp:                0, 
+  rvos fatal error: stack pointer is above the top of memory: 239fb0
+pc: 110a8 rvos_sp_add
+address space 10000 to 13a070
+  zero:                0,   ra:            103a0,   sp:           239fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:           100000,   a1:            18274, 
+    s0:           13a010,   s1:                0,   a0:           100000,   a1:            18294, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: the stack pointer isn't 16-byte aligned: 139f72
-pc: 11088 rvos_sp_add
-address space 10000 to 13a030
-  zero:                0,   ra:            103b8,   sp:           139f72,   gp:                0, 
+  rvos fatal error: the stack pointer isn't 16-byte aligned: 139fb2
+pc: 110a8 rvos_sp_add
+address space 10000 to 13a070
+  zero:                0,   ra:            103b8,   sp:           139fb2,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           139fd0,   s1:                0,   a0:                2,   a1:            1827c, 
+    s0:           13a010,   s1:                0,   a0:                2,   a1:            1829c, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -169,7 +169,7 @@ address space 10000 to 13a030
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 64930 moves
-43.126003 milliseconds
+36.579002 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -189,12 +189,12 @@ pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 parsing input file tests\tp.bas
-start time: 15:08:03
+start time: 13:32:20.000
 1,000 ms for 1 iterations
-end time: 15:08:04
+end time: 13:32:21.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 13, hour 7, min 8, sec 4
+year: 2023, month 3, day 18, hour 5, min 32, sec 21
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

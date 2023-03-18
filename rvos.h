@@ -5,6 +5,7 @@
 #define rvos_sys_trace_instructions 0x2002
 #define rvos_sys_exit               0x2003
 #define rvos_sys_print_text         0x2004
+#define rvos_sys_get_datetime       0x2005
 
 // Linux syscall numbers differ by ISA. InSAne. These are RISC
 // Note that there are differences between these two sets. which is correct?

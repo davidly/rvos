@@ -298,9 +298,9 @@ int gettimeofday( linux_timeval * tp, struct timezone * tzp )
 
     namespace sc = std::chrono;
     sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
-    sc::seconds s = sc::duration_cast<sc::seconds>(d);
+    sc::seconds s = sc::duration_cast<sc::seconds>( d );
     tp->tv_sec = s.count();
-    tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+    tp->tv_usec = sc::duration_cast<sc::microseconds>( d - s ).count();
 
     return 0;
 } //gettimeofday
@@ -435,6 +435,12 @@ const SysCall syscalls[] =
     { "SYS_prlimit64", SYS_prlimit64 },
     { "SYS_getrandom", SYS_getrandom },
     { "SYS_open", SYS_open }, // only called for older systems
+    { "rvos_sys_rand", rvos_sys_rand },
+    { "rvos_sys_print_double", rvos_sys_print_double },
+    { "rvos_sys_trace_instructions", rvos_sys_trace_instructions },
+    { "rvos_sys_exit", rvos_sys_exit },
+    { "rvos_sys_print_text", rvos_sys_print_text },
+    { "rvos_sys_get_datetime", rvos_sys_get_datetime },
 };
 
 int syscall_find_compare( const void * a, const void * b )
@@ -497,6 +503,17 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
             printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            break;
+        }
+        case rvos_sys_get_datetime: // writes local date/time into string pointed to by a0
+        {
+            char * pdatetime = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            auto now = system_clock::now();
+            uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
+            auto timer = system_clock::to_time_t( now );
+            std::tm bt = * /*std::*/ localtime( &timer );
+            sprintf( pdatetime, "%02d:%02d:%02d.%03lld", bt.tm_hour, bt.tm_min, bt.tm_sec, ms );
+            cpu.regs[ RiscV::a0 ] = 0;
             break;
         }
         case SYS_fstat:

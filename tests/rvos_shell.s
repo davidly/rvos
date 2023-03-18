@@ -38,6 +38,21 @@ rvos_print_text:
         jr      ra
         .cfi_endproc
 
+.globl rvos_get_datetime
+.type rvos_get_datetime, @function
+rvos_get_datetime:
+        .cfi_startproc
+        addi    sp, sp, -32
+        sd      ra, 16(sp)
+
+        li      a7, 0x2005 # rvos_sys_get_datetime
+        ecall
+
+        ld      ra, 16(sp)
+        addi    sp, sp, 32
+        jr      ra
+        .cfi_endproc
+
 .globl rvos_rand
 .type rvos_rand, @function
 rvos_rand:
