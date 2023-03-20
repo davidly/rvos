@@ -219,9 +219,12 @@ struct RiscV
 
     __inline_perf void decode_B()
     {
-        funct3 = ( op >> 12 ) & 0x7;
-        rs1 = ( op >> 15 ) & 0x1f;
-        rs2 = ( op >> 20 ) & 0x1f;
+        uint64_t theop = op >> 12;
+        funct3 = theop & 0x7;
+        theop >>= 3;
+        rs1 = theop & 0x1f;
+        theop >>= 5;
+        rs2 = theop & 0x1f;
         b_imm = sign_extend( ( ( op >> 7 ) & 0x1e ) | ( ( op << 4 ) & 0x800 ) | ( ( op >> 20 ) & 0x7e0 ) | ( ( op >> 19 ) & 0x1000 ), 13 );
     } //decode_B
 
@@ -261,11 +264,16 @@ struct RiscV
 
     __inline_perf void decode_R()
     {
-        funct3 = ( op >> 12 ) & 0x7;
-        funct7 = ( op >> 25 ) & 0x7f;
-        rd = ( op >> 7 ) & 0x1f;
-        rs1 = ( op >> 15 ) & 0x1f;
-        rs2 = ( op >> 20 ) & 0x1f;
+        uint64_t theop = op >> 7;
+        rd = theop & 0x1f;
+        theop >>= 5;
+        funct3 = theop & 0x7;
+        theop >>= 3;
+        rs1 = theop & 0x1f;
+        theop >>= 5;
+        rs2 = theop & 0x1f;
+        theop >>= 5;
+        funct7 = theop & 0x7f;
     } //decode_R
 
     void execute_instruction( uint64_t pcnext );

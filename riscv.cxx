@@ -76,79 +76,6 @@ bool RiscV::trace_instructions( bool t )
 
 void RiscV::end_emulation() { g_State |= stateEndEmulation; }
 
-char * append_hex_nibble( char * p, uint8_t val )
-{
-    assert( val <= 15 );
-    *p++ = ( val <= 9 ) ? val + '0' : val - 10 + 'a';
-    return p;
-} //append_hex_nibble
-
-char * append_hex_byte( char * p, uint8_t val )
-{
-    p = append_hex_nibble( p, ( val >> 4 ) & 0xf );
-    p = append_hex_nibble( p, val & 0xf );
-    return p;
-} //append_hex_byte
-
-char * append_hex_word( char * p, uint16_t val )
-{
-    p = append_hex_byte( p, ( val >> 8 ) & 0xff );
-    p = append_hex_byte( p, val & 0xff );
-    return p;
-} //append_hex_word
-
-void DumpBinaryData( uint8_t * pData, uint32_t length, uint32_t indent )
-{
-    int64_t offset = 0;
-    int64_t beyond = length;
-    const int64_t bytesPerRow = 32;
-    uint8_t buf[ bytesPerRow ];
-    char acLine[ 200 ];
-
-    while ( offset < beyond )
-    {
-        char * pline = acLine;
-
-        for ( uint32_t i = 0; i < indent; i++ )
-            *pline++ = ' ';
-
-        pline = append_hex_word( pline, (uint16_t) offset );
-        *pline++ = ' ';
-        *pline++ = ' ';
-
-        int64_t cap = get_min( offset + bytesPerRow, beyond );
-        int64_t toread = ( ( offset + bytesPerRow ) > beyond ) ? ( length % bytesPerRow ) : bytesPerRow;
-
-        memcpy( buf, pData + offset, toread );
-
-        for ( int64_t o = offset; o < cap; o++ )
-        {
-            pline = append_hex_byte( pline, buf[ o - offset ] );
-            *pline++ = ' ';
-        }
-
-        uint64_t spaceNeeded = ( bytesPerRow - ( cap - offset ) ) * 3;
-
-        for ( uint64_t sp = 0; sp < ( 1 + spaceNeeded ); sp++ )
-            *pline++ = ' ';
-
-        for ( int64_t o = offset; o < cap; o++ )
-        {
-            char ch = buf[ o - offset ];
-
-            if ( ch < ' ' || 127 == ch )
-                ch = '.';
-
-            *pline++ = ch;
-        }
-
-        offset += bytesPerRow;
-        *pline = 0;
-
-        tracer.TraceQuiet( "%s\n", acLine );
-    }
-} //DumpBinaryData
-
 // for the 32 opcode_types ( ( opcode >> 2 ) & 0x1f )
 
 static const uint8_t riscv_types[ 32 ] =
@@ -692,7 +619,7 @@ void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
 
-//    DumpBinaryData( getmem( 0x8001cb07 ), 128, 2 );
+    //tracer.TraceBinaryData( getmem( 0x8001cb07 ), 128, 2 );
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
@@ -2429,7 +2356,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 bool branch = false;
     
                 if ( 0 == funct3 )  // beq rs1, rs2, bimm
-                    branch =  ( regs[ rs1 ] == regs[ rs2 ] );
+                    branch = ( regs[ rs1 ] == regs[ rs2 ] );
                 else if ( 1 == funct3 )  // bne rs1, rs2, bimm
                     branch = ( regs[ rs1 ] != regs[ rs2 ] );
                 else if ( 4 == funct3 )  // blt rs1, rs2, bimm
