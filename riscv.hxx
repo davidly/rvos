@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <djl_os.hxx>
 
 #ifdef _MSC_VER
 
@@ -10,27 +10,9 @@
 #else // MacOS + Linux
 
     #define __inline_perf
-    
-    template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
-    
-    #define _stricmp strcasecmp
 
 #endif // _MSC_VER
 
-template <class T> T get_max( T a, T b )
-{
-    if ( a > b )
-        return a;
-    return b;
-}
-
-template <class T> T get_min( T a, T b )
-{
-    if ( a < b )
-        return a;
-    return b;
-}
-    
 // callbacks when instructions are executed
 
 struct RiscV;

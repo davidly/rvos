@@ -18,12 +18,10 @@
 #include <vector>
 #include <chrono>
 
+#include <djl_os.hxx>
+
 #ifdef _MSC_VER
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
     #include <io.h>
-    #include <time.h>
-    #include <direct.h>
 
     struct iovec
     {
@@ -781,7 +779,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             cpu.regs[ RiscV::a0 ] = 0;
             fill_pstat_windows( descriptor, pstat );
-
 #else
             int ret = fstatat( descriptor, path, (struct stat *) cpu.getmem( cpu.regs[ RiscV::a2 ] ), cpu.regs[ RiscV::a3 ]  );
             tracer.Trace( "  return code from fstatat: %d, errno %d\n", ret, errno );
@@ -816,7 +813,6 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
             mode_t mode = (mode_t) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
-
             int result = mkdirat( directory, path, mode );
 #endif
 
@@ -932,7 +928,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int * pbuf = (int *) buf;
             size_t count = buflen / sizeof( int );
             for ( size_t i = 0; i < count; i++ )
-                pbuf[ i ] = rand();
+                pbuf[ i ] = (int) rand64();
             result = buflen;
 #else
             result = getrandom( buf, buflen, flags );
