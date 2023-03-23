@@ -82,6 +82,10 @@ vector<LineOfCode> g_linesOfCode;
 
 #ifdef _MSC_VER  
     #include <intrin.h>
+
+    #ifdef __GNUC__
+        #define __assume( x )
+    #endif
 #else // g++, clang++
     #define __assume( x )
     #undef __makeinline
@@ -5228,6 +5232,9 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         else if ( x86Win == g_AssemblyTarget )
             for ( size_t i = 0; i < _countof( MappedRegistersX86 ); i++ )
                 fprintf( fp, "    xor      %s, %s\n", MappedRegistersX86[ i ], MappedRegistersX86[ i ] );
+        else if ( riscv64 == g_AssemblyTarget )
+            for ( size_t i = 0; i < _countof( MappedRegistersRiscV64 ); i++ )
+                fprintf( fp, "    mv       %s, zero\n", MappedRegistersRiscV64[ i ] );
 
         for ( auto it = varmap.begin(); it != varmap.end(); it++ )
         {
@@ -10947,7 +10954,7 @@ void InterpretCode( map<string, Variable> & varmap )
                         uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
                         auto timer = system_clock::to_time_t( now );
                         std::tm bt = * /*std::*/ localtime( &timer );
-                        printf( "%02d:%02d:%02d.%03lld", bt.tm_hour, bt.tm_min, bt.tm_sec, ms );
+                        printf( "%02u:%02u:%02u.%03u", bt.tm_hour, bt.tm_min, bt.tm_sec, (uint32_t) ms );
                         t += 2;
                     }
                     else if ( Token::ELAP == vals[ t + 1 ].token )

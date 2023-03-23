@@ -506,9 +506,9 @@ void riscv_invoke_ecall( RiscV & cpu )
         case rvos_sys_get_datetime: // writes local date/time into string pointed to by a0
         {
             char * pdatetime = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            auto now = system_clock::now();
+            system_clock::time_point now = system_clock::now();
             uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
-            auto timer = system_clock::to_time_t( now );
+            time_t timer = system_clock::to_time_t( now );
             std::tm bt = * /*std::*/ localtime( &timer );
             sprintf( pdatetime, "%02d:%02d:%02d.%03lld", bt.tm_hour, bt.tm_min, bt.tm_sec, ms );
             cpu.regs[ RiscV::a0 ] = 0;
