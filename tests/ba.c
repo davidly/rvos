@@ -5213,7 +5213,11 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             fprintf( fp, "    jal      rvos_print_text\n" );
         }
 
+        fprintf( fp, ".ifdef MAIXDUINO\n" );
         fprintf( fp, "    rdcycle  a0  # rdtime doesn't work on the K210 CPU\n" );
+        fprintf( fp, ".else\n" );
+        fprintf( fp, "    rdtime   a0  # time in nanoseconds\n" );
+        fprintf( fp, ".endif\n" );
         fprintf( fp, "    lla      t0, startTicks\n" );
         fprintf( fp, "    sd       a0, (t0)\n" );
     }
@@ -10292,14 +10296,18 @@ label_no_if_optimization:
             fprintf( fp, "    addi     sp, sp, -32\n" );
             fprintf( fp, "    sd       ra, 16(sp)\n" );
     
-            fprintf( fp, "    rdcycle  a0\n" );
+            fprintf( fp, ".ifdef MAIXDUINO\n" );
+            fprintf( fp, "    rdcycle  a0  # rdtime doesn't work on the K210 CPU\n" );
+            fprintf( fp, ".else\n" );
+            fprintf( fp, "    rdtime   a0  # time in nanoseconds\n" );
+            fprintf( fp, ".endif\n" );
             fprintf( fp, "    lla      t0, startTicks\n" );
             fprintf( fp, "    ld       t0, (t0)\n" );
             fprintf( fp, "    sub      a0, a0, t0\n" );
             fprintf( fp, ".ifdef MAIXDUINO\n" );
             fprintf( fp, "    li       t0, 400  # the k210 runs at 400Mhz and rdtime doesn't work\n" );
             fprintf( fp, ".else\n" );
-            fprintf( fp, "    li       t0, 1     # when running on Windows with clock() as the source\n" );
+            fprintf( fp, "    li       t0, 1000 # when running on an emulator with ns as the source\n" );
             fprintf( fp, ".endif\n" );
             fprintf( fp, "    div      a0, a0, t0\n" );
             fprintf( fp, "    lla      a1, print_buffer\n" );
