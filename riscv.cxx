@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <chrono>
 
 #ifdef _MSC_VER
     #include <intrin.h>
@@ -34,6 +35,9 @@
 #include <djltrace.hxx>
 
 #include "riscv.hxx"
+
+using namespace std;
+using namespace std::chrono;
 
 // set to 1 to use the instruction decompression lookup table
 // set to 0 to use the C code or to generate the table
@@ -57,7 +61,6 @@ static const char instruction_types[] =
 {
     '!', 'U', 'J', 'I', 'B', 'S', 'R', 'C', 'r', 's',
 };
-
 
 static uint32_t g_State = 0;
 
@@ -747,39 +750,64 @@ void RiscV::trace_state()
             }
             else if ( 0x1c == opcode_type )
             {
-                if ( 0x73 == op )
-                    tracer.Trace( "ecall\n" );
-                else if ( 0x100073 == op )
-                    tracer.Trace( "ebreak\n" );
-                else
+                uint64_t csr = i_imm_u;
+
+                // funct3
+                //    000  system (ecall / ebreak)
+                //    001  csrrw write csr
+                //    010  csrrs read csr
+                //    011  csrrc clear bits in csr
+                //    101  csrrwi write csr immediate
+                //    110  csrrsi set bits in csr immediate
+                //    111  csrrci clear bits in csr immediate
+
+                if ( 0 == funct3 ) // system
                 {
-                    if ( 1 == funct3 )
-                    {
-                        if ( 1 == i_imm_u )
-                            tracer.Trace( "csrrw   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
-                        else if ( 2 == i_imm_u )
-                            tracer.Trace( "csrrw   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
-                        else if ( 0xc00 == i_imm_u )
-                            tracer.Trace( "csrrw   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
-                        else
-                            tracer.Trace( "csrrw unknown\n" );
-                    }
-                    else if ( 2 == funct3 )
-                    {
-                        if ( 1 == i_imm_u )
-                            tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
-                        else if ( 2 == i_imm_u )
-                            tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
-                        else if ( 0xc00 == i_imm_u )
-                            tracer.Trace( "csrrs   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
-                        else
-                            tracer.Trace( "csrrs unknown\n" );
-                    }
-                    else if ( 6 == funct3 )
-                    {
-                        if ( 1 == i_imm_u )
-                            tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
-                    }
+                    if ( 0x73 == op )
+                        tracer.Trace( "ecall\n" );
+                    else if ( 0x100073 == op )
+                        tracer.Trace( "ebreak\n" );
+                }
+                else if ( 1 == funct3 ) // write csr
+                {
+                    if ( 1 == csr )
+                        tracer.Trace( "csrrw   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 2 == csr )
+                        tracer.Trace( "csrrw   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xc00 == csr )
+                        tracer.Trace( "csrrw   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                    else
+                        tracer.Trace( "csrrw unknown\n" );
+                }
+                else if ( 2 == funct3 ) // read csr
+                {
+                    if ( 1 == csr )
+                        tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 2 == csr )
+                        tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xb00 == csr )
+                        tracer.Trace( "csrrs   %s, mcycle, %s  # rdmcycle read machine cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xb02 == csr )
+                        tracer.Trace( "csrrs   %s, minstret, %s  # rdminstret read machine instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xc00 == csr )
+                        tracer.Trace( "csrrs   %s, cycle, %s  # rdcycle read cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xc01 == csr )
+                        tracer.Trace( "csrrs   %s, time, %s  # rdtime read time\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xc02 == csr )
+                        tracer.Trace( "csrrs   %s, instret, %s  # rdinstret read instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xf11 == csr ) // mvendorid vendor
+                        tracer.Trace( "csrrs   %s, mvendorid, %s  # vendor id\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xf12 == csr ) // marchid architecture
+                        tracer.Trace( "csrrs   %s, marchid, %s  # architecture id\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0xf13 == csr ) // mimpid implementation
+                        tracer.Trace( "csrrs   %s, mimpid, %s  # implementation id\n", reg_name( rd ), reg_name( rs1 ) );
+                    else
+                        tracer.Trace( "csrrs unknown\n" );
+                }
+                else if ( 6 == funct3 ) // set bits in csr immediate
+                {
+                    if ( 1 == csr )
+                        tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
                 }
             }
             break;
@@ -1324,7 +1352,8 @@ void RiscV::unhandled()
 
 uint64_t RiscV::run( uint64_t max_cycles )
 {
-    uint64_t cycles = 0;
+    uint64_t start_cycles = cycles_so_far;
+    uint64_t target_cycles = cycles_so_far + max_cycles;
 
     do
     {
@@ -2406,59 +2435,89 @@ uint64_t RiscV::run( uint64_t max_cycles )
             }
             case 0x1c:
             {
-                if ( 0x73 == op ) 
-                    riscv_invoke_ecall( *this ); // ecall
-                else if ( 0x100073 == op )
+                assert_type( IType );
+                decode_I();
+                uint64_t csr = i_imm_u;
+
+                // funct3
+                //    000  system (ecall / ebreak)
+                //    001  csrrw write csr
+                //    010  csrrs read csr
+                //    011  csrrc clear bits in csr
+                //    101  csrrwi write csr immediate
+                //    110  csrrsi set bits in csr immediate
+                //    111  csrrci clear bits in csr immediate
+
+                if ( 0 == funct3 ) // system
                 {
-                    // ebreak.  Ignore for now
-                }
-                else
-                {
-                    assert_type( IType );
-                    decode_I();
-    
-                    if ( 1 == funct3 )
+                    if ( 0x73 == op ) 
+                        riscv_invoke_ecall( *this ); // ecall
+                    else if ( 0x100073 == op )
                     {
-                        if ( 0x1 == i_imm_u )
-                            regs[ rd ] = 0; // csrrw   rd, fflags, rs1.  read fp exception flags. 0 means all clear
-                        else if ( 0x2 == i_imm_u )
-                            regs[ rd ] = 0; // csrrw   rd, frm, rs1.  read rounding mode. 0 means nearest
-                        else if ( 0xc00 == i_imm_u ) // csrrw rd, cycle, rs1
-                        {
-                            if ( 0 != rd )
-                                regs[ rd ] = 1000 * clock(); // fake microseconds
-                        }
-                        else
-                            unhandled();
-                    }
-                    else if ( 2 == funct3 )
-                    {
-                        if ( 0x1 == i_imm_u )
-                            regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
-                        else if ( 0x2 == i_imm_u )
-                            regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
-                        else if ( 0xc00 == i_imm_u ) // csrrs rd, cycle, rs1
-                        {
-                            if ( 0 != rd )
-                                regs[ rd ] = 1000 * clock(); // fake microseconds
-                        }
-                        else
-                            unhandled();
-                    }
-                    else if ( 6 == funct3 )
-                    {
-                        if ( 1 == i_imm_u )
-                        {
-                            // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
-                            if ( 0 != rd )
-                                regs[ rd ] = 0;
-                        }
-                        else
-                            unhandled();
+                        // ebreak.  Ignore for now
                     }
                     else
                         unhandled();
                 }
+                else if ( 1 == funct3 ) // csrrw. csr write
+                {
+                    if ( 0x1 == csr )
+                        regs[ rd ] = 0; // csrrw   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                    else if ( 0x2 == csr )
+                        regs[ rd ] = 0; // csrrw   rd, frm, rs1.  read rounding mode. 0 means nearest
+                    else if ( 0xc00 == csr ) // csrrw rd, cycle, rs1
+                    {
+                        if ( 0 != rd )
+                            regs[ rd ] = 1000 * clock(); // fake microseconds
+                    }
+                    else
+                        unhandled();
+                }
+                else if ( 2 == funct3 ) // csrrs. read csr
+                {
+                    if ( 0 == rd )
+                        break;
+
+                    if ( 0x1 == csr )
+                        regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                    else if ( 0x2 == csr )
+                        regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
+                    else if ( 0xb00 == csr ) // csrrs rd, mcycle, rs1. rdmcycle
+                        regs[ rd ] = cycles_so_far;
+                    else if ( 0xb02 == csr ) // csrrs rd, minstret, rs1. rdminstret
+                        regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
+                    else if ( 0xc00 == csr ) // csrrs rd, cycle, rs1. rdcycle
+                        regs[ rd ] = cycles_so_far;
+                    else if ( 0xc01 == csr ) // csrrs rd, time, rs1. rdtime
+                    {
+                        system_clock::duration d = system_clock::now().time_since_epoch();
+                        regs[ rd ] = duration_cast<microseconds>( d ).count();
+                    }
+                    else if ( 0xc02 == csr ) // csrrs rd, instret, rs1. rdinstret
+                        regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
+                    else if ( 0xf11 == csr ) // mvendorid vendor
+                        regs[ rd ] = 0x666;
+                    else if ( 0xf12 == csr ) // marchid architecture
+                        regs[ rd ] = 0x666;
+                    else if ( 0xf13 == csr ) // mimpid implementation
+                        regs[ rd ] = 0x666;
+                    else
+                        unhandled();
+                }
+                else if ( 6 == funct3 ) // csrrsi. set bits in csr immediate
+                {
+                    if ( 1 == csr )
+                    {
+                        // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
+
+                        if ( 0 != rd )
+                            regs[ rd ] = 0;
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
                 break;
             }
             default:
@@ -2466,9 +2525,9 @@ uint64_t RiscV::run( uint64_t max_cycles )
         } // switch( opcode_type )
 
         pc = pcnext;
-        cycles++;
-    } while ( cycles < max_cycles );
+        cycles_so_far++;
+    } while ( cycles_so_far < target_cycles );
 
-    return cycles;
+    return cycles_so_far - start_cycles;
 } //run
 

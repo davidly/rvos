@@ -366,26 +366,57 @@ void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
     }
 } //fill_pstat_windows
 
+// taken from gnu's time.h. 
+# define CLOCK_REALTIME             0
+# define CLOCK_MONOTONIC            1
+# define CLOCK_PROCESS_CPUTIME_ID   2
+# define CLOCK_THREAD_CPUTIME_ID    3
+# define CLOCK_MONOTONIC_RAW        4
+# define CLOCK_REALTIME_COARSE      5
+# define CLOCK_MONOTONIC_COARSE     6
+
+const char * clockids[] =
+{
+    "realtime",
+    "monotonic",
+    "process_cputime_id",
+    "thread_cputime_id",
+    "monotonic_raw",
+    "realtime_coarse",
+    "monotinic_coarse",
+};
+
 typedef int clockid_t;
 
-int clock_gettime( clockid_t unused, struct timespec * tv )
+const char * get_clockid( clockid_t clockid )
 {
-    // assume CLOCK_MONOTONIC
+    if ( clockid < _countof( clockids ) )
+        return clockids[ clockid ];
+    return "unknown";
+} //get_clockid
 
-    static bool initialized = false;
-    high_resolution_clock::time_point tInitial;
+high_resolution_clock::time_point g_tAppStart;
 
-    if ( !initialized )
+int clock_gettime( clockid_t clockid, struct timespec * tv )
+{
+    tracer.Trace( "  clock_gettime, clockid %d == %s\n", clockid, get_clockid( clockid ) );
+
+    if ( CLOCK_REALTIME == clockid || CLOCK_REALTIME_COARSE == clockid )
     {
-        high_resolution_clock::time_point tInitial = high_resolution_clock::now();
-        initialized = true;
+        system_clock::duration d = system_clock::now().time_since_epoch();
+        uint64_t diff = duration_cast<nanoseconds>( d ).count();
+        tv->tv_sec = diff / 1000000000UL;
+        tv->tv_nsec = diff % 1000000000UL;
+    }
+    else if ( CLOCK_MONOTONIC == clockid || CLOCK_MONOTONIC_COARSE == clockid || CLOCK_MONOTONIC_RAW == clockid ||
+              CLOCK_PROCESS_CPUTIME_ID == clockid || CLOCK_THREAD_CPUTIME_ID == clockid )
+    {
+        high_resolution_clock::time_point tNow = high_resolution_clock::now();
+        uint64_t diff = duration_cast<std::chrono::nanoseconds>( tNow - g_tAppStart ).count();
+        tv->tv_sec = diff / 1000000000UL;
+        tv->tv_nsec = diff % 1000000000UL;
     }
 
-    high_resolution_clock::time_point tNow = high_resolution_clock::now();
-    uint64_t diff = duration_cast<std::chrono::nanoseconds>( tNow - tInitial ).count();
-
-    tv->tv_sec = diff / 1000000000UL;
-    tv->tv_nsec = diff % 1000000000UL;
     return 0;
 } //clock_gettime
 
@@ -771,7 +802,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_newfstat:
         {
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            tracer.Trace( " rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
+            tracer.Trace( "  rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
 #ifdef _MSC_VER
@@ -1658,6 +1689,11 @@ int main( int argc, char * argv[] )
         unique_ptr<RiscV> cpu( new RiscV( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit, g_top_of_stack ) );
         cpu->trace_instructions( traceInstructions );
         uint64_t cycles = 0;
+
+        #ifdef _MSC_VER
+            g_tAppStart = high_resolution_clock::now();
+        #endif
+
         high_resolution_clock::time_point tStart = high_resolution_clock::now();
 
         do

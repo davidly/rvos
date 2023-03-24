@@ -13,9 +13,9 @@
 
 #endif // _MSC_VER
 
-// callbacks when instructions are executed
-
 struct RiscV;
+
+// callbacks when instructions are executed
 
 extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
 extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
@@ -80,6 +80,7 @@ struct RiscV
     uint8_t * membase;
     uint64_t stack_size;
     uint64_t mem_size;
+    uint64_t cycles_so_far;
     bool rvc;
 
     uint64_t getoffset( uint64_t address )
