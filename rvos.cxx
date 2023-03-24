@@ -65,6 +65,7 @@ uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 int * g_perrno = 0;                            // if it exists, it's a pointer to errno for the vm
+bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
 
 #pragma pack( push, 1 )
 
@@ -505,6 +506,16 @@ const char * lookup_syscall( uint64_t x )
     return "unknown";
 } //lookup_syscall
 
+bool g_TRACENOW = 0;
+
+void riscv_check_ptracenow( RiscV & cpu )
+{
+    if ( 0 != g_ptracenow && 0 != *g_ptracenow )
+        cpu.trace_instructions( true );
+    else
+        cpu.trace_instructions( false );
+}
+
 // this is called when the risc-v app has an ecall instruction
 // https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
 
@@ -539,10 +550,11 @@ void riscv_invoke_ecall( RiscV & cpu )
             char * pdatetime = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
             system_clock::time_point now = system_clock::now();
             uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
-            time_t timer = system_clock::to_time_t( now );
-            std::tm bt = * /*std::*/ localtime( &timer );
-            sprintf( pdatetime, "%02d:%02d:%02d.%03lld", bt.tm_hour, bt.tm_min, bt.tm_sec, ms );
+            time_t time_now = system_clock::to_time_t( now );
+            struct tm * plocal = localtime( & time_now );
+            sprintf( pdatetime, "%02u:%02u:%02u.%03u", plocal->tm_hour, plocal->tm_min, plocal->tm_sec, (uint32_t) ms );
             cpu.regs[ RiscV::a0 ] = 0;
+            tracer.Trace( "  got datetime: '%s', pc: %llx\n", pdatetime, cpu.pc );
             break;
         }
         case SYS_fstat:
@@ -552,14 +564,27 @@ void riscv_invoke_ecall( RiscV & cpu )
 
 #ifdef _MSC_VER
 
-            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            // ignore the folder argument on Windows
+            struct _stat64 local_stat = {0};
+            fill_pstat_windows( descriptor, & local_stat );
+            memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct _stat64 ), (size_t) 128 ) );
             cpu.regs[ RiscV::a0 ] = 0;
-            fill_pstat_windows( descriptor, pstat );
 
 #else
 
-            struct stat *pstat = (struct stat *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            cpu.regs[ RiscV::a0 ] = fstat( descriptor, pstat );
+            tracer.Trace( "size of struct stat: %zd\n", sizeof( struct stat ) );
+            struct stat local_stat = {0};
+            int ret = fstat( descriptor, & local_stat );
+            tracer.Trace( "  return code from fstatat: %d, errno %d\n", ret, errno );
+            if ( -1 == ret )
+            { 
+                if ( 0 != g_perrno )
+                    *g_perrno = ret;
+            }
+            else
+                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
+ 
+            cpu.regs[ RiscV::a0 ] = ret;
 
 #endif
 
@@ -807,14 +832,23 @@ void riscv_invoke_ecall( RiscV & cpu )
 
 #ifdef _MSC_VER
             // ignore the folder argument on Windows
-            struct _stat64 *pstat = (struct _stat64 *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            struct _stat64 local_stat = {0};
+            fill_pstat_windows( descriptor, & local_stat );
+            memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct _stat64 ), (size_t) 128 ) );
             cpu.regs[ RiscV::a0 ] = 0;
-            fill_pstat_windows( descriptor, pstat );
 #else
-            int ret = fstatat( descriptor, path, (struct stat *) cpu.getmem( cpu.regs[ RiscV::a2 ] ), cpu.regs[ RiscV::a3 ]  );
+            tracer.Trace( "size of struct stat: %zd\n", sizeof( struct stat ) );
+            struct stat local_stat = {0};
+            int ret = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ]  );
             tracer.Trace( "  return code from fstatat: %d, errno %d\n", ret, errno );
-            if ( -1 == ret && 0 != g_perrno )
-                *g_perrno = ret;
+            if ( -1 == ret )
+            { 
+                if ( 0 != g_perrno )
+                    *g_perrno = ret;
+            }
+            else
+                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
+ 
             cpu.regs[ RiscV::a0 ] = ret;
 #endif
 
@@ -1004,10 +1038,31 @@ static const char * register_names[ 32 ] =
     "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
 
+const char * target_platform()
+{
+    #ifdef __riscv
+        return "riscv";
+    #endif
+
+    #ifdef __amd64
+        return "amd64";
+    #endif
+
+    #ifdef _M_AMD64    
+        return "amd64";
+    #endif
+
+    #ifdef _M_ARM64    
+        return "arm64";
+    #endif
+
+    return "";
+} //target_platform
+
 void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value )
 {
-    tracer.Trace( "rvos fatal error: %s %llx\n", pcerr, error_value );
-    printf( "rvos fatal error: %s %llx\n", pcerr, error_value );
+    tracer.Trace( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
+    printf( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
 
     tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
     printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
@@ -1281,11 +1336,10 @@ bool load_image( const char * pimage, const char * app_args )
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
-        if ( !strcmp( "errno", & g_string_table[ g_symbols[ se ].name ] ) )
-        {
+        if ( !strcmp( "g_TRACENOW", & g_string_table[ g_symbols[ se ].name ] ) )
+            g_ptracenow = (bool *) ( memory.data() + g_symbols[ se ].value - g_base_address );
+        else if ( !strcmp( "errno", & g_string_table[ g_symbols[ se ].name ] ) )
             g_perrno = (int *) ( memory.data() + g_symbols[ se ].value - g_base_address );
-            break;
-        }
     }
 
     // load the program into RAM

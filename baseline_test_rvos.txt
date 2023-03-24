@@ -90,7 +90,7 @@ should tend towards 1.61803398874989484820458683436563811772030
 done
 hello
 test instructions is complete
-rvos fatal error: memory reference prior to address space: 200
+rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main
 address space 10000 to 13a070
   zero:                0,   ra:            101b0,   sp:           139fb0,   gp:                0, 
@@ -101,7 +101,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: memory reference beyond address space: 2000000000000000
+  rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main
 address space 10000 to 13a070
   zero:                0,   ra:            101e4,   sp:           139fb0,   gp:                0, 
@@ -112,7 +112,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: pc is lower than memory: 200
+  rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200 
 address space 10000 to 13a070
   zero:                0,   ra:            10338,   sp:           139fb0,   gp:                0, 
@@ -123,7 +123,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: pc is higher than it should be: 2000000000000000
+  rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
 address space 10000 to 13a070
   zero:                0,   ra:            10360,   sp:           139fb0,   gp:                0, 
@@ -134,7 +134,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is below stack memory: 11a030
+  rvos (amd64) fatal error: stack pointer is below stack memory: 11a030
 pc: 100c8 _Z7recursemPKc
 address space 10000 to 13a070
   zero:                0,   ra:            10130,   sp:           11a030,   gp:                0, 
@@ -145,7 +145,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: stack pointer is above the top of memory: 239fb0
+  rvos (amd64) fatal error: stack pointer is above the top of memory: 239fb0
 pc: 110a8 rvos_sp_add
 address space 10000 to 13a070
   zero:                0,   ra:            103a0,   sp:           239fb0,   gp:                0, 
@@ -156,7 +156,7 @@ address space 10000 to 13a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos fatal error: the stack pointer isn't 16-byte aligned: 139fb2
+  rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: 139fb2
 pc: 110a8 rvos_sp_add
 address space 10000 to 13a070
   zero:                0,   ra:            103b8,   sp:           139fb2,   gp:                0, 
@@ -169,7 +169,7 @@ address space 10000 to 13a070
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 64930 moves
-36.579002 milliseconds
+36.788002 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -189,12 +189,12 @@ pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 parsing input file tests\tp.bas
-start time: 13:32:20.000
-1,000 ms for 1 iterations
-end time: 13:32:21.000
+start time: 23:29:38.000
+0 ms for 1 iterations
+end time: 23:29:38.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 18, hour 5, min 32, sec 21
+year: 2023, month 3, day 24, hour 15, min 29, sec 38
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

@@ -20,6 +20,7 @@ struct RiscV;
 extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
 extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
 extern void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
+extern void riscv_check_ptracenow( RiscV & cpu );
 
 struct RiscV
 {
@@ -42,6 +43,7 @@ struct RiscV
     static const size_t a6 = 16;
     static const size_t a7 = 17;
     static const size_t s2 = 18;
+    static const size_t s11 = 27;
 
     bool trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction

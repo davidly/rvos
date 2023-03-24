@@ -2491,7 +2491,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     else if ( 0xc01 == csr ) // csrrs rd, time, rs1. rdtime
                     {
                         system_clock::duration d = system_clock::now().time_since_epoch();
-                        regs[ rd ] = duration_cast<microseconds>( d ).count();
+                        regs[ rd ] = duration_cast<nanoseconds>( d ).count();
                     }
                     else if ( 0xc02 == csr ) // csrrs rd, instret, rs1. rdinstret
                         regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
