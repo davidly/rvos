@@ -367,13 +367,18 @@ void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
     }
 } //fill_pstat_windows
 
-// taken from gnu's time.h. 
+// taken from gnu's time.h.
+
 # define CLOCK_REALTIME             0
 # define CLOCK_MONOTONIC            1
 # define CLOCK_PROCESS_CPUTIME_ID   2
 # define CLOCK_THREAD_CPUTIME_ID    3
 # define CLOCK_MONOTONIC_RAW        4
-# define CLOCK_REALTIME_COARSE      5
+
+#ifndef CLOCK_REALTIME_COARSE // mingw64's pthread_time.h defines this as 4 because standards
+    #define CLOCK_REALTIME_COARSE      5
+#endif
+
 # define CLOCK_MONOTONIC_COARSE     6
 
 const char * clockids[] =
@@ -766,6 +771,8 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_mmap:
         {
+            // The gnu c runtime is ok with this failing -- it just allocates memory instead
+
             tracer.Trace( "  SYS_mmap\n" );
             cpu.regs[ RiscV::a0 ] = -1;
             break;
