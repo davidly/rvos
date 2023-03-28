@@ -261,7 +261,6 @@ struct RiscV
         funct7 = theop & 0x7f;
     } //decode_R
 
-    void execute_instruction( uint64_t pcnext );
     void assert_type( uint8_t t );
     void trace_state( void );                  // trace the machine current status
 }; //RiscV

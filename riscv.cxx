@@ -2451,7 +2451,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 if ( 0 == funct3 ) // system
                 {
                     if ( 0x73 == op ) 
-                        riscv_invoke_ecall( *this ); // ecall
+                        riscv_invoke_ecall( *this ); // ecall. don't route through mtvec as a simplification
                     else if ( 0x100073 == op )
                     {
                         // ebreak.  Ignore for now
@@ -2496,11 +2496,11 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     else if ( 0xc02 == csr ) // csrrs rd, instret, rs1. rdinstret
                         regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
                     else if ( 0xf11 == csr ) // mvendorid vendor
-                        regs[ rd ] = 0x666;
+                        regs[ rd ] = 0xbeabad00bee;
                     else if ( 0xf12 == csr ) // marchid architecture
-                        regs[ rd ] = 0x666;
+                        regs[ rd ] = 0xbeabad00bee;
                     else if ( 0xf13 == csr ) // mimpid implementation
-                        regs[ rd ] = 0x666;
+                        regs[ rd ] = 0xbeabad00bee;
                     else
                         unhandled();
                 }
