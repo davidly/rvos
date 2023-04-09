@@ -1,6 +1,6 @@
 /*
     This emulates an extemely simple RISC-V OS.
-    Per file:///C:/Users/david/Downloads/riscv-privileged-20211203.pdf:
+    Per https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf
     It's an AEE (Application Execution Environment) that exposes an ABI (Application Binary Inferface) for an Application.
     It runs in RISC-V M mode, similar to embedded systems.
     It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files.
@@ -54,13 +54,13 @@ bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
 uint64_t g_brk_commit = 1024 * 1024;           // RAM to reserve if the app calls brk to allocate space
-bool g_terminate = false;                      // the app asked to shut down
+bool g_terminate = false;                      // has the app asked to shut down?
 int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
 uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
 uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
-uint64_t g_highwater_brk = 0;                  // highest brk seen during app
+uint64_t g_highwater_brk = 0;                  // highest brk seen during app; peak dynamically-allocated RAM
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
@@ -275,7 +275,7 @@ void usage( char const * perror = 0 )
 
     printf( "usage: rvos <elf_executable>\n" );
     printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
-    printf( "                 -g     (internal) generate rcvtable.txt\n" );
+    printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
     printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 1\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
     printf( "                 -p     shows performance information at app exit\n" );
@@ -369,19 +369,19 @@ void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
 
 // taken from gnu's time.h.
 
-# define CLOCK_REALTIME             0
-# define CLOCK_MONOTONIC            1
-# define CLOCK_PROCESS_CPUTIME_ID   2
-# define CLOCK_THREAD_CPUTIME_ID    3
-# define CLOCK_MONOTONIC_RAW        4
+#define CLOCK_REALTIME             0
+#define CLOCK_MONOTONIC            1
+#define CLOCK_PROCESS_CPUTIME_ID   2
+#define CLOCK_THREAD_CPUTIME_ID    3
+#define CLOCK_MONOTONIC_RAW        4
 
 #ifndef CLOCK_REALTIME_COARSE // mingw64's pthread_time.h defines this as 4 because standards
     #define CLOCK_REALTIME_COARSE      5
 #endif
 
-# define CLOCK_MONOTONIC_COARSE     6
+#define CLOCK_MONOTONIC_COARSE     6
 
-const char * clockids[] =
+static const char * clockids[] =
 {
     "realtime",
     "monotonic",
@@ -434,7 +434,7 @@ struct SysCall
     uint64_t id;
 };
 
-const SysCall syscalls[] =
+static const SysCall syscalls[] =
 {
     { "SYS_ioctl", SYS_ioctl },
     { "SYS_mkdirat", SYS_mkdirat },
@@ -1314,7 +1314,7 @@ bool load_image( const char * pimage, const char * app_args )
     //     g_end_of_data
     //     arg_data
     //     uninitalized data (size read from the .elf file)
-    //     initialized data (read from the .elf file)
+    //     initialized data (size & data read from the .elf file)
     //     code (read from the .elf file)
     //     g_base_address (offset read from the .elf file)
 
@@ -1501,7 +1501,14 @@ void elf_info( const char * pimage )
     if ( 0xf3 != ehead.machine )
         printf( "image isn't for RISC-V; continuing anyway. machine type is %x\n", ehead.machine );
 
+    if ( 2 != ehead.bit_width )
+    {
+        printf( "image isn't 64-bit (2), it's %d\n", ehead.bit_width );
+        return;
+    }
+
     printf( "header fields:\n" );
+    printf( "  bit_width: %d\n", ehead.bit_width );
     printf( "  entry address: %llx\n", ehead.entry_point );
     printf( "  program entries: %u\n", ehead.program_header_table_entries );
     printf( "  program header entry size: %u\n", ehead.program_header_table_size );

@@ -753,7 +753,7 @@ void RiscV::trace_state()
                 uint64_t csr = i_imm_u;
 
                 // funct3
-                //    000  system (ecall / ebreak)
+                //    000  system (ecall / ebreak / sfence / hfence)
                 //    001  csrrw write csr
                 //    010  csrrs read csr
                 //    011  csrrc clear bits in csr
@@ -763,10 +763,48 @@ void RiscV::trace_state()
 
                 if ( 0 == funct3 ) // system
                 {
-                    if ( 0x73 == op )
-                        tracer.Trace( "ecall\n" );
-                    else if ( 0x100073 == op )
-                        tracer.Trace( "ebreak\n" );
+                    if ( 0 == funct7 )
+                    {
+                        if ( 0 == rs1 && 0 == rd )
+                            tracer.Trace( "ecall\n" );
+                    }
+                    else if ( 1 == funct7 )
+                    {
+                        if ( 0 == rs1 && 0 == rd )
+                            tracer.Trace( "ebreak\n" );
+                    }
+                    else if ( 8 == funct7 )
+                    {
+                        if ( 2 == rs2 && 0 == rs1 && 0 == rd )
+                            tracer.Trace( "sret\n" );
+                        else if ( 5 == rs2 && 0 == rs1 && 0 == rd )
+                            tracer.Trace( "wfi\n" );
+                    }
+                    else if ( 9 == funct7 )
+                    {
+                        if ( 0 == rd )
+                            tracer.Trace( "sfence.vma %s, %s\n", reg_name( rs1 ), reg_name( rs2 ) );
+                    }
+                    else if ( 0xb == funct7 )
+                    {
+                        if ( 0 == rd )
+                            tracer.Trace( "sinval.vma %s, %s\n", reg_name( rs1 ), reg_name( rs2 ) );
+                    }
+                    else if ( 0xc == funct7 )
+                    {
+                        if ( 0 == rs1 && 0 == rd )
+                        {
+                            if ( 0 == rs2 )
+                                tracer.Trace( "sfence.w.inval\n" );
+                            else if ( 1 == rs2 )
+                                tracer.Trace( "sfence.inval.ir\n" );
+                        }
+                    }
+                    else if ( 0x18 == funct7 )
+                    {
+                        if ( 2 == rs2 && 0 == rs1 && 0 == rd )
+                            tracer.Trace( "mret\n" );
+                    }
                 }
                 else if ( 1 == funct3 ) // write csr
                 {
@@ -785,6 +823,36 @@ void RiscV::trace_state()
                         tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 2 == csr )
                         tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x100 == csr )
+                        tracer.Trace( "csrrs   %s, sstatus, %s  # supervisor status\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x104 == csr )
+                        tracer.Trace( "csrrs   %s, sie, %s  # supervisor interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x105 == csr )
+                        tracer.Trace( "csrrs   %s, stvec, %s  # supervisor trap handler base address\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x140 == csr )
+                        tracer.Trace( "csrrs   %s, sscratch, %s  # supervisor scratch register for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x141 == csr )
+                        tracer.Trace( "csrrs   %s, sepc, %s  # supervisor exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x142 == csr )
+                        tracer.Trace( "csrrs   %s, scause, %s  # supervisor trap cause\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x143 == csr )
+                        tracer.Trace( "csrrs   %s, stval, %s  # supervisor bad address or instruction\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x180 == csr )
+                        tracer.Trace( "csrrs   %s, satp, %s  # supervisor adress translation and protection\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x302 == csr )
+                        tracer.Trace( "csrrs   %s, medeleg, %s  # machine exception delegation\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x303 == csr )
+                        tracer.Trace( "csrrs   %s, mideleg, %s  # machine interrupt delegation\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x304 == csr )
+                        tracer.Trace( "csrrs   %s, mie, %s  # machine interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x305 == csr )
+                        tracer.Trace( "csrrs   %s, mtvec, %s  # machine trap-handler base addess\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x306 == csr )
+                        tracer.Trace( "csrrs   %s, mcounteren, %s  # machine counter enable\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x340 == csr )
+                        tracer.Trace( "csrrs   %s, mscratch, %s  # machine scratch for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
+                    else if ( 0x341 == csr )
+                        tracer.Trace( "csrrs   %s, mepc, %s  # machine exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xb00 == csr )
                         tracer.Trace( "csrrs   %s, mcycle, %s  # rdmcycle read machine cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xb02 == csr )
@@ -2471,9 +2539,12 @@ uint64_t RiscV::run( uint64_t max_cycles )
                             regs[ rd ] = 1000 * clock(); // fake microseconds
                     }
                     else
+                    {
+                        tracer.Trace( "attempt to read csr %x\n", csr );
                         unhandled();
+                    }
                 }
-                else if ( 2 == funct3 ) // csrrs. read csr
+                else if ( 2 == funct3 ) // csrrs. csr read
                 {
                     if ( 0 == rd )
                         break;
@@ -2501,8 +2572,13 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         regs[ rd ] = 0xbeabad00bee;
                     else if ( 0xf13 == csr ) // mimpid implementation
                         regs[ rd ] = 0xbeabad00bee;
+                    else if ( 0xf14 == csr ) // mhardid
+                        regs[ rd ] = 0; // only one hart is supported and one must have id 0
                     else
+                    {
+                        tracer.Trace( "attempt to read csr %x\n", csr );
                         unhandled();
+                    }
                 }
                 else if ( 6 == funct3 ) // csrrsi. set bits in csr immediate
                 {
@@ -2514,7 +2590,10 @@ uint64_t RiscV::run( uint64_t max_cycles )
                             regs[ rd ] = 0;
                     }
                     else
+                    {
+                        tracer.Trace( "attempt to set bits in csr %x\n", csr );
                         unhandled();
+                    }
                 }
                 else
                     unhandled();

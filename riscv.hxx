@@ -29,6 +29,8 @@ struct RiscV
     static const size_t zero = 0;
     static const size_t ra = 1;
     static const size_t sp = 2;
+    static const size_t gp = 3;
+    static const size_t tp = 4;
     static const size_t t0 = 5;
     static const size_t t1 = 6;
     static const size_t t2 = 7;
@@ -76,13 +78,36 @@ struct RiscV
     uint64_t regs[ 32 ]; // x0 through x31
     floating fregs[ 32 ]; // f0 through f31
     uint64_t pc;
+    uint64_t cycles_so_far;
+    uint64_t csr_mstatus;
+    uint64_t csr_sstatus;
+    uint64_t csr_stvec;
+    uint64_t csr_sscratch;
+    uint64_t csr_sepc;
+    uint64_t csr_scause;
+    uint64_t csr_stval;
+    uint64_t csr_sip;
+    uint64_t csr_satp;
+    uint64_t csr_misa;
+    uint64_t csr_medeleg;
+    uint64_t csr_mideleg;
+    uint64_t csr_mie;
+    uint64_t csr_mtvec;
+    uint64_t csr_mcounteren;
+    uint64_t csr_mstatush;
+    uint64_t csr_mscratch;
+    uint64_t csr_mepc;
+    uint64_t csr_mdeleg;
+    uint64_t csr_sie;
+    uint64_t csr_pmpaddr0;
+    uint64_t csr_pmpcfg0;
+
     uint8_t * mem;
     uint8_t * beyond;
     uint64_t base;
     uint8_t * membase;
     uint64_t stack_size;
     uint64_t mem_size;
-    uint64_t cycles_so_far;
     bool rvc;
 
     uint64_t getoffset( uint64_t address )
