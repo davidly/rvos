@@ -26,6 +26,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
     * Gnu CC torture execution tests were run on the emulator.
     * Also tested with the Apple 1 emulator in my ntvao repo built for RISC-V.
+    * Also tested with the CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
 
 Both the  old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
 https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported. 
