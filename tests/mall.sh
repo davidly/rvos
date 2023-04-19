@@ -14,3 +14,6 @@ mt_shell.sh "tcrash"
 
 ../rvos ba /a:r tp1k.bas /x /q
 ./ma.sh tp1k
+
+../rvos ba /a:r tp.bas /x /q
+./ma.sh tp

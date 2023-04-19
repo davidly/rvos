@@ -3,7 +3,7 @@
 date_time=$(date)
 echo "$date_time" >linux_test.txt
 
-for arg in t tenv ts tf tap ttt sieve e tpi tins td tphi ttime;
+for arg in t tenv ts tf tap ttt sieve e tpi tp tins td tphi ttime;
 do
     echo $arg >>linux_test.txt
     rvos /h:20 rvos.elf tests/$arg >>linux_test.txt

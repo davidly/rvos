@@ -1049,19 +1049,23 @@ static const char * register_names[ 32 ] =
 
 const char * target_platform()
 {
-    #ifdef __riscv
+    #ifdef __riscv      // g++ on linux
         return "riscv";
     #endif
 
-    #ifdef __amd64
+    #ifdef __amd64__    // g++ on linux
         return "amd64";
     #endif
 
-    #ifdef _M_AMD64    
+    #ifdef __aarch64__  // g++ on linux
+        return "arm64";
+    #endif
+
+    #ifdef _M_AMD64     // msft on Windows
         return "amd64";
     #endif
 
-    #ifdef _M_ARM64    
+    #ifdef _M_ARM64    // msft on Windows
         return "arm64";
     #endif
 
