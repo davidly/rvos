@@ -18,9 +18,10 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * Atomic and fence instructions are implemented assuming there is just one core.
     * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf, math, etc.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
-    * The emulator is faster than the 400Mhz K210 physical processor when run on an AMD 5950x.
+    * The emulator is about as fast as the 400Mhz K210 physical processor when run on an AMD 5950x.
     * The tests folder has test apps written in C. These build with both old and new g++ for RISC-V.
-    * rvos can run rvos on Windows, MacOS, and Linux; the emulator can emulate itself nested arbitrarily deeply (slowly).
+    * rvos has been tested on Windows (amd64 and arm64), MacOS (arm64), and Linux (amd64 and arm64).
+    * The emulator can run itself nested arbitrarily deeply. Perf is about 64x slower for each nesting.
     * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
@@ -83,7 +84,7 @@ To run the rvos emulator in the rvos emulator, on Linux/MacOS/Windows issue a co
     
 That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
-in the emulator makes it aout 100x slower.
+in the emulator makes it aout 64x slower.
 
 The Gnu G++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
 
