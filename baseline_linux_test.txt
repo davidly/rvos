@@ -1,0 +1,188 @@
+Tue Apr 18 10:23:20 PDT 2023
+t
+a: 0 4000000000000000
+a: 4 0
+ua: 0 4000000000000000
+ua: 4 0
+a: ffffffffffffffff ffffffffffffffff
+a: ffffffffffffffff ffffffffffffffdf = -33
+int8_t result: 6
+uint8_t result: 6
+int16_t result: 6
+uint16_t result: 6
+int32_t result: 6
+uint32_t result: 6
+int64_t result: 6
+uint64_t result: 6
+int128_t result: 6
+uint128_t result: 6
+end of the app
+tenv
+pval: 0x195d9e
+value: toast!
+ts
+top of app
+print an int 27
+print an int64_t 27
+sizeof T: 1, result: ff
+sizeof T: 1, result: 7f
+sizeof T: 2, result: ffff
+sizeof T: 2, result: 7fff
+sizeof T: 4, result: ffffffff
+sizeof T: 4, result: 7fffffff
+sizeof T: 8, result: ffffffffffffffff
+sizeof T: 8, result: 7fffffffffffffff
+now test left shifts
+sizeof T: 1, result: fe
+sizeof T: 1, result: fe
+sizeof T: 2, result: fffe
+sizeof T: 2, result: fffe
+sizeof T: 4, result: fffffffe
+sizeof T: 4, result: fffffffe
+sizeof T: 8, result: fffffffffffffffe
+sizeof T: 8, result: fffffffffffffffe
+now test comparisons
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+testing printf
+  string: 'hello'
+  char: 'h'
+  int: 27, 1b
+  negative int: -27, ffffffe5
+  int64_t: 27, 1b
+  negative int64_t: -27, ffffffffffffffe5
+  float: 3.141573
+  negative float: -3.141573
+stop
+tf
+hello from printf
+float from printf: 45.678000
+division result: 333.333344, square root 18.257420
+result of 20.2 * -1.342: -27.108400
+result of 20.2 * -1.342 as a double: -27.108400
+sinf of 30 degress is 0.500000
+cosf of 30 degrees is 0.866025
+tanf of 30 degrees is 0.577350
+atanf of 1.000000 is 0.785398
+atan2f of 0.3, 0.2 is 0.982794
+acosf of 0.3 is 1.266104
+asinf of 0.3 is 0.304693
+tanhf of 2.2 is 0.304693
+logf of 0.3: -1.203973
+log10f of 300: 2.477121
+pi has mantissa: 0.785398, exponent 2
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+stop
+tap
+starting, should tend towards 1.2020569031595942854...
+  at           10 iterations: 1.19753198567419305576
+  at          100 iterations: 1.20200740065967814907
+  at         1000 iterations: 1.20205640365934329772
+  at        10000 iterations: 1.20205689816009808624
+  at       100000 iterations: 1.20205690310973234425
+next implementation...
+  at           10 iterations: 1.25000000000000000000
+  at          100 iterations: 1.14942528735632176762
+  at         1000 iterations: 1.21802679658952506259
+  at        10000 iterations: 1.20293516179477921746
+  at       100000 iterations: 1.20124448929090532623
+done
+ttt
+starting...
+64930 moves
+22.031000 milliseconds
+sieve
+1899 primes.
+e
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+done
+tpi
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+tins
+hello
+test instructions is complete
+tp1k
+start time: 10:23:20.407
+8615898 microseconds for 1000 iterations
+end time: 10:23:29.022
+final move count 6493
+td
+sprintf double 3.14159265358979311600
+double from printf: 3.14159265358979311600
+float from printf: 1.202057
+double from printf r: -3.776373
+sqrt of pi: 1.772454
+sin of 30 degress is 0.500000
+cos of 30 degrees is 0.866025
+tan of 30 degrees is 0.577350
+atan of 1.000000 is 0.785398
+atan2 of 0.3, 0.2 is 0.982794
+acos of 0.3 is 1.266104
+asin of 0.3 is 0.304693
+tanh of 2.2 is 0.304693
+log of 0.3: -1.203973
+log10 of 300: 2.477121
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+pi has mantissa: 0.785398, exponent 2
+stop
+tphi
+should tend towards 1.61803398874989484820458683436563811772030
+  at  5 iterations: 1.6250000000000000
+  at 10 iterations: 1.6179775280898876
+  at 15 iterations: 1.6180344478216819
+  at 20 iterations: 1.6180339850173580
+  at 25 iterations: 1.6180339887802426
+  at 30 iterations: 1.6180339887496482
+  at 35 iterations: 1.6180339887498969
+  at 40 iterations: 1.6180339887498949
+done
+ttime
+year: 2023, month 4, day 18, hour 9, min 23, sec 29
+an nap
+pan
+ba /p /q tp.bas
+Time to parse tests/tp.bas: 5.001275 ms
+start time: 17:23:29.133
+206 ms for 1 iterations
+end time: 17:23:29.339
+final move count 6493
+mysort /r words.txt sorted.txt
+sorting tests/words.txt ==> tests/sorted.txt
+sorting
+writing...
+done
+tcrash sph
+rvos (amd64) fatal error: stack pointer is above the top of memory: 296340
+pc: 109cc rvos_sp_add
+address space 10000 to 1965a0
+  zero:                0,   ra:            108a4,   sp:           296340,   gp:            6f9d0, 
+    tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           1963a0,   s1:                2,   a0:           100000,   a1:            4aeac, 
+    a2:           196560,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7:               62,   s2:           196548,   s3:                1, 
+    s4:           196560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
+  tcrash mh
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+pc: 10824 main
+address space 10000 to 1965a0
+  zero:                0,   ra:            10704,   sp:           196340,   gp:            6f9d0, 
+    tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           1963a0,   s1:                2,   a0:                0,   a1:            4ae8b, 
+    a2:           196560,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:            6fa80,   a7:               62,   s2:           196548,   s3:                1, 
+    s4:           196560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
+  

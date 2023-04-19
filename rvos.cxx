@@ -548,6 +548,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
             printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            fflush( stdout );
             break;
         }
         case rvos_sys_get_datetime: // writes local date/time into string pointed to by a0
@@ -647,13 +648,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             uint64_t count = cpu.regs[ RiscV::a2 ];
 
-            if ( 1 == descriptor || 2 == descriptor ) // stdout / stderr
-            {
-                tracer.Trace( "  writing '%.*s'\n", (int) count, p );
-                printf( "%.*s", (int) count, p );
-                cpu.regs[ RiscV::a0 ] = count;
-            }
-            else if ( 0 == descriptor ) // stdin
+            if ( 0 == descriptor ) // stdin
             {
                 cpu.regs[ RiscV::a0 ] = -1;
                 if ( g_perrno )
@@ -661,6 +656,9 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             else
             {
+                if ( 1 == descriptor || 2 == descriptor ) // stdout / stderr
+                    tracer.Trace( "  writing '%.*s'\n", (int) count, p );
+
                 size_t result = write( descriptor, p, (int) count );
                 if ( ( -1 == result ) && g_perrno )
                     *g_perrno = errno;
@@ -761,6 +759,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             double d;
             memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
             printf( "%lf", d );
+            fflush( stdout );
             break;
         }
         case rvos_sys_trace_instructions:
@@ -1032,6 +1031,9 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             printf( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
                     cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+            tracer.Trace( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
+                          cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+            fflush( stdout );
             //cpu.regs[ RiscV::a0 ] = -1;
         }
     }
@@ -1090,6 +1092,8 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
             printf( "\n  " );
         }
     }
+    tracer.Flush();
+    fflush( stdout );
     exit( -1 );
 } //riscv_hard_termination
 

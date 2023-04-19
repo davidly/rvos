@@ -90,6 +90,10 @@ should tend towards 1.61803398874989484820458683436563811772030
 done
 hello
 test instructions is complete
+start time: 10:15:17.126
+15130333 microseconds for 1000 iterations
+end time: 10:15:32.256
+final move count 6493
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main
 address space 10000 to 13a070
@@ -169,7 +173,7 @@ address space 10000 to 13a070
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
   starting...
 64930 moves
-36.788002 milliseconds
+36.627003 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -189,12 +193,12 @@ pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 parsing input file tests\tp.bas
-start time: 23:29:38.000
+start time: 17:15:32.000
 0 ms for 1 iterations
-end time: 23:29:38.000
+end time: 17:15:32.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 3, day 24, hour 15, min 29, sec 38
+year: 2023, month 4, day 18, hour 9, min 15, sec 32
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

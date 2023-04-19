@@ -487,6 +487,14 @@ static void Usage()
     exit( 1 );
 } //Usage
 
+const char * YesNo( bool f )
+{
+    if ( f )
+        return "yes";
+
+    return "no";
+} //YesNo
+
 long portable_filelen( FILE * fp )
 {
     long current = ftell( fp );
@@ -4343,6 +4351,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, ";      /defaultlib:libucrt.lib ^\n" );
         fprintf( fp, ";      /defaultlib:libcmt.lib ^\n" );
         fprintf( fp, ";      /entry:mainCRTStartup\n" );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 
         fprintf( fp, "extern printf: PROC\n" );
         fprintf( fp, "extern exit: PROC\n" );
@@ -4355,6 +4365,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
     {
         fprintf( fp, "@  Build on an arm32 Linux machine using this command (tested on Raspberry PI 3):\n" );
         fprintf( fp, "@     gcc -o sample sample.s -march=armv8-a\n" );
+        fprintf( fp, "@\n" );
+        fprintf( fp, "@ BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
         fprintf( fp, ".global main\n" );
         fprintf( fp, ".code 32\n" );
         fprintf( fp, ".macro save_volatile_registers\n" );
@@ -4370,6 +4382,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "; Build on an Apple Silicon Mac using a shell script like this:\n" );
         fprintf( fp, ";    as -arch arm64 $1.s -o $1.o\n" );
         fprintf( fp, ";    ld $1.o -o $1 -syslibroot 'xcrun -sdk macos --show-sdk-path' -e _start -L /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lSystem\n" );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 
         fprintf( fp, ".global _start\n" );
         fprintf( fp, ".macro save_volatile_registers\n" );
@@ -4392,6 +4406,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, ";    armasm64 -nologo sample.asm -o sample.obj -g\n" );
         fprintf( fp, ";    link sample.obj /nologo /defaultlib:libucrt.lib /defaultlib:libcmt.lib /defaultlib:kernel32.lib ^\n" );
         fprintf( fp, ";        /defaultlib:legacy_stdio_definitions.lib /entry:mainCRTStartup /subsystem:console\n" );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 
         fprintf( fp, "  IMPORT |printf|\n" );
         fprintf( fp, "  IMPORT |exit|\n" );
@@ -4419,6 +4435,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, ";   asm test\n" );
         fprintf( fp, ";   load test\n" );
         fprintf( fp, ";   test\n" );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
         fprintf( fp, "BDOS equ 5\n" );
         fprintf( fp, "WCONF equ 2\n" );
         fprintf( fp, "PRSTR equ 9\n" );
@@ -4441,6 +4459,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, ";   sbasm30306\\sbasm.py %s\n", justFile.data() );
         fprintf( fp, "; sbasm.py can be found here: https://www.sbprojects.net/sbasm/\n" );
         fprintf( fp, "; this creates a %s.hex hex text file with 'address: bytes' lines that can be loaded on an Apple 1\n", justFile.data() );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
         fprintf( fp, "    .cr       6502\n" );
         fprintf( fp, "    .tf       %s.hex, AP1, 8\n", justFile.data() );
         fprintf( fp, "    .or       $1000\n" );
@@ -4467,6 +4487,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "; The first two tools create a com file with addresses as if it loads at address 0x100,\n" );
         fprintf( fp, "; but includes 0x100 bytes of 0s at the start, which isn't what DOS wants. chop chops off\n" );
         fprintf( fp, "; the first 0x100 bytes of a file. I don't know how to make the tools do the right thing\n" );
+        fprintf( fp, ";\n" );
+        fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
         fprintf( fp, "        .model tiny\n" );
         fprintf( fp, "        .stack\n" );
         fprintf( fp, "\n" );
@@ -4492,6 +4514,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             fprintf( fp, ";        /defaultlib:libcmt.lib ^\n" );
             fprintf( fp, ";        /defaultlib:legacy_stdio_definitions.lib ^\n" );
             fprintf( fp, ";        /entry:mainCRTStartup\n" );
+            fprintf( fp, ";\n" );
+            fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
             fprintf( fp, ".686       ; released by Intel in 1995. First Intel cpu to have cmovX instructions\n" );
         }
         else
@@ -4501,6 +4525,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             fprintf( fp, ";   link sample.obj /OPT:REF /defaultlib:msvcrt.lib /subsystem:console,3.10 /entry:mainCRTStartup\n" );
             fprintf( fp, "; If you try to build on modern Windows, _printf will be unresolved.\n" );
             fprintf( fp, ";    workaround: add /defaultlib:legacy_stdio_definitions.lib\n" );
+            fprintf( fp, ";\n" );
+            fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
             fprintf( fp, ".386\n" );
         }
 
@@ -4546,6 +4572,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "#    {\n" );
         fprintf( fp, "#        while ( true );\n" );
         fprintf( fp, "#    }\n" );
+        fprintf( fp, "#\n" );
+        fprintf( fp, "# BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 
         fprintf( fp, ".section        .sbss,\"aw\",@nobits\n" );
         fprintf( fp, "  .align 3\n" );
@@ -10412,7 +10440,9 @@ label_no_if_optimization:
         fprintf( fp, "    .cfi_endproc\n" );
     }
 
-    printf( "created assembler file %s\n", outputfile );
+    if ( !g_Quiet )
+        printf( "created assembler file: %s, use registers: %s, expression optimization: %s\n",
+                outputfile, YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 } //GenerateASM
 
 void ParseInputFile( const char * inputfile )

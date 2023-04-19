@@ -9,6 +9,7 @@ rvos tests\tap >>test_rvos.txt
 rvos tests\tpi >>test_rvos.txt
 rvos tests\tphi >>test_rvos.txt
 rvos tests\tins >>test_rvos.txt
+rvos tests\tp1k >>test_rvos.txt
 rvos tests\tcrash ml >>test_rvos.txt
 rvos tests\tcrash mh >>test_rvos.txt
 rvos tests\tcrash pcl >>test_rvos.txt
