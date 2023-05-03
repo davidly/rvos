@@ -1757,7 +1757,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                             regs[ rd ] = sign_extend( value, 32 );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
                     }
-                    else if ( 3 == funct3 ) // amoord.d rd, rs2, (rs1)
+                    else if ( 3 == funct3 ) // amoor.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
                         if ( 0 != rd )

@@ -319,8 +319,21 @@ uint64_t rand64()
 int windows_translate_flags( int flags )
 {
     // Microsoft C uses different constants for flags than linux:
-    // O_CREAT == 0x100 msft, 0x200 linux
-    // O_TRUNC == 0x200 msft, 0x400 linux
+    // O_CREAT == 0x100 msft,       0x200 linux
+    // O_TRUNC == 0x200 msft,       0x400 linux
+    // O_ASYNC == (undefined) msft, 0x40 on linux
+    // 0x40 ==    O_TEMPORARY msft, O_ASYNC linux // send SIGIO when data is ready
+    // 0x80 ==    O_NOINHERIT msft, O_FSYNC // synchronous writes
+
+    // don't create a temporary file when the caller asked for async
+
+    if ( flags & 0x40 )    
+        flags &= ~ 0x40;
+
+    // don't create a non-inherited file when the caller asked for fsync
+
+    if ( flags & 0x80 )
+        flags &= ~ 0x80;
 
     if ( flags & 0x200 )
     {
