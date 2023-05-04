@@ -52,6 +52,7 @@ riscv-gnu-toolchain for RISC-V can run itself nested as well as rvos built with 
     * baseline_test_rvos.txt  Expected output of rt.bat, rt.sh, rti.bat, rti.sh, etc.
     * kendryte.ld     Gnu ld configuration file to target SiPeed K210 RISC-V hardware and RVOS
     * djltrace.hxx    debug tracing class
+    * djl_os.hxx      eases porting among various operating systems
     * words.txt       Used by tests\an.c test app to generate anagrams 
 
 The tests folder has a number of small C/C++ programs that can be compiled using mariscv.bat on Windows or
@@ -78,7 +79,7 @@ heap, use rvos' /h argument to specify how much RAM to allocate. The anagram gen
     * ttime.c     Tests retrieving and showing the current time
     * ttt.c       Proves you can't win at tic-tac-toe
     
-To run the rvos emulator in the rvos emulator, on Linux/MacOS/Windows issue a command like:
+To run the rvos emulator nested in the rvos emulator, on Linux/MacOS/Windows issue a command like:
 
     rvos /h:60 rvos.elf /h:40 an phoebe bridgers
     
