@@ -416,9 +416,9 @@ const char * get_clockid( clockid_t clockid )
 
 high_resolution_clock::time_point g_tAppStart;
 
-int clock_gettime( clockid_t clockid, struct timespec * tv )
+int msc_clock_gettime( clockid_t clockid, struct timespec * tv )
 {
-    tracer.Trace( "  clock_gettime, clockid %d == %s\n", clockid, get_clockid( clockid ) );
+    tracer.Trace( "  msc_clock_gettime, clockid %d == %s\n", clockid, get_clockid( clockid ) );
 
     if ( CLOCK_REALTIME == clockid || CLOCK_REALTIME_COARSE == clockid )
     {
@@ -437,7 +437,7 @@ int clock_gettime( clockid_t clockid, struct timespec * tv )
     }
 
     return 0;
-} //clock_gettime
+} //msc_clock_gettime
 
 #endif
 
@@ -975,7 +975,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     cid = CLOCK_REALTIME;
             #endif
 
-            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = msc_clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
             cpu.regs[ RiscV::a0 ] = result;
