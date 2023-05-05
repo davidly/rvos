@@ -975,7 +975,11 @@ void riscv_invoke_ecall( RiscV & cpu )
                     cid = CLOCK_REALTIME;
             #endif
 
+#ifdef _MSC_VER
             int result = msc_clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+#else
+            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+#endif
             if ( -1 == result && 0 != g_perrno )
                 *g_perrno = errno;
             cpu.regs[ RiscV::a0 ] = result;
