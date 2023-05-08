@@ -319,32 +319,41 @@ uint64_t rand64()
 int windows_translate_flags( int flags )
 {
     // Microsoft C uses different constants for flags than linux:
-    // O_CREAT == 0x100 msft,       0x200 linux
-    // O_TRUNC == 0x200 msft,       0x400 linux
-    // O_ASYNC == (undefined) msft, 0x40 on linux
-    // 0x40 ==    O_TEMPORARY msft, O_ASYNC linux // send SIGIO when data is ready
-    // 0x80 ==    O_NOINHERIT msft, O_FSYNC // synchronous writes
+    // O_CREAT == 0x100 msft,        0x200 linux
+    // O_TRUNC == 0x200 msft,        0x400 linux
+    // O_ASYNC == (undefined)  msft, 0x40 on linux
+    // 0x40 ==    O_TEMPORARY  msft, O_ASYNC linux // send SIGIO when data is ready
+    // 0x80 ==    O_NOINHERIT  msft, O_FSYNC // synchronous writes
+    // 0x20 ==    O_SEQUENTIAL msft, _FDEFER / O_EXLOCK / _FEXLOCK on others
+    // 0x10 ==    O_RANDOM     msft, _FMARK / O_SHLOCK / _FSHLOCK / O_SYNC on others
 
     // don't create a temporary file when the caller asked for async
 
-    if ( flags & 0x40 )    
-        flags &= ~ 0x40;
+    flags &= ~ 0x40;
 
     // don't create a non-inherited file when the caller asked for fsync
 
-    if ( flags & 0x80 )
-        flags &= ~ 0x80;
+    flags &= ~ 0x80;
+
+    // translate O_CREAT
 
     if ( flags & 0x200 )
     {
         flags |= 0x100;
         flags &= ~ 0x200;
     }
+
+    // translate O_TRUNC
+
     if ( flags & 0x400 )
     {
         flags |= 0x200;
         flags &= ~ 0x400;
     }
+
+    // turn off 0x10 and 0x20 because they aren't critical and don't translate
+
+    flags &= ~ 0x30;
 
     flags |= O_BINARY; // this is assumed on Linux systems
 
@@ -470,6 +479,7 @@ static const SysCall syscalls[] =
     { "SYS_futex", SYS_futex },
     { "SYS_set_robust_list", SYS_set_robust_list },
     { "SYS_clock_gettime", SYS_clock_gettime },
+    { "SYS_clock_nanosleep", SYS_clock_nanosleep },
     { "SYS_tgkill", SYS_tgkill },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
     { "SYS_gettimeofday", SYS_gettimeofday },
@@ -574,6 +584,22 @@ void riscv_invoke_ecall( RiscV & cpu )
             sprintf( pdatetime, "%02u:%02u:%02u.%03u", plocal->tm_hour, plocal->tm_min, plocal->tm_sec, (uint32_t) ms );
             cpu.regs[ RiscV::a0 ] = 0;
             tracer.Trace( "  got datetime: '%s', pc: %llx\n", pdatetime, cpu.pc );
+            break;
+        }
+        case SYS_clock_nanosleep:
+        {
+            clockid_t clockid = cpu.regs[ RiscV::a0 ];
+            int flags = cpu.regs[ RiscV::a1 ];
+            tracer.Trace( "  nanosleep id %d flags %x\n", clockid, flags );
+
+            const struct timespec * request = (const struct timespec *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+            struct timespec * remain = 0;
+            if ( 0 != cpu.regs[ RiscV::a3 ] )
+                remain = (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a3 ] );
+
+            uint64_t ms = request->tv_sec * 1000 + request->tv_nsec / 1000000;
+            tracer.Trace( "  nanosleep sec %lld, nsec %lld == %lld ms\n", request->tv_sec, request->tv_nsec, ms );
+            sleep_ms( ms );
             break;
         }
         case SYS_fstat:
@@ -910,7 +936,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int directory = (int) cpu.regs[ RiscV::a0 ];
             const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             int flags = (int) cpu.regs[ RiscV::a2 ];
-            tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x", directory, path, flags );
+            tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x\n", directory, path, flags );
 #ifdef _MSC_VER // on windows ignore the directory argument
             int result = _unlink( path );
 #else
@@ -1032,13 +1058,35 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = 0;
             break;
         }
+        case SYS_pselect6:
+        {
+            int nfds = cpu.regs[ RiscV::a0 ];
+            void * readfds = (void *) cpu.regs[ RiscV::a1 ];
+
+#if defined(_MSC_VER)
+            if ( 1 == nfds && 0 != readfds )
+            {
+                // check to see if stdin has a keystroke available
+
+                cpu.regs[ RiscV::a0 ] = _kbhit();
+                tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ RiscV::a0 ] );
+            }
+            else
+#endif
+            {
+                // lie and say no I/O is ready
+
+                cpu.regs[ RiscV::a0 ] = 0;
+            }
+
+            break;
+        }
         case SYS_set_tid_address:
         case SYS_set_robust_list:
         case SYS_prlimit64:
         case SYS_readlinkat:
         case SYS_mprotect:
         case SYS_ioctl:
-        case SYS_pselect6:
         {
             // ignore for now as apps seem to run ok anyway
             break;
@@ -1180,19 +1228,22 @@ bool load_image( const char * pimage, const char * app_args )
 
     FILE * fp = fopen( pimage, "rb" );
     if ( !fp )
-        usage( "can't open image file" );
+    {
+        printf( "can't open elf image file: %s\n", pimage );
+        usage();
+    }
 
     CFile file( fp );
     size_t read = fread( &ehead, sizeof ehead, 1, fp );
 
     if ( 1 != read )
-        usage( "image file is invalid" );
+        usage( "elf image file is invalid" );
 
     if ( 0x464c457f != ehead.magic )
-        usage( "image file's magic header is invalid" );
+        usage( "elf image file's magic header is invalid" );
 
     if ( 0xf3 != ehead.machine )
-        usage( "image isn't for RISC-V" );
+        usage( "elf image isn't for RISC-V" );
 
     tracer.Trace( "header fields:\n" );
     tracer.Trace( "  entry address: %llx\n", ehead.entry_point );

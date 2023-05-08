@@ -33,6 +33,7 @@
 #define SYS_futex 98
 #define SYS_set_robust_list 99
 #define SYS_clock_gettime 113
+#define SYS_clock_nanosleep 115
 #define SYS_tgkill 131
 #define SYS_rt_sigprocmask 135
 #define SYS_gettimeofday 169
