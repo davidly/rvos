@@ -45,6 +45,7 @@
 #define SYS_mprotect 226
 #define SYS_riscv_flush_icache 259
 #define SYS_prlimit64 261
+#define SYS_renameat2 276
 #define SYS_getrandom 278
 
 // open apparently undefined for riscv? the old g++ compiler/runtime uses this value

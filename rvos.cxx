@@ -32,16 +32,32 @@
     typedef SSIZE_T ssize_t;
 #else
     #include <unistd.h>
+
     #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
+    #include <termios.h>
         #include <sys/random.h>
         #include <sys/uio.h>
         #ifndef __APPLE__
             #include <sys/sysinfo.h>
         #endif
+
+        // this structure is smaller than the usermode version. I don't know of cross-platform header with it.
+    
+        #define local_KERNEL_NCCS 19
+        struct local_kernel_termios
+        {
+            tcflag_t c_iflag;     /* input mode flags */
+            tcflag_t c_oflag;     /* output mode flags */
+            tcflag_t c_cflag;     /* control mode flags */
+            tcflag_t c_lflag;     /* local mode flags */
+            cc_t c_line;          /* line discipline */
+            cc_t c_cc[local_KERNEL_NCCS]; /* control characters */
+        };
     #endif
 #endif
 
 #include <djltrace.hxx>
+#include <djl_con.hxx>
 
 using namespace std;
 using namespace std::chrono;
@@ -50,6 +66,7 @@ using namespace std::chrono;
 #include "rvos.h"
 
 CDJLTrace tracer;
+ConsoleConfiguration g_consoleConfig;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
@@ -491,6 +508,7 @@ static const SysCall syscalls[] =
     { "SYS_mprotect", SYS_mprotect },
     { "SYS_riscv_flush_icache", SYS_riscv_flush_icache },
     { "SYS_prlimit64", SYS_prlimit64 },
+    { "SYS_renameat2", SYS_renameat2 },
     { "SYS_getrandom", SYS_getrandom },
     { "SYS_open", SYS_open }, // only called for older systems
     { "rvos_sys_rand", rvos_sys_rand },
@@ -549,10 +567,13 @@ void riscv_check_ptracenow( RiscV & cpu )
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
+    // Linux syscalls support up to 6 arguments
+
     if ( tracer.IsEnabled() )
-        tracer.Trace( "invoke_ecall %s a7 %llx = %lld, a0 %llx, a1 %llx, a2 %llx, a3 %llx\n", 
+        tracer.Trace( "invoke_ecall %s a7 %llx = %lld, a0 %llx, a1 %llx, a2 %llx, a3 %llx, a4 %llx, a5 %llx\n", 
                       lookup_syscall( cpu.regs[ RiscV::a7] ), cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ],
-                      cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ] );
+                      cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ],
+                      cpu.regs[ RiscV::a4 ], cpu.regs[ RiscV::a5 ] );
 
     switch ( cpu.regs[ RiscV::a7 ] )
     {
@@ -669,6 +690,14 @@ void riscv_invoke_ecall( RiscV & cpu )
             void * buffer = cpu.getmem( cpu.regs[ RiscV::a1 ] );
             unsigned buffer_size = (unsigned) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
+
+            if ( 0 == descriptor && 1 == buffer_size )
+            {
+                int r = ConsoleConfiguration::portable_getch();
+                * (char *) buffer = r;
+                cpu.regs[ RiscV::a0 ] = 1;
+                break;
+            }
 
             int result = read( descriptor, buffer, buffer_size );
             tracer.Trace( "  read result: %ld\n", result );
@@ -819,7 +848,11 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_openat:
         {
             tracer.Trace( "  rvos command SYS_openat\n" );
-            // a0: asciiz string of file to open. a1: flags. a2: mode
+            // a0: directory. a1: asciiz string of file to open. a2: flags. a3: mode
+
+            // G++ on RISC-V on a opendir() call will call this with 0x80000 set in flags. Ignored for now,
+            // but this should call opendir() on non-Windows and on Windows would take substantial code to
+            // implement since opendir() doesn't exist. For now it fails with errno 13.
 
             int directory = (int) cpu.regs[ RiscV::a0 ];
 #ifdef __APPLE__
@@ -1031,6 +1064,23 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = 1;
             break;
         }
+        case SYS_renameat2:
+        {
+            int olddirfd = (int) cpu.regs[ RiscV::a0 ];
+            const char * oldpath = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int newdirfd = (int) cpu.regs[ RiscV::a2 ];
+            const char * newpath = (const char *) cpu.getmem( cpu.regs[ RiscV::a3 ] );
+            unsigned int flags = (unsigned int) cpu.regs[ RiscV::a4 ];
+            tracer.Trace( "  renaming '%s' to '%s'\n", oldpath, newpath );
+#ifdef _MSC_VER
+            cpu.regs[ RiscV::a0 ] = rename( oldpath, newpath );
+#else
+            cpu.regs[ RiscV::a0 ] = renameat2( olddirfd, oldpath, newdirfd, newpath, flags );
+#endif
+
+            tracer.Trace( "  result of renameat2: %llx\n", cpu.regs[ RiscV::a0 ] );
+            break;
+        }
         case SYS_getrandom:
         {
             void * buf = cpu.getmem( cpu.regs[ RiscV::a0 ] );
@@ -1063,16 +1113,14 @@ void riscv_invoke_ecall( RiscV & cpu )
             int nfds = cpu.regs[ RiscV::a0 ];
             void * readfds = (void *) cpu.regs[ RiscV::a1 ];
 
-#if defined(_MSC_VER)
             if ( 1 == nfds && 0 != readfds )
             {
                 // check to see if stdin has a keystroke available
 
-                cpu.regs[ RiscV::a0 ] = _kbhit();
+                cpu.regs[ RiscV::a0 ] = ConsoleConfiguration::portable_kbhit();
                 tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ RiscV::a0 ] );
             }
             else
-#endif
             {
                 // lie and say no I/O is ready
 
@@ -1081,16 +1129,53 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             break;
         }
+        case SYS_ioctl:
+        {
+#ifndef _MSC_VER
+            int fd = (int) cpu.regs[ RiscV::a0 ];
+            unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
+            tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
+
+            if ( 0 == fd )
+            {
+                // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
+
+                if ( 0x5401 == request ) // TCGETS
+                {
+                    struct termios val;
+                    tcgetattr( 0, &val );
+
+                    struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+                    tracer.Trace( "termios pointer: %p\n", pt );
+                    memcpy( pt, &val, sizeof( struct local_kernel_termios ) );
+                    tracer.Trace( "  ioctl queried termios on stdin, sizeof termios %zd, sizeof val %zd\n", sizeof( struct termios ), sizeof( val ) );
+                }
+                else if ( 0x5402 == request ) // TCSETS
+                {
+                    struct termios val;
+                    memset( &val, 0, sizeof val );
+                    struct termios * pt = (struct termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+                    memcpy( &val, pt, sizeof( struct local_kernel_termios ) );
+
+                    tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
+
+                    tcsetattr( 0, TCSANOW, &val );
+                    tracer.Trace( "  ioctl set termios on stdin\n" );
+                }
+            }
+#endif
+            cpu.regs[ RiscV::a0 ] = 0;
+
+            break;
+        }
         case SYS_set_tid_address:
         case SYS_set_robust_list:
         case SYS_prlimit64:
         case SYS_readlinkat:
         case SYS_mprotect:
-        case SYS_ioctl:
-        {
-            // ignore for now as apps seem to run ok anyway
+            // ignore for now
             break;
-        }
+
 #endif // !defined(OLDGCC)
         default:
         {
@@ -1803,6 +1888,8 @@ int main( int argc, char * argv[] )
     tracer.Enable( trace, L"rvos.log", true );
     tracer.SetQuiet( true );
 
+    g_consoleConfig.EstablishConsole( 0, 0, 0 );
+
     if ( generateRVCTable )
     {
         bool ok = RiscV::generate_rvc_table( "rvctable.txt" );
@@ -1859,6 +1946,8 @@ int main( int argc, char * argv[] )
 
         tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
     }
+
+    g_consoleConfig.RestoreConsole( false );
     tracer.Shutdown();
 
     return g_exit_code;
