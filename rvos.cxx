@@ -41,7 +41,7 @@
             #include <sys/sysinfo.h>
         #endif
 
-        // this structure is smaller than the usermode version. I don't know of cross-platform header with it.
+        // this structure is smaller than the usermode version. I don't know of a cross-platform header with it.
     
         #define local_KERNEL_NCCS 19
         struct local_kernel_termios
@@ -1131,7 +1131,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_ioctl:
         {
-#ifndef _MSC_VER
+#ifndef _MSC_VER // kbhit() works without all this fuss on Windows
             int fd = (int) cpu.regs[ RiscV::a0 ];
             unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
