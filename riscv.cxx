@@ -56,10 +56,11 @@ const uint8_t RType = 6;
 const uint8_t CsrType = 7;
 const uint8_t R4Type = 8;
 const uint8_t ShiftType = 9;
+const uint8_t CType = 10; // risc-v extension for cmvxx instructions
 
 static const char instruction_types[] =
 {
-    '!', 'U', 'J', 'I', 'B', 'S', 'R', 'C', 'r', 's',
+    '!', 'U', 'J', 'I', 'B', 'S', 'R', 'C', 'r', 's', 'c',
 };
 
 static uint32_t g_State = 0;
@@ -85,7 +86,7 @@ static const uint8_t riscv_types[ 32 ] =
 {
     IType,   //  0
     IType,   //  1
-    IllType, //  2
+    CType,   //  2  // risc-v extension for cmvxx instructions
     IType,   //  3
     IType,   //  4
     UType,   //  5
@@ -618,6 +619,17 @@ bool RiscV::generate_rvc_table( const char * path )
     return true;
 } //generate_rvc_table
 
+static const char * comparison_types[] =
+{
+    "eq", "ne", "error-le?", "error-gt?", "lt", "ge", "ltu", "geu", 
+};
+
+static const char * cmp_type( uint64_t t )
+{
+    assert( t < _countof( comparison_types ) );
+    return comparison_types[ t ];
+} //cmp_type
+
 void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
@@ -884,20 +896,7 @@ void RiscV::trace_state()
         {
             decode_B();
             if ( 0x18 == opcode_type )
-            {
-                if ( 0 == funct3 )
-                    tracer.Trace( "beq     %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-                else if ( 1 == funct3 )
-                    tracer.Trace( "bne     %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-                else if ( 4 == funct3 )
-                    tracer.Trace( "blt     %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-                else if ( 5 == funct3 )
-                    tracer.Trace( "bge     %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-                else if ( 6 == funct3 )
-                    tracer.Trace( "bltu    %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-                else if ( 7 == funct3 )
-                    tracer.Trace( "bgeu    %s, %s, %lld  # %8llx\n", reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
-            }
+                tracer.Trace( "b%s     %s, %s, %lld  # %8llx\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
             break;
         }
         case SType:
@@ -1393,6 +1392,34 @@ void RiscV::trace_state()
             }
             break;
         }
+        case CType: // risc-v extension cmvxx instructions
+        {
+            decode_C();
+
+            int64_t rs1_imm = sign_extend( rs1, 5 );
+            int64_t rc2_imm = sign_extend( c_rc2, 5 );
+
+            if ( 0 == c_imm_flags )
+                tracer.Trace( "cmv%s %s, %s, %s, %s\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), reg_name( c_rc2 ) );
+            else if ( 1 == c_imm_flags )
+                tracer.Trace( "cmv%s %s, %lld, %s, %s\n", cmp_type( funct3 ), reg_name( rd ), rs1_imm, reg_name( c_rc1 ), reg_name( c_rc2 ) );
+            else if ( 2 == c_imm_flags )
+            {
+                if ( funct3 >= 6 )
+                    tracer.Trace( "cmv%s %s, %s, %s, %lud\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), c_rc2 );
+                else
+                    tracer.Trace( "cmv%s %s, %s, %s, %lld\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), rc2_imm );
+            }
+            else // ( 3 == c_imm_flags )
+            {
+                if ( funct3 >= 6 )
+                    tracer.Trace( "cmv%s %s, %lld, %s, %llu\n", cmp_type( funct3 ), reg_name( rd ), rs1_imm, reg_name( c_rc1 ), c_rc2 );
+                else
+                    tracer.Trace( "cmv%s %s, %lld, %s, %lld\n", cmp_type( funct3 ), reg_name( rd ), rs1_imm, reg_name( c_rc1 ), rc2_imm );
+            }
+            
+            break;
+        }
         case CsrType:
         {
             break;
@@ -1497,6 +1524,64 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     fregs[ rd ].d = getdouble( regs[ rs1 ] + i_imm );
                 else
                     unhandled();
+                break;
+            }
+            case 2: // risc-v extension cmvxx conditional move
+            {
+                assert_type( CType );
+                decode_C();
+    
+                if ( 0 == rd )
+                    break;
+    
+                // cmvXX are risc-v extension conditional-move instructions. They yield about 1% faster perf for some benchmarks
+                // cmvXX rd, rs1, rc1, rc2  -- if ( rc1 XX rc2 ) rd = rs1
+                // 31: 1 if rc2 is an immediate value (signed/unsigned depending on the compare) or 0 if a register
+                // 30: 1 if rs1 is an immediate value (always signed) or 0 if a register
+                // 29-25: rc1
+                // 24-20: rc2
+                // 19-15: rs1
+                // 14-12: funct3 XX comparison 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = geu
+                // 11-7:  rd
+                // 6-2:   2 (opcode type cmv)
+                // 1-0:   3 (4-byte instruction)
+
+                uint64_t source = ( 0 == ( c_imm_flags & 1 ) ) ? regs[ rs1 ] : sign_extend( rs1, 5 );
+                uint64_t cmp_right = ( 0 == ( c_imm_flags & 2 ) ) ? regs[ c_rc2 ] : ( 6 == funct3 || 7 == funct3 ) ? c_rc2 : sign_extend( c_rc2, 5 );
+
+                if ( 0 == funct3 ) // cmveq
+                {
+                    if ( regs[ c_rc1 ] == cmp_right )
+                        regs[ rd ] = source;
+                }
+                else if ( 1 == funct3 ) // cmvne
+                {
+                    if ( regs[ c_rc1 ] != cmp_right )
+                        regs[ rd ] = source;
+                }
+                else if ( 4 == funct3 ) // cmvlt
+                {
+                    if ( (int64_t) regs[ c_rc1 ] < (int64_t) cmp_right )
+                        regs[ rd ] = source;
+                }
+                else if ( 5 == funct3 ) // cmvge
+                {
+                    if ( (int64_t) regs[ c_rc1 ] >= (int64_t) cmp_right )
+                        regs[ rd ] = source;
+                }
+                else if ( 6 == funct3 ) // cmvltu
+                {
+                    if ( regs[ c_rc1 ] >= cmp_right )
+                        regs[ rd ] = source;
+                }
+                else if ( 7 == funct3 ) // cmvgtu
+                {
+                    if ( regs[ c_rc1 ] >= cmp_right )
+                        regs[ rd ] = source;
+                }
+                else
+                    unhandled();
+                
                 break;
             }
             case 3:

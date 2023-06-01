@@ -174,6 +174,9 @@ struct RiscV
     uint64_t u_imm_u;
     uint64_t j_imm_u;
     int64_t b_imm;
+    uint64_t c_rc1;
+    uint64_t c_rc2;
+    uint64_t c_imm_flags;
 
     void unhandled( void );
 
@@ -285,6 +288,22 @@ struct RiscV
         theop >>= 5;
         funct7 = theop & 0x7f;
     } //decode_R
+
+    __inline_perf void decode_C() // risc-v extension cmvxx instructions -- conditional move
+    {
+        uint64_t theop = op >> 7;
+        rd = theop & 0x1f;
+        theop >>= 5;
+        funct3 = theop & 0x7;
+        theop >>= 3;
+        rs1 = theop & 0x1f;
+        theop >>= 5;
+        c_rc2 = theop & 0x1f;
+        theop >>= 5;
+        c_rc1 = theop & 0x1f;
+        theop >>= 5;
+        c_imm_flags = theop & 0x3;
+    } //decode_C
 
     void assert_type( uint8_t t );
     void trace_state( void );                  // trace the machine current status
