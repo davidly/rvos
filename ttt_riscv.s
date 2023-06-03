@@ -480,7 +480,7 @@ _pos0func:
         # R-type instruction
         #    rs1 -- rleft
         #    rs2 -- rright
-        #    typically ra will be rreturn
+        #    rd -- typically ra
         #    funct3 -- 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = gtu
         #    funct7 -- 0
         #    opcode -- lower 7 bits 0x2b. opcode type -- 0xa
