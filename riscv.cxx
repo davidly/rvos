@@ -94,7 +94,7 @@ static const uint8_t riscv_types[ 32 ] =
     IllType, //  7
     SType,   //  8
     SType,   //  9
-    IllType, //  a
+    RType,   //  a // risc-v extension for jrxx instructions
     RType,   //  b
     RType,   //  c
     UType,   //  d
@@ -933,7 +933,12 @@ void RiscV::trace_state()
             decode_R();
             //tracer.Trace( "\nfunct7 %llx, rs2 %llx, rs1 %llx, funct3 %llx, rd %llx\n", funct7, rs2, rs1, funct3, rd );
 
-            if ( 0xb == opcode_type )
+            if ( 0xa == opcode_type )
+            {
+                if ( 0 == funct7 )
+                    tracer.Trace( "jr%s    %s, %s, %s\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), reg_name( rd ) );
+            }
+            else if ( 0xb == opcode_type )
             {
                 uint32_t top5 = (uint32_t) ( funct7 >> 2 );
                 if ( 0 == top5 )
@@ -1731,6 +1736,62 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     setdouble( regs[ rs1 ] + s_imm, fregs[ rs2 ].d );
                 else
                     unhandled();
+                break;
+            }
+            case 0xa:
+            {
+                assert_type( RType );
+                decode_R();
+
+                // conditional return. If the condition is true, jump to the address in rreturn (typically ra)
+                // jrXX rleft, rright, rreturn
+                // if ( rleft XX rright ) pc = rreturn
+                // R-type instruction
+                //    rs1 -- rleft
+                //    rs2 -- rright
+                //    typically ra will be rreturn
+                //    funct3 -- 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = gtu
+                //    funct7 -- 0
+                //    opcode -- lower 7 bits 0x2b. opcode type -- 0xa
+
+                if ( 0 == funct7 )
+                {
+                    if ( 0 == funct3 ) // jreq
+                    {
+                        if ( regs[ rs1 ] == regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else if ( 1 == funct3 ) // jrne
+                    {
+                        if ( regs[ rs1 ] != regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else if ( 4 == funct3 ) // jrlt
+                    {
+                        if ( (int64_t) regs[ rs1 ] < (int64_t) regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else if ( 5 == funct3 ) // jrge
+                    {
+                        if ( (int64_t) regs[ rs1 ] >= (int64_t) regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else if ( 6 == funct3 ) // jrltu
+                    {
+                        if ( regs[ rs1 ] < regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else if ( 7 == funct3 ) // jrgtu
+                    {
+                        if ( regs[ rs1 ] > regs[ rs2 ] )
+                            pcnext = regs[ rd ];
+                    }
+                    else
+                        unhandled();
+                }
+                else
+                    unhandled();
+                
                 break;
             }
             case 0xb:

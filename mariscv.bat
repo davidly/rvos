@@ -9,8 +9,9 @@ path=C:\Users\david\OneDrive\riscv-gcc\bin\libexec\gcc\riscv64-unknown-elf\8.2.0
 rem RVC is instruction compression for risc-v -- 16 bit compact-opcodes for many 32-bit opcodes
 rem set RVCFLAG=c
 
+rem COND_EXTENSION: if set, apps use RISC-V extension conditional move and conditional return instructions 
 rem as -a=%1.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic %1.s -o %1.o
-as -a=%1.lst --defsym CMV_EXTENSION=1 -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic %1.s -o %1.o
+as -a=%1.lst --defsym COND_EXTENSION=1 -mabi=lp64f -march=rv64imaf%RVCFLAG% -fpic %1.s -o %1.o
 
 as -a=rvos_shell.lst -mabi=lp64f -march=rv64imaf%RVCFLAG% --defsym DEFINESTART=1 -fpic rvos_shell.s -o rvos_shell.o
 

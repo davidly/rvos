@@ -308,7 +308,7 @@ minmax_max:
 
         beq     a0, s5, .minmax_max_done  # can't do better than winning when maximizing 
 
-.ifdef CMV_EXTENSION
+.ifdef COND_EXTENSION
         # cmvXX are risc-v extension conditional-move instructions. They yield about 1% faster perf for this benchmark
         # cmvXX rd, rs1, rc1, rc2  -- if ( rc1 XX rc2 ) rd = rs1
         # 31: 1 if rc2 is an immediate value (signed/unsigned depending on the compare) or 0 if a register
@@ -321,10 +321,8 @@ minmax_max:
         # 6-2:   2 (opcode type cmv)
         # 1-0:   3 (4-byte instruction)
 
-        .word 0x24a5490b
-        #cmvlt   s2, a0, s2, a0     # dst, src, lhs, rhs. if ( value < score ) value = score
-        .word 0x1129440b
-        #cmvlt   s0, s2, s0, s2     # dst, src, lhs, rhs. if ( alpha < value ) alpha = value
+        .word 0x24a5490b           #cmvlt   s2, a0, s2, a0     # dst, src, lhs, rhs. if ( value < score ) value = score
+        .word 0x1129440b           #cmvlt   s0, s2, s0, s2     # dst, src, lhs, rhs. if ( alpha < value ) alpha = value
 .else
         ble     a0, s2, .minmax_max_skip_value  # compare score with value
         mv      s2, a0             # update value with the new high score
@@ -422,8 +420,8 @@ minmax_min:
         sb      t5, (t1)           # make the o_piece move
 
         mv      a0, s0             # alpha
-        mv      a1, s1                            # beta
-        mv      a2, s3                            # move
+        mv      a1, s1             # beta
+        mv      a2, s3             # move
         addi    s7, s7, 1          # next depth
         jal     minmax_max
 
@@ -433,11 +431,9 @@ minmax_min:
 
         beq     a0, s6, .minmax_min_done  # can't do better than losing when minimizing
 
-.ifdef CMV_EXTENSION
-        .word 0x1525490b
-        #cmvlt   s2, a0, a0, s2     # dst, src, lhs, rhs. if ( score < value ) value = score
-        .word 0x2499448b
-        #cmvlt   s1, s2, s2, s1     # dst, src, lhs, rhs. if ( value < beta ) beta = value
+.ifdef COND_EXTENSION
+        .word 0x1525490b           #cmvlt   s2, a0, a0, s2     # dst, src, lhs, rhs. if ( score < value ) value = score
+        .word 0x2499448b           #cmvlt   s1, s2, s2, s1     # dst, src, lhs, rhs. if ( value < beta ) beta = value
 .else
         bge     a0, s2, .minmax_min_skip_value  # compare score with value
         mv      s2, a0             # update value with the new low score
@@ -478,13 +474,30 @@ _pos0func:
         lbu     t1, 2(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        # jrXX rleft, rright, rreturn
+        # if ( rleft XX rright ) pc = rreturn
+        # R-type instruction
+        #    rs1 -- rleft
+        #    rs2 -- rright
+        #    typically ra will be rreturn
+        #    funct3 -- 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = gtu
+        #    funct7 -- 0
+        #    opcode -- lower 7 bits 0x2b. opcode type -- 0xa
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos0_func_return
+.endif
 
         lbu     t0, 3(s9)
         lbu     t1, 6(s9)
         and     a0, t0, t2
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos0_func_return
+.endif
 
         lbu     t0, 4(s9)
         lbu     t1, 8(s9)
@@ -505,7 +518,11 @@ _pos1func:
         lbu     t1, 2(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos1_func_return
+.endif
 
         lbu     t0, 4(s9)
         lbu     t1, 7(s9)
@@ -526,13 +543,21 @@ _pos2func:
         lbu     t1, 1(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos2_func_return
+.endif
 
         lbu     t0, 5(s9)
         lbu     t1, 8(s9)
         and     a0, t0, t2
         and     a0, t1, a0
-        bne     a0, zero, .pos2_func_return
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
+        bne     a0, zero, .pos3_func_return
+.endif
 
         lbu     t0, 4(s9)
         lbu     t1, 6(s9)
@@ -553,7 +578,11 @@ _pos3func:
         lbu     t1, 6(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos3_func_return
+.endif
 
         lbu     t0, 4(s9)
         lbu     t1, 5(s9)
@@ -574,19 +603,31 @@ _pos4func:
         lbu     t1, 8(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos4_func_return
+.endif
 
         lbu     t0, 2(s9)
         lbu     t1, 6(s9)
         and     a0, t0, t2
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos4_func_return
+.endif
 
         lbu     t0, 1(s9)
         lbu     t1, 7(s9)
         and     a0, t0, t2
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos4_func_return
+.endif
 
         lbu     t0, 3(s9)
         lbu     t1, 5(s9)
@@ -607,7 +648,11 @@ _pos5func:
         lbu     t1, 4(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos5_func_return
+.endif
 
         lbu     t0, 2(s9)
         lbu     t1, 8(s9)
@@ -628,13 +673,21 @@ _pos6func:
         lbu     t1, 3(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos6_func_return
+.endif
 
         lbu     t0, 2(s9)
         lbu     t1, 4(s9)
         and     a0, t0, t2
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos6_func_return
+.endif
 
         lbu     t0, 7(s9)
         lbu     t1, 8(s9)
@@ -655,7 +708,11 @@ _pos7func:
         lbu     t1, 4(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos7_func_return
+.endif
 
         lbu     t0, 6(s9)
         lbu     t1, 8(s9)
@@ -676,13 +733,21 @@ _pos8func:
         lbu     t1, 4(s9)
         and     a0, t0, a0
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos8_func_return
+.endif
 
         lbu     t0, 2(s9)
         lbu     t1, 5(s9)
         and     a0, t0, t2
         and     a0, t1, a0
+.ifdef COND_EXTENSION
+        .word 0x000510ab           #jrne    a0, zero, ra
+.else
         bne     a0, zero, .pos8_func_return
+.endif
 
         lbu     t0, 6(s9)
         lbu     t1, 7(s9)
