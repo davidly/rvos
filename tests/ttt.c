@@ -12,11 +12,13 @@
 #define SCORE_LOSE  4
 #define SCORE_MAX 9
 #define SCORE_MIN 2
-#define Iterations 10
+#define DefaultIterations 10
 
 #define PieceX 1
 #define PieceO 2
 #define PieceBlank 0
+
+int g_Iterations = DefaultIterations;
 
 char g_board[ 9 ];
 
@@ -231,15 +233,16 @@ int MinMax( int alpha, int beta, int depth, int move )
                     return SCORE_WIN;
 
                 if ( score > value )
+                {
                     value = score;
 
-                if ( ABPrune )
-                {
-                    if ( value > alpha )
-                        alpha = value;
-
-                    if ( alpha >= beta )
-                        return value;
+                    if ( ABPrune )
+                    {
+                        if ( value >= beta )
+                            return value;
+                        if ( value > alpha )
+                            alpha = value;
+                    }
                 }
             }
             else
@@ -248,15 +251,16 @@ int MinMax( int alpha, int beta, int depth, int move )
                     return SCORE_LOSE;
 
                 if ( score < value )
+                {
                     value = score;
 
-                if ( ABPrune )
-                {
-                    if ( value < beta )
-                        beta = value;
-
-                    if ( beta <= alpha )
-                        return value;
+                    if ( ABPrune )
+                    {
+                        if ( value <= alpha )
+                            return value;
+                        if ( value < beta )
+                            beta = value;
+                    }
                 }
             }
         }
@@ -272,7 +276,7 @@ int FindSolution( int position )
     memset( g_board, 0, sizeof g_board );
     g_board[ position ] = PieceX;
 
-    for ( times = 0; times < Iterations; times++ )
+    for ( times = 0; times < g_Iterations; times++ )
         MinMax( SCORE_MIN, SCORE_MAX, 0, position );
 
     return 0;
@@ -299,28 +303,19 @@ float elapsed( struct timeval & a, struct timeval & b )
 //    printf( "printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
 //    rvos_printf( "rvos_printf: secdiff %ld, usecdiff %ld\n", b.tv_sec - a.tv_sec, b.tv_usec - a.tv_usec );
 
-    int64_t sec_diff = b.tv_sec - a.tv_sec;
-    if ( sec_diff < 0 )
-    {
-        printf( "seconds went backwards\n" );
-        sec_diff = 0;
-    }
+    int64_t aflat = a.tv_sec * 1000000 + a.tv_usec;
+    int64_t bflat = b.tv_sec * 1000000 + b.tv_usec;
 
-    int64_t microsec_diff = b.tv_usec - a.tv_usec;
-    if ( microsec_diff < 0 )
-        microsec_diff = 1000000 + microsec_diff;
-
-    float sec_part = sec_diff * 1000.0f;
-    float microsec_part = microsec_diff / 1000.0f;
-
-//    printf( "printf: sec_part %f, microsec_part %f\n", sec_part, microsec_part );
-
-    return sec_part + microsec_part;
+    int64_t diff = bflat - aflat;
+    return diff / 1000.0f;
 } //elapsed
 
 extern "C" int main( int argc, char * argv[] )
 {
     printf( "starting...\n" );
+
+    if ( 2 == argc )
+        sscanf( argv[ 1 ], "%d", &g_Iterations );  /* no atoi in MS C 1.0 */
 
     struct timeval tv;
     gettimeofday( &tv, 0 );

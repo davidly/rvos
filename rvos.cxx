@@ -297,6 +297,11 @@ void usage( char const * perror = 0 )
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
+
+#ifndef NDEBUG
+    printf( "(debug build)\n" );
+#endif
+
     exit( 1 );
 } //usage
 

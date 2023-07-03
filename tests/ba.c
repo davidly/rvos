@@ -9424,7 +9424,7 @@ label_no_if_optimization:
         /////////////////////////////////////////
 
         /////////////////////////////////////////
-        // divide de by hl, result in hl
+        // divide de by hl, result in hl. remainder in divRem
         // incredibly slow iterative subtraction
 
         fprintf( fp, "idiv:\n" );
