@@ -70,7 +70,7 @@ ConsoleConfiguration g_consoleConfig;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
-uint64_t g_brk_commit = 1024 * 1024;           // RAM to reserve if the app calls brk to allocate space
+uint64_t g_brk_commit = 10 * 1024 * 1024;      // RAM to reserve if the app calls brk to allocate space. 10 meg default
 bool g_terminate = false;                      // has the app asked to shut down?
 int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
@@ -293,7 +293,7 @@ void usage( char const * perror = 0 )
     printf( "usage: rvos <elf_executable>\n" );
     printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
-    printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 1\n" );
+    printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 10\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
@@ -541,11 +541,9 @@ int syscall_find_compare( const void * a, const void * b )
 const char * lookup_syscall( uint64_t x )
 {
 #ifndef NDEBUG
-
     // ensure they're sorted
     for ( size_t i = 0; i < _countof( syscalls ) - 1; i++ )
         assert( syscalls[ i ].id < syscalls[ i + 1 ].id );
-
 #endif
 
     SysCall key = { 0, x };
@@ -565,7 +563,7 @@ void riscv_check_ptracenow( RiscV & cpu )
         cpu.trace_instructions( true );
     else
         cpu.trace_instructions( false );
-}
+} //riscv_check_ptracenow
 
 // this is called when the risc-v app has an ecall instruction
 // https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
@@ -1204,31 +1202,25 @@ static const char * register_names[ 32 ] =
 
 const char * target_platform()
 {
-    #ifdef __riscv      // g++ on linux
+    #if defined( __riscv )        // g++ on linux
         return "riscv";
-    #endif
-
-    #ifdef __amd64__    // g++ on linux
+    #elif defined( __amd64 )      // g++ on linux
         return "amd64";
-    #endif
-
-    #ifdef __aarch64__  // g++ on linux
+    #elif defined( __aarch64__ )  // g++ on linux
+        return "arm64";
+    #elif defined( _M_AMD64 )     // msft on Windows
+        return "amd64";
+    #elif defined( _M_ARM64 )     // msft on Windows
         return "arm64";
     #endif
 
-    #ifdef _M_AMD64     // msft on Windows
-        return "amd64";
-    #endif
-
-    #ifdef _M_ARM64    // msft on Windows
-        return "arm64";
-    #endif
-
-    return "";
+    return "other";
 } //target_platform
 
 void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value )
 {
+    g_consoleConfig.RestoreConsole( false );
+
     tracer.Trace( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
     printf( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
 
