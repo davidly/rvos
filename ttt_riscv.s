@@ -14,7 +14,7 @@
 .equ win_score,     6
 .equ lose_score,    4
 .equ tie_score,     5
-.equ iterations,    1000
+.equ iterations,    10
 
 .section .sbss,"aw",@nobits
 
@@ -90,6 +90,17 @@
         sd      s10, 104(sp)
         sd      s11, 112(sp)
 
+        li      s4, iterations       # global max iteration count in s4
+        li      t0, 2
+        blt     a0, t0, .ba_start_test  # if no iteration command-line argument, use the default
+
+        li      t0, 8                                    # get the second argument
+        add     t0, t0, a1                               # offset of argv[1]
+        ld      a0, (t0)             # load argv[1] -- an ascii string
+        jal     a_to_uint64          # convert the ascii string to a number
+        mv      s4, a0               # update the global max iteration count
+
+  .ba_start_test:
         lla     a0, .running_string
         jal     rvos_print_text
 
@@ -149,7 +160,7 @@
         jal     rvos_print_text
 
         # show the number of iterations
-        li      a0, iterations
+        mv      a0, s4
         lla     a1, g_string_buffer
         li      a2, 10
         jal     _my_lltoa
@@ -205,7 +216,7 @@ run_minmax:
         lla     s10, winner_functions
         mv      s11, zero            # global move count for this thread
         mv      s7, zero             # global depth for this thread
-        li      s8, iterations       # iteration count
+        mv      s8, s4               # iteration count
 
   .run_minmax_next_iteration:
         mv      a2, a0               # first move
@@ -244,7 +255,7 @@ minmax_max:
         s1:   beta local
         s2:   value local variable
         s3:   i loop local variable
-        s4:   *unused* and not saved
+        s4:   global max iteration count
         s5:   global constant win_score
         s6:   global constant lose_score
         s7:   global depth
@@ -307,34 +318,12 @@ minmax_max:
         sb      zero, (t0)        
 
         beq     a0, s5, .minmax_max_done  # can't do better than winning when maximizing 
-
-.ifdef COND_EXTENSION
-        # cmvXX are risc-v extension conditional-move instructions. They yield about 1% faster perf for this benchmark
-        # cmvXX rd, rs1, rc1, rc2  -- if ( rc1 XX rc2 ) rd = rs1
-        # 31: 1 if rc2 is an immediate value (signed/unsigned depending on the compare) or 0 if a register
-        # 30: 1 if rs1 is an immediate value (always signed) or 0 if a register
-        # 29-25: rc1
-        # 24-20: rc2
-        # 19-15: rs1
-        # 14-12: funct3 XX comparison 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = geu
-        # 11-7:  rd
-        # 6-2:   2 (opcode type cmv)
-        # 1-0:   3 (4-byte instruction)
-
-        .word 0x24a5490b           #cmvlt   s2, a0, s2, a0     # dst, src, lhs, rhs. if ( value < score ) value = score
-        .word 0x1129440b           #cmvlt   s0, s2, s0, s2     # dst, src, lhs, rhs. if ( alpha < value ) alpha = value
-.else
-        ble     a0, s2, .minmax_max_skip_value  # compare score with value
-        mv      s2, a0             # update value with the new high score
-
-  .minmax_max_skip_value:
-        ble     s2, s0, .minmax_max_skip_alpha   # compare value with alpha
-        mv      s0, s2             # update alpha with value
-
-  .minmax_max_skip_alpha:
-.endif
-
-        blt     s0, s1, .minmax_max_loop  # alpha pruning
+        ble     a0, s2, .minmax_max_loop  # compare score with value
+        mv      s2, a0                    # update value with the new high score
+        bge     a0, s1, .minmax_max_done  # compare value with beta and return if >=
+        ble     a0, s0, .minmax_max_loop  # compare value with alpha and loop if <=
+        mv      s0, a0                    # update alpha with value
+        j       .minmax_max_loop          
 
   .minmax_max_loadv_done:
         mv      a0, s2             # return value
@@ -364,7 +353,7 @@ minmax_min:
         s1:   beta local
         s2:   value local variable
         s3:   i loop local variable
-        s4:   *unused* and not saved
+        s4:   global max iteration count
         s5:   global constant win_score
         s6:   global constant lose_score
         s7:   global depth
@@ -420,8 +409,8 @@ minmax_min:
         sb      t5, (t1)           # make the o_piece move
 
         mv      a0, s0             # alpha
-        mv      a1, s1             # beta
-        mv      a2, s3             # move
+        mv      a1, s1                            # beta
+        mv      a2, s3                            # move
         addi    s7, s7, 1          # next depth
         jal     minmax_max
 
@@ -430,22 +419,12 @@ minmax_min:
         sb      zero, (t0)        
 
         beq     a0, s6, .minmax_min_done  # can't do better than losing when minimizing
-
-.ifdef COND_EXTENSION
-        .word 0x1525490b           #cmvlt   s2, a0, a0, s2     # dst, src, lhs, rhs. if ( score < value ) value = score
-        .word 0x2499448b           #cmvlt   s1, s2, s2, s1     # dst, src, lhs, rhs. if ( value < beta ) beta = value
-.else
-        bge     a0, s2, .minmax_min_skip_value  # compare score with value
-        mv      s2, a0             # update value with the new low score
-
-  .minmax_min_skip_value:
-        bge     s2, s1, .minmax_min_skip_beta   # compare value with beta
-        mv      s1, s2             # update beta with value
-
-  .minmax_min_skip_beta:
-.endif
-
-        bgt     s1, s0, .minmax_min_loop  # beta pruning
+        bge     a0, s2, .minmax_min_loop  # compare score with value
+        mv      s2, a0                    # update value with the new high score
+        ble     a0, s0, .minmax_min_done  # compare value with alpha and return if <=
+        bge     a0, s1, .minmax_min_loop  # compare value with beta and loop if >=
+        mv      s1, a0                    # update beta with value
+        j       .minmax_min_loop          
 
   .minmax_min_loadv_done:
         mv      a0, s2             # return value
@@ -824,4 +803,89 @@ _my_lltoa:
         mv      a0, a1
         jr      ra
         .cfi_endproc
+
+/* a_to_uint64 */
+
+.align 3
+.type a_to_uint64, @function
+a_to_uint64:
+        .cfi_startproc
+        addi    sp, sp, -128
+        sd      ra, 16(sp)
+        sd      s0, 24(sp)
+        sd      s1, 32(sp)
+        sd      s2, 40(sp)
+        sd      s3, 48(sp)
+        sd      s4, 56(sp)
+        sd      s5, 64(sp)
+        sd      s6, 72(sp)
+        sd      s7, 80(sp)
+        sd      s8, 88(sp)
+        sd      s9, 96(sp)
+        sd      s10, 104(sp)
+        sd      s11, 112(sp)
+
+        li      s0, 0                # running total in s0
+        li      s1, 0                # offset of next char in s1
+        mv      s2, a0
+        li      s3, ' '
+        li      s4, '0'
+        li      s5, '9' + 1
+        li      s6, 10
+
+  .a_to_uint64_skip_spaces:
+        lbu     t0, (s2)
+        bne     t0, s3, .a_to_uint64_next
+        addi    s2, s2, 1
+        j       .a_to_uint64_skip_spaces
+
+  .a_to_uint64_next:
+        lbu     t0, (s2)
+        blt     t0, s4, .a_to_uint64_done
+        bge     t0, s5, .a_to_uint64_done
+
+        mul     s0, s0, s6           # multiply running total by 10
+        sub     t0, t0, s4
+        add     s0, s0, t0           # add the next digit
+        addi    s2, s2, 1            # advance the string pointer
+        j       .a_to_uint64_next
+
+  .a_to_uint64_done:
+        mv      a0, s0
+        ld      ra, 16(sp)
+        ld      s0, 24(sp)
+        ld      s1, 32(sp)
+        ld      s2, 40(sp)
+        ld      s3, 48(sp)
+        ld      s4, 56(sp)
+        ld      s5, 64(sp)
+        ld      s6, 72(sp)
+        ld      s7, 80(sp)
+        ld      s8, 88(sp)
+        ld      s9, 96(sp)
+        ld      s10, 104(sp)
+        ld      s11, 112(sp)
+        addi    sp, sp, 128
+        jr      ra
+        .cfi_endproc
+
+
+# Currently unused:
+        # cmvXX are risc-v extension conditional-move instructions. They yield about 1% faster perf for this benchmark
+        # cmvXX rd, rs1, rc1, rc2  -- if ( rc1 XX rc2 ) rd = rs1
+        # 31: 1 if rc2 is an immediate value (signed/unsigned depending on the compare) or 0 if a register
+        # 30: 1 if rs1 is an immediate value (always signed) or 0 if a register
+        # 29-25: rc1
+        # 24-20: rc2
+        # 19-15: rs1
+        # 14-12: funct3 XX comparison 0 = eq, 1 = ne, 4 = lt, 5 = ge, 6 = ltu, 7 = geu
+        # 11-7:  rd
+        # 6-2:   2 (opcode type cmv)
+        # 1-0:   3 (4-byte instruction)
+
+        # .word 0x24a5490b           #cmvlt   s2, a0, s2, a0     # dst, src, lhs, rhs. if ( value < score ) value = score
+        # .word 0x1129440b           #cmvlt   s0, s2, s0, s2     # dst, src, lhs, rhs. if ( alpha < value ) alpha = value
+
+        # .word 0x1525490b           #cmvlt   s2, a0, a0, s2     # dst, src, lhs, rhs. if ( score < value ) value = score
+        # .word 0x2499448b           #cmvlt   s1, s2, s2, s1     # dst, src, lhs, rhs. if ( value < beta ) beta = value
 
