@@ -297,11 +297,7 @@ void usage( char const * perror = 0 )
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
-
-#ifndef NDEBUG
-    printf( "(debug build)\n" );
-#endif
-
+    printf( "  built for %s %s on %s, by %s on %s\n", target_platform(), build_type(), __TIMESTAMP__, compiler_used(), build_platform() );
     exit( 1 );
 } //usage
 
@@ -1199,23 +1195,6 @@ static const char * register_names[ 32 ] =
     "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
     "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
-
-const char * target_platform()
-{
-    #if defined( __riscv )        // g++ on linux
-        return "riscv";
-    #elif defined( __amd64 )      // g++ on linux
-        return "amd64";
-    #elif defined( __aarch64__ )  // g++ on linux
-        return "arm64";
-    #elif defined( _M_AMD64 )     // msft on Windows
-        return "amd64";
-    #elif defined( _M_ARM64 )     // msft on Windows
-        return "arm64";
-    #endif
-
-    return "other";
-} //target_platform
 
 void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value )
 {

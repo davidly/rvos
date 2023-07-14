@@ -15,6 +15,7 @@ class ConsoleConfiguration
             DWORD oldConsoleMode;
             CONSOLE_CURSOR_INFO oldCursorInfo;
             int16_t setWidth;
+            UINT oldOutputCP;
         #else
             bool initialized;
             bool established;
@@ -100,7 +101,9 @@ class ConsoleConfiguration
                 {
                     oldWindowPlacement.length = sizeof oldWindowPlacement;
                     GetWindowPlacement( GetConsoleWindow(), &oldWindowPlacement );
-                
+
+                    oldOutputCP = GetConsoleOutputCP();
+                    SetConsoleOutputCP( 437 );
                 
                     oldScreenInfo.cbSize = sizeof oldScreenInfo;
                     GetConsoleScreenBufferInfoEx( consoleOutputHandle, &oldScreenInfo );
@@ -113,8 +116,28 @@ class ConsoleConfiguration
                     newInfo.dwSize.Y = height;
                     newInfo.dwMaximumWindowSize.X = width;
                     newInfo.dwMaximumWindowSize.Y = height;
+
+                    newInfo.wAttributes = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN;
+
+                    // legacy DOS RGB values
+                    newInfo.ColorTable[ 0 ] = 0;
+                    newInfo.ColorTable[ 1 ] = 0x800000;
+                    newInfo.ColorTable[ 2 ] = 0x008000;
+                    newInfo.ColorTable[ 3 ] = 0x808000;
+                    newInfo.ColorTable[ 4 ] = 0x000080;
+                    newInfo.ColorTable[ 5 ] = 0x800080;
+                    newInfo.ColorTable[ 6 ] = 0x008080;
+                    newInfo.ColorTable[ 7 ] = 0xc0c0c0;
+                    newInfo.ColorTable[ 8 ] = 0x808080;
+                    newInfo.ColorTable[ 9 ] = 0xff0000;
+                    newInfo.ColorTable[ 10 ] = 0x00ff00;
+                    newInfo.ColorTable[ 11 ] = 0xffff00;
+                    newInfo.ColorTable[ 12 ] = 0x0000ff;
+                    newInfo.ColorTable[ 13 ] = 0xff00ff;
+                    newInfo.ColorTable[ 14 ] = 0x00ffff;
+                    newInfo.ColorTable[ 15 ] = 0xffffff;
                     SetConsoleScreenBufferInfoEx( consoleOutputHandle, &newInfo );
-    
+
                     COORD newSize = { width, height };
                     SetConsoleScreenBufferSize( consoleOutputHandle, newSize );
                 }
@@ -130,10 +153,12 @@ class ConsoleConfiguration
 
                 PHANDLER_ROUTINE handler = (PHANDLER_ROUTINE) proutine;
                 SetConsoleCtrlHandler( handler, TRUE );
-    
-                if ( 0 != width )
-                    SendClsSequence();
+            #else
+                established = true;
             #endif
+
+            if ( 0 != width )
+                SendClsSequence();
         } //EstablishConsole
         
         void RestoreConsole( bool clearScreen = true )
@@ -144,6 +169,7 @@ class ConsoleConfiguration
                     if ( clearScreen )
                         SendClsSequence();
 
+                    SetConsoleOutputCP( oldOutputCP );
                     SetConsoleCursorInfo( consoleOutputHandle, & oldCursorInfo );
 
                     if ( 0 != setWidth )
@@ -163,16 +189,21 @@ class ConsoleConfiguration
 #endif
                     initialized = false;
                 }
+
+                if ( established )
+                {
+                    if ( clearScreen )
+                        SendClsSequence();
+                    established = false;
+                }
             #endif
         } //RestoreConsole
 
         void SendClsSequence()
         {
-            #ifdef _MSC_VER
-                printf( "\x1b[2J" ); // clear the screen
-                printf( "\x1b[1G" ); // cursor to top line
-                printf( "\x1b[1d" ); // cursor to left side
-            #endif
+            printf( "\x1b[2J" ); // clear the screen
+            printf( "\x1b[1G" ); // cursor to top line
+            printf( "\x1b[1d" ); // cursor to left side
         } //SendClsSequence
 
         void ClearScreen()
@@ -191,6 +222,8 @@ class ConsoleConfiguration
                     SendClsSequence();
                     SetConsoleMode( hcon, dwMode );
                 }
+            #else
+                SendClsSequence();
             #endif
         } //ClearScreen
 
@@ -199,11 +232,11 @@ class ConsoleConfiguration
             #ifdef _MSC_VER
                 return _kbhit();
             #else
-                struct timeval tv = { 0L, 0L };
-                fd_set fds;
-                FD_ZERO( &fds );
-                FD_SET( 0, &fds );
-                return ( select( 1, &fds, NULL, NULL, &tv ) > 0 );
+                fd_set set;
+                FD_ZERO( &set );
+                FD_SET( STDIN_FILENO, &set );
+                struct timeval timeout = {0};
+                return ( select( 1, &set, NULL, NULL, &timeout ) > 0 );
             #endif
         } //portable_kbhit
 
@@ -276,6 +309,42 @@ class ConsoleConfiguration
     
             buf[ len ] = 0;
             return buf;
-        }
+        } //portable_gets_s
+
+        static char * cpm_read_console( char * buf, size_t bufsize, uint8_t & out_len )
+        {
+            out_len = 0;
+            do
+            {
+                char ch = portable_getch();
+                if ( '\n' == ch || '\r' == ch )
+                {
+                    printf( "\r" );
+                    fflush( stdout ); // fflush is required on linux or it'll be buffered not seen until the app ends.
+                    break;
+                }
+    
+                if ( out_len >= (uint8_t) ( bufsize - 1 ) )                
+                    break;
+    
+                if ( 0x7f == ch || 8 == ch ) // backspace (it's not 8 for some reason)
+                {
+                    if ( out_len > 0 )
+                    {
+                        printf( "\x8 \x8" );
+                        fflush( stdout );
+                        out_len--;
+                    }
+                }
+                else
+                {
+                    printf( "%c", ch );
+                    fflush( stdout );
+                    buf[ out_len++ ] = ch;
+                }
+            } while( true );
+    
+            return buf;
+        } //cpm_read_console
 }; //ConsoleConfiguration
 
