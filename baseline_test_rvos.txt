@@ -90,90 +90,104 @@ should tend towards 1.61803398874989484820458683436563811772030
 done
 hello
 test instructions is complete
-start time: 10:15:17.126
-15130333 microseconds for 1000 iterations
-end time: 10:15:32.256
+start time: 06:58:23.385
+14673272 microseconds for 1000 iterations
+end time: 06:58:38.058
 final move count 6493
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main
-address space 10000 to 13a070
-  zero:                0,   ra:            101b0,   sp:           139fb0,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            101b0,   sp:           a39fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:                0,   a1:            1826b, 
+    s0:           a3a010,   s1:                0,   a0:                0,   a1:            1826b, 
     a2:                0,   a3:                0,   a4:                a,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main
-address space 10000 to 13a070
-  zero:                0,   ra:            101e4,   sp:           139fb0,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            101e4,   sp:           a39fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:                0,   a1:            18273, 
+    s0:           a3a010,   s1:                0,   a0:                0,   a1:            18273, 
     a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: pc is lower than memory: 200
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200 
-address space 10000 to 13a070
-  zero:                0,   ra:            10338,   sp:           139fb0,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            10338,   sp:           a39fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:                0,   a1:            1827c, 
+    s0:           a3a010,   s1:                0,   a0:                0,   a1:            1827c, 
     a2:                0,   a3:                0,   a4:                1,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
-address space 10000 to 13a070
-  zero:                0,   ra:            10360,   sp:           139fb0,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            10360,   sp:           a39fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:                0,   a1:            18284, 
+    s0:           a3a010,   s1:                0,   a0:                0,   a1:            18284, 
     a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: stack pointer is below stack memory: 11a030
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: stack pointer is below stack memory: a1a030
 pc: 100c8 _Z7recursemPKc
-address space 10000 to 13a070
-  zero:                0,   ra:            10130,   sp:           11a030,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            10130,   sp:           a1a030,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           11a870,   s1:                0,   a0:               7c,   a1:           11a460, 
-    a2:                1,   a3:                a,   a4:           11a460,   a5:               7c, 
+    s0:           a1a870,   s1:                0,   a0:               7c,   a1:           a1a460, 
+    a2:                1,   a3:                a,   a4:           a1a460,   a5:               7c, 
     a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: stack pointer is above the top of memory: 239fb0
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: stack pointer is above the top of memory: b39fb0
 pc: 110a8 rvos_sp_add
-address space 10000 to 13a070
-  zero:                0,   ra:            103a0,   sp:           239fb0,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            103a0,   sp:           b39fb0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:           100000,   a1:            18294, 
+    s0:           a3a010,   s1:                0,   a0:           100000,   a1:            18294, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: 139fb2
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fb2
 pc: 110a8 rvos_sp_add
-address space 10000 to 13a070
-  zero:                0,   ra:            103b8,   sp:           139fb2,   gp:                0, 
+address space 10000 to a3a070
+  zero:                0,   ra:            103b8,   sp:           a39fb2,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           13a010,   s1:                0,   a0:                2,   a1:            1829c, 
+    s0:           a3a010,   s1:                0,   a0:                2,   a1:            1829c, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-  starting...
+    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+
+starting...
 64930 moves
-36.627003 milliseconds
+35.610001 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -193,12 +207,12 @@ pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 parsing input file tests\tp.bas
-start time: 17:15:32.000
+start time: 13:58:38.000
 0 ms for 1 iterations
-end time: 17:15:32.000
+end time: 13:58:38.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 4, day 18, hour 9, min 15, sec 32
+year: 2023, month 7, day 14, hour 5, min 58, sec 38
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

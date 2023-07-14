@@ -1,4 +1,4 @@
-Tue Apr 18 10:23:20 PDT 2023
+Fri Jul 14 06:59:59 PDT 2023
 t
 a: 0 4000000000000000
 a: 4 0
@@ -18,7 +18,7 @@ int128_t result: 6
 uint128_t result: 6
 end of the app
 tenv
-pval: 0x195d9e
+pval: 0xa95d9e
 value: toast!
 ts
 top of app
@@ -100,7 +100,7 @@ done
 ttt
 starting...
 64930 moves
-22.031000 milliseconds
+21.487001 milliseconds
 sieve
 1899 primes.
 e
@@ -108,14 +108,14 @@ e
 done
 tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+tp1k
+start time: 07:00:00.021
+8604242 microseconds for 1000 iterations
+end time: 07:00:08.625
+final move count 6493
 tins
 hello
 test instructions is complete
-tp1k
-start time: 10:23:20.407
-8615898 microseconds for 1000 iterations
-end time: 10:23:29.022
-final move count 6493
 td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -147,14 +147,14 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 ttime
-year: 2023, month 4, day 18, hour 9, min 23, sec 29
+year: 2023, month 7, day 14, hour 6, min 0, sec 8
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 5.001275 ms
-start time: 17:23:29.133
-206 ms for 1 iterations
-end time: 17:23:29.339
+Time to parse tests/tp.bas: 4.977631 ms
+start time: 14:00:08.763
+203 ms for 1 iterations
+end time: 14:00:08.967
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -162,27 +162,30 @@ sorting
 writing...
 done
 tcrash sph
-rvos (amd64) fatal error: stack pointer is above the top of memory: 296340
+rvos (amd64) fatal error: stack pointer is above the top of memory: b96340
 pc: 109cc rvos_sp_add
-address space 10000 to 1965a0
-  zero:                0,   ra:            108a4,   sp:           296340,   gp:            6f9d0, 
+address space 10000 to a965a0
+  zero:                0,   ra:            108a4,   sp:           b96340,   gp:            6f9d0, 
     tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           1963a0,   s1:                2,   a0:           100000,   a1:            4aeac, 
-    a2:           196560,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7:               62,   s2:           196548,   s3:                1, 
-    s4:           196560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a963a0,   s1:                2,   a0:           100000,   a1:            4aeac, 
+    a2:           a96560,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7:               62,   s2:           a96548,   s3:                1, 
+    s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-  tcrash mh
+    built for amd64 debug on Fri Jul 14 06:39:28 2023 by g++ on linux
+
+tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10824 main
-address space 10000 to 1965a0
-  zero:                0,   ra:            10704,   sp:           196340,   gp:            6f9d0, 
+address space 10000 to a965a0
+  zero:                0,   ra:            10704,   sp:           a96340,   gp:            6f9d0, 
     tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           1963a0,   s1:                2,   a0:                0,   a1:            4ae8b, 
-    a2:           196560,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:            6fa80,   a7:               62,   s2:           196548,   s3:                1, 
-    s4:           196560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a963a0,   s1:                2,   a0:                0,   a1:            4ae8b, 
+    a2:           a96560,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:            6fa80,   a7:               62,   s2:           a96548,   s3:                1, 
+    s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-  
+    built for amd64 debug on Fri Jul 14 06:39:28 2023 by g++ on linux
+
