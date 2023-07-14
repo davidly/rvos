@@ -287,6 +287,8 @@ class CFile
 
 void usage( char const * perror = 0 )
 {
+    g_consoleConfig.RestoreConsole( false );
+
     if ( 0 != perror )
         printf( "error: %s\n", perror );
 
@@ -297,7 +299,7 @@ void usage( char const * perror = 0 )
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
-    printf( "  built for %s %s on %s, by %s on %s\n", target_platform(), build_type(), __TIMESTAMP__, compiler_used(), build_platform() );
+    printf( "  %s\n", build_string() );
     exit( 1 );
 } //usage
 
@@ -1222,6 +1224,10 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
             printf( "\n  " );
         }
     }
+
+    tracer.Trace( "  %s\n", build_string() );
+    printf( "  %s\n", build_string() );
+
     tracer.Flush();
     fflush( stdout );
     exit( -1 );
