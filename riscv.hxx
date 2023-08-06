@@ -94,9 +94,11 @@ struct RiscV
     uint64_t csr_mie;
     uint64_t csr_mtvec;
     uint64_t csr_mcounteren;
-    uint64_t csr_mstatush;
     uint64_t csr_mscratch;
     uint64_t csr_mepc;
+    uint64_t csr_mcause;
+    uint64_t csr_mtval;
+    uint64_t csr_mip;
     uint64_t csr_mdeleg;
     uint64_t csr_sie;
     uint64_t csr_pmpaddr0;

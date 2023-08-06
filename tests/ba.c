@@ -6420,28 +6420,26 @@ label_no_array_eq_optimization:
                 else
                     fprintf( fp, "  for_loop_%zd:\n", l );
 
+                int iStart = t + 3;
+                GenerateOptimizedExpression( fp, varmap, iStart, vals );
                 if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                 {
                     if ( IsVariableInReg( varmap, varname ) )
-                        fprintf( fp, "    cmp      %s, %d\n", GenVariableReg( varmap, varname ), vals[ t + 4 ].value );
+                        fprintf( fp, "    cmp      %s, eax\n", GenVariableReg( varmap, varname ) );
                     else
-                        fprintf( fp, "    cmp      [%s], %d\n", GenVariableName( varname ), vals[ t + 4 ].value );
-
+                        fprintf( fp, "    cmp      [%s], eax\n", GenVariableName( varname ) );
+    
                     fprintf( fp, "    jg       after_for_loop_%zd\n", l );
                 }
                 else if ( arm32Linux == g_AssemblyTarget )
                 {
                     if ( IsVariableInReg( varmap, varname ) )
-                    {
-                        LoadArm32Constant( fp, "r0", vals[ t + 4 ].value );
                         fprintf( fp, "    cmp      %s, r0\n", GenVariableReg( varmap, varname ) );
-                    }
                     else
                     {
-                        LoadArm32Address( fp, "r0", varname );
-                        fprintf( fp, "    ldr      r0, [r0]\n" );
-                        LoadArm32Constant( fp, "r1", vals[ t + 4 ].value );
-                        fprintf( fp, "    cmp      r0, r1\n" );
+                        LoadArm32Address( fp, "r1", varname );
+                        fprintf( fp, "    ldr      r1, [r1]\n" );
+                        fprintf( fp, "    cmp      r1, r0\n" );
                     }
 
                     fprintf( fp, "    bgt      after_for_loop_%zd\n", l );
@@ -6449,40 +6447,33 @@ label_no_array_eq_optimization:
                 else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                 {
                     if ( IsVariableInReg( varmap, varname ) )
-                    {
-                        LoadArm64Constant( fp, "x0", vals[ t + 4 ].value );
                         fprintf( fp, "    cmp      %s, w0\n", GenVariableReg( varmap, varname ) );
-                    }
                     else
                     {
-                        LoadArm64Address( fp, "x0", varname );
-                        fprintf( fp, "    ldr      w1, [x0]\n" );
-                        LoadArm64Constant( fp, "x3", vals[ t + 4 ].value );
-                        fprintf( fp, "    cmp      x1, x3\n" );
+                        LoadArm64Address( fp, "x1", varname );
+                        fprintf( fp, "    ldr      w1, [x1]\n" );
+                        fprintf( fp, "    cmp      w1, w0\n" );
                     }
 
                     fprintf( fp, "    b.gt       after_for_loop_%zd\n", l );
                 }
                 else if ( i8080CPM == g_AssemblyTarget )
                 {
-                    fprintf( fp, "    lxi      d, %d\n", vals[ t + 4 ].value );
+                    fprintf( fp, "    xchg\n" );
+                    fprintf( fp, "    lhld     %s\n", GenVariableName( varname ) );
                     Generate8080Relation( fp, Token::GE, "fc$", (int) l );
                     fprintf( fp, "    jmp      af$%zd\n", l ); // af == after for
                     fprintf( fp, "  fc$%zd:\n", l );  // fc == for code
                 }
                 else if ( mos6502Apple1 == g_AssemblyTarget )
                 {
-                    fprintf( fp, "    lda      #%d\n", vals[ t + 4 ].value );
-                    fprintf( fp, "    sta      curOperand\n" );
-                    fprintf( fp, "    lda      /%d\n", vals[ t + 4 ].value );
-                    fprintf( fp, "    sta      curOperand+1\n" );
                     Generate6502Relation( fp, GenVariableName( varname ), "curOperand", Token::LE, "_for_continue_", (int) l );
                     fprintf( fp, "    jmp      after_for_loop_%zd\n", l );
                     fprintf( fp, "_for_continue_%zd:\n", l );
                 }
                 else if ( i8086DOS == g_AssemblyTarget )
                 {
-                    fprintf( fp, "    cmp      WORD PTR ds: [%s], %d\n", GenVariableName( varname ), vals[ t + 4 ].value );
+                    fprintf( fp, "    cmp      WORD PTR ds: [%s], ax\n", GenVariableName( varname ) );
                     fprintf( fp, "    jg       after_for_loop_%zd\n", l );
                 }
                 else if ( riscv64 == g_AssemblyTarget )
@@ -6494,8 +6485,7 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    lla      t0, %s\n", GenVariableName( varname) );
                         fprintf( fp, "    lw       t0, (t0)\n" );
                     }
-                    fprintf( fp, "    li       t1, %d\n", vals[ t + 4 ].value );
-                    fprintf( fp, "    bgt      t0, t1, after_for_loop_%zd\n", l );
+                    fprintf( fp, "    bgt      t0, a0, after_for_loop_%zd\n", l );
                 }
 
                 break;

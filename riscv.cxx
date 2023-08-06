@@ -638,7 +638,7 @@ void RiscV::trace_state()
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
-    sprintf( acExtra, "a4 %llx a5 %llx s0 %llx s1 %llx", regs[ a4 ], regs[ a5 ], regs[ s0 ], regs[ s1 ] );
+    sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s2 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s2 ] );
 
     static const char * previous_symbol = 0;
     const char * symbol_name = riscv_symbol_lookup( *this, pc );
@@ -1477,8 +1477,6 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
         #endif
 
-        uint64_t pcnext = decode();   // 18% of runtime
-
         if ( 0 != g_State )           // 1.1% of runtime
         {
             if ( g_State & stateEndEmulation )
@@ -1490,6 +1488,8 @@ uint64_t RiscV::run( uint64_t max_cycles )
             if ( g_State & stateTraceInstructions )
                 trace_state();
         }
+
+        uint64_t pcnext = decode();   // 18% of runtime
 
         switch( opcode_type )         // 18.5% of runtime setting up for the jump table
         {

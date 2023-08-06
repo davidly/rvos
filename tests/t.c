@@ -191,7 +191,7 @@ extern "C" int main()
 
     uint8_t ui8min = 0, ui8max = 255;
     uint8_t u8 = test( ui8min, ui8max );
-    show_result( "uint8_t", (uint64_t) i8 );
+    show_result( "uint8_t", (uint64_t) u8 );
 
     int16_t i16min = -228, i16max = 227;
     int16_t i16 = test( i16min, i16max );
