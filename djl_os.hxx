@@ -48,14 +48,14 @@
     #include <unistd.h>
     #include <ctype.h>
 
-    #define not_inlined noinline
+    #define not_inlined __attribute__ ((noinline))
     #define force_inlined inline
 
     inline void bump_thread_priority() {}
 
     inline void set_process_affinity( uint64_t processAffinityMask )
     {
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined( OLDGCC )
         cpu_set_t mask;
         CPU_ZERO( &mask );
 
@@ -147,18 +147,18 @@ inline const char * target_platform()
         return "arm64";
     #elif defined( _MSC_VER )     // msft on Windows 32-bit
         return "x86";
+    #else
+        return "(other)";
     #endif
-
-    return "(other)";
 } //target_platform
 
 inline const char * build_type()
 {
     #ifdef NDEBUG
         return "release";
+    #else
+       return "debug";
     #endif
-
-    return "debug";
 } //build_type
 
 inline const char * compiler_used()
@@ -172,9 +172,9 @@ inline const char * compiler_used()
         return acver;
     #elif defined( __clang__ )
         return "clang";
+    #else
+        return "unknown";
     #endif
-
-    return "unknown";
 } //compiler_used
 
 inline const char * build_platform()
@@ -185,9 +185,9 @@ inline const char * build_platform()
         return "linux";
     #elif defined( _MSC_VER )
         return "windows";
+    #else
+        return "unknown";
     #endif
-
-    return "unknown";
 } //build_platform
 
 inline const char * build_string()
@@ -204,4 +204,14 @@ inline const char * build_string()
     #define assume_false __assume( false )
     #define assume_false_return __assume( false )
 #endif
+
+inline long portable_filelen( FILE * fp )
+{
+    long current = ftell( fp );
+    fseek( fp, 0, SEEK_END );
+    long len = ftell( fp );
+    fseek( fp, current, SEEK_SET );
+    return len;
+} //portable_filelen
+
 
