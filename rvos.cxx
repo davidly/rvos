@@ -1870,7 +1870,7 @@ int main( int argc, char * argv[] )
     tracer.Enable( trace, L"rvos.log", true );
     tracer.SetQuiet( true );
 
-    g_consoleConfig.EstablishConsole( 0, 0, 0 );
+    g_consoleConfig.EstablishConsoleOutput( 0, 0 );
 
     if ( generateRVCTable )
     {
