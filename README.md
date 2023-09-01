@@ -16,13 +16,13 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * Compressed rvc 16-bit instructions are supported, though apps run about 5% slower.
     * Single and double precision floating point instructions are implemented.
     * Atomic and fence instructions are implemented assuming there is just one core.
-    * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, printf/sprintf, math, etc.
+    * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, date/time, printf/sprintf, math, etc.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
     * The emulator is about as fast as the 400Mhz K210 physical processor when run on an AMD 5950x.
-    * The tests folder has test apps written in C. These build with both old and new g++ for RISC-V.
+    * The tests folder has test apps written in C. These build with both old and recent g++ for RISC-V.
     * rvos has been tested on Windows (amd64 and arm64), MacOS (arm64), and Linux (amd64 and arm64).
     * The emulator can run itself nested arbitrarily deeply. Perf is about 64x slower for each nesting.
-    * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation.
+    * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation and run apps built with g++.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
     * Gnu CC torture execution tests were run on the emulator.
