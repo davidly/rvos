@@ -19,6 +19,7 @@ rvos tests\tcrash sph >>test_rvos.txt
 rvos tests\tcrash spm >>test_rvos.txt
 rvos tests\ttt >>test_rvos.txt
 rvos tests\tf >>test_rvos.txt
+rvos tests\tm >>test_rvos.txt
 rvos tests\ba tests\tp.bas >>test_rvos.txt
 rvos tests\ttime >>test_rvos.txt
 rvos tests\td >>test_rvos.txt

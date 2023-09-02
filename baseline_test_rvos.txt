@@ -90,9 +90,9 @@ should tend towards 1.61803398874989484820458683436563811772030
 done
 hello
 test instructions is complete
-start time: 06:58:23.385
-14673272 microseconds for 1000 iterations
-end time: 06:58:38.058
+start time: 14:33:48.860
+15079580 microseconds for 1000 iterations
+end time: 14:34:03.948
 final move count 6493
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main
@@ -105,7 +105,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main
@@ -118,7 +118,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200 
@@ -131,7 +131,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
@@ -144,7 +144,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: stack pointer is below stack memory: a1a030
 pc: 100c8 _Z7recursemPKc
@@ -157,7 +157,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: stack pointer is above the top of memory: b39fb0
 pc: 110a8 rvos_sp_add
@@ -170,7 +170,7 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fb2
 pc: 110a8 rvos_sp_add
@@ -183,11 +183,11 @@ address space 10000 to a3a070
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    built for amd64 debug on Fri Jul 14 06:27:37 2023 by msft C++ ver 1931 on windows
+    built for amd64 debug on Aug 28 2023 08:23:17 by msft C++ ver 1937 on windows
 
 starting...
 64930 moves
-35.610001 milliseconds
+35.380001 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -206,13 +206,14 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
+success
 parsing input file tests\tp.bas
-start time: 13:58:38.000
+start time: 21:34:04.000
 0 ms for 1 iterations
-end time: 13:58:38.000
+end time: 21:34:04.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 7, day 14, hour 5, min 58, sec 38
+year: 2023, month 9, day 1, hour 13, min 34, sec 4
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

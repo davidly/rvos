@@ -1,4 +1,4 @@
-Fri Jul 14 06:59:59 PDT 2023
+Fri Sep  1 14:46:26 PDT 2023
 t
 a: 0 4000000000000000
 a: 4 0
@@ -83,6 +83,8 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
+tm
+success
 tap
 starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
@@ -100,7 +102,7 @@ done
 ttt
 starting...
 64930 moves
-21.487001 milliseconds
+18.984001 milliseconds
 sieve
 1899 primes.
 e
@@ -109,9 +111,9 @@ done
 tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 tp1k
-start time: 07:00:00.021
-8604242 microseconds for 1000 iterations
-end time: 07:00:08.625
+start time: 14:46:26.891
+8456219 microseconds for 1000 iterations
+end time: 14:46:35.347
 final move count 6493
 tins
 hello
@@ -147,14 +149,14 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 ttime
-year: 2023, month 7, day 14, hour 6, min 0, sec 8
+year: 2023, month 9, day 1, hour 13, min 46, sec 35
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 4.977631 ms
-start time: 14:00:08.763
-203 ms for 1 iterations
-end time: 14:00:08.967
+Time to parse tests/tp.bas: 4.853770 ms
+start time: 21:46:35.457
+183 ms for 1 iterations
+end time: 21:46:35.640
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -173,7 +175,7 @@ address space 10000 to a965a0
     s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-    built for amd64 debug on Fri Jul 14 06:39:28 2023 by g++ on linux
+    built for amd64 debug on Aug 16 2023 14:59:01 by g++ on linux
 
 tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -187,5 +189,5 @@ address space 10000 to a965a0
     s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-    built for amd64 debug on Fri Jul 14 06:39:28 2023 by g++ on linux
+    built for amd64 debug on Aug 16 2023 14:59:01 by g++ on linux
 

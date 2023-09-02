@@ -19,6 +19,7 @@ rvos /h:40 rvos.elf tests\tcrash sph >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tcrash spm >>test_rvos.txt
 rvos /h:40 rvos.elf tests\ttt >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tf >>test_rvos.txt
+rvos /h:40 rvos.elf tests\tm >>test_rvos.txt
 rvos /h:40 rvos.elf tests\ba tests\tp.bas >>test_rvos.txt
 rvos /h:40 rvos.elf tests\ttime >>test_rvos.txt
 rvos /h:40 rvos.elf tests\td >>test_rvos.txt

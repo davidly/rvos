@@ -3,7 +3,7 @@
     Per https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf
     It's an AEE (Application Execution Environment) that exposes an ABI (Application Binary Inferface) for an Application.
     It runs in RISC-V M mode, similar to embedded systems.
-    It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files.
+    It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files targeting Linux.
     Written by David Lee in February 2023
 */
 

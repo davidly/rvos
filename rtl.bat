@@ -18,6 +18,7 @@ rvos linux\tcrash sph >>test_rvos.txt
 rvos linux\tcrash spm >>test_rvos.txt
 rvos linux\ttt >>test_rvos.txt
 rvos linux\tf >>test_rvos.txt
+rvos linux\tm >>test_rvos.txt
 rvos linux\ba linux\tp.bas >>test_rvos.txt
 rvos linux\ttime >>test_rvos.txt
 rvos linux\td >>test_rvos.txt
