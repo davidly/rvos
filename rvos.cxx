@@ -603,7 +603,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
             time_t time_now = system_clock::to_time_t( now );
             struct tm * plocal = localtime( & time_now );
-            sprintf( pdatetime, "%02u:%02u:%02u.%03u", plocal->tm_hour, plocal->tm_min, plocal->tm_sec, (uint32_t) ms );
+            sprintf( pdatetime, "%02u:%02u:%02u.%03u", (uint32_t) plocal->tm_hour, (uint32_t) plocal->tm_min, (uint32_t) plocal->tm_sec, (uint32_t) ms );
             cpu.regs[ RiscV::a0 ] = 0;
             tracer.Trace( "  got datetime: '%s', pc: %llx\n", pdatetime, cpu.pc );
             break;
@@ -1180,9 +1180,9 @@ void riscv_invoke_ecall( RiscV & cpu )
 #endif // !defined(OLDGCC)
         default:
         {
-            printf( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
+            printf( "error; ecall invoked with unknown command %llu = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
                     cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
-            tracer.Trace( "error; ecall invoked with unknown command %lld = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
+            tracer.Trace( "error; ecall invoked with unknown command %llu = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
                           cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
             fflush( stdout );
             //cpu.regs[ RiscV::a0 ] = -1;
@@ -1646,12 +1646,12 @@ void elf_info( const char * pimage )
 
     if ( 2 != ehead.bit_width )
     {
-        printf( "image isn't 64-bit (2), it's %d\n", ehead.bit_width );
+        printf( "image isn't 64-bit (2), it's %u\n", ehead.bit_width );
         return;
     }
 
     printf( "header fields:\n" );
-    printf( "  bit_width: %d\n", ehead.bit_width );
+    printf( "  bit_width: %u\n", ehead.bit_width );
     printf( "  entry address: %llx\n", ehead.entry_point );
     printf( "  program entries: %u\n", ehead.program_header_table_entries );
     printf( "  program header entry size: %u\n", ehead.program_header_table_size );
@@ -1884,7 +1884,10 @@ int main( int argc, char * argv[] )
     }
 
     if ( 0 == pcApp )
+    {
         usage( "no executable specified\n" );
+        assume_false;
+    }
 
     strcpy( acApp, pcApp );
     if ( !ends_with( acApp, ".elf" ) )
