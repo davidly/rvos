@@ -634,7 +634,7 @@ void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
 
-    //tracer.TraceBinaryData( getmem( 0x8001cb07 ), 128, 2 );
+    //tracer.TraceBinaryData( getmem( 0x7e8d0 ), 16, 2 );
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
@@ -703,7 +703,7 @@ void RiscV::trace_state()
                 if ( 0 == funct3 || 1 == funct3 )
                     tracer.Trace( "fence\n" );
             }
-            else if ( 0x4 == opcode_type )
+            else if ( 4 == opcode_type )
             {
                 decode_I_shift();
 
@@ -726,7 +726,7 @@ void RiscV::trace_state()
                     case 7: tracer.Trace( "andi    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                 }
             }
-            else if ( 0x6 == opcode_type )
+            else if ( 6 == opcode_type )
             {
                 decode_I_shift();
 
@@ -775,48 +775,12 @@ void RiscV::trace_state()
 
                 if ( 0 == funct3 ) // system
                 {
-                    if ( 0 == funct7 )
-                    {
-                        if ( 0 == rs1 && 0 == rd )
-                            tracer.Trace( "ecall\n" );
-                    }
-                    else if ( 1 == funct7 )
-                    {
-                        if ( 0 == rs1 && 0 == rd )
-                            tracer.Trace( "ebreak\n" );
-                    }
-                    else if ( 8 == funct7 )
-                    {
-                        if ( 2 == rs2 && 0 == rs1 && 0 == rd )
-                            tracer.Trace( "sret\n" );
-                        else if ( 5 == rs2 && 0 == rs1 && 0 == rd )
-                            tracer.Trace( "wfi\n" );
-                    }
-                    else if ( 9 == funct7 )
-                    {
-                        if ( 0 == rd )
-                            tracer.Trace( "sfence.vma %s, %s\n", reg_name( rs1 ), reg_name( rs2 ) );
-                    }
-                    else if ( 0xb == funct7 )
-                    {
-                        if ( 0 == rd )
-                            tracer.Trace( "sinval.vma %s, %s\n", reg_name( rs1 ), reg_name( rs2 ) );
-                    }
-                    else if ( 0xc == funct7 )
-                    {
-                        if ( 0 == rs1 && 0 == rd )
-                        {
-                            if ( 0 == rs2 )
-                                tracer.Trace( "sfence.w.inval\n" );
-                            else if ( 1 == rs2 )
-                                tracer.Trace( "sfence.inval.ir\n" );
-                        }
-                    }
-                    else if ( 0x18 == funct7 )
-                    {
-                        if ( 2 == rs2 && 0 == rs1 && 0 == rd )
-                            tracer.Trace( "mret\n" );
-                    }
+                    if ( 0x73 == op ) 
+                        tracer.Trace( "ecall\n" );
+                    else if ( 0x100073 == op )
+                        tracer.Trace( "ebreak\n" );
+                    else
+                        tracer.Trace( "unknown system e instruction\n" );
                 }
                 else if ( 1 == funct3 ) // write csr
                 {
@@ -888,6 +852,8 @@ void RiscV::trace_state()
                 {
                     if ( 1 == csr )
                         tracer.Trace( "csrrsi %s, fflags, %d  # set fp crs flags\n", reg_name( rd ), rs1 );
+                    else
+                        tracer.Trace( "unknown csr set bit instruction\n" );
                 }
             }
             break;
@@ -1477,6 +1443,8 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
         #endif
 
+        uint64_t pcnext = decode();   // 18% of runtime
+
         if ( 0 != g_State )           // 1.1% of runtime
         {
             if ( g_State & stateEndEmulation )
@@ -1488,8 +1456,6 @@ uint64_t RiscV::run( uint64_t max_cycles )
             if ( g_State & stateTraceInstructions )
                 trace_state();
         }
-
-        uint64_t pcnext = decode();   // 18% of runtime
 
         switch( opcode_type )         // 18.5% of runtime setting up for the jump table
         {
@@ -1862,13 +1828,13 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
                     {
-                        setui32( regs[ rs1 ], (uint32_t) rs2 );
+                        setui32( regs[ rs1 ], (uint32_t) regs[ rs2 ] );
                         if ( 0 != rd )
                             regs[ rd ] = 0;
                     }
                     else if ( 3 == funct3 ) // sc.d rd, rs2, (rs1)
                     {
-                        setui64( regs[ rs1 ], rs2 );
+                        setui64( regs[ rs1 ], regs[ rs2 ] );
                         if ( 0 != rd )
                             regs[ rd ] = 0;
                     }
@@ -2664,7 +2630,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
 
                 if ( 0 == funct3 ) // system
                 {
-                    if ( 0x73 == op ) 
+                    if ( 0x73 == op )
                         riscv_invoke_ecall( *this ); // ecall. don't route through mtvec as a simplification
                     else if ( 0x100073 == op )
                     {

@@ -501,6 +501,7 @@ static const SysCall syscalls[] =
     { "SYS_clock_gettime", SYS_clock_gettime },
     { "SYS_clock_nanosleep", SYS_clock_nanosleep },
     { "SYS_tgkill", SYS_tgkill },
+    { "SYS_sigaction", SYS_sigaction },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
     { "SYS_gettimeofday", SYS_gettimeofday },
     { "SYS_getpid", SYS_getpid },
@@ -1046,6 +1047,11 @@ void riscv_invoke_ecall( RiscV & cpu )
             break;
         }
         case SYS_fdatasync:
+        {
+            cpu.regs[ RiscV::a0 ] = -1;
+            break;
+        }
+        case SYS_sigaction:
         {
             cpu.regs[ RiscV::a0 ] = -1;
             break;
