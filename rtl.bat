@@ -9,6 +9,7 @@ rvos linux\tap >>test_rvos.txt
 rvos linux\tpi >>test_rvos.txt
 rvos linux\tphi >>test_rvos.txt
 rvos linux\tins >>test_rvos.txt
+rvos linux\tdir >>test_rvos.txt
 rvos linux\tcrash ml >>test_rvos.txt
 rvos linux\tcrash mh >>test_rvos.txt
 rvos linux\tcrash pcl >>test_rvos.txt

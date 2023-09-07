@@ -566,7 +566,7 @@ void riscv_check_ptracenow( RiscV & cpu )
 
 void update_a0_errno(  RiscV & cpu, int result )
 {
-    if ( result >= 0 ) // syscalls like write() return positive values to indicate success.
+    if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
         tracer.Trace( "  syscall sucess, returning %d\n", result );
         cpu.regs[ RiscV::a0 ] = result;
@@ -654,7 +654,6 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command SYS_fstat\n" );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
-
 #ifdef _MSC_VER
             // ignore the folder argument on Windows
             struct _stat64 local_stat = {0};
@@ -882,18 +881,31 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
+             // turn this code off:
+             //  1) fields and offsets of kstat, stat, and stat16 differ tremendously even between close builds of g++ for linux.
+             //  2) kstat isn't available in normal headers
+             //  3) apps seem to run just fine without it
+#if 0
 #ifdef _MSC_VER
             // ignore the folder argument on Windows
             struct _stat64 local_stat = {0};
             fill_pstat_windows( descriptor, & local_stat );
-            memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct _stat64 ), (size_t) 128 ) );
-            int result = 0;
+            size_t at_most_copy = get_min( sizeof( struct _stat64 ), (size_t) 128 ); // 128 is sizeof( struct stat ) on RISC-V Linux
+            tracer.Trace( "sizeof _stat64: %zd\n", sizeof( struct _stat64 ) );
+            memset( cpu.getmem( cpu.regs[ RiscV::a1 ] ), 0, 128 );
+            //memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, at_most_copy );
+            tracer.Trace( "file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
+            int result = -1;
 #else
-            tracer.Trace( "size of struct stat: %zd\n", sizeof( struct stat ) );
+            tracer.Trace( "sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             int result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ]  );
             if ( 0 == result )
                 memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
+#endif
+#else
+            int result = -1;
+            errno = EACCES;
 #endif
             update_a0_errno( cpu, result );
             break;
