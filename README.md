@@ -20,19 +20,14 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
     * The emulator is about as fast as the 400Mhz K210 physical processor when run on an AMD 5950x.
     * The tests folder has test apps written in C. These build with both old and recent g++ for RISC-V.
-    * rvos has been tested on Windows (amd64 and arm64), MacOS (arm64), and Linux (amd64 and arm64).
+    * rvos has been tested on Windows (amd64 and arm64), MacOS (arm64), and Linux (RISC-V, amd64, and arm64).
     * The emulator can run itself nested arbitrarily deeply. Perf is about 64x slower for each nesting.
     * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation and run apps built with g++.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
-    * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld.
+    * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld or the g++ command-line.
     * Gnu CC torture execution tests were run on the emulator.
     * Also tested with the Apple 1 emulator in my ntvao repo built for RISC-V.
     * Also tested with the CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
-
-Both the  old g++ compiler that targets the RISC-V SiPeed K210 hardware and the latest 
-https://github.com/riscv-collab/riscv-gnu-toolchain targeting Linux for RISC-V are supported. 
-They each use different C runtimes and call into Linux syscalls differently. RVOS built with
-riscv-gnu-toolchain for RISC-V can run itself nested as well as rvos built with the older toolchain.
 
 * Files:
     * riscv.?xx       Emulates a RISC-V processor in M mode.
@@ -58,7 +53,7 @@ riscv-gnu-toolchain for RISC-V can run itself nested as well as rvos built with 
 The tests folder has a number of small C/C++ programs that can be compiled using mariscv.bat on Windows or
 mt.sh on Linux. The .elf files produced can be run by rvos. If the app will use more 10 meg of RAM for the 
 heap, use rvos' /h argument to specify how much RAM to allocate. The anagram generater an can use up to 
-30MB in some cases. These build with both the old and new G++ compilers.
+30MB in some cases.
 
 * Test files:
     * an.c        Anagram generator
@@ -74,10 +69,19 @@ heap, use rvos' /h argument to specify how much RAM to allocate. The anagram gen
     * tenv.c      Tests using C environment functions
     * tf.c        Tests floating point numbers
     * tfile.c     Tests file I/O
+    * tins.s      Test various instructions I couldn't get g++ to produce
+    * tm.c        Lightly test malloc/calloc/free
     * tphi.c      Computes phi
+    * tpi.c       Computes PI
     * ts.c        Tests bit shifts on various integer types
     * ttime.c     Tests retrieving and showing the current time
     * ttt.c       Proves you can't win at tic-tac-toe
+
+I tested the apps above with 3 versions of g++ that target RISC-V. Generated apps from each utilize different RISC-V instructions and Linux syscalls.
+
+    * Installed on Windows AMD64 on February 19, 2023 with Arduino with the SiPeed K210: riscv64-unknown-elf-g++.exe (GCC) 8.2.0
+    * I cloned and built https://github.com/riscv-collab/riscv-gnu-toolchain on March 9, 2023 using Ubuntu AMD64: riscv64-unknown-linux-gnu-c++ (g2ee5e430018) 12.2.0
+    * Installed on Debian RISC-V September 3, 2023 using sudo apt-get install gpp: g++ (Debian 13.1.0-6) 13.1.0
     
 To run the rvos emulator nested in the rvos emulator, on Linux/MacOS/Windows issue a command like:
 
@@ -87,7 +91,7 @@ That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN an
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
 in the emulator makes it aout 64x slower.
 
-The Gnu G++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
+The Gnu g++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
 
 ttt_riscv.s is a sample assembler app. This requires rvos_shell.s, which has _start and a function to print text to the console
 that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
