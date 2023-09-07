@@ -9,6 +9,7 @@ rvos /h:40 linux\rvos linux\tap >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tpi >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tphi >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tins >>test_rvos.txt
+rvos /h:40 linux\rvos linux\tdir >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tcrash ml >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tcrash mh >>test_rvos.txt
 rvos /h:40 linux\rvos linux\tcrash pcl >>test_rvos.txt
