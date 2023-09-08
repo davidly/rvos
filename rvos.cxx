@@ -1866,8 +1866,18 @@ int main( int argc, char * argv[] )
     }
 
     strcpy( acApp, pcApp );
-    if ( !ends_with( acApp, ".elf" ) )
-        strcat( acApp, ".elf" );
+    bool appExists = file_exists( acApp );
+    if ( !appExists )
+    {
+        if ( !ends_with( acApp, ".elf" ) )
+        {
+            strcat( acApp, ".elf" );
+            appExists = file_exists( acApp );
+        }
+    }
+
+    if ( !appExists )
+        usage( "input .elf executable file not found" );
 
     if ( elfInfo )
     {
