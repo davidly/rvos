@@ -1,4 +1,4 @@
-Fri Sep  1 14:46:26 PDT 2023
+Fri Sep  8 07:45:24 PDT 2023
 t
 a: 0 4000000000000000
 a: 4 0
@@ -102,7 +102,7 @@ done
 ttt
 starting...
 64930 moves
-18.984001 milliseconds
+21.908001 milliseconds
 sieve
 1899 primes.
 e
@@ -111,9 +111,9 @@ done
 tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 tp1k
-start time: 14:46:26.891
-8456219 microseconds for 1000 iterations
-end time: 14:46:35.347
+start time: 07:45:24.664
+8714369 microseconds for 1000 iterations
+end time: 07:45:33.378
 final move count 6493
 tins
 hello
@@ -149,14 +149,19 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 ttime
-year: 2023, month 9, day 1, hour 13, min 46, sec 35
+year: 2023, month 9, day 8, hour 6, min 45, sec 33
+terrno
+errno opening a file for read that doesn't exist: 2 (2 file not found expected)
+errno doing write to stdin file descriptor: 13. (13 permission denied expected)
+errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
+success
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 4.853770 ms
-start time: 21:46:35.457
-183 ms for 1 iterations
-end time: 21:46:35.640
+Time to parse tests/tp.bas: 4.931453 ms
+start time: 14:45:33.505
+212 ms for 1 iterations
+end time: 14:45:33.717
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -171,11 +176,11 @@ address space 10000 to a965a0
     tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
     s0:           a963a0,   s1:                2,   a0:           100000,   a1:            4aeac, 
     a2:           a96560,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7:               62,   s2:           a96548,   s3:                1, 
+    a6:            6fa80,   a7: 2f2f2f2f475f5c2f,   s2:           a96548,   s3:                1, 
     s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-    built for amd64 debug on Aug 16 2023 14:59:01 by g++ on linux
+    built for amd64 debug on Sep  8 2023 07:43:21 by g++ on linux
 
 tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -185,9 +190,9 @@ address space 10000 to a965a0
     tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
     s0:           a963a0,   s1:                2,   a0:                0,   a1:            4ae8b, 
     a2:           a96560,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:            6fa80,   a7:               62,   s2:           a96548,   s3:                1, 
+    a6:            6fa80,   a7: 2f2f2f2f2f47422f,   s2:           a96548,   s3:                1, 
     s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
-    built for amd64 debug on Aug 16 2023 14:59:01 by g++ on linux
+    built for amd64 debug on Sep  8 2023 07:43:21 by g++ on linux
 

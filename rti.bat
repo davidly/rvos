@@ -8,6 +8,7 @@ rvos /h:40 rvos.elf tests\e >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tap >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tpi >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tins >>test_rvos.txt
+rvos /h:40 rvos.elf tests\terrno >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tp >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tphi >>test_rvos.txt
 rvos /h:40 rvos.elf tests\tcrash ml >>test_rvos.txt

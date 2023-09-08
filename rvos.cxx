@@ -81,7 +81,6 @@ uint64_t g_highwater_brk = 0;                  // highest brk seen during app; p
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
-int * g_perrno = 0;                            // if it exists, it's a pointer to errno for the vm. else, return -errno in syscall a0
 bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
 
 #pragma pack( push, 1 )
@@ -568,22 +567,13 @@ void update_a0_errno(  RiscV & cpu, int result )
 {
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
-        tracer.Trace( "  syscall sucess, returning %d\n", result );
+        tracer.Trace( "  syscall success, returning %d\n", result );
         cpu.regs[ RiscV::a0 ] = result;
     }
     else
     {
-        if ( 0 != g_perrno ) // very old g++ compiler with a global non-per-thread errno does this
-        {
-            tracer.Trace( "  old g++ runtime without tls. error returned, error %d\n", errno );
-            *g_perrno = errno;
-            cpu.regs[ RiscV::a0 ] = -1;
-        }
-        else
-        {
-            tracer.Trace( "  modern g++ runtime, returning negative errno in a0: %d\n", -errno );
-            cpu.regs[ RiscV::a0 ] = -errno; // it looks like the g++ runtime copies the - of this value to errno
-        }
+        tracer.Trace( "  returning negative errno in a0: %d\n", -errno );
+        cpu.regs[ RiscV::a0 ] = -errno; // it looks like the g++ runtime copies the - of this value to errno
     }
 } //update_a0_errno
 
@@ -654,6 +644,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  rvos command SYS_fstat\n" );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
+#if 0
 #ifdef _MSC_VER
             // ignore the folder argument on Windows
             struct _stat64 local_stat = {0};
@@ -662,11 +653,15 @@ void riscv_invoke_ecall( RiscV & cpu )
             cpu.regs[ RiscV::a0 ] = 0;
             int result = 0;
 #else
-            tracer.Trace( "size of struct stat: %zd\n", sizeof( struct stat ) );
+            tracer.Trace( "  size of struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             int result = fstat( descriptor, & local_stat );
             if ( 0 == result )
                 memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
+#endif
+#else
+            int result = -1;
+            errno = EACCES;
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -897,7 +892,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
             int result = -1;
 #else
-            tracer.Trace( "sizeof struct stat: %zd\n", sizeof( struct stat ) );
+            tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             int result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ]  );
             if ( 0 == result )
@@ -1113,7 +1108,6 @@ void riscv_invoke_ecall( RiscV & cpu )
                 {
                     struct termios val;
                     tcgetattr( 0, &val );
-
                     struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
                     tracer.Trace( "termios pointer: %p\n", pt );
                     memcpy( pt, &val, sizeof( struct local_kernel_termios ) );
@@ -1125,9 +1119,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     memset( &val, 0, sizeof val );
                     struct termios * pt = (struct termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
                     memcpy( &val, pt, sizeof( struct local_kernel_termios ) );
-
                     tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
-
                     tcsetattr( 0, TCSANOW, &val );
                     tracer.Trace( "  ioctl set termios on stdin\n" );
                 }
@@ -1465,8 +1457,6 @@ bool load_image( const char * pimage, const char * app_args )
     {
         if ( !strcmp( "g_TRACENOW", & g_string_table[ g_symbols[ se ].name ] ) )
             g_ptracenow = (bool *) ( memory.data() + g_symbols[ se ].value - g_base_address );
-        else if ( !strcmp( "errno", & g_string_table[ g_symbols[ se ].name ] ) )
-            g_perrno = (int *) ( memory.data() + g_symbols[ se ].value - g_base_address );
     }
 
     // load the program into RAM
@@ -1596,7 +1586,6 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "vm memory first byte beyond:     %p\n", memory.data() + memory_size );
     tracer.Trace( "vm memory start:                 %p\n", memory.data() );
     tracer.Trace( "memory_size:                     %#llx == %lld\n", memory_size, memory_size );
-    tracer.Trace( "g_perrno:                        %p\n", g_perrno );
     tracer.Trace( "risc-v compressed instructions:  %s\n", g_compressed_rvc ? "yes" : "no" );
 
     return true;
