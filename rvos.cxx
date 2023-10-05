@@ -37,6 +37,7 @@
     #include <termios.h>
         #include <sys/random.h>
         #include <sys/uio.h>
+        #include <dirent.h>
         #ifndef __APPLE__
             #include <sys/sysinfo.h>
         #endif
@@ -54,6 +55,11 @@
             cc_t c_cc[local_KERNEL_NCCS]; /* control characters */
         };
     #endif
+
+    struct LINUX_FIND_DATA
+    {
+        char cFileName[ MAX_PATH ];
+    };
 #endif
 
 #include <djltrace.hxx>
@@ -689,6 +695,9 @@ void riscv_invoke_ecall( RiscV & cpu )
     static HANDLE g_hFindFirst = INVALID_HANDLE_VALUE; // for enumerating directories. Only one can be active at once.
     static char g_acFindFirstPattern[ MAX_PATH ];
     char acPath[ MAX_PATH ];
+#else
+    static DIR * g_FindFirst = 0;
+    static uint64_t g_FindFirstDescriptor = -1;
 #endif
 
     // Linux syscalls support up to 6 arguments
@@ -918,8 +927,18 @@ void riscv_invoke_ecall( RiscV & cpu )
                     }
                 }
                 else
+#else
+                if ( g_FindFirstDescriptor == descriptor )
+                {
+                    if ( 0 != g_FindFirst )
+                    {
+                        closedir( g_FindFirst );
+                        g_FindFirst = 0;
+                    }
+                    g_FindFirstDescriptor = -1;
+                }
 #endif
-                    result = close( descriptor );
+                result = close( descriptor );
                 update_a0_errno( cpu, result );
             }
             break;
@@ -927,8 +946,14 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_getdents64:
         {
             int64_t result = 0;
-#ifdef _WIN32
             uint64_t descriptor = cpu.regs[ RiscV::a0 ];
+            uint8_t * pentries = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            uint64_t count = cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  pentries: %p, count %llu\n", pentries, count );
+            struct linux_dirent64_syscall * pcur = (struct linux_dirent64_syscall *) pentries;
+            memset( pentries, 0, count );
+
+#ifdef _WIN32
             if ( ( findFirstDescriptor != descriptor ) || ( 0 == g_acFindFirstPattern[ 0 ] ) )
             {
                 tracer.Trace( "  getdents on unexpected descriptor or FindFirst (%p) not open\n", g_hFindFirst );
@@ -937,11 +962,6 @@ void riscv_invoke_ecall( RiscV & cpu )
                 break;
             }
 
-            uint8_t * pentries = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            uint64_t count = cpu.regs[ RiscV::a2 ];
-            tracer.Trace( "  pentries: %p, count %llu\n", pentries, count );
-            memset( pentries, 0, count );
-            struct linux_dirent64_syscall * pcur = (struct linux_dirent64_syscall *) pentries;
             WIN32_FIND_DATAA fd = {0};
 
             if ( INVALID_HANDLE_VALUE == g_hFindFirst )
@@ -1000,6 +1020,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                         pcur->d_reclen = dname_off + len + 1;
                         pcur->d_off = pcur->d_reclen;
                         strcpy( pcur->d_name, fd.cFileName );
+
                         if ( FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes )
                             pcur->d_type = 4;
                         else
@@ -1018,7 +1039,59 @@ void riscv_invoke_ecall( RiscV & cpu )
                 }
             }
 #else
-            result = 0;
+            tracer.Trace( "  g_FindFirstDescriptor: %d, g_FindFirst: %p\n", g_FindFirstDescriptor, g_FindFirst );
+
+            if ( -1 == g_FindFirstDescriptor )
+            {
+                g_FindFirstDescriptor = descriptor;
+                g_FindFirst = fdopendir( descriptor );
+            }
+
+            if ( 0 == g_FindFirst )
+            {
+                errno = EBADF;
+                g_FindFirstDescriptor = -1;
+                update_a0_errno( cpu, -1 );
+                break;
+            }
+
+            struct dirent * pent = readdir( g_FindFirst );
+            if ( 0 != pent )
+            {
+                tracer.Trace( "  readdir returned '%s'\n", pent->d_name );
+                size_t len = strlen( pent->d_name );    
+                if ( len > ( count - sizeof( struct linux_dirent64_syscall ) ) )
+                {
+                    errno = ENOENT;
+                    result = -1;
+                }
+                else
+                {
+                    pcur->d_ino = 100; // fake
+                    tracer.Trace( "  len: %zd, sizeof struct %zd\n", len, sizeof( struct linux_dirent64_syscall ) );
+                    size_t dname_off = offsetof( struct linux_dirent64_syscall, d_name );
+                    tracer.Trace( "  d_name offset in the struct: %zd\n", dname_off );
+                    pcur->d_reclen = dname_off + len + 1;
+                    pcur->d_off = pcur->d_reclen;
+                    strcpy( pcur->d_name, pent->d_name );
+
+                    struct stat local_stat = {0};
+                    result = stat( pent->d_name, & local_stat );
+
+                    if ( S_ISDIR( local_stat.st_mode ) )
+                        pcur->d_type = 4;
+                    else
+                        pcur->d_type = 8;
+
+                    tracer.Trace( "  wrote '%s' into the entry. d_reclen %d, d_off %d\n", pcur->d_name, pcur->d_reclen, pcur->d_off );
+                    result = pcur->d_reclen;
+                }
+            }
+            else
+            {
+                tracer.Trace( "  readdir return 0, so there are no more files in the enumeration\n" );
+                result = 0;
+            }
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -1147,6 +1220,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             tracer.Trace( "  rvos command SYS_newfstatat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            int result = 0;
 
              // turn this code off:
              //  1) fields and offsets of kstat, stat, and stat16 differ tremendously even between close builds of g++ for linux.
@@ -1161,13 +1235,29 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", sizeof( struct stat_linux_syscall ) );
             memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, at_most_copy );
             tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
-            int result = 0;
 #else
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
-            int result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ]  );
+            struct stat_linux_syscall local_stat_syscall = {0};
+            result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ] );
             if ( 0 == result )
-                memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
+            {
+                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+                pout->st_dev = local_stat.st_dev;
+                pout->st_ino = local_stat.st_ino;
+                pout->st_mode = local_stat.st_mode;
+                pout->st_nlink = local_stat.st_nlink;
+                pout->st_uid = local_stat.st_uid;
+                pout->st_gid = local_stat.st_gid;
+                pout->st_rdev = local_stat.st_rdev;
+                pout->st_size = local_stat.st_size;
+                pout->st_blksize = local_stat.st_blksize;
+                pout->st_blocks = local_stat.st_blocks;
+                pout->st_atim = local_stat.st_atim;
+                pout->st_mtim = local_stat.st_mtim;
+                pout->st_ctim = local_stat.st_ctim;
+                tracer.Trace( "  file size %zd, isdir %s\n", local_stat.st_size, S_ISDIR( local_stat.st_mode ) ? "yes" : "no" );
+            }
 #endif
             update_a0_errno( cpu, result );
             break;
