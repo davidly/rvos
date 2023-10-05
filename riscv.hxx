@@ -107,7 +107,7 @@ struct RiscV
     uint8_t * mem;
     uint8_t * beyond;
     uint64_t base;
-    uint8_t * membase;
+    uint8_t * membase;              // host pointer to base of vm's memory
     uint64_t stack_size;
     uint64_t mem_size;
     bool rvc;
@@ -121,6 +121,13 @@ struct RiscV
     {
         return base + offset;
     } //get_vm_address
+
+    uint64_t host_to_vm_address( void * p )
+    {
+        uint8_t * p8 = (uint8_t *) p;
+
+        return (uint64_t) ( p8 - mem + base );
+    } //host_to_vm_address
 
     uint8_t * getmem( uint64_t offset )
     {

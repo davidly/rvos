@@ -7,7 +7,7 @@ using namespace std::chrono;
 class ConsoleConfiguration
 {
     private:
-        #ifdef _MSC_VER
+        #ifdef _WIN32
             HANDLE consoleOutputHandle;
             HANDLE consoleInputHandle;
             WINDOWPLACEMENT oldWindowPlacement;
@@ -25,7 +25,7 @@ class ConsoleConfiguration
         bool inputEstablished, outputEstablished;
 
     public:
-        #ifdef _MSC_VER
+        #ifdef _WIN32
             ConsoleConfiguration() : oldOutputConsoleMode( 0 ), oldInputConsoleMode( 0 ),
                                      setWidth( 0 ), oldOutputCP( 0 ),
                                      inputEstablished( false ), outputEstablished( false )
@@ -53,14 +53,14 @@ class ConsoleConfiguration
 
         bool IsOutputEstablished() { return outputEstablished; }
 
-        #ifdef _MSC_VER
+        #ifdef _WIN32
             HANDLE GetOutputHandle() { return consoleOutputHandle; };
             HANDLE GetInputHandle() { return consoleInputHandle; };
         #endif
 
         void SetCursorInfo( uint32_t size ) // 0 to 100
         {
-            #ifdef _MSC_VER
+            #ifdef _WIN32
                 if ( 0 != consoleOutputHandle )
                 {
                     CONSOLE_CURSOR_INFO info = {0};
@@ -85,7 +85,7 @@ class ConsoleConfiguration
             if ( inputEstablished )
                 RestoreConsoleInput();
 
-            #ifdef _MSC_VER
+            #ifdef _WIN32
                 GetConsoleMode( consoleOutputHandle, &oldInputConsoleMode );
 
                 if ( 0 == pCtrlCRoutine )
@@ -125,8 +125,7 @@ class ConsoleConfiguration
             if ( outputEstablished )
                 return;
 
-            #ifdef _MSC_VER
-    
+            #ifdef _WIN32
                 GetConsoleCursorInfo( consoleOutputHandle, &oldCursorInfo );
         
                 if ( 0 != width )
@@ -180,7 +179,9 @@ class ConsoleConfiguration
                 dwMode |= ( ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_WINDOW_INPUT );
                 tracer.Trace( "old and new console output mode: %04x, %04x\n", oldOutputConsoleMode, dwMode );
                 SetConsoleMode( consoleOutputHandle, dwMode );
-
+            #else
+                printf( "%c[1 q", 27 ); // 1 == cursor blinking block. 
+                fflush( stdout );
             #endif
 
                 outputEstablished = true;
@@ -193,7 +194,7 @@ class ConsoleConfiguration
         {
             if ( inputEstablished )
             {
-                #ifdef _MSC_VER
+                #ifdef _WIN32
                     SetConsoleMode( consoleInputHandle, oldInputConsoleMode );
                 #else
                     #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
@@ -211,10 +212,15 @@ class ConsoleConfiguration
 
             if ( outputEstablished )
             {
+                #ifndef _WIN32
+                    printf( "%c[0m", 27 ); // turn off display attributes
+                    fflush( stdout );
+                #endif
+
                 if ( clearScreen )
                     SendClsSequence();
 
-                #ifdef _MSC_VER
+                #ifdef _WIN32
                     SetConsoleOutputCP( oldOutputCP );
                     SetConsoleCursorInfo( consoleOutputHandle, & oldCursorInfo );
     
@@ -236,11 +242,12 @@ class ConsoleConfiguration
             printf( "\x1b[2J" ); // clear the screen
             printf( "\x1b[1G" ); // cursor to top line
             printf( "\x1b[1d" ); // cursor to left side
+            fflush( stdout );
         } //SendClsSequence
 
         void ClearScreen()
         {
-            #ifdef _MSC_VER
+            #ifdef _WIN32
                 if ( 0 != consoleOutputHandle )
                     SendClsSequence();
                 else
@@ -263,7 +270,7 @@ class ConsoleConfiguration
         {
             int result = 0;
 
-            #ifdef _MSC_VER
+            #ifdef _WIN32
                 result = _kbhit();
             #else
                 fd_set set;
@@ -278,7 +285,7 @@ class ConsoleConfiguration
 
         static int portable_getch()
         {
-            #ifdef _MSC_VER
+            #ifdef _WIN32
                 return _getch();
             #else
                 int r;

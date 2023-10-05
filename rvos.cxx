@@ -20,7 +20,7 @@
 
 #include <djl_os.hxx>
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     #include <io.h>
 
     struct iovec
@@ -82,6 +82,66 @@ uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
+const uint64_t findFirstDescriptor = 3000;
+
+struct linux_dirent64_syscall {
+    uint64_t d_ino;     /* Inode number */
+    uint64_t d_off;     /* Offset to next linux_dirent */
+    uint16_t d_reclen;  /* Length of this linux_dirent */
+    uint8_t  d_type;    /* DT_DIR (4) if a dir, DT_REG (8) if a regular file */
+    char     d_name[];
+    /* optional and not implemented. must be 0-filled
+    char pad
+    char d_type
+    */
+};
+
+struct stat_linux_syscall {
+    /*
+        struct stat info run on a 64-bit RISC-V system
+      sizeof s: 128
+      offset      size field
+           0         8 st_dev
+           8         8 st_ino
+          16         4 st_mode
+          20         4 st_nlink
+          24         4 st_uid
+          28         4 st_gid
+          32         8 st_rdev
+          48         8 st_size
+          56         4 st_blksize
+          64         8 st_blocks
+          72        16 st_atim
+          88        16 st_mtim
+         104        16 st_ctim
+    */
+
+    uint64_t   st_dev;      /* ID of device containing file */
+    uint64_t   st_ino;      /* Inode number */
+    uint32_t   st_mode;     /* File type and mode */
+    uint32_t   st_nlink;    /* Number of hard links */
+    uint32_t   st_uid;      /* User ID of owner */
+    uint32_t   st_gid;      /* Group ID of owner */
+    uint64_t   st_rdev;     /* Device ID (if special file) */
+    uint64_t   st_mystery_spot;
+    uint64_t   st_size;     /* Total size, in bytes */
+    uint32_t   st_blksize;  /* Block size for filesystem I/O */
+    uint64_t   st_blocks;   /* Number of 512 B blocks allocated */
+
+    /* Since POSIX.1-2008, this structure supports nanosecond
+       precision for the following timestamp fields.
+       For the details before POSIX.1-2008, see VERSIONS. */
+
+    struct timespec  st_atim;  /* Time of last access */
+    struct timespec  st_mtim;  /* Time of last modification */
+    struct timespec  st_ctim;  /* Time of last status change */
+
+    #define st_atime  st_atim.tv_sec  /* Backward compatibility */
+    #define st_mtine  st_mtim.tv_sec
+    #define st_ctime  st_ctim.tv_sec
+
+    uint64_t   st_mystery_spot_2;
+};
 
 #pragma pack( push, 1 )
 
@@ -333,7 +393,27 @@ uint64_t rand64()
     return r;
 } //rand64
 
-#ifdef _MSC_VER
+void backslash_to_slash( char * p )
+{
+    while ( *p )
+    {
+        if ( '\\' == *p )
+            *p = '/';
+        p++;
+    }
+} //backslash_to_slash
+
+#ifdef _WIN32
+
+void slash_to_backslash( char * p )
+{
+    while ( *p )
+    {
+        if ( '/' == *p )
+            *p = '\\';
+        p++;
+    }
+} //slash_to_backslash
 
 int windows_translate_flags( int flags )
 {
@@ -380,31 +460,51 @@ int windows_translate_flags( int flags )
     return flags;
 } //windows_translate_flags
 
-void fill_pstat_windows( int descriptor, struct _stat64 * pstat )
+void fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
 {
+    char ac[ MAX_PATH ];
+    strcpy( ac, path );
+    slash_to_backslash( ac );
+
+    memset( pstat, 0, sizeof( struct stat_linux_syscall ) );
+
+    // default values, most of which are lies
+
+    pstat->st_ino = 3;
+    pstat->st_nlink = 1;
+    pstat->st_uid = 1000;
+    pstat->st_gid = 5;
+    pstat->st_rdev = 1024; // this is st_blksize on linux
+    pstat->st_size = 0;
+
     if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
-    {
         pstat->st_mode = S_IFCHR;
-        pstat->st_ino = 3;
-        pstat->st_mode = 0x2190;
-        pstat->st_nlink = 1;
-        pstat->st_uid = 1000;
-        pstat->st_gid = 5;
-        pstat->st_rdev = 1024; // this is st_blksize on linux
-        pstat->st_size = 0;
-        //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+    else if ( findFirstDescriptor == descriptor )
+    {
+        pstat->st_mode = S_IFDIR;
+        pstat->st_rdev = 4096; // this is st_blksize on linux
     }
     else
     {
-        pstat->st_mode = S_IFREG;
-        pstat->st_ino = 3;
-        pstat->st_mode = 0x2190;
-        pstat->st_nlink = 1;
-        pstat->st_uid = 1000;
-        pstat->st_gid = 5;
+        WIN32_FILE_ATTRIBUTE_DATA data = {0};
+        BOOL ok = FALSE;
+        if ( ac[ 0 ] )
+        {
+            ok = GetFileAttributesExA( ac, GetFileExInfoStandard, & data );
+            tracer.Trace( "  result of GetFileAttributesEx on '%s': %d\n", ac, ok );
+        }
+
+        if ( ok && ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
+            pstat->st_mode = S_IFDIR;
+        else
+            pstat->st_mode = S_IFREG;
+
         pstat->st_rdev = 4096; // this is st_blksize on linux
-        pstat->st_size = 0;
-        //pstat->st_blocks = 0; // this field doesn't exist in Windows.
+
+        if ( !ok )
+            data.nFileSizeLow = portable_filelen( descriptor );
+
+        pstat->st_size = data.nFileSizeLow;
     }
 } //fill_pstat_windows
 
@@ -477,20 +577,22 @@ struct SysCall
 
 static const SysCall syscalls[] =
 {
+    { "SYS_getcwd", SYS_getcwd },
     { "SYS_ioctl", SYS_ioctl },
     { "SYS_mkdirat", SYS_mkdirat },
     { "SYS_unlinkat", SYS_unlinkat },
     { "SYS_chdir", SYS_chdir },
     { "SYS_openat", SYS_openat },
     { "SYS_close", SYS_close },
+    { "SYS_getdents64", SYS_getdents64 },
     { "SYS_lseek", SYS_lseek },
     { "SYS_read", SYS_read },
     { "SYS_write", SYS_write },
     { "SYS_writev", SYS_writev },
     { "SYS_pselect6", SYS_pselect6 },
     { "SYS_readlinkat", SYS_readlinkat },
+    { "SYS_newfstatat", SYS_newfstatat },
     { "SYS_newfstat", SYS_newfstat },
-    { "SYS_fstat", SYS_fstat },
     { "SYS_fdatasync", SYS_fdatasync },
     { "SYS_exit", SYS_exit },
     { "SYS_exit_group", SYS_exit_group },
@@ -502,6 +604,7 @@ static const SysCall syscalls[] =
     { "SYS_tgkill", SYS_tgkill },
     { "SYS_sigaction", SYS_sigaction },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
+    { "SYS_prctl", SYS_prctl },
     { "SYS_gettimeofday", SYS_gettimeofday },
     { "SYS_getpid", SYS_getpid },
     { "SYS_gettid", SYS_gettid },
@@ -563,11 +666,11 @@ void riscv_check_ptracenow( RiscV & cpu )
         cpu.trace_instructions( false );
 } //riscv_check_ptracenow
 
-void update_a0_errno(  RiscV & cpu, int result )
+void update_a0_errno(  RiscV & cpu, int64_t result )
 {
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
-        tracer.Trace( "  syscall success, returning %d\n", result );
+        tracer.Trace( "  syscall success, returning %lld\n", result );
         cpu.regs[ RiscV::a0 ] = result;
     }
     else
@@ -582,6 +685,10 @@ void update_a0_errno(  RiscV & cpu, int result )
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
+    static HANDLE g_hFindFirst = INVALID_HANDLE_VALUE; // for enumerating directories. Only one can be active at once.
+    static char g_acFindFirstPattern[ MAX_PATH ];
+    char acPath[ MAX_PATH ];
+
     // Linux syscalls support up to 6 arguments
 
     if ( tracer.IsEnabled() )
@@ -623,6 +730,37 @@ void riscv_invoke_ecall( RiscV & cpu )
             update_a0_errno( cpu, 0 );
             break;
         }
+        case SYS_getcwd:
+        {
+            // the syscall version of getcwd never uses malloc to allocate a return value. Just C runtimes do that for POSIX compliance.
+
+            uint64_t original = cpu.regs[ RiscV::a0 ];
+            tracer.Trace( "  address in vm space: %llx == %llu\n", original, original );
+            char * pin = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            size_t size = (size_t) cpu.regs[ RiscV::a1 ];
+            uint64_t pout = 0;
+#ifdef _WIN32
+            char * poutwin32 = _getcwd( acPath, sizeof( acPath ) );
+            if ( poutwin32 )
+            {
+                tracer.Trace( "  acPath: '%s', poutwin32: '%s'\n", acPath, poutwin32 );
+                backslash_to_slash( poutwin32 );
+                pout = original;
+                strcpy( pin, poutwin32 + 2 ); // path C:
+            }
+            else
+                tracer.Trace( "  _getcwd failed on win32, error %d\n", errno );
+
+            tracer.Trace( "  getcwd returning '%s'\n", pin );
+#else
+            pout = cpu.host_to_vm_address( getcwd( pin, size ) );
+#endif
+            if ( pout )
+                update_a0_errno( cpu, original );
+            else
+                update_a0_errno( cpu, errno );
+            break;
+        }
         case SYS_clock_nanosleep:
         {
             clockid_t clockid = cpu.regs[ RiscV::a0 ];
@@ -640,12 +778,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             update_a0_errno( cpu, 0 );
             break;
         }
-        case SYS_fstat:
+        case SYS_newfstat:
         {
-            tracer.Trace( "  rvos command SYS_fstat\n" );
+            tracer.Trace( "  rvos command SYS_newfstat\n" );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
 #if 0
-#ifdef _MSC_VER
+#ifdef _WIN32
             // ignore the folder argument on Windows
             struct _stat64 local_stat = {0};
             fill_pstat_windows( descriptor, & local_stat );
@@ -701,6 +839,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 int r = ConsoleConfiguration::portable_getch();
                 * (char *) buffer = r;
                 cpu.regs[ RiscV::a0 ] = 1;
+                tracer.Trace( "  getch read character %u == '%c'\n", r, r );
                 break;
             }
 
@@ -726,6 +865,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 if ( 1 == descriptor || 2 == descriptor ) // stdout / stderr
                     tracer.Trace( "  writing '%.*s'\n", (int) count, p );
 
+                tracer.TraceBinaryData(  p, count, 4 );
                 size_t written = write( descriptor, p, (int) count );
                 update_a0_errno( cpu, written );
             }
@@ -743,7 +883,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
-#ifdef _MSC_VER
+#ifdef _WIN32
             flags = windows_translate_flags( flags );
 #endif
 
@@ -764,9 +904,119 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
             else
             {
-                int result = close( descriptor );
+                int result = 0;
+                if ( findFirstDescriptor == descriptor )
+                {
+                    if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+                    {
+                        FindClose( g_hFindFirst );
+                        g_hFindFirst = INVALID_HANDLE_VALUE;
+                        g_acFindFirstPattern[ 0 ] = 0;
+                    }
+                }
+                else
+                    result = close( descriptor );
                 update_a0_errno( cpu, result );
             }
+            break;
+        }
+        case SYS_getdents64:
+        {
+#ifdef _WIN32
+            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
+            if ( ( findFirstDescriptor != descriptor ) || ( 0 == g_acFindFirstPattern[ 0 ] ) )
+            {
+                tracer.Trace( "  getdents on unexpected descriptor or FindFirst (%p) not open\n", g_hFindFirst );
+                errno = EBADF;
+                update_a0_errno( cpu, -1 );
+                break;
+            }
+
+            uint8_t * pentries = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            uint64_t count = cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  pentries: %p, count %llu\n", pentries, count );
+            memset( pentries, 0, count );
+            struct linux_dirent64_syscall * pcur = (struct linux_dirent64_syscall *) pentries;
+            int64_t result = 0;
+            WIN32_FIND_DATAA fd = {0};
+
+            if ( INVALID_HANDLE_VALUE == g_hFindFirst )
+            {
+                g_hFindFirst = FindFirstFileA( g_acFindFirstPattern, &fd );
+                if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+                {
+                    tracer.Trace( "  successfully opened FindFirst for pattern '%s'\n", g_acFindFirstPattern );
+
+                    size_t len = strlen( fd.cFileName );
+                    if ( len > ( count - sizeof( struct linux_dirent64_syscall ) ) )
+                    {
+                        errno = ENOENT;
+                        result = -1;
+                    }
+                    else
+                    {
+                        pcur->d_ino = 100; // fake
+                        tracer.Trace( "  len: %zd, sizeof struct %zd\n", len, sizeof( struct linux_dirent64_syscall ) );
+                        size_t dname_off = offsetof( struct linux_dirent64_syscall, d_name );
+                        pcur->d_reclen = dname_off + len + 1;
+                        pcur->d_off = pcur->d_reclen;
+                        strcpy( pcur->d_name, fd.cFileName );
+                        if ( FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes )
+                            pcur->d_type = 4;
+                        else
+                            pcur->d_type = 8;
+                        tracer.Trace( "  wrote '%s' into the entry. d_reclen %d, d_off %d\n", pcur->d_name, pcur->d_reclen, pcur->d_off );
+                        result = pcur->d_reclen;
+                    }
+                }
+                else
+                {
+                    errno = ENOENT;
+                    result = -1;
+                }
+            }
+            else
+            {
+                // find next here
+
+                BOOL found = FindNextFileA( g_hFindFirst, &fd );
+                if ( found )
+                {
+                    size_t len = strlen( fd.cFileName );
+                    if ( len > ( count - sizeof( struct linux_dirent64_syscall ) ) )
+                    {
+                        errno = ENOENT;
+                        result = -1;
+                    }
+                    else
+                    {
+                        pcur->d_ino = 100; // fake
+                        tracer.Trace( "  len: %zd, sizeof struct %zd\n", len, sizeof( struct linux_dirent64_syscall ) );
+                        size_t dname_off = offsetof( struct linux_dirent64_syscall, d_name );
+                        pcur->d_reclen = dname_off + len + 1;
+                        pcur->d_off = pcur->d_reclen;
+                        strcpy( pcur->d_name, fd.cFileName );
+                        if ( FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes )
+                            pcur->d_type = 4;
+                        else
+                            pcur->d_type = 8;
+                        tracer.Trace( "  wrote '%s' into the entry. d_reclen %d, d_off %d\n", pcur->d_name, pcur->d_reclen, pcur->d_off );
+                        result = pcur->d_reclen;
+                    }
+                }
+                else
+                {
+                    tracer.Trace( "  out of next files\n" );
+                    FindClose( g_hFindFirst );
+                    g_hFindFirst = INVALID_HANDLE_VALUE;
+                    g_acFindFirstPattern[ 0 ] = 0;
+                    result = 0; // nothing left
+                }
+            }
+#else
+            result = 0;
+#endif
+            update_a0_errno( cpu, result );
             break;
         }
         case SYS_brk:
@@ -845,23 +1095,41 @@ void riscv_invoke_ecall( RiscV & cpu )
             const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             int flags = (int) cpu.regs[ RiscV::a2 ];
             int mode = (int) cpu.regs[ RiscV::a3 ];
+            int64_t descriptor = 0;
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
 
-#ifdef _MSC_VER
+#ifdef _WIN32
             flags = windows_translate_flags( flags );
 
-            // bugbug: directory ignored and assumed to be local
-            int descriptor = open( pname, flags, mode );
+            // bugbug: directory ignored and assumed to be local (-100)
+
+            strcpy( acPath, pname );
+            slash_to_backslash( acPath );
+
+            DWORD attr = GetFileAttributesA( acPath );
+            if ( ( INVALID_FILE_ATTRIBUTES != attr ) && ( attr & FILE_ATTRIBUTE_DIRECTORY ) )
+            {
+                if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+                {
+                    FindClose( g_hFindFirst );
+                    g_hFindFirst = INVALID_HANDLE_VALUE;
+                }
+                strcpy( g_acFindFirstPattern, acPath );
+                strcat( g_acFindFirstPattern, "\\*.*" );
+                descriptor = findFirstDescriptor;
+            }
+            else
+                descriptor = _open( pname, flags, mode );
 #else
-            int descriptor = openat( directory, pname, flags, mode );
+            descriptor = openat( directory, pname, flags, mode );
 #endif
             update_a0_errno( cpu, descriptor );
             break;
         }
         case SYS_sysinfo:
         {
-#if defined(_MSC_VER) || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__)
             errno = EACCES;
             update_a0_errno( cpu, -1 );
 #else
@@ -870,37 +1138,32 @@ void riscv_invoke_ecall( RiscV & cpu )
 #endif
             break;
         }
-        case SYS_newfstat:
+        case SYS_newfstatat:
         {
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            tracer.Trace( "  rvos command SYS_newfstat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
+            tracer.Trace( "  rvos command SYS_newfstatat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
 
              // turn this code off:
              //  1) fields and offsets of kstat, stat, and stat16 differ tremendously even between close builds of g++ for linux.
              //  2) kstat isn't available in normal headers
              //  3) apps seem to run just fine without it
-#if 0
-#ifdef _MSC_VER
+#ifdef _WIN32
             // ignore the folder argument on Windows
-            struct _stat64 local_stat = {0};
-            fill_pstat_windows( descriptor, & local_stat );
-            size_t at_most_copy = get_min( sizeof( struct _stat64 ), (size_t) 128 ); // 128 is sizeof( struct stat ) on RISC-V Linux
-            tracer.Trace( "sizeof _stat64: %zd\n", sizeof( struct _stat64 ) );
-            memset( cpu.getmem( cpu.regs[ RiscV::a1 ] ), 0, 128 );
-            //memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, at_most_copy );
-            tracer.Trace( "file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
-            int result = -1;
+            struct stat_linux_syscall local_stat = {0};
+            fill_pstat_windows( descriptor, & local_stat, path );
+            size_t at_most_copy = sizeof( struct stat_linux_syscall ); // 128 is sizeof( struct stat ) on RISC-V Linux
+            assert( 128 == at_most_copy );
+            tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", sizeof( struct stat_linux_syscall ) );
+            memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, at_most_copy );
+            tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
+            int result = 0;
 #else
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             int result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ]  );
             if ( 0 == result )
-                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
-#endif
-#else
-            int result = -1;
-            errno = EACCES;
+                memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -909,7 +1172,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
             tracer.Trace( "  rvos command SYS_chdir path %s\n", path );
-#ifdef _MSC_VER
+#ifdef _WIN32
             int result = _chdir( path );
 #else
             int result = chdir( path );
@@ -921,7 +1184,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             int directory = (int) cpu.regs[ RiscV::a0 ];
             const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-#ifdef _MSC_VER // on windows ignore the directory and mode arguments
+#ifdef _WIN32 // on windows ignore the directory and mode arguments
             tracer.Trace( "  rvos command SYS_mkdirat path %s\n", path );
             int result = _mkdir( path );
 #else
@@ -938,7 +1201,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             int flags = (int) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x\n", directory, path, flags );
-#ifdef _MSC_VER // on windows ignore the directory and flags arguments
+#ifdef _WIN32 // on windows ignore the directory and flags arguments
             int result = _rmdir( path ); // unlink will fail with error 13 "permission denied", so use rmdir instead
 #else
             int result = unlinkat( directory, path, flags );
@@ -974,7 +1237,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             if ( 1 == descriptor || 2 == descriptor )
                 tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (uint64_t) pvec->iov_base ) );
 
-#ifdef _MSC_VER
+#ifdef _WIN32
             size_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), (unsigned) pvec->iov_len );
 #else
             struct iovec vec_local;
@@ -996,7 +1259,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     cid = CLOCK_REALTIME;
             #endif
 
-#ifdef _MSC_VER
+#ifdef _WIN32
             int result = msc_clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
 #else
             int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
@@ -1022,6 +1285,11 @@ void riscv_invoke_ecall( RiscV & cpu )
             update_a0_errno( cpu, -1 );
             break;
         }
+        case SYS_prctl:
+        {
+            update_a0_errno( cpu, 0 );
+            break;
+        }
         case SYS_getpid:
         {
             cpu.regs[ RiscV::a0 ] = getpid();
@@ -1040,7 +1308,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             const char * newpath = (const char *) cpu.getmem( cpu.regs[ RiscV::a3 ] );
             unsigned int flags = (unsigned int) cpu.regs[ RiscV::a4 ];
             tracer.Trace( "  renaming '%s' to '%s'\n", oldpath, newpath );
-#ifdef _MSC_VER
+#ifdef _WIN32
             int result = rename( oldpath, newpath );
 #else
             int result = renameat2( olddirfd, oldpath, newdirfd, newpath, flags );
@@ -1055,7 +1323,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             unsigned int flags = (unsigned int) cpu.regs[ RiscV::a2 ];
             ssize_t result = 0;
 
-#if defined(_MSC_VER) || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__)
             int * pbuf = (int *) buf;
             size_t count = buflen / sizeof( int );
             for ( size_t i = 0; i < count; i++ )
@@ -1093,9 +1361,29 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             break;
         }
+        case SYS_readlinkat:
+        {
+            int dirfd = (int) cpu.regs[ RiscV::a0 ];
+            const char * pathname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            char * buf = (char *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+            size_t bufsiz = (size_t) cpu.regs[ RiscV::a3 ];
+            tracer.Trace( "  readlinkat pathname %p == '%s', buf %p, bufsiz %zd, dirfd %d\n", pathname, pathname, buf, bufsiz, dirfd );
+            size_t result = -1;
+
+#ifdef _WIN32
+            errno = EINVAL; // no symbolic links on Windows as far as this emulator is concerned
+            result = -1;
+#else
+            result = readlinkat( dirfd, pathname, buf, bufsiz );
+            tracer.Trace( "  result of readlinkat(): %d\n", result );
+#endif
+
+            update_a0_errno( cpu, result );
+            break;
+        }
         case SYS_ioctl:
         {
-#ifndef _MSC_VER // kbhit() works without all this fuss on Windows
+#ifndef _WIN32 // kbhit() works without all this fuss on Windows
             int fd = (int) cpu.regs[ RiscV::a0 ];
             unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
@@ -1131,7 +1419,6 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_set_tid_address:
         case SYS_set_robust_list:
         case SYS_prlimit64:
-        case SYS_readlinkat:
         case SYS_mprotect:
             // ignore for now
             break;
@@ -1245,16 +1532,6 @@ int symbol_compare( const void * a, const void * b )
         return 0;
     return -1;
 } //symbol_compare
-
-void backslash_to_slash( char * p )
-{
-    while ( *p )
-    {
-        if ( '\\' == *p )
-            *p = '/';
-        p++;
-    }
-} //backslash_to_slash
 
 bool load_image( const char * pimage, const char * app_args )
 {
@@ -1892,7 +2169,7 @@ int main( int argc, char * argv[] )
         cpu->trace_instructions( traceInstructions );
         uint64_t cycles = 0;
 
-        #ifdef _MSC_VER
+        #ifdef _WIN32
             g_tAppStart = high_resolution_clock::now();
         #endif
 

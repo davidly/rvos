@@ -12,20 +12,22 @@
 // https://marcin.juszkiewicz.com.pl/download/tables/syscalls.html
 // https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/arch/s390/kernel/syscalls/syscall.tbl
 
+#define SYS_getcwd 17
 #define SYS_ioctl 29
 #define SYS_mkdirat 34
 #define SYS_unlinkat 35
 #define SYS_chdir 49
 #define SYS_openat 56
 #define SYS_close 57
+#define SYS_getdents64 61
 #define SYS_lseek 62
 #define SYS_read 63
 #define SYS_write 64
 #define SYS_writev 66
 #define SYS_pselect6 72   // or sigsuspend?
 #define SYS_readlinkat 78
-#define SYS_newfstat 79
-#define SYS_fstat 80
+#define SYS_newfstatat 79
+#define SYS_newfstat 80
 #define SYS_fdatasync 83
 #define SYS_exit 93
 #define SYS_exit_group 94
@@ -37,6 +39,7 @@
 #define SYS_tgkill 131
 #define SYS_sigaction 134
 #define SYS_rt_sigprocmask 135
+#define SYS_prctl 167
 #define SYS_gettimeofday 169
 #define SYS_getpid 172
 #define SYS_gettid 178

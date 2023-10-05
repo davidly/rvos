@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 
     #ifndef UNICODE
         #define UNICODE
@@ -18,6 +18,7 @@
     #include <conio.h>
     #include <direct.h>
     #include <intrin.h>
+    #include <io.h>
 
     #define not_inlined __declspec(noinline)
     #define force_inlined __forceinline
@@ -91,6 +92,8 @@
         return s;
     } //strlwr
 
+    inline uint64_t _abs64( int64_t x ) { return ( x > 0 ) ? x : -x; }
+
     inline char * _strlwr( char * s ) { return strlwr( s ); }
 
     inline void sleep_ms( uint64_t ms )
@@ -145,7 +148,7 @@ inline const char * target_platform()
         return "amd64";
     #elif defined( _M_ARM64 )     // msft on Windows
         return "arm64";
-    #elif defined( _MSC_VER )     // msft on Windows 32-bit
+    #elif defined( _WIN32 )     // msft on Windows 32-bit
         return "x86";
     #else
         return "(other)";
@@ -167,8 +170,8 @@ inline const char * compiler_used()
 
     #if defined( __GNUC__ )
         return "g++";
-    #elif defined( _MSC_VER )
-        sprintf( acver, "msft C++ ver %u", _MSC_VER );
+    #elif defined( _WIN32 )
+        sprintf( acver, "msft C++ ver %u", _WIN32 );
         return acver;
     #elif defined( __clang__ )
         return "clang";
@@ -183,7 +186,7 @@ inline const char * build_platform()
         return "apple";
     #elif defined( __linux )
         return "linux";
-    #elif defined( _MSC_VER )
+    #elif defined( _WIN32 )
         return "windows";
     #else
         return "unknown";
@@ -192,8 +195,13 @@ inline const char * build_platform()
 
 inline const char * build_string()
 {
-    static char bs[ 100 ];
-    sprintf( bs, "built for %s %s on %s %s by %s on %s\n", target_platform(), build_type(), __DATE__, __TIME__, compiler_used(), build_platform() );
+    static char bs[ 320 ];
+    sprintf( bs, "Copyright(C) DJL %s\n"\
+                 "License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.\n"\
+                 "This is free software: you are free to change and redistribute it.\n"\
+                 "There is NO WARRANTY, to the extent permitted by law.\n"\
+                 "Built for %s %s on %c %c%c%c %s %s by %s on %s\n", &__DATE__[7] ,target_platform(), build_type(),\
+                  __DATE__[5],__DATE__[0], __DATE__[1], __DATE__[2], &__DATE__[9], __TIME__, compiler_used(), build_platform() );
     return bs;
 } //build_string
 
@@ -205,6 +213,14 @@ inline const char * build_string()
     #define assume_false_return __assume( false )
 #endif
 
+inline long portable_filelen( int descriptor )
+{
+    long current = lseek( descriptor, 0, SEEK_CUR );
+    long len = lseek( descriptor, 0, SEEK_END );
+    lseek( descriptor, current, SEEK_SET );
+    return len;
+} //portable_filelen
+
 inline long portable_filelen( FILE * fp )
 {
     long current = ftell( fp );
@@ -214,4 +230,15 @@ inline long portable_filelen( FILE * fp )
     return len;
 } //portable_filelen
 
+inline long portable_filelen( const char * p )
+{
+    FILE * fp = fopen( p, "r" );
+    if ( 0 != fp )
+    {
+        long len = portable_filelen( fp );
+        fclose( fp );
+        return len;
+    }
 
+    return 0;
+} //portable_filelen
