@@ -926,6 +926,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_getdents64:
         {
+            int64_t result = 0;
 #ifdef _WIN32
             uint64_t descriptor = cpu.regs[ RiscV::a0 ];
             if ( ( findFirstDescriptor != descriptor ) || ( 0 == g_acFindFirstPattern[ 0 ] ) )
@@ -941,7 +942,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  pentries: %p, count %llu\n", pentries, count );
             memset( pentries, 0, count );
             struct linux_dirent64_syscall * pcur = (struct linux_dirent64_syscall *) pentries;
-            int64_t result = 0;
             WIN32_FIND_DATAA fd = {0};
 
             if ( INVALID_HANDLE_VALUE == g_hFindFirst )
