@@ -685,9 +685,11 @@ void update_a0_errno(  RiscV & cpu, int64_t result )
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
+#ifdef _WIN32
     static HANDLE g_hFindFirst = INVALID_HANDLE_VALUE; // for enumerating directories. Only one can be active at once.
     static char g_acFindFirstPattern[ MAX_PATH ];
     char acPath[ MAX_PATH ];
+#endif
 
     // Linux syscalls support up to 6 arguments
 
@@ -905,6 +907,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             else
             {
                 int result = 0;
+#ifdef _WIN32
                 if ( findFirstDescriptor == descriptor )
                 {
                     if ( INVALID_HANDLE_VALUE != g_hFindFirst )
@@ -915,6 +918,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     }
                 }
                 else
+#endif
                     result = close( descriptor );
                 update_a0_errno( cpu, result );
             }
