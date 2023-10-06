@@ -74,7 +74,7 @@ using namespace std::chrono;
 CDJLTrace tracer;
 ConsoleConfiguration g_consoleConfig;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
-const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments
+const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments and environment variables
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
 uint64_t g_brk_commit = 10 * 1024 * 1024;      // RAM to reserve if the app calls brk to allocate space. 10 meg default
 bool g_terminate = false;                      // has the app asked to shut down?
@@ -696,8 +696,10 @@ void riscv_invoke_ecall( RiscV & cpu )
     static char g_acFindFirstPattern[ MAX_PATH ];
     char acPath[ MAX_PATH ];
 #else
-    static DIR * g_FindFirst = 0;
-    static uint64_t g_FindFirstDescriptor = -1;
+    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
+        static DIR * g_FindFirst = 0;
+        static uint64_t g_FindFirstDescriptor = -1;
+    #endif
 #endif
 
     // Linux syscalls support up to 6 arguments
@@ -764,7 +766,9 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             tracer.Trace( "  getcwd returning '%s'\n", pin );
 #else
+    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
             pout = cpu.host_to_vm_address( getcwd( pin, size ) );
+    #endif
 #endif
             if ( pout )
                 update_a0_errno( cpu, original );
@@ -928,6 +932,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 }
                 else
 #else
+    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
                 if ( g_FindFirstDescriptor == descriptor )
                 {
                     if ( 0 != g_FindFirst )
@@ -937,6 +942,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     }
                     g_FindFirstDescriptor = -1;
                 }
+    #endif
 #endif
                 result = close( descriptor );
                 update_a0_errno( cpu, result );
@@ -1039,6 +1045,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 }
             }
 #else
+    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
             tracer.Trace( "  g_FindFirstDescriptor: %d, g_FindFirst: %p\n", g_FindFirstDescriptor, g_FindFirst );
 
             if ( -1 == g_FindFirstDescriptor )
@@ -1092,6 +1099,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  readdir return 0, so there are no more files in the enumeration\n" );
                 result = 0;
             }
+    #endif
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -1222,18 +1230,14 @@ void riscv_invoke_ecall( RiscV & cpu )
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
             int result = 0;
 
-             // turn this code off:
-             //  1) fields and offsets of kstat, stat, and stat16 differ tremendously even between close builds of g++ for linux.
-             //  2) kstat isn't available in normal headers
-             //  3) apps seem to run just fine without it
 #ifdef _WIN32
             // ignore the folder argument on Windows
             struct stat_linux_syscall local_stat = {0};
             fill_pstat_windows( descriptor, & local_stat, path );
-            size_t at_most_copy = sizeof( struct stat_linux_syscall ); // 128 is sizeof( struct stat ) on RISC-V Linux
-            assert( 128 == at_most_copy );
-            tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", sizeof( struct stat_linux_syscall ) );
-            memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, at_most_copy );
+            size_t cbStat = sizeof( struct stat_linux_syscall );
+            tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
+            assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
+            memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, cbStat );
             tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
 #else
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
@@ -1242,6 +1246,8 @@ void riscv_invoke_ecall( RiscV & cpu )
             result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ] );
             if ( 0 == result )
             {
+                // the syscall version of stat has similar fields but a different layout, so copy fields one by one
+
                 struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
                 pout->st_dev = local_stat.st_dev;
                 pout->st_ino = local_stat.st_ino;
@@ -1822,7 +1828,7 @@ bool load_image( const char * pimage, const char * app_args )
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
 
-    // find errno if it exists (only works with older C runtimes that use a global variable)
+    // Find the "tracenow" variable in the app, which can be used to dynamically control instruction tracing
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
@@ -1859,7 +1865,7 @@ bool load_image( const char * pimage, const char * app_args )
 
     uint64_t * parg_data = (uint64_t *) ( memory.data() + arg_data );
     const uint32_t max_args = 40;
-    char * buffer_args = ( char *) & ( parg_data[ max_args ] );
+    char * buffer_args = (char *) & ( parg_data[ max_args ] );
     size_t image_len = strlen( pimage );
     vector<char> full_command( 2 + image_len + strlen( app_args ) );
     strcpy( full_command.data(), pimage );
@@ -1869,6 +1875,7 @@ bool load_image( const char * pimage, const char * app_args )
 
     strcpy( buffer_args, full_command.data() );
     char * pargs = buffer_args;
+    size_t args_len = strlen( buffer_args );
 
     uint64_t app_argc = 0;
     while ( *pargs && app_argc < max_args )
@@ -1891,6 +1898,13 @@ bool load_image( const char * pimage, const char * app_args )
             pargs++;
     }
 
+    uint64_t env_offset = args_len + 1;
+    char * penv_data = (char *) ( buffer_args + env_offset );
+    strcpy( penv_data, "OS=RVOS" );
+    tracer.Trace( "args_len %d, penv_data %p\n", args_len, penv_data );
+    tracer.Trace( "env data block: at vm address %llx\n", ( penv_data - (char *) memory.data() ) + g_base_address );
+    tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data ), g_args_commit + 0x20, 4 );
+
     // put the Linux startup info at the top of the stack. this consists of (from high to low):
     //   two 8-byte random numbers used for stack and pointer guards
     //   optional filler to make sure alignment of all startup info is 16 bytes
@@ -1912,7 +1926,7 @@ bool load_image( const char * pimage, const char * app_args )
 
     // ensure that after all of this the stack is 16-byte aligned
 
-    if ( 0 == ( 1 & app_argc ) )
+    if ( 1 == ( 1 & app_argc ) )
         pstack--;
 
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
@@ -1922,7 +1936,12 @@ bool load_image( const char * pimage, const char * app_args )
     paux->a_type = 25; // AT_RANDOM
     paux->a_un.a_val = prandom;
 
-    pstack--; // no environment is supported yet
+    pstack--; // end of environment data is 0
+
+    pstack--; // move to where the one environment variable is set OS=RVOS
+    *pstack = (uint64_t) ( env_offset + arg_data + g_base_address + max_args * sizeof( uint64_t ) );
+    tracer.Trace( "the OS environment argument is at VM address %llx\n", *pstack );
+
     pstack--; // the last argv is 0 to indicate the end
 
     for ( int iarg = (int) app_argc - 1; iarg >= 0; iarg-- )
@@ -1933,6 +1952,9 @@ bool load_image( const char * pimage, const char * app_args )
 
     pstack--;
     *pstack = app_argc;
+
+    tracer.Trace( "stack at start (beginning with argc):\n" );
+    tracer.TraceBinaryData( (uint8_t *) pstack, 0x100, 2 );
 
     uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
     g_top_of_stack = g_base_address + memory_size - diff;

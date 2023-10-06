@@ -11,10 +11,14 @@
 _start:
         .cfi_startproc
 
-        # arguments are up the stack just like Linux
+        # arguments are up the stack just like Linux. Initialize a0 = argc, a1 = argv, a2 = penv
 
         ld      a0, 0(sp)
         addi    a1, sp, 8
+        addi    s0, a0, 1      # argc + 1 for the 0 termination record
+        addi    s1, zero, 8
+        mul     s0, s0, s1
+        add     a2, a1, s0
 
         jal     main
 
