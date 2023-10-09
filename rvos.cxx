@@ -102,6 +102,11 @@ struct linux_dirent64_syscall {
     */
 };
 
+struct timespec_syscall {
+    uint64_t tv_sec;
+    uint64_t tv_nsec;
+};
+
 struct stat_linux_syscall {
     /*
         struct stat info run on a 64-bit RISC-V system
@@ -500,7 +505,7 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
             tracer.Trace( "  result of GetFileAttributesEx on '%s': %d\n", ac, ok );
         }
 
-        if ( !ok && ( -100 == descriptor ) )
+        if ( !ok && ( descriptor < 0 ) )
         {
             errno = 2; // not found;
             return -1;
@@ -513,7 +518,7 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
 
         pstat->st_rdev = 4096; // this is st_blksize on linux
 
-        if ( !ok && ( -100 != descriptor ) )
+        if ( !ok && ( descriptor > 0 ) )
             data.nFileSizeLow = portable_filelen( descriptor );
 
         pstat->st_size = data.nFileSizeLow;
@@ -558,25 +563,25 @@ const char * get_clockid( clockid_t clockid )
 
 high_resolution_clock::time_point g_tAppStart;
 
-int msc_clock_gettime( clockid_t clockid, struct timespec * tv )
+int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
 {
     tracer.Trace( "  msc_clock_gettime, clockid %d == %s\n", clockid, get_clockid( clockid ) );
+    uint64_t diff = 0;
 
     if ( CLOCK_REALTIME == clockid || CLOCK_REALTIME_COARSE == clockid )
     {
         system_clock::duration d = system_clock::now().time_since_epoch();
-        uint64_t diff = duration_cast<nanoseconds>( d ).count();
-        tv->tv_sec = diff / 1000000000UL;
-        tv->tv_nsec = diff % 1000000000UL;
+        diff = duration_cast<nanoseconds>( d ).count();
     }
     else if ( CLOCK_MONOTONIC == clockid || CLOCK_MONOTONIC_COARSE == clockid || CLOCK_MONOTONIC_RAW == clockid ||
               CLOCK_PROCESS_CPUTIME_ID == clockid || CLOCK_THREAD_CPUTIME_ID == clockid )
     {
         high_resolution_clock::time_point tNow = high_resolution_clock::now();
-        uint64_t diff = duration_cast<std::chrono::nanoseconds>( tNow - g_tAppStart ).count();
-        tv->tv_sec = diff / 1000000000UL;
-        tv->tv_nsec = diff % 1000000000UL;
+        diff = duration_cast<std::chrono::nanoseconds>( tNow - g_tAppStart ).count();
     }
+
+    tv->tv_sec = diff / 1000000000ULL;
+    tv->tv_nsec = diff % 1000000000ULL;
 
     return 0;
 } //msc_clock_gettime
@@ -1381,9 +1386,9 @@ void riscv_invoke_ecall( RiscV & cpu )
             #endif
 
 #ifdef _WIN32
-            int result = msc_clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = msc_clock_gettime( cid, (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
 #else
-            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = clock_gettime( cid, (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
 #endif
             update_a0_errno( cpu, result );
             break;
