@@ -466,7 +466,7 @@ int windows_translate_flags( int flags )
     return flags;
 } //windows_translate_flags
 
-void fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
+int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
 {
     char ac[ MAX_PATH ];
     strcpy( ac, path );
@@ -500,6 +500,12 @@ void fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, cons
             tracer.Trace( "  result of GetFileAttributesEx on '%s': %d\n", ac, ok );
         }
 
+        if ( !ok && ( -100 == descriptor ) )
+        {
+            errno = 2; // not found;
+            return -1;
+        }
+
         if ( ok && ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
             pstat->st_mode = S_IFDIR;
         else
@@ -507,11 +513,13 @@ void fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, cons
 
         pstat->st_rdev = 4096; // this is st_blksize on linux
 
-        if ( !ok )
+        if ( !ok && ( -100 != descriptor ) )
             data.nFileSizeLow = portable_filelen( descriptor );
 
         pstat->st_size = data.nFileSizeLow;
     }
+
+    return 0;
 } //fill_pstat_windows
 
 // taken from gnu's time.h.
@@ -851,7 +859,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             if ( 0 == descriptor && 1 == buffer_size )
             {
-                int r = ConsoleConfiguration::portable_getch();
+                int r = g_consoleConfig.linux_getch();
                 * (char *) buffer = r;
                 cpu.regs[ RiscV::a0 ] = 1;
                 tracer.Trace( "  getch read character %u == '%c'\n", r, r );
@@ -1233,12 +1241,17 @@ void riscv_invoke_ecall( RiscV & cpu )
 #ifdef _WIN32
             // ignore the folder argument on Windows
             struct stat_linux_syscall local_stat = {0};
-            fill_pstat_windows( descriptor, & local_stat, path );
-            size_t cbStat = sizeof( struct stat_linux_syscall );
-            tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
-            assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
-            memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, cbStat );
-            tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( local_stat, st_size ) );
+            result = fill_pstat_windows( descriptor, & local_stat, path );
+            if ( 0 == result )
+            {
+                size_t cbStat = sizeof( struct stat_linux_syscall );
+                tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
+                assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
+                memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, cbStat );
+                tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( struct stat_linux_syscall, st_size ) );
+            }
+            else
+                tracer.Trace( "  fill_pstat_windows failed\n" );
 #else
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
@@ -1302,7 +1315,15 @@ void riscv_invoke_ecall( RiscV & cpu )
             int flags = (int) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x\n", directory, path, flags );
 #ifdef _WIN32 // on windows ignore the directory and flags arguments
-            int result = _rmdir( path ); // unlink will fail with error 13 "permission denied", so use rmdir instead
+            DWORD attr = GetFileAttributesA( path );
+            int result = 0;
+            if ( INVALID_FILE_ATTRIBUTES != result )
+            {
+                if ( attr & FILE_ATTRIBUTE_DIRECTORY )
+                    result = _rmdir( path ); // unlink will fail with error 13 "permission denied", so use rmdir instead
+                else
+                    result = remove( path );
+            }
 #else
             int result = unlinkat( directory, path, flags );
 #endif
@@ -1449,7 +1470,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 // check to see if stdin has a keystroke available
 
-                cpu.regs[ RiscV::a0 ] = ConsoleConfiguration::portable_kbhit();
+                cpu.regs[ RiscV::a0 ] = g_consoleConfig.portable_kbhit();
                 tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ RiscV::a0 ] );
             }
             else
