@@ -864,7 +864,11 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             if ( 0 == descriptor && 1 == buffer_size )
             {
+#ifdef _WIN32
                 int r = g_consoleConfig.linux_getch();
+#else
+                int r = g_consoleConfig.portable_getch();
+#endif
                 * (char *) buffer = r;
                 cpu.regs[ RiscV::a0 ] = 1;
                 tracer.Trace( "  getch read character %u == '%c'\n", r, r );
@@ -1388,7 +1392,7 @@ void riscv_invoke_ecall( RiscV & cpu )
 #ifdef _WIN32
             int result = msc_clock_gettime( cid, (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
 #else
-            int result = clock_gettime( cid, (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
 #endif
             update_a0_errno( cpu, result );
             break;
