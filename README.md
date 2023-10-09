@@ -29,7 +29,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * The environment variable "OS=RVOS" is set for apps running in the emulator.
     * Tested with the 6502 / Apple 1 emulator in my ntvao repo built for RISC-V.
     * Tested with the Z80 / CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
-    * Tested with the 8086 / DOS emulator in my ntvdm repo built for RISC-V (for character-mode only apps).
+    * Tested with the 8086 / DOS emulator in my ntvdm repo built for RISC-V (for character-mode apps).
 
 * Files:
     * riscv.?xx       Emulates a RISC-V processor in M mode.
