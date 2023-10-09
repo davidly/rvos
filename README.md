@@ -26,9 +26,10 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld or the g++ command-line.
     * Gnu CC torture execution tests were run on the emulator.
-    * Tested with the Apple 1 emulator in my ntvao repo built for RISC-V.
-    * Tested with the CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
-    * Tested with the DOS emulator in my ntvdm repo built for RISC-V (for character-mode only apps).
+    * The environment variable "OS=RVOS" is set for apps running in the emulator.
+    * Tested with the 6502 / Apple 1 emulator in my ntvao repo built for RISC-V.
+    * Tested with the Z80 / CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
+    * Tested with the 8086 / DOS emulator in my ntvdm repo built for RISC-V (for character-mode only apps).
 
 * Files:
     * riscv.?xx       Emulates a RISC-V processor in M mode.
