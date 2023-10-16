@@ -63,6 +63,7 @@
     inline void set_process_affinity( uint64_t processAffinityMask ) {}
     inline int getpid() { return 0; }
     #define _countof( X ) ( sizeof( X ) / sizeof( X[0] ) )
+    inline void swap( uint8_t & a, uint8_t & b ) { uint8_t c = a; a = b; b = c; }
 
 #else // Linux, MacOS, etc.
 
@@ -186,8 +187,10 @@ inline const char * target_platform()
         return "amd64";
     #elif defined( _M_ARM64 )     // msft on Windows
         return "arm64";
-    #elif defined( _WIN32 )     // msft on Windows 32-bit
+    #elif defined( _WIN32 )       // msft on Windows 32-bit
         return "x86";
+    #elif defined( _M_IX86 )      // WATCOM for 8086
+        return "8086";
     #else
         return "(other)";
     #endif
@@ -213,6 +216,8 @@ inline const char * compiler_used()
         return acver;
     #elif defined( __clang__ )
         return "clang";
+    #elif defined( WATCOM )
+        return "watcom";
     #else
         return "unknown";
     #endif
@@ -225,6 +230,8 @@ inline const char * build_platform()
     #elif defined( __linux )
         return "linux";
     #elif defined( _WIN32 )
+        return "windows";
+    #elif defined( WATCOM )
         return "windows";
     #else
         return "unknown";
@@ -246,6 +253,9 @@ inline const char * build_string()
 #if defined( __GNUC__ ) || defined( __clang__ )
     #define assume_false return( 0 )   // clearly terrible, but this code will never execute. ever.
     #define assume_false_return return // clearly terrible, but this code will never execute. ever.
+#elif defined( WATCOM )
+    #define assume_false return( 0 )   // clearly terrible, but this code will never execute. ever.
+    #define __assume( x )
 #else
     #define assume_false __assume( false )
     #define assume_false_return __assume( false )
@@ -253,9 +263,15 @@ inline const char * build_string()
 
 inline long portable_filelen( int descriptor )
 {
+#ifdef _WIN32
+    long current = _lseek( descriptor, 0, SEEK_CUR );
+    long len = _lseek( descriptor, 0, SEEK_END );
+    _lseek( descriptor, current, SEEK_SET );
+#else
     long current = lseek( descriptor, 0, SEEK_CUR );
     long len = lseek( descriptor, 0, SEEK_END );
     lseek( descriptor, current, SEEK_SET );
+#endif
     return len;
 } //portable_filelen
 

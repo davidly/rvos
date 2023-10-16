@@ -1,8 +1,8 @@
 /*
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
-    Only a subset of instructions are implemented (enough to to run my test apps).
-    I tested with a variety of C apps compiled with g++
+    The core set of instructions plus floating point are implemented.
+    I tested with a variety of C and C++ apps compiled with g++
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 processor on my AMD 5950x machine.
 
@@ -328,20 +328,8 @@ uint32_t RiscV::uncompress_rvc( uint32_t x )
                     op32 = compose_I( 0, p_rs1rd, p_rs1rd, p_imm, 4 );
                     break;
                 }
-                case 1: // jal + c.addiw
+                case 1: // c.addiw
                 {
-                    /*  // how do I tell if it's addiw or jal?
-                        //     12   11  10    8    7   6   5    2
-                        // imm[11 | 4 | 9:8 | 10 | 6 | 7 | 3:1 |5]
-    
-                        uint32_t offset = ( ( x >> 1 ) & 0x800 ) | ( ( x >> 7 ) & 0x10 ) | ( ( x >> 1 ) & 0x300 ) |
-                                          ( ( x << 2 ) & 0x400 ) | ( ( x >> 1 ) & 0x40 ) | ( ( x << 1 ) & 0x80 ) |
-                                          ( ( x >> 2 ) & 0xe )   | ( ( x << 3 ) & 0x20 );
-                        tracer.Trace( "offset before sign extend for jal %d, %08x\n", offset, offset );
-                        offset = sign_extend( offset, 12 );
-                        op32 = compose_J( offset, 0x1b );
-                    */
-
                     op32 = compose_I( 0, p_rs1rd, p_rs1rd, p_imm, 6);
                     break;
                 }
@@ -404,48 +392,21 @@ uint32_t RiscV::uncompress_rvc( uint32_t x )
 
                             if ( 0 == bit12 )
                             {
-                                switch( funct6_5 )
-                                {
-                                    case 0: // c.sub
-                                    {
-                                        op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xc );
-                                        break;
-                                    }
-                                    case 1: // c.xor
-                                    {
-                                        op32 = compose_R( 4, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
-                                        break;
-                                    }
-                                    case 2: // c.or
-                                    {
-                                        op32 = compose_R( 6, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
-                                        break;
-                                    }
-                                    case 3: // c.and
-                                    {
-                                        op32 = compose_R( 7, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
-                                        break;
-                                    }
-                                }
+                                if ( 0 == funct6_5 ) // c.sub
+                                    op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                else if ( 1 == funct6_5 ) // c.xor
+                                    op32 = compose_R( 4, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                else if ( 2 == funct6_5 ) // c.or
+                                    op32 = compose_R( 6, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
+                                else if ( 3 == funct6_5 ) // c.and
+                                    op32 = compose_R( 7, 0, p_rs1rd, p_rs1rd, p_rs2, 0xc );
                             }
                             else
                             {
-                                switch( funct6_5 )
-                                {
-                                    case 0: // c.subw
-                                    {
-                                        op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xe );
-                                        break;
-                                    }
-                                    case 1: // c.addw
-                                    {
-                                        op32 = compose_R( 0, 0, p_rs1rd, p_rs1rd, p_rs2, 0xe );
-                                        break;
-                                    }
-                                    case 2: // reserved
-                                    case 3: // reserved
-                                        break;
-                                }
+                                if ( 0 == funct6_5 ) // c.subw
+                                    op32 = compose_R( 0, 0x20, p_rs1rd, p_rs1rd, p_rs2, 0xe );
+                                else if ( 1 == funct6_5 ) // c.addw
+                                    op32 = compose_R( 0, 0, p_rs1rd, p_rs1rd, p_rs2, 0xe );
                             }
                         }
                     }
@@ -503,7 +464,6 @@ uint32_t RiscV::uncompress_rvc( uint32_t x )
                         uint32_t amount = ( ( x >> 7 ) & 0x20 ) | p_rs2;
                         op32 = compose_I( 1, p_rs1rd, p_rs1rd, amount, 4 );
                     }
-
                     break;
                 }
                 case 1: // c.fldsp

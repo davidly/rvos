@@ -2279,6 +2279,7 @@ int main( int argc, char * argv[] )
         else
             printf( "unable to create rvctable.txt\n" );
 
+        g_consoleConfig.RestoreConsole( false );
         return 0;
     }
 
@@ -2305,6 +2306,7 @@ int main( int argc, char * argv[] )
     if ( elfInfo )
     {
         elf_info( acApp );
+        g_consoleConfig.RestoreConsole( false );
         return 0;
     }
 
