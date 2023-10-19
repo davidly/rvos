@@ -1983,8 +1983,9 @@ bool load_image( const char * pimage, const char * app_args )
     pstack--;
     *pstack = app_argc;
 
-    tracer.Trace( "stack at start (beginning with argc):\n" );
-    tracer.TraceBinaryData( (uint8_t *) pstack, 0x80, 2 );
+    uint64_t to_show =  (uint64_t) ( memory.data() + memory_size ) - (uint64_t) pstack;
+    tracer.Trace( "stack at start (beginning with argc) -- %llu bytes:\n", to_show );
+    tracer.TraceBinaryData( (uint8_t *) pstack, to_show, 2 );
 
     uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
     g_top_of_stack = g_base_address + memory_size - diff;

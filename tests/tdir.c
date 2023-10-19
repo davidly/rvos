@@ -7,6 +7,7 @@
 
 int main( int argc, char * argv[] )
 {
+    FILE * fp;
     const char * foldername = "testfolder";
 
     int result = mkdir( foldername, S_IRWXU | S_ISVTX );
@@ -34,6 +35,23 @@ int main( int argc, char * argv[] )
     if ( 0 != result )
     {
         printf( "cd into the test folder failed, error %d\n", errno );
+        exit( 1 );
+    }
+
+    fp = fopen( "a-file.txt", "w+" );
+    if ( !fp )
+    {
+        printf( "creation of a-file.txt in new folder failed, error %d\n", errno );
+        exit( 1 );
+    }
+
+    fprintf( fp, "hello!\n" );
+    fclose( fp );
+
+    result = unlink( "a-file.txt" );
+    if ( 0 != result )
+    {
+        printf( "removal of a-file.txt failed, error %d\n", errno );
         exit( 1 );
     }
 
