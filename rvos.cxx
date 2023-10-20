@@ -1754,11 +1754,15 @@ bool load_image( const char * pimage, const char * app_args )
             exit( 1 );
         }
 
-        memory_size += head.memory_size;
+        uint64_t just_past = head.physical_address + head.memory_size;
+        if ( just_past > memory_size )
+            memory_size = just_past;
 
         if ( ( 0 != head.physical_address ) && ( ( 0 == g_base_address ) || g_base_address > head.physical_address ) )
             g_base_address = head.physical_address;
     }
+
+    tracer.Trace( "memory_size of content to load from elf file: %llx\n", memory_size );
 
     // first load the string table
 
@@ -2106,7 +2110,9 @@ void elf_info( const char * pimage )
         printf( "  memory size: %llx\n", head.memory_size );
         printf( "  alignment: %llx\n", head.alignment );
 
-        memory_size += head.memory_size;
+        uint64_t just_past = head.physical_address + head.memory_size;
+        if ( just_past > memory_size )
+            memory_size = just_past;
 
         if ( 0 != head.physical_address )
         {
