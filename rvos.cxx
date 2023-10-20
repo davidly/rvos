@@ -1762,6 +1762,7 @@ bool load_image( const char * pimage, const char * app_args )
             g_base_address = head.physical_address;
     }
 
+    memory_size -= g_base_address;
     tracer.Trace( "memory_size of content to load from elf file: %llx\n", memory_size );
 
     // first load the string table
@@ -2120,6 +2121,8 @@ void elf_info( const char * pimage )
                 g_base_address = head.physical_address;
         }
     }
+
+    memory_size -= g_base_address;
 
     // first load the string table
 
