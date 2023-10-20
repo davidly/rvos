@@ -351,6 +351,13 @@ struct ElfSectionHeader64
 
 #pragma pack(pop)
 
+char printable( uint8_t x )
+{
+    if ( x < ' ' || x >= 127 )
+        return ' ';
+    return x;
+} //printable
+
 class CFile
 {
     public: 
@@ -478,8 +485,13 @@ int windows_translate_flags( int flags )
 int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
 {
     char ac[ MAX_PATH ];
-    strcpy( ac, path );
-    slash_to_backslash( ac );
+    if ( 0 != path )
+    {
+        strcpy( ac, path );
+        slash_to_backslash( ac );
+    }
+    else
+        ac[ 0 ] = 0;
 
     memset( pstat, 0, sizeof( struct stat_linux_syscall ) );
 
@@ -812,27 +824,56 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_newfstat:
         {
+            // two arguments: descriptor and pointer to the stat buf
             tracer.Trace( "  rvos command SYS_newfstat\n" );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
-#if 0
-#ifdef _WIN32
-            // ignore the folder argument on Windows
-            struct _stat64 local_stat = {0};
-            fill_pstat_windows( descriptor, & local_stat );
-            memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct _stat64 ), (size_t) 128 ) );
-            cpu.regs[ RiscV::a0 ] = 0;
             int result = 0;
-#else
-            tracer.Trace( "  size of struct stat: %zd\n", sizeof( struct stat ) );
-            struct stat local_stat = {0};
-            int result = fstat( descriptor, & local_stat );
+
+#ifdef _WIN32
+            struct stat_linux_syscall local_stat = {0};
+            result = fill_pstat_windows( descriptor, & local_stat, 0 );
             if ( 0 == result )
-                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, get_min( sizeof( struct stat ), (size_t) 128 ) );
-#endif
+            {
+                size_t cbStat = sizeof( struct stat_linux_syscall );
+                tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
+                assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
+                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, cbStat );
+                tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( struct stat_linux_syscall, st_size ) );
+            }
+            else
+            {
+                errno = 2;
+                tracer.Trace( "  fill_pstat_windows failed\n" );
+            }
 #else
-            int result = -1;
-            errno = EACCES;
+            tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
+            struct stat local_stat = {0};
+            struct stat_linux_syscall local_stat_syscall = {0};
+            result = fstat( descriptor, & local_stat );
+            if ( 0 == result )
+            {
+                // the syscall version of stat has similar fields but a different layout, so copy fields one by one
+
+                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+                pout->st_dev = local_stat.st_dev;
+                pout->st_ino = local_stat.st_ino;
+                pout->st_mode = local_stat.st_mode;
+                pout->st_nlink = local_stat.st_nlink;
+                pout->st_uid = local_stat.st_uid;
+                pout->st_gid = local_stat.st_gid;
+                pout->st_rdev = local_stat.st_rdev;
+                pout->st_size = local_stat.st_size;
+                pout->st_blksize = local_stat.st_blksize;
+                pout->st_blocks = local_stat.st_blocks;
+                pout->st_atim = local_stat.st_atim;
+                pout->st_mtim = local_stat.st_mtim;
+                pout->st_ctim = local_stat.st_ctim;
+                tracer.Trace( "  file size %zd, isdir %s\n", local_stat.st_size, S_ISDIR( local_stat.st_mode ) ? "yes" : "no" );
+            }
+            else
+                tracer.Trace( "  fstat failed, error %d\n", errno );
 #endif
+
             update_a0_errno( cpu, result );
             break;
         }
@@ -866,16 +907,18 @@ void riscv_invoke_ecall( RiscV & cpu )
             unsigned buffer_size = (unsigned) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
 
-            if ( 0 == descriptor && 1 == buffer_size )
+            if ( 0 == descriptor ) //&& 1 == buffer_size )
             {
 #ifdef _WIN32
                 int r = g_consoleConfig.linux_getch();
 #else
                 int r = g_consoleConfig.portable_getch();
 #endif
+                //if ( 13 == r )
+                //    r = 10;
                 * (char *) buffer = r;
                 cpu.regs[ RiscV::a0 ] = 1;
-                tracer.Trace( "  getch read character %u == '%c'\n", r, r );
+                tracer.Trace( "  getch read character %u == '%c'\n", r, printable( r ) );
                 break;
             }
             else if ( timebaseFrequencyDescriptor == descriptor && buffer_size >= 8 )
