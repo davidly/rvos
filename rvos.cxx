@@ -88,7 +88,11 @@ uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
+
+// fake descriptors
+
 const uint64_t findFirstDescriptor = 3000;
+const uint64_t timebaseFrequencyDescriptor = 3001;
 
 struct linux_dirent64_syscall {
     uint64_t d_ino;     /* Inode number */
@@ -874,6 +878,13 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  getch read character %u == '%c'\n", r, r );
                 break;
             }
+            else if ( timebaseFrequencyDescriptor == descriptor && buffer_size >= 8 )
+            {
+                uint64_t freq = 1000000000000; // nanoseconds, but the LPi4a is off by 3 orders of magnitude, so I replicate that bug here
+                memcpy( buffer, &freq, 8 );
+                update_a0_errno( cpu, 8 );
+                break;
+            }
 
             int result = read( descriptor, buffer, buffer_size );
             update_a0_errno( cpu, result );
@@ -946,6 +957,11 @@ void riscv_invoke_ecall( RiscV & cpu )
                         g_hFindFirst = INVALID_HANDLE_VALUE;
                         g_acFindFirstPattern[ 0 ] = 0;
                     }
+                }
+                else if ( timebaseFrequencyDescriptor == descriptor )
+                {
+                    update_a0_errno( cpu, 0 );
+                    break;
                 }
                 else
 #else
@@ -1200,6 +1216,13 @@ void riscv_invoke_ecall( RiscV & cpu )
             int64_t descriptor = 0;
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
+
+            if ( !strcmp( pname, "/proc/device-tree/cpus/timebase-frequency" ) )
+            {
+                descriptor = timebaseFrequencyDescriptor;
+                update_a0_errno( cpu, descriptor );
+                break;
+            }
 
 #ifdef _WIN32
             flags = windows_translate_flags( flags );
