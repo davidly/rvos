@@ -511,6 +511,11 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
         pstat->st_mode = S_IFDIR;
         pstat->st_rdev = 4096; // this is st_blksize on linux
     }
+    else if ( timebaseFrequencyDescriptor == descriptor )
+    {
+        pstat->st_mode = S_IFREG;
+        pstat->st_rdev = 4096; // this is st_blksize on linux
+    }
     else
     {
         WIN32_FILE_ATTRIBUTE_DATA data = {0};

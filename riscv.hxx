@@ -45,7 +45,19 @@ struct RiscV
     static const size_t a6 = 16;
     static const size_t a7 = 17;
     static const size_t s2 = 18;
+    static const size_t s3 = 19;
+    static const size_t s4 = 20;
+    static const size_t s5 = 21;
+    static const size_t s6 = 22;
+    static const size_t s7 = 23;
+    static const size_t s8 = 24;
+    static const size_t s9 = 25;
+    static const size_t s10 = 26;
     static const size_t s11 = 27;
+    static const size_t t3 = 28;
+    static const size_t t4 = 29;
+    static const size_t t5 = 30;
+    static const size_t t6 = 31;
 
     bool trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
