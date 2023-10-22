@@ -1,8 +1,8 @@
 /*
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
-    The core set of instructions plus floating point are implemented.
-    I tested with a variety of C and C++ apps compiled with g++
+    The core set of instructions "rv64imadfc" are implemented: integer, multiply/divide, atomic, double, float, compressed
+    I tested with a variety of C and C++ apps compiled with four different versions of g++ (each exposed different bugs)
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 processor on my AMD 5950x machine.
 
@@ -607,8 +607,8 @@ void RiscV::trace_state()
     else
         previous_symbol = symbol_name;
 
-    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx %s ra %llx sp %llx t %2llx %c => ",
-                  pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], acExtra,
+    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx a5 %llx gp %llx %s ra %llx sp %llx t %2llx %c => ",
+                  pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], regs[ a5 ], regs[ gp ], acExtra,
                   regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
     switch ( optype )
