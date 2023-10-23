@@ -1458,6 +1458,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             struct iovec vec_local;
             vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
             vec_local.iov_len = pvec->iov_len;
+            tracer.Trace( "  write length: %u to descriptor %d at addr %p\n", pvec->iov_len, descriptor, vec_local.iov_base );
             size_t result = writev( descriptor, &vec_local, cpu.regs[ RiscV::a2 ] );
 #endif
             update_a0_errno( cpu, result );
@@ -1615,7 +1616,14 @@ void riscv_invoke_ecall( RiscV & cpu )
                     tcgetattr( 0, &val );
                     struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
                     tracer.Trace( "termios pointer: %p\n", pt );
-                    memcpy( pt, &val, sizeof( struct local_kernel_termios ) );
+                    pt->c_iflag = val.c_iflag;
+                    pt->c_oflag = val.c_oflag;
+                    pt->c_cflag = val.c_cflag;
+                    pt->c_lflag = val.c_lflag;
+#ifndef __APPLE__
+                    pt->c_line = val.c_line;
+#endif
+                    memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
                     tracer.Trace( "  ioctl queried termios on stdin, sizeof termios %zd, sizeof val %zd\n", sizeof( struct termios ), sizeof( val ) );
                 }
                 else if ( 0x5402 == request ) // TCSETS
