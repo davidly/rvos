@@ -151,9 +151,11 @@ struct stat_linux_syscall {
     struct timespec  st_mtim;  /* Time of last modification */
     struct timespec  st_ctim;  /* Time of last status change */
 
+#ifndef st_atime
     #define st_atime  st_atim.tv_sec  /* Backward compatibility */
     #define st_mtine  st_mtim.tv_sec
     #define st_ctime  st_ctim.tv_sec
+#endif
 
     uint64_t   st_mystery_spot_2;
 };
@@ -812,7 +814,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_clock_nanosleep:
         {
-            clockid_t clockid = cpu.regs[ RiscV::a0 ];
+            clockid_t clockid = (clockid_t) cpu.regs[ RiscV::a0 ];
             int flags = cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  nanosleep id %d flags %x\n", clockid, flags );
 
@@ -870,9 +872,15 @@ void riscv_invoke_ecall( RiscV & cpu )
                 pout->st_size = local_stat.st_size;
                 pout->st_blksize = local_stat.st_blksize;
                 pout->st_blocks = local_stat.st_blocks;
+#ifdef __APPLE__
+                pout->st_atim = local_stat.st_atimespec;
+                pout->st_mtim = local_stat.st_mtimespec;
+                pout->st_ctim = local_stat.st_ctimespec;
+#else
                 pout->st_atim = local_stat.st_atim;
                 pout->st_mtim = local_stat.st_mtim;
                 pout->st_ctim = local_stat.st_ctim;
+#endif
                 tracer.Trace( "  file size %zd, isdir %s\n", local_stat.st_size, S_ISDIR( local_stat.st_mode ) ? "yes" : "no" );
             }
             else
@@ -1352,9 +1360,15 @@ void riscv_invoke_ecall( RiscV & cpu )
                 pout->st_size = local_stat.st_size;
                 pout->st_blksize = local_stat.st_blksize;
                 pout->st_blocks = local_stat.st_blocks;
+#ifdef __APPLE__
+                pout->st_atim = local_stat.st_atimespec;
+                pout->st_mtim = local_stat.st_mtimespec;
+                pout->st_ctim = local_stat.st_ctimespec;
+#else
                 pout->st_atim = local_stat.st_atim;
                 pout->st_mtim = local_stat.st_mtim;
                 pout->st_ctim = local_stat.st_ctim;
+#endif
                 tracer.Trace( "  file size %zd, isdir %s\n", local_stat.st_size, S_ISDIR( local_stat.st_mode ) ? "yes" : "no" );
             }
 #endif
@@ -1511,6 +1525,8 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  renaming '%s' to '%s'\n", oldpath, newpath );
 #ifdef _WIN32
             int result = rename( oldpath, newpath );
+#elif defined( __APPLE__ )
+            int result = renameat( olddirfd, oldpath, newdirfd, newpath ); // macos has no renameat2s
 #else
             int result = renameat2( olddirfd, oldpath, newdirfd, newpath, flags );
 #endif
