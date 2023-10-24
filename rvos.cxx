@@ -1605,6 +1605,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int fd = (int) cpu.regs[ RiscV::a0 ];
             unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
+            struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
 
             if ( 0 == fd )
             {
@@ -1614,8 +1615,6 @@ void riscv_invoke_ecall( RiscV & cpu )
                 {
                     struct termios val;
                     tcgetattr( 0, &val );
-                    struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
-                    tracer.Trace( "  termios pointer: %p\n", pt );
                     pt->c_iflag = val.c_iflag;
                     pt->c_oflag = val.c_oflag;
                     pt->c_cflag = val.c_cflag;
@@ -1624,14 +1623,22 @@ void riscv_invoke_ecall( RiscV & cpu )
                     pt->c_line = val.c_line;
                     memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
-                    tracer.Trace( "  ioctl queried termios on stdin, sizeof termios %zd, sizeof val %zd\n", sizeof( struct termios ), sizeof( val ) );
+                    tracer.Trace( "  ioctl queried termios on stdin, sizeof local_kernel_termios %zd, sizeof val %zd\n", 
+                                sizeof( struct local_kernel_termios ), sizeof( val ) );
                 }
                 else if ( 0x5402 == request ) // TCSETS
                 {
                     struct termios val;
                     memset( &val, 0, sizeof val );
-                    struct termios * pt = (struct termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+                    tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
+#ifdef __APPLE__ 
+                    val.c_iflag = pt->c_iflag;
+                    val.c_oflag = pt->c_oflag;
+                    val.c_cflag = pt->c_cflag;
+                    val.c_lflag = pt->c_lflag;                   
+#else
                     memcpy( &val, pt, sizeof( struct local_kernel_termios ) );
+#endif
                     tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
                     tcsetattr( 0, TCSANOW, &val );
                     tracer.Trace( "  ioctl set termios on stdin\n" );
