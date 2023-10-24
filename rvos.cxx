@@ -1615,15 +1615,15 @@ void riscv_invoke_ecall( RiscV & cpu )
                     struct termios val;
                     tcgetattr( 0, &val );
                     struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
-                    tracer.Trace( "termios pointer: %p\n", pt );
+                    tracer.Trace( "  termios pointer: %p\n", pt );
                     pt->c_iflag = val.c_iflag;
                     pt->c_oflag = val.c_oflag;
                     pt->c_cflag = val.c_cflag;
                     pt->c_lflag = val.c_lflag;
 #ifndef __APPLE__
                     pt->c_line = val.c_line;
-#endif
                     memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
+#endif
                     tracer.Trace( "  ioctl queried termios on stdin, sizeof termios %zd, sizeof val %zd\n", sizeof( struct termios ), sizeof( val ) );
                 }
                 else if ( 0x5402 == request ) // TCSETS
