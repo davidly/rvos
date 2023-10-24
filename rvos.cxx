@@ -1344,7 +1344,23 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             struct stat_linux_syscall local_stat_syscall = {0};
-            result = fstatat( descriptor, path, & local_stat, cpu.regs[ RiscV::a3 ] );
+            int flags = (int) cpu.regs[ RiscV::a3 ];
+            tracer.Trace( "  flag AT_SYMLINK_NOFOLLOW: %llx, flags %x", AT_SYMLINK_NOFOLLOW, flags );
+#ifdef __APPLE__
+            if ( -100 == descriptor ) // current directory
+                descriptor = -2;
+            if ( 0x100 == flags ) // AT_SYMLINK_NOFOLLOW
+                flags = 0x20; // Apple's value for this flag
+            else
+                flags = 0; // no other flags are supported on MacOS
+            tracer.Trace( "  translated flags for MacOS: %x\n", flags );
+            if ( 0 == path[ 0 ] )
+                result = fstat( descriptor, & local_stat );
+            else
+                result = fstatat( descriptor, path, & local_stat, flags );
+#else            
+            result = fstatat( descriptor, path, & local_stat, flags );
+#endif
             if ( 0 == result )
             {
                 // the syscall version of stat has similar fields but a different layout, so copy fields one by one
