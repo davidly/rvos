@@ -38,22 +38,24 @@
 #include <sstream>
 #include <cctype>
 #include <map>
+#include <cstdint>
 #include <vector>
 #include <chrono>
 
 using namespace std;
-using namespace std::chrono;
+
+#ifndef WATCOM
+    #define BA_ENABLE_COMPILER // this makes the app too big for WATCOM
+    using namespace std::chrono;
+#endif
 
 bool g_Tracing = false;
 bool g_ExpressionOptimization = true;
 bool g_Quiet = false;
 bool g_GenerateAppleDollar = false;
 int g_pc = 0;
-struct LineOfCode;
-vector<LineOfCode> g_linesOfCode;
-#define g_lineno ( g_linesOfCode[ g_pc ].lineNumber )
 
-//#define ENABLE_INTERPRETER_EXECUTION_TIME
+//#define BA_ENABLE_INTERPRETER_EXECUTION_TIME
 
 #ifdef DEBUG
     const bool RangeCheckArrays = true;
@@ -90,12 +92,49 @@ vector<LineOfCode> g_linesOfCode;
     #define __assume( x )
     #undef __makeinline
     #define __makeinline inline
+#ifdef WATCOM
+    #include <dos.h>
+
+    uint32_t DosTimeInMS()
+    {
+        struct dostime_t tNow;
+        _dos_gettime( &tNow );
+        uint32_t t = (uint32_t) tNow.hour * 60 * 60 * 100;
+        t += (uint32_t) tNow.minute * 60 * 100;
+        t += (uint32_t) tNow.second * 100;
+        t += (uint32_t) tNow.hsecond;
+        return t * 10;
+    } //DosTimeInMS
+
+    int _strnicmp( const char * a, const char * b, int len )
+    {
+        for ( int i = 0; i < len; i++ )
+        {
+            char la = tolower( a[i] );
+            char lb = tolower( b[i] );
+            if ( !la && !lb )
+                return 0;
+            if ( !la )
+                return -1;
+            if ( !lb )
+                return 1;
+            if ( la != lb )
+                return la - lb;
+        }
+        return 0;
+    }
+#else
     #define _strnicmp strncasecmp
     #define _stricmp strcasecmp
+#endif
 
-    #ifndef _countof
+#ifndef _countof
+#ifdef WATCOM
+        #define _countof( x ) ( sizeof( x ) / sizeof( x[0] ) )
+#else
         template < typename T, size_t N > size_t _countof( T ( & arr )[ N ] ) { return std::extent< T[ N ] >::value; }
-    #endif
+#endif
+#endif
 
     void strcpy_s( char * pto, size_t size, const char * pfrom  )
     {
@@ -103,17 +142,24 @@ vector<LineOfCode> g_linesOfCode;
     }
 #endif
 
-enum AssemblyTarget : int { x86Win, x64Win, arm64Mac, arm64Win, i8080CPM, arm32Linux, mos6502Apple1, i8086DOS, riscv64 };
+int stcmp( const string & a, const string & b )
+{
+    return strcmp( a.c_str(), b.c_str() );
+} //stcmp
+
+enum AssemblyTarget { x86Win, x64Win, arm64Mac, arm64Win, i8080CPM, arm32Linux, mos6502Apple1, i8086DOS, riscv64 };
 AssemblyTarget g_AssemblyTarget = x64Win;
 bool g_i386Target686 = true; // true for Pentium 686 cmovX instructions, false for generic 386
 
-enum Token : int { 
-    VARIABLE, GOSUB, GOTO, PRINT, RETURN, END,                     // statements
-    REM, DIM, CONSTANT, OPENPAREN, CLOSEPAREN,
-    MULT, DIV, PLUS, MINUS, EQ, NE, LE, GE, LT, GT, AND, OR, XOR,  // operators in order of precedence
-    FOR, NEXT, IF, THEN, ELSE, LINENUM, STRING, TO, COMMA,
-    COLON, SEMICOLON, EXPRESSION, TIME, ELAP, TRON, TROFF,
-    ATOMIC, INC, DEC, NOT, INVALID };
+enum Token_Enum {
+    Token_VARIABLE, Token_GOSUB, Token_GOTO, Token_PRINT, Token_RETURN, Token_END,                     // statements
+    Token_REM, Token_DIM, Token_CONSTANT, Token_OPENPAREN, Token_CLOSEPAREN,
+    Token_MULT, Token_DIV, Token_PLUS, Token_MINUS, Token_EQ, Token_NE, Token_LE, Token_GE, Token_LT, Token_GT, Token_AND, Token_OR, Token_XOR,  // operators in order of precedence
+    Token_FOR, Token_NEXT, Token_IF, Token_THEN, Token_ELSE, Token_LINENUM, Token_STRING, Token_TO, Token_COMMA,
+    Token_COLON, Token_SEMICOLON, Token_EXPRESSION, Token_TIME, Token_ELAP, Token_TRON, Token_TROFF,
+    Token_ATOMIC, Token_INC, Token_DEC, Token_NOT, Token_INVALID };
+
+#define Token int
 
 const char * Tokens[] = { 
     "VARIABLE", "GOSUB", "GOTO", "PRINT", "RETURN", "END",
@@ -130,6 +176,8 @@ const char * Operators[] = {
     "FOR", "NEXT", "IF", "THEN", "ELSE", "LINENUM", "STRING", "TO", "COMMA",
     "COLON", "SEMICOLON", "EXPRESSION", "TIME$", "ELAP$", "TRON", "TROFF",
     "ATOMIC", "INC", "DEC", "NOT", "INVALID" };
+
+#ifdef BA_ENABLE_COMPILER
 
 const char * OperatorInstructionX64[] = { 
     0, 0, 0, 0, 0, 0,                          // filler
@@ -243,9 +291,11 @@ void RiscVPop( FILE * fp, char const * pcreg )
 
 const int Max6502ZeroPageVariables = 16;
 
+#endif //BA_ENABLE_COMPILER
+
 __makeinline const char * TokenStr( Token i )
 {
-    if ( i < 0 || i > Token::INVALID )
+    if ( i < 0 || i > Token_INVALID )
     {
         printf( "token %d is malformed\n", i );
         return Tokens[ _countof( Tokens ) - 1 ];
@@ -256,37 +306,37 @@ __makeinline const char * TokenStr( Token i )
 
 __makeinline bool isTokenOperator( Token t )
 {
-    return ( t >= Token::MULT && t <= Token::XOR );
+    return ( t >= Token_MULT && t <= Token_XOR );
 } //isTokenOperator
 
 __makeinline bool isTokenSimpleValue( Token t )
 {
-    return ( Token::CONSTANT == t || Token::VARIABLE == t );
+    return ( Token_CONSTANT == t || Token_VARIABLE == t );
 } //isTokenSimpleValue
 
 __makeinline bool isTokenStatement( Token t )
 {
-    return ( t >= Token::VARIABLE && t <= Token::END );
+    return ( t >= Token_VARIABLE && t <= Token_END );
 } //isTokenStatement
 
 __makeinline bool isOperatorRelational( Token t )
 {
-    return ( t >= Token::EQ && t <= Token::GT );
+    return ( t >= Token_EQ && t <= Token_GT );
 } //isOperatorRelational
 
 __makeinline bool isOperatorLogical( Token t )
 {
-    return ( t >= Token::AND && t <= Token::XOR );
+    return ( t >= Token_AND && t <= Token_XOR );
 } //isOperatorLogical
 
 __makeinline bool isOperatorAdditive( Token t )
 {
-    return ( Token::PLUS == t || Token::MINUS == t );
+    return ( Token_PLUS == t || Token_MINUS == t );
 } //isOperatorAdditive
 
 __makeinline bool isOperatorMultiplicative( Token t )
 {
-    return ( Token::MULT == t || Token::DIV == t );
+    return ( Token_MULT == t || Token_DIV == t );
 } //isOperatorMultiplicative
 
 __makeinline bool FailsRangeCheck( int offset, size_t high )
@@ -349,7 +399,7 @@ struct TokenValue
 {
     void Clear()
     {
-        token = Token::INVALID;
+        token = Token_INVALID;
         pVariable = 0;
         value = 0;
         strValue = "";
@@ -365,6 +415,13 @@ struct TokenValue
         token = t;
     } //TokenValue
 
+#ifdef WATCOM
+    TokenValue()
+    {
+        Clear();
+    } //TokenValue
+#endif
+
     // note: 64 bytes in size, which is good because the compiler can use shl 6 for array lookups
 
     Token token;
@@ -379,20 +436,29 @@ struct TokenValue
 #endif
 };
 
+int stcmp( TokenValue const & a, TokenValue const & b )
+{
+    return stcmp( a.strValue, b.strValue );
+} //stcmp
+
 // maps to a line of BASIC
 
 struct LineOfCode
 {
     LineOfCode( int line, const char * code ) : 
-        lineNumber( line ), firstToken( Token::INVALID ), sourceCode( code ), goTarget( false )
+        lineNumber( line ), firstToken( Token_INVALID ), sourceCode( code ), goTarget( false )
 
-    #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+    #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
         , timesExecuted( 0 ), duration( 0 )
     #endif
 
     {
         tokenValues.reserve( 8 );
     }
+
+#ifdef WATCOM
+    LineOfCode() {}
+#endif
 
     // These tokens will be scattered through memory. I tried making them all contiguous
     // and there was no performance benefit
@@ -403,11 +469,14 @@ struct LineOfCode
     int lineNumber;                    // line number in BASIC
     bool goTarget;                     // true if a goto/gosub points at this line.
 
-    #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+    #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
         uint64_t timesExecuted;       // # of times this line is executed
         uint64_t duration;            // execution time so far on this line of code
     #endif
 };
+
+vector<LineOfCode> g_linesOfCode;
+#define g_lineno ( g_linesOfCode[ g_pc ].lineNumber )
 
 struct ForGosubItem
 {
@@ -416,6 +485,10 @@ struct ForGosubItem
         isFor = f;
         pcReturn = p;
     }
+
+#ifdef WATCOM
+    ForGosubItem() {}
+#endif
 
     int isFor;     // true if FOR, false if GOSUB
     int pcReturn;  // where to return in a NEXT or RETURN statment
@@ -428,7 +501,11 @@ const int maxStack = 60;
 template <class T> class Stack
 {
     int current;
+#ifdef WATCOM
+    T items[ maxStack ]; 
+#else
     union { T items[ maxStack ]; };  // avoid constructors and destructors on each T by using a union
+#endif
 
     public:
         __makeinline Stack() : current( 0 ) {}
@@ -464,6 +541,7 @@ static void Usage()
     printf( "  Basic interpreter\n" );
     printf( "  Arguments:     filename.bas     Subset of TRS-80 compatible BASIC\n" );
     printf( "                 argvalue         One optional integer argument to the app referenced in basic as av%%\n" );
+#ifdef BA_ENABLE_COMPILER
     printf( "                 -a:X             Generate assembly code, where X is one of:\n" );
     printf( "                                  6 -- Generate 8-bit Apple 1 'sbasm30306\\sbasm.py' compatible assembler code to filename.s\n" );
     printf( "                                  8 -- Generate 8-bit CP/M 2.2 i8080 'asm' compatible assembler code to filename.asm\n" );
@@ -476,15 +554,22 @@ static void Usage()
     printf( "                                  r -- Generate 64-bit RISC-V 64-bit GNU 'as' compatible assembler code to filename.s\n" );
     printf( "                                  x -- Generate 64-bit Windows x64 'ml64' compatible assembler code to filename.asm\n" );
     printf( "                 -d               Generate a dollar sign $ at the end of execution for Apple 1 apps\n" );
+#endif
     printf( "                 -e               Show execution count and time for each line\n" );
     printf( "                 -l               Show 'pcode' listing\n" );
+#ifdef BA_ENABLE_COMPILER
     printf( "                 -o               Don't do expression optimization for assembly code\n" );
+#endif
     printf( "                 -p               Show parse time for input file\n" );
     printf( "                 -q               Quiet. Don't show start and end messages in interpreter or compiled code\n" );
+#ifdef BA_ENABLE_COMPILER
     printf( "                 -r               Don't use registers for variables in assembly code\n" );
+#endif
     printf( "                 -t               Show debug tracing\n" );
     printf( "                 -x               Parse only; don't execute the code\n" );
+#ifdef BA_ENABLE_COMPILER
     printf( "  notes:  --  Assembly instructions are located at the top of generated files\n" );
+#endif
     exit( 1 );
 } //Usage
 
@@ -517,8 +602,15 @@ __makeinline const char * pastNum( const char * p )
 
 __makeinline void makelower( string & sl )
 {
+#ifdef WATCOM
+    char * p = (char *) sl.data();
+    size_t len = sl.length();
+    for ( size_t i = 0; i < len; i++ )
+        p[ i ] = tolower( p[ i ] );
+#else
     std::transform( sl.begin(), sl.end(), sl.begin(),
                     [](unsigned char c){ return std::tolower(c); });
+#endif
 } //makelower
 
 Token readTokenInner( const char * p, int & len )
@@ -526,73 +618,73 @@ Token readTokenInner( const char * p, int & len )
     if ( 0 == *p )
     {
         len = 0;
-        return Token::INVALID;
+        return Token_INVALID;
     }
 
     if ( '(' == *p )
     {
         len = 1;
-        return Token::OPENPAREN;
+        return Token_OPENPAREN;
     }
 
     if ( ')' == *p )
     {
         len = 1;
-        return Token::CLOSEPAREN;
+        return Token_CLOSEPAREN;
     }
 
     if ( ',' == *p )
     {
         len = 1;
-        return Token::COMMA;
+        return Token_COMMA;
     }
 
     if ( ':' == *p )
     {
         len = 1;
-        return Token::COLON;
+        return Token_COLON;
     }
 
     if ( ';' == *p )
     {
         len = 1;
-        return Token::SEMICOLON;
+        return Token_SEMICOLON;
     }
 
     if ( '*' == *p )
     {
         len = 1;
-        return Token::MULT;
+        return Token_MULT;
     }
 
     if ( '/' == *p )
     {
         len = 1;
-        return Token::DIV;
+        return Token_DIV;
     }
 
     if ( '+' == *p )
     {
         len = 1;
-        return Token::PLUS;
+        return Token_PLUS;
     }
 
     if ( '-' == *p )
     {
         len = 1;
-        return Token::MINUS;
+        return Token_MINUS;
     }
 
     if ( '^' == *p )
     {
         len = 1;
-        return Token::XOR;
+        return Token_XOR;
     }
 
     if ( isDigit( *p ) )
     {
         len = (int) ( pastNum( p ) - p );
-        return Token::CONSTANT;
+        return Token_CONSTANT;
     }
 
     if ( isOperator( *p ) )
@@ -604,26 +696,26 @@ Token readTokenInner( const char * p, int & len )
             char c2 = * ( p + 1 );
 
             if ( c1 == '<' && c2 == '=' )
-                return Token::LE;
+                return Token_LE;
             if ( c1 == '>' && c2 == '=' )
-                return Token::GE;
+                return Token_GE;
             if ( c1 == '<' && c2 == '>' )
-                return Token::NE;
+                return Token_NE;
 
-            return Token::INVALID;
+            return Token_INVALID;
         }
         else
         {
             len = 1;
 
             if ( '<' == *p )
-                return Token::LT;
+                return Token_LT;
             if ( '=' == *p )
-                return Token::EQ;
+                return Token_EQ;
             if ( '>' == *p )
-                return Token::GT;
+                return Token_GT;
 
-            return Token::INVALID;
+            return Token_INVALID;
         }
     }
 
@@ -637,22 +729,22 @@ Token readTokenInner( const char * p, int & len )
         if ( pend )
         {
             len = 1 + (int) ( pend - p );
-            return Token::STRING;
+            return Token_STRING;
         }
 
-        return Token::INVALID;
+        return Token_INVALID;
     }
 
     if ( !_strnicmp( p, "TIME$", 5 ) )
     {
        len = 5;
-       return Token::TIME;
+       return Token_TIME;
     }
 
     if ( !_strnicmp( p, "ELAP$", 5 ) )
     {
         len = 5;
-        return Token::ELAP;
+        return Token_ELAP;
     }
 
     len = 0;
@@ -660,81 +752,81 @@ Token readTokenInner( const char * p, int & len )
         len++;
 
     if ( 1 == len && isAlpha( *p ) )
-        return Token::VARIABLE; // in the future, this will be true
+        return Token_VARIABLE; // in the future, this will be true
 
     if ( 2 == len )
     {
         if ( !_strnicmp( p, "OR", 2 ) )
-            return Token::OR;
+            return Token_OR;
 
         if ( !_strnicmp( p, "IF", 2 ) )
-            return Token::IF;
+            return Token_IF;
 
         if ( !_strnicmp( p, "TO", 2 ) )
-            return Token::TO;
+            return Token_TO;
 
         if ( isAlpha( *p ) && ( '%' == * ( p + 1 ) ) )
-            return Token::VARIABLE;
+            return Token_VARIABLE;
     }
     else if ( 3 == len )
     {
         if ( !_strnicmp( p, "REM", 3 ) )
-            return Token::REM;
+            return Token_REM;
 
         if ( !_strnicmp( p, "DIM", 3 ) )
-           return Token::DIM;
+           return Token_DIM;
 
         if ( !_strnicmp( p, "AND", 3 ) )
-           return Token::AND;
+           return Token_AND;
 
         if ( !_strnicmp( p, "FOR", 3 ) )
-           return Token::FOR;
+           return Token_FOR;
 
         if ( !_strnicmp( p, "END", 3 ) )
-           return Token::END;
+           return Token_END;
 
         if ( isAlpha( *p ) && isAlpha( * ( p + 1 ) ) && ( '%' == * ( p + 2 ) ) )
-           return Token::VARIABLE;
+           return Token_VARIABLE;
     }
     else if ( 4 == len )
     {
         if ( !_strnicmp( p, "GOTO", 4 ) )
-           return Token::GOTO;
+           return Token_GOTO;
 
         if ( !_strnicmp( p, "NEXT", 4 ) )
-           return Token::NEXT;
+           return Token_NEXT;
 
         if ( !_strnicmp( p, "THEN", 4 ) )
-           return Token::THEN;
+           return Token_THEN;
 
         if ( !_strnicmp( p, "ELSE", 4 ) )
-           return Token::ELSE;
+           return Token_ELSE;
 
         if ( !_strnicmp( p, "TRON", 4 ) )
-           return Token::TRON;
+           return Token_TRON;
     }
     else if ( 5 == len )
     {
         if ( !_strnicmp( p, "GOSUB", 5 ) )
-           return Token::GOSUB;
+           return Token_GOSUB;
 
         if ( !_strnicmp( p, "PRINT", 5 ) )
-           return Token::PRINT;
+           return Token_PRINT;
 
         if ( !_strnicmp( p, "TROFF", 5 ) )
-           return Token::TROFF;
+           return Token_TROFF;
     }
 
     else if ( 6 == len )
     {
         if ( !_strnicmp( p, "RETURN", 5 ) )
-           return Token::RETURN;
+           return Token_RETURN;
 
         if ( !_strnicmp( p, "SYSTEM", 5 ) ) // system is the same as end; both exit execution
-           return Token::END;
+           return Token_END;
     }
 
-    return Token::INVALID;
+    return Token_INVALID;
 } //readTokenInner
 
 __makeinline Token readToken( const char * p, int & len )
@@ -782,12 +874,12 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
     bool first = true;
     int parens = 0;
     int tokenCount = 0;
-    TokenValue expToken( Token::EXPRESSION );
+    TokenValue expToken( Token_EXPRESSION );
     expToken.value = 666;
     lineTokens.push_back( expToken );
     size_t exp = lineTokens.size() - 1;
     bool isNegative = false;
-    Token prevToken = Token::INVALID;
+    Token prevToken = Token_INVALID;
 
     do
     {
@@ -799,12 +891,12 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
         tokenCount++;
         bool resetFirst = false;
 
-        if ( Token::MINUS == token && first )
+        if ( Token_MINUS == token && first )
         {
             isNegative = true;
             pline += tokenLen;
         }
-        else if ( Token::CONSTANT == token )
+        else if ( Token_CONSTANT == token )
         {
             tokenValue.value = atoi( pline );
             if ( isNegative )
@@ -814,22 +906,22 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
                 isNegative = false;
             }
 
-            if ( Token::CONSTANT == prevToken )
+            if ( Token_CONSTANT == prevToken )
                 Fail( "consecutive constants are a syntax error", fileLine, pline - line, line );
 
             lineTokens.push_back( tokenValue );
             pline += tokenLen;
         }
-        else if ( Token::VARIABLE == token )
+        else if ( Token_VARIABLE == token )
         {
             if ( isNegative )
             {
-                TokenValue neg( Token::MINUS );
+                TokenValue neg( Token_MINUS );
                 lineTokens.push_back( neg );
                 isNegative = false;
             }
 
-            if ( Token::VARIABLE == prevToken )
+            if ( Token_VARIABLE == prevToken )
                 Fail( "consecutive variables are a syntax error", fileLine, pline - line, line );
 
             tokenValue.strValue.insert( 0, pline, tokenLen );
@@ -841,7 +933,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
             lineTokens.push_back( tokenValue );
             pline = pastWhite( pline + tokenLen );
             token = readToken( pline, tokenLen );
-            if ( Token::OPENPAREN == token )
+            if ( Token_OPENPAREN == token )
             {
                 size_t iVarToken = lineTokens.size() - 1;
                 lineTokens[ iVarToken ].dimensions = 1;
@@ -858,7 +950,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
                 tokenCount += lineTokens[ expression ].value;
 
                 token = readToken( pline, tokenLen );
-                if ( Token::COMMA == token )
+                if ( Token_COMMA == token )
                 {
                     lineTokens[ iVarToken ].dimensions = 2;
                     tokenCount++;
@@ -875,7 +967,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
                     token = readToken( pline, tokenLen );
                 }
 
-                if ( Token::CLOSEPAREN != token )
+                if ( Token_CLOSEPAREN != token )
                     Fail( "close parenthesis expected", fileLine, pline - line, line );
 
                 tokenCount++;
@@ -886,7 +978,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
                 pline += tokenLen;
             }
         }
-        else if ( Token::STRING == token )
+        else if ( Token_STRING == token )
         {
             if ( 1 != tokenCount )
                 Fail( "string not expected", fileLine, 0, line );
@@ -908,11 +1000,11 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
             pline += tokenLen;
             resetFirst = true;
         }
-        else if ( Token::OPENPAREN == token )
+        else if ( Token_OPENPAREN == token )
         {
             if ( isNegative )
             {
-                TokenValue neg( Token::MINUS );
+                TokenValue neg( Token_MINUS );
                 lineTokens.push_back( neg );
                 isNegative = false;
             }
@@ -922,7 +1014,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
             pline += tokenLen;
             resetFirst = true;
         }
-        else if ( Token::CLOSEPAREN == token )
+        else if ( Token_CLOSEPAREN == token )
         {
             if ( 0 == parens )
                 break;
@@ -933,17 +1025,17 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
             resetFirst = true;
             isNegative = false;
         }
-        else if ( Token::TIME == token )
+        else if ( Token_TIME == token )
         {
             lineTokens.push_back( tokenValue );
             pline += tokenLen;
         }
-        else if ( Token::ELAP == token )
+        else if ( Token_ELAP == token )
         {
             lineTokens.push_back( tokenValue );
             pline += tokenLen;
         }
-        else if ( Token::INVALID == token && 0 != tokenLen )
+        else if ( Token_INVALID == token && 0 != tokenLen )
         {
             Fail( "invalid token", fileLine, pline - line, line );
         }
@@ -966,7 +1058,7 @@ const char * ParseExpression( vector<TokenValue> & lineTokens, const char * plin
 
     if ( 1 == tokenCount )
     {
-        TokenValue tokenValue( Token::CONSTANT );
+        TokenValue tokenValue( Token_CONSTANT );
         lineTokens.push_back( tokenValue );
         tokenCount++;
     }
@@ -996,7 +1088,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
         if ( EnableTracing && g_Tracing )
             printf( "ParseStatements loop read top-level token %s\n", TokenStr( token ) );
 
-        if ( Token::VARIABLE == token )
+        if ( Token_VARIABLE == token )
         {
             tokenValue.strValue.insert( 0, pline, tokenLen );
 
@@ -1010,7 +1102,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
             pline = pastWhite( pline + tokenLen );
             token = readToken( pline, tokenLen );
 
-            if ( Token::OPENPAREN == token )
+            if ( Token_OPENPAREN == token )
             {
                 lineTokens[ iVarToken ].dimensions++;
 
@@ -1022,13 +1114,13 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
                 pline = ParseExpression( lineTokens, pline, line, fileLine );
 
                 token = readToken( pline, tokenLen );
-                if ( Token::CLOSEPAREN == token )
+                if ( Token_CLOSEPAREN == token )
                 {
                     tokenValue.Clear();
                     tokenValue.token = token;
                     lineTokens.push_back( tokenValue );
                 }
-                else if ( Token::COMMA == token )
+                else if ( Token_COMMA == token )
                 {
                     lineTokens[ iVarToken ].dimensions++;
 
@@ -1042,7 +1134,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
                     pline = pastWhite( pline );
                     token = readToken( pline, tokenLen );
 
-                    if ( Token::CLOSEPAREN == token )
+                    if ( Token_CLOSEPAREN == token )
                     {
                         tokenValue.Clear();
                         tokenValue.token = token;
@@ -1058,7 +1150,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
                 token = readToken( pline, tokenLen );
             }
 
-            if ( Token::EQ == token )
+            if ( Token_EQ == token )
             {
                 tokenValue.Clear();
                 tokenValue.token = token;
@@ -1070,11 +1162,11 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
             else
                 Fail( "expected '=' after a variable reference", fileLine, 1 + pline - line , line );
         }
-        else if ( Token::GOSUB == token )
+        else if ( Token_GOSUB == token )
         {
             pline = pastWhite( pline + tokenLen );
             token = readToken( pline, tokenLen );
-            if ( Token::CONSTANT == token )
+            if ( Token_CONSTANT == token )
             {
                 tokenValue.value = atoi( pline );
                 lineTokens.push_back( tokenValue );
@@ -1084,11 +1176,11 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
 
             pline += tokenLen;
         }
-        else if ( Token::GOTO == token )
+        else if ( Token_GOTO == token )
         {
             pline = pastWhite( pline + tokenLen );
             token = readToken( pline, tokenLen );
-            if ( Token::CONSTANT == token )
+            if ( Token_CONSTANT == token )
             {
                 tokenValue.value = atoi( pline );
                 lineTokens.push_back( tokenValue );
@@ -1098,17 +1190,17 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
 
             pline += tokenLen;
         }
-        else if ( Token::END == token )
+        else if ( Token_END == token )
         {
             lineTokens.push_back( tokenValue );
             pline += tokenLen;
         }
-        else if ( Token::RETURN == token )
+        else if ( Token_RETURN == token )
         {
             lineTokens.push_back( tokenValue );
             pline += tokenLen;
         }
-        else if ( Token::PRINT == token )
+        else if ( Token_PRINT == token )
         {
             lineTokens.push_back( tokenValue );
             pline = pastWhite( pline + tokenLen );
@@ -1119,14 +1211,14 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
                 pline = pastWhite( pline );
                 token = readToken( pline, tokenLen );
 
-                if ( Token::SEMICOLON == token )
+                if ( Token_SEMICOLON == token )
                 {
                     pline = pastWhite( pline + tokenLen );
                     continue;
                 }
-                else if ( Token::ELSE == token )
+                else if ( Token_ELSE == token )
                     break;
-                else if ( Token::INVALID != token )
+                else if ( Token_INVALID != token )
                     Fail( "unexpected PRINT arguments", fileLine, 1 + pline - line, line );
                 else
                     break;
@@ -1136,7 +1228,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
         pline = pastWhite( pline );
         token = readToken( pline, tokenLen );
 
-        if ( Token::COLON == token )
+        if ( Token_COLON == token )
         {
             pline = pastWhite( pline + tokenLen );
             token = readToken( pline, tokenLen );
@@ -1177,7 +1269,11 @@ __makeinline Variable * GetVariablePerhapsCreate( TokenValue & val, map<string, 
     if ( !pvar )
     {
         Variable var( val.strValue.c_str() );
+#ifdef WATCOM
+        varmap.insert( std::pair<string, Variable> ( var.name, var ) );
+#else
         varmap.emplace( var.name, var );
+#endif
         pvar = FindVariable( varmap, var.name );
         val.pVariable = pvar;
     }
@@ -1189,7 +1285,7 @@ __makeinline int GetSimpleValue( TokenValue const & val )
 {
     assert( isTokenSimpleValue( val.token ) );
 
-    if ( Token::CONSTANT == val.token )
+    if ( Token_CONSTANT == val.token )
         return val.value;
 
     assert( 0 != val.pVariable );
@@ -1203,19 +1299,19 @@ __makeinline int run_operator( int a, Token t, int b )
 
     switch( t )
     {
-        case Token::EQ    : return ( a == b );
-        case Token::AND   : return ( a & b );
-        case Token::LT    : return ( a < b );
-        case Token::GT    : return ( a > b );
-        case Token::GE    : return ( a >= b );
-        case Token::MINUS : return ( a - b );
-        case Token::LE    : return ( a <= b );
-        case Token::OR    : return ( a | b );
-        case Token::PLUS  : return ( a + b );
-        case Token::NE    : return ( a != b );
-        case Token::MULT  : return ( a * b );
-        case Token::DIV   : return ( a / b );
-        case Token::XOR   : return ( a ^ b );
+        case Token_EQ    : return ( a == b );
+        case Token_AND   : return ( a & b );
+        case Token_LT    : return ( a < b );
+        case Token_GT    : return ( a > b );
+        case Token_GE    : return ( a >= b );
+        case Token_MINUS : return ( a - b );
+        case Token_LE    : return ( a <= b );
+        case Token_OR    : return ( a | b );
+        case Token_PLUS  : return ( a + b );
+        case Token_NE    : return ( a != b );
+        case Token_MULT  : return ( a * b );
+        case Token_DIV   : return ( a / b );
+        case Token_XOR   : return ( a ^ b );
         default: __assume( false );
     }
 
@@ -1227,9 +1323,9 @@ __makeinline int run_operator_logical( int a, Token t, int b )
 {
     switch( t )
     {
-        case Token::AND   : return ( a & b );
-        case Token::OR    : return ( a | b );
-        case Token::XOR   : return ( a ^ b );
+        case Token_AND   : return ( a & b );
+        case Token_OR    : return ( a | b );
+        case Token_XOR   : return ( a ^ b );
         default: __assume( false );
     }
 
@@ -1241,12 +1337,12 @@ __makeinline int run_operator_relational( int a, Token t, int b )
 {
     switch( t )
     {
-        case Token::EQ    : return ( a == b );
-        case Token::LT    : return ( a < b );
-        case Token::NE    : return ( a != b );
-        case Token::GT    : return ( a > b );
-        case Token::GE    : return ( a >= b );
-        case Token::LE    : return ( a <= b );
+        case Token_EQ    : return ( a == b );
+        case Token_LT    : return ( a < b );
+        case Token_NE    : return ( a != b );
+        case Token_GT    : return ( a > b );
+        case Token_GE    : return ( a >= b );
+        case Token_LE    : return ( a <= b );
         default: __assume( false );
     }
 
@@ -1258,8 +1354,8 @@ __makeinline int run_operator_additive( int a, Token t, int b )
 {
     switch( t )
     {
-        case Token::PLUS  : return ( a + b );
-        case Token::MINUS : return ( a - b );
+        case Token_PLUS  : return ( a + b );
+        case Token_MINUS : return ( a - b );
         default: __assume( false );
     }
 
@@ -1271,8 +1367,8 @@ __makeinline int run_operator_multiplicative( int a, Token t, int b )
 {
     switch( t )
     {
-        case Token::MULT  : return ( a * b );
-        case Token::DIV   : return ( a / b );
+        case Token_MULT  : return ( a * b );
+        case Token_DIV   : return ( a / b );
         default: __assume( false );
     }
 
@@ -1341,20 +1437,20 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
     {
         Token t = vals[ iToken ].token;
 
-        if ( Token::EXPRESSION == t )
+        if ( Token_EXPRESSION == t )
         {
             iToken++;
             t = vals[ iToken ].token;
         }
 
-        if ( Token::OPENPAREN == t )
+        if ( Token_OPENPAREN == t )
         {
             iToken++;
             value = EvaluateExpression( iToken, beyond, vals );
-            assert( Token::CLOSEPAREN == vals[ iToken ].token );
+            assert( Token_CLOSEPAREN == vals[ iToken ].token );
             iToken++;
         }
-        else if ( Token::VARIABLE == t )
+        else if ( Token_VARIABLE == t )
         {
             Variable *pvar = vals[ iToken ].pVariable;
 
@@ -1363,22 +1459,22 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
                 value = pvar->value;
                 iToken++;
 
-                if ( iToken < vals.size() && Token::OPENPAREN == vals[ iToken ].token )
+                if ( iToken < vals.size() && Token_OPENPAREN == vals[ iToken ].token )
                     RuntimeFail( "scalar variable used as an array", g_lineno );
             }
             else if ( 1 == pvar->dimensions )
             {
                 iToken++; // variable
 
-                if ( Token::OPENPAREN != vals[ iToken ].token )
+                if ( Token_OPENPAREN != vals[ iToken ].token )
                     RuntimeFail( "open parenthesis expected", g_lineno );
 
                 iToken++; // open paren
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
 
                 int offset;
-                if ( 2 == vals[ iToken ].value && Token::CONSTANT == vals[ iToken + 1 ].token ) // save recursion
+                if ( 2 == vals[ iToken ].value && Token_CONSTANT == vals[ iToken + 1 ].token ) // save recursion
                 {
                     offset = vals[ iToken + 1 ].value;
                     iToken += vals[ iToken ].value;
@@ -1389,7 +1485,7 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
                 if ( RangeCheckArrays && FailsRangeCheck( offset, pvar->array.size() ) )
                     RuntimeFail( "access of array beyond end", g_lineno );
 
-                if ( RangeCheckArrays && iToken < limit && Token::COMMA == vals[ t ].token )
+                if ( RangeCheckArrays && iToken < limit && Token_COMMA == vals[ t ].token )
                     RuntimeFail( "accessed 1-dimensional array with 2 dimensions", g_lineno );
 
                 value = pvar->array[ offset ];
@@ -1400,23 +1496,23 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
             {
                 iToken++; // variable
 
-                if ( Token::OPENPAREN != vals[ iToken ].token )
+                if ( Token_OPENPAREN != vals[ iToken ].token )
                     RuntimeFail( "open parenthesis expected", g_lineno );
 
                 iToken++; // open paren
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
                 int offset1 = EvaluateExpression( iToken, iToken + vals[ iToken ].value, vals );
 
                 if ( RangeCheckArrays && FailsRangeCheck( offset1, pvar->dims[ 0 ] ) )
                     RuntimeFail( "access of first dimension in 2-dimensional array beyond end", g_lineno );
 
-                if ( Token::COMMA != vals[ iToken ].token )
+                if ( Token_COMMA != vals[ iToken ].token )
                     RuntimeFail( "comma expected for 2-dimensional array", g_lineno );
 
                 iToken++; // comma
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
                 int offset2 = EvaluateExpression( iToken, iToken + vals[ iToken ].value, vals );
 
                 if ( RangeCheckArrays && FailsRangeCheck( offset2, pvar->dims[ 1 ] ) )
@@ -1430,21 +1526,21 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
                 iToken++; // closing paren
             }
         }
-        else if ( Token::CONSTANT == t )
+        else if ( Token_CONSTANT == t )
         {
             value = vals[ iToken ].value;
             iToken++;
         }
-        else if ( Token::CLOSEPAREN == t )
+        else if ( Token_CLOSEPAREN == t )
         {
             assert( false && "why is there a close paren?" );
             iToken++;
         }
-        else if ( Token::NOT == t )
+        else if ( Token_NOT == t )
         {
             iToken++;
 
-            assert( Token::VARIABLE == vals[ iToken ].token );
+            assert( Token_VARIABLE == vals[ iToken ].token );
 
             Variable *pvar = vals[ iToken ].pVariable;
             value = ! ( pvar->value );
@@ -1490,7 +1586,7 @@ int EvaluateExpression( int & iToken, int beyond, vector<TokenValue> const & val
             printf( "    %d:    %s\n", i, TokenStr( vals[ i ].token ) );
     }
 
-    if ( Token::EXPRESSION == vals[ iToken ].token )
+    if ( Token_EXPRESSION == vals[ iToken ].token )
         iToken++;
 
     // look for a unary + or -
@@ -1563,7 +1659,7 @@ __makeinline int EvaluateRelationalExpression( int & iToken, int beyond, vector<
     // This won't be an EXPRESSION for cases like x = x + ...
     // But it will be EXPRESSION when called from EvaluateLogicalExpression
 
-    if ( Token::EXPRESSION == vals[ iToken ].token )
+    if ( Token_EXPRESSION == vals[ iToken ].token )
         iToken++;
 
     int value = EvaluateExpression( iToken, beyond, vals );
@@ -1628,7 +1724,7 @@ __makeinline int EvaluateLogicalExpression( int & iToken, vector<TokenValue> con
             printf( "    %d:    %s\n", i, TokenStr( vals[ i ].token ) );
     }
 
-    assert( Token::EXPRESSION == vals[ iToken ].token );
+    assert( Token_EXPRESSION == vals[ iToken ].token );
 
     int value = EvaluateRelationalExpression( iToken, beyond, vals );
 
@@ -1659,7 +1755,7 @@ __makeinline int EvaluateExpressionOptimized( int & iToken, vector<TokenValue> c
         printf( "EvaluateExpressionOptimized starting at line %d, token %d, which is %s, length %d\n",
                 g_lineno, iToken, TokenStr( vals[ iToken ].token ), vals[ iToken ].value );
 
-    assert( Token::EXPRESSION == vals[ iToken ].token );
+    assert( Token_EXPRESSION == vals[ iToken ].token );
 
     int value;
     int tokenCount = vals[ iToken ].value;
@@ -1676,8 +1772,8 @@ __makeinline int EvaluateExpressionOptimized( int & iToken, vector<TokenValue> c
         iToken += tokenCount;
     }
     else if ( 6 == tokenCount &&
-              Token::VARIABLE == vals[ iToken + 1 ].token &&
-              Token::OPENPAREN == vals[ iToken + 2 ].token )
+              Token_VARIABLE == vals[ iToken + 1 ].token &&
+              Token_OPENPAREN == vals[ iToken + 2 ].token )
     {
         // 0 EXPRESSION, value 6, strValue ''
         // 1 VARIABLE, value 0, strValue 'sa%'
@@ -1711,12 +1807,12 @@ __makeinline int EvaluateExpressionOptimized( int & iToken, vector<TokenValue> c
         iToken += tokenCount;
     }
     else if ( 16 == tokenCount &&
-              Token::VARIABLE == vals[ iToken + 1 ].token &&
-              Token::OPENPAREN == vals[ iToken + 4 ].token &&
-              Token::CONSTANT == vals[ iToken + 6 ].token &&
-              Token::VARIABLE == vals[ iToken + 9 ].token &&
-              Token::OPENPAREN == vals[ iToken + 12 ].token &&
-              Token::CONSTANT == vals[ iToken + 14 ].token &&
+              Token_VARIABLE == vals[ iToken + 1 ].token &&
+              Token_OPENPAREN == vals[ iToken + 4 ].token &&
+              Token_CONSTANT == vals[ iToken + 6 ].token &&
+              Token_VARIABLE == vals[ iToken + 9 ].token &&
+              Token_OPENPAREN == vals[ iToken + 12 ].token &&
+              Token_CONSTANT == vals[ iToken + 14 ].token &&
               isOperatorLogical( vals[ iToken + 8 ].token ) &&
               isOperatorRelational( vals[ iToken + 2 ].token ) &&
               isOperatorRelational( vals[ iToken + 10 ].token ) )
@@ -1763,11 +1859,11 @@ __makeinline int EvaluateExpressionOptimized( int & iToken, vector<TokenValue> c
     }
     else if ( 3 == tokenCount )
     {
-        if ( Token::NOT == vals[ iToken + 1 ].token )
+        if ( Token_NOT == vals[ iToken + 1 ].token )
             value = ! ( vals[ iToken + 2 ].pVariable->value );
         else
         {
-            assert( Token::MINUS == vals[ iToken + 1 ].token );
+            assert( Token_MINUS == vals[ iToken + 1 ].token );
             value = - GetSimpleValue( vals[ iToken + 2 ] );
         }
         iToken += tokenCount;
@@ -1818,7 +1914,7 @@ void ShowLocListing( LineOfCode & loc )
         printf( "  token %3zd %s, value %d, strValue '%s'",
                 t, TokenStr( tv.token ), tv.value, tv.strValue.c_str() );
     
-        if ( Token::DIM == tv.token )
+        if ( Token_DIM == tv.token )
         {
             printf( " dimensions: %d, length: ", tv.dimensions );
             for ( int d = 0; d < tv.dimensions; d++ )
@@ -1842,20 +1938,20 @@ void RemoveREMStatements()
         {
             TokenValue & tv = loc.tokenValues[ t ];
 
-            if ( Token::GOTO == tv.token || Token::GOSUB == tv.token )
+            if ( Token_GOTO == tv.token || Token_GOSUB == tv.token )
             {
                 for ( size_t lo = 0; lo < g_linesOfCode.size(); lo++ )
                 {
                     if ( ( g_linesOfCode[ lo ].lineNumber == tv.value ) &&
                          ( ( 0 == g_linesOfCode[ lo ].tokenValues.size() ) ||
-                           ( Token::REM == g_linesOfCode[ lo ].tokenValues[ 0 ].token ) ) )
+                           ( Token_REM == g_linesOfCode[ lo ].tokenValues[ 0 ].token ) ) )
                     {
                         // look for the next statement that's not REM
 
                         bool foundOne = false;
                         for ( size_t h = lo + 1; h < g_linesOfCode.size(); h++ )
                         {
-                            if ( Token::REM != g_linesOfCode[ h ].tokenValues[ 0 ].token )
+                            if ( Token_REM != g_linesOfCode[ h ].tokenValues[ 0 ].token )
                             {
                                 foundOne = true;
                                 tv.value = g_linesOfCode[ h ].lineNumber;
@@ -1882,7 +1978,7 @@ void RemoveREMStatements()
     {
         LineOfCode & loc = g_linesOfCode[ curloc ];
 
-        if ( ( 0 == loc.tokenValues.size() ) || ( Token::REM == loc.tokenValues[ 0 ].token ) )
+        if ( ( 0 == loc.tokenValues.size() ) || ( Token_REM == loc.tokenValues[ 0 ].token ) )
         {
             g_linesOfCode.erase( g_linesOfCode.begin() + curloc );
             endloc--;
@@ -1896,7 +1992,7 @@ void AddENDStatement()
 {
     bool addEnd = true;
 
-    if ( g_linesOfCode.size() && Token::END == g_linesOfCode[ g_linesOfCode.size() - 1 ].tokenValues[ 0 ].token )
+    if ( g_linesOfCode.size() && Token_END == g_linesOfCode[ g_linesOfCode.size() - 1 ].tokenValues[ 0 ].token )
         addEnd = false;
 
     if ( addEnd )
@@ -1904,7 +2000,7 @@ void AddENDStatement()
         int linenumber = 1 + g_linesOfCode[ g_linesOfCode.size() - 1 ].lineNumber;
         LineOfCode loc( linenumber, "2000000000 end" );
         g_linesOfCode.push_back( loc );
-        TokenValue tokenValue( Token::END );
+        TokenValue tokenValue( Token_END );
         g_linesOfCode[ g_linesOfCode.size() - 1 ].tokenValues.push_back( tokenValue );
     }
 } //AddENDStatement
@@ -1923,7 +2019,7 @@ void PatchGotoAndGosubNumbers()
             TokenValue & tv = loc.tokenValues[ t ];
             bool found = false;
 
-            if ( Token::GOTO == tv.token || Token::GOSUB == tv.token )
+            if ( Token_GOTO == tv.token || Token_GOSUB == tv.token )
             {
                 for ( size_t lo = 0; lo < g_linesOfCode.size(); lo++ )
                 {
@@ -1971,11 +2067,11 @@ void OptimizeWithRewrites( bool showListing )
         //   token   9 THEN, value 0, strValue ''
         //   token  10 GOTO, value 4500, strValue ''
 
-        if ( Token::IF == vals[ 0 ].token &&
-             Token::EXPRESSION == vals[ 1 ].token &&
-             Token::CONSTANT == vals[ 2 ].token &&
+        if ( Token_IF == vals[ 0 ].token &&
+             Token_EXPRESSION == vals[ 1 ].token &&
+             Token_CONSTANT == vals[ 2 ].token &&
              0 == vals[ 2 ].value &&
-             Token::NE == vals[ 3 ].token )
+             Token_NE == vals[ 3 ].token )
         {
             vals.erase( vals.begin() + 2 );
             vals.erase( vals.begin() + 2 );
@@ -1994,21 +2090,21 @@ void OptimizeWithRewrites( bool showListing )
         //   token   5 CONSTANT, value 1, strValue ''
 
         else if ( 6 == vals.size() &&
-            Token::VARIABLE == vals[ 0 ].token &&
-            Token::EQ == vals[ 1 ].token &&
-            Token::VARIABLE == vals[ 3 ].token &&
-            !vals[ 0 ].strValue.compare( vals[ 3 ].strValue ) &&
-            Token::PLUS == vals[ 4 ].token &&
-            Token::CONSTANT == vals[ 5 ].token &&
+            Token_VARIABLE == vals[ 0 ].token &&
+            Token_EQ == vals[ 1 ].token &&
+            Token_VARIABLE == vals[ 3 ].token &&
+            !stcmp( vals[ 0 ], vals[ 3 ] ) &&
+            Token_PLUS == vals[ 4 ].token &&
+            Token_CONSTANT == vals[ 5 ].token &&
             1 == vals[ 5 ].value )
         {
             string varname = vals[ 3 ].strValue;
             vals.clear();
 
-            TokenValue tval( Token::ATOMIC );
+            TokenValue tval( Token_ATOMIC );
             vals.push_back( tval );
 
-            tval.token = Token::INC;
+            tval.token = Token_INC;
             tval.strValue = varname;
             vals.push_back( tval );
 
@@ -2025,21 +2121,21 @@ void OptimizeWithRewrites( bool showListing )
         //   token   5 CONSTANT, value 1, strValue ''
 
         else if ( 6 == vals.size() &&
-            Token::VARIABLE == vals[ 0 ].token &&
-            Token::EQ == vals[ 1 ].token &&
-            Token::VARIABLE == vals[ 3 ].token &&
-            !vals[ 0 ].strValue.compare( vals[ 3 ].strValue ) &&
-            Token::MINUS == vals[ 4 ].token &&
-            Token::CONSTANT == vals[ 5 ].token &&
+            Token_VARIABLE == vals[ 0 ].token &&
+            Token_EQ == vals[ 1 ].token &&
+            Token_VARIABLE == vals[ 3 ].token &&
+            !stcmp( vals[ 0 ], vals[ 3 ] ) &&
+            Token_MINUS == vals[ 4 ].token &&
+            Token_CONSTANT == vals[ 5 ].token &&
             1 == vals[ 5 ].value )
         {
             string varname = vals[ 3 ].strValue;
             vals.clear();
 
-            TokenValue tval( Token::ATOMIC );
+            TokenValue tval( Token_ATOMIC );
             vals.push_back( tval );
 
-            tval.token = Token::DEC;
+            tval.token = Token_DEC;
             tval.strValue = varname;
             vals.push_back( tval );
 
@@ -2057,16 +2153,16 @@ void OptimizeWithRewrites( bool showListing )
         //   token   6 GOTO, value 2500, strValue ''
 
         else if ( 7 == vals.size() &&
-                  Token::IF == vals[ 0 ].token &&
-                  Token::EXPRESSION == vals[ 1 ].token &&
+                  Token_IF == vals[ 0 ].token &&
+                  Token_EXPRESSION == vals[ 1 ].token &&
                   4 == vals[ 1 ].value &&
-                  Token::CONSTANT == vals[ 2 ].token &&
+                  Token_CONSTANT == vals[ 2 ].token &&
                   0 == vals[ 2 ].value &&
-                  Token::EQ == vals[ 3 ].token &&
-                  Token::VARIABLE == vals[ 4 ].token )
+                  Token_EQ == vals[ 3 ].token &&
+                  Token_VARIABLE == vals[ 4 ].token )
         {
             vals.erase( vals.begin() + 2 );
-            vals[ 2 ].token = Token::NOT;
+            vals[ 2 ].token = Token_NOT;
             vals[ 1 ].value = 3;
 
             rewritten = true;
@@ -2083,16 +2179,16 @@ void OptimizeWithRewrites( bool showListing )
         //   token   6 GOTO, value 2500, strValue ''
 
         else if ( 7 == vals.size() &&
-                  Token::IF == vals[ 0 ].token &&
-                  Token::EXPRESSION == vals[ 1 ].token &&
+                  Token_IF == vals[ 0 ].token &&
+                  Token_EXPRESSION == vals[ 1 ].token &&
                   4 == vals[ 1 ].value &&
-                  Token::VARIABLE == vals[ 2 ].token &&
-                  Token::EQ == vals[ 3 ].token &&
-                  Token::CONSTANT == vals[ 4 ].token &&
+                  Token_VARIABLE == vals[ 2 ].token &&
+                  Token_EQ == vals[ 3 ].token &&
+                  Token_CONSTANT == vals[ 4 ].token &&
                   0 == vals[ 4 ].value )
         {
             vals[ 3 ] = vals[ 2 ];
-            vals[ 2 ].token = Token::NOT;
+            vals[ 2 ].token = Token_NOT;
             vals[ 2 ].strValue = "";
             vals[ 1 ].value = 3;
             vals.erase( vals.begin() + 4 );
@@ -2127,10 +2223,10 @@ void CreateVariables( map<string, Variable> & varmap )
         {
             TokenValue & tv = loc.tokenValues[ t ];
 
-            if ( ( Token::INC == tv.token ) ||
-                 ( Token::DEC == tv.token ) ||
-                 ( Token::VARIABLE == tv.token ) || // create arrays as singletons until a DIM statement
-                 ( Token::FOR == tv.token ) )
+            if ( ( Token_INC == tv.token ) ||
+                 ( Token_DEC == tv.token ) ||
+                 ( Token_VARIABLE == tv.token ) || // create arrays as singletons until a DIM statement
+                 ( Token_FOR == tv.token ) )
             {
                 Variable * pvar = GetVariablePerhapsCreate( tv, varmap );
                 pvar->references++;
@@ -2138,6 +2234,8 @@ void CreateVariables( map<string, Variable> & varmap )
         }
     }
 } //CreateVariables
+
+#ifdef BA_ENABLE_COMPILER
 
 const char * GenVariableName( string const & s )
 {
@@ -2295,11 +2393,11 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
 {
     // optimize for wi% = b%( 0 )
 
-    if ( Token::VARIABLE == vals[ left ].token &&
+    if ( Token_VARIABLE == vals[ left ].token &&
          IsVariableInReg( varmap, vals[ left ].strValue ) &&
          0 == vals[ left ].dimensions &&
          isOperatorRelational( op ) &&
-         Token::VARIABLE == vals[ right ].token &&
+         Token_VARIABLE == vals[ right ].token &&
          0 != vals[ right ].dimensions )
     {
         if ( x64Win == g_AssemblyTarget )
@@ -2333,10 +2431,10 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
 
     // optimize this typical case to save a mov: x% relop CONSTANT
 
-    if ( Token::VARIABLE == vals[ left ].token &&
+    if ( Token_VARIABLE == vals[ left ].token &&
          0 == vals[ left ].dimensions &&
          isOperatorRelational( op ) &&
-         Token::CONSTANT == vals[ right ].token )
+         Token_CONSTANT == vals[ right ].token )
     {
         string const & varname = vals[ left ].strValue;
 
@@ -2371,7 +2469,7 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
     // general case: left operator right
     // first: load left
 
-    if ( Token::CONSTANT == vals[ left ].token )
+    if ( Token_CONSTANT == vals[ left ].token )
     {
         if ( x64Win == g_AssemblyTarget )
             fprintf( fp, "    mov      eax, %d\n", vals[ left ].value );
@@ -2426,7 +2524,7 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
     {
         // relational
 
-        if ( Token::CONSTANT == vals[ right ].token )
+        if ( Token_CONSTANT == vals[ right ].token )
         {
             if ( x64Win == g_AssemblyTarget )
                 fprintf( fp, "    cmp      eax, %d\n", vals[ right ].value );
@@ -2498,9 +2596,9 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
     {
         // arithmetic and logical (which in BASIC is both arithmetic and logical)
 
-        if ( x64Win == g_AssemblyTarget && Token::DIV == op )
+        if ( x64Win == g_AssemblyTarget && Token_DIV == op )
         {
-            if ( Token::CONSTANT == vals[ right ].token )
+            if ( Token_CONSTANT == vals[ right ].token )
                 fprintf( fp, "    mov      rbx, %d\n", vals[ right ].value );
             else if ( 0 == vals[ right ].dimensions )
             {
@@ -2519,7 +2617,7 @@ void GenerateOp( FILE * fp, map<string, Variable> const & varmap, vector<TokenVa
         }
         else
         {
-            if ( Token::CONSTANT == vals[ right ].token )
+            if ( Token_CONSTANT == vals[ right ].token )
             {
                 if ( x64Win == g_AssemblyTarget )
                     fprintf( fp, "    %-6s   eax, %d\n", OperatorInstructionX64[ op ], vals[ right ].value );
@@ -2741,7 +2839,7 @@ void GenerateTerm( FILE * fp, map<string, Variable> const & varmap, int & iToken
     {
         PushAccumulator( fp );
 
-        if ( Token::MULT == t )
+        if ( Token_MULT == t )
             GenerateMultiply( fp, varmap, iToken, beyond, vals );
         else
             GenerateDivide( fp, varmap, iToken, beyond, vals );
@@ -2765,20 +2863,20 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
     {
         Token t = vals[ iToken ].token;
 
-        if ( Token::EXPRESSION == t )
+        if ( Token_EXPRESSION == t )
         {
             iToken++;
             t = vals[ iToken ].token;
         }
 
-        if ( Token::OPENPAREN == t )
+        if ( Token_OPENPAREN == t )
         {
             iToken++;
             GenerateExpression( fp, varmap, iToken, beyond, vals );
-            assert( Token::CLOSEPAREN == vals[ iToken ].token );
+            assert( Token_CLOSEPAREN == vals[ iToken ].token );
             iToken++;
         }
-        else if ( Token::VARIABLE == t )
+        else if ( Token_VARIABLE == t )
         {
             string const & varname = vals[ iToken ].strValue;
 
@@ -2848,12 +2946,12 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
             {
                 iToken++; // variable
 
-                if ( Token::OPENPAREN != vals[ iToken ].token )
+                if ( Token_OPENPAREN != vals[ iToken ].token )
                     RuntimeFail( "open parenthesis expected", g_lineno );
 
                 iToken++; // open paren
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
                 GenerateExpression( fp, varmap, iToken, iToken + vals[ iToken ].value, vals );
 
                 if ( x64Win == g_AssemblyTarget )
@@ -2936,21 +3034,21 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
             {
                 iToken++; // variable
 
-                if ( Token::OPENPAREN != vals[ iToken ].token )
+                if ( Token_OPENPAREN != vals[ iToken ].token )
                     RuntimeFail( "open parenthesis expected", g_lineno );
 
                 iToken++; // open paren
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
                 GenerateExpression( fp, varmap, iToken, iToken + vals[ iToken ].value, vals );
 
                 PushAccumulator( fp );
 
-                if ( Token::COMMA != vals[ iToken ].token )
+                if ( Token_COMMA != vals[ iToken ].token )
                     RuntimeFail( "expected a 2-dimensional array", g_lineno );
                 iToken++; // comma
 
-                assert( Token::EXPRESSION == vals[ iToken ].token );
+                assert( Token_EXPRESSION == vals[ iToken ].token );
                 GenerateExpression( fp, varmap, iToken, iToken + vals[ iToken ].value, vals );
 
                 Variable * pvar = FindVariable( varmap, varname );
@@ -3102,7 +3200,7 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
 
             iToken++;
         }
-        else if ( Token::CONSTANT == t )
+        else if ( Token_CONSTANT == t )
         {
             if ( x64Win == g_AssemblyTarget )
                 fprintf( fp, "    mov      rax, %d\n", vals[ iToken ].value );
@@ -3128,16 +3226,16 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
 
             iToken++;
         }
-        else if ( Token::CLOSEPAREN == t )
+        else if ( Token_CLOSEPAREN == t )
         {
             assert( false && "why is there a close paren?" );
             iToken++;
         }
-        else if ( Token::NOT == t )
+        else if ( Token_NOT == t )
         {
             iToken++;
 
-            assert( Token::VARIABLE == vals[ iToken ].token );
+            assert( Token_VARIABLE == vals[ iToken ].token );
 
             string const & varname = vals[ iToken ].strValue;
 
@@ -3399,7 +3497,7 @@ void GenerateExpression( FILE * fp, map<string, Variable> const & varmap, int & 
 
     // this will be called after an open paren, for example: ( 3 + 4 ) and not be an EXPRESSION in that case.
 
-    if ( Token::EXPRESSION == vals[ iToken ].token )
+    if ( Token_EXPRESSION == vals[ iToken ].token )
         iToken++;
 
     // look for a unary + or -
@@ -3443,7 +3541,7 @@ void GenerateExpression( FILE * fp, map<string, Variable> const & varmap, int & 
     {
         PushAccumulator( fp );
 
-        if ( Token::PLUS == t )
+        if ( Token_PLUS == t )
             GenerateAdd( fp, varmap, iToken, beyond, vals );
         else
             GenerateSubtract( fp, varmap, iToken, beyond, vals );
@@ -3466,21 +3564,21 @@ void Generate6502Relation( FILE * fp, const char * lhs, const char * rhs, Token 
 {
     assert( isOperatorRelational( op ) );
 
-    if ( Token::GE == op || Token::GT == op )
+    if ( Token_GE == op || Token_GT == op )
     {
         Swap( lhs, rhs );
     
-        if ( Token::GE == op )
-            op = Token::LE;
+        if ( Token_GE == op )
+            op = Token_LE;
         else
-            op = Token::LT;
+            op = Token_LT;
     }
     
     // now only EQ, NE, LE, or LT
 
     static int gen6502Relation = 0;
 
-    if ( Token::EQ == op )
+    if ( Token_EQ == op )
     {
         fprintf( fp, "    lda      %s\n", lhs );
         fprintf( fp, "    cmp      %s\n", rhs );
@@ -3489,7 +3587,7 @@ void Generate6502Relation( FILE * fp, const char * lhs, const char * rhs, Token 
         fprintf( fp, "    cmp      %s+1\n", rhs );
         fprintf( fp, "    beq      %s%d\n", truename, truenumber );
     }
-    else if ( Token::NE == op )
+    else if ( Token_NE == op )
     {
         fprintf( fp, "    lda      %s\n", lhs );
         fprintf( fp, "    cmp      %s\n", rhs );
@@ -3498,13 +3596,13 @@ void Generate6502Relation( FILE * fp, const char * lhs, const char * rhs, Token 
         fprintf( fp, "    cmp      %s+1\n", rhs );
         fprintf( fp, "    bne      %s%d\n", truename, truenumber );
     }
-    else if ( Token::LT == op || Token::LE == op )
+    else if ( Token_LT == op || Token_LE == op )
     {
         fprintf( fp, "    sec\n" );
         fprintf( fp, "    lda      %s+1\n", lhs );
         fprintf( fp, "    sbc      %s+1\n", rhs );
 
-        if ( Token::LE == op )
+        if ( Token_LE == op )
             fprintf( fp, "    beq      _label3_%d\n", gen6502Relation );
 
         fprintf( fp, "    bvc      _label1_%d\n", gen6502Relation );
@@ -3522,7 +3620,7 @@ void Generate6502Relation( FILE * fp, const char * lhs, const char * rhs, Token 
         fprintf( fp, "    lda      %s\n", lhs );
         fprintf( fp, "    sbc      %s\n", rhs );
 
-        if ( Token::LE == op )
+        if ( Token_LE == op )
             fprintf( fp, "    beq      %s%d\n", truename, truenumber );
 
         fprintf( fp, "    bcc      %s%d\n", truename, truenumber );
@@ -3544,21 +3642,21 @@ void Generate8080Relation( FILE * fp, Token op, const char * truename, int truen
     // ( de == lhs ) op ( hl == rhs )
     // de and hl are not guaranteed to survive
 
-    if ( Token::GE == op || Token::GT == op )
+    if ( Token_GE == op || Token_GT == op )
     {
         fprintf( fp, "    xchg\n" );  // swap de and hl
     
-        if ( Token::GE == op )
-            op = Token::LE;
+        if ( Token_GE == op )
+            op = Token_LE;
         else
-            op = Token::LT;
+            op = Token_LT;
     }
     
     // now only EQ, NE, LE, or LT
 
     static int gen8080Relation = 0;
 
-    if ( Token::EQ == op )
+    if ( Token_EQ == op )
     {
         fprintf( fp, "    mov      a, e\n" );
         fprintf( fp, "    cmp      l\n" );
@@ -3567,7 +3665,7 @@ void Generate8080Relation( FILE * fp, Token op, const char * truename, int truen
         fprintf( fp, "    cmp      h\n" );
         fprintf( fp, "    jz       %s%d\n", truename, truenumber );
     }
-    else if ( Token::NE == op )
+    else if ( Token_NE == op )
     {
         fprintf( fp, "    mov      a, e\n" );
         fprintf( fp, "    cmp      l\n" );
@@ -3576,9 +3674,9 @@ void Generate8080Relation( FILE * fp, Token op, const char * truename, int truen
         fprintf( fp, "    cmp      h\n" );
         fprintf( fp, "    jnz      %s%d\n", truename, truenumber );
     }
-    else if ( Token::LT == op || Token::LE == op )
+    else if ( Token_LT == op || Token_LE == op )
     {
-        if ( Token::LE == op )
+        if ( Token_LE == op )
         {
             // check for equality
 
@@ -3731,19 +3829,19 @@ void GenerateRelational( FILE * fp, map<string, Variable> const & varmap, int & 
         RiscVPop( fp, "a0" );
 
         fprintf( fp, "    sub      t0, a0, t0\n" );
-        if ( Token::EQ == op )
+        if ( Token_EQ == op )
             fprintf( fp, "    sltiu    a0, t0, 1\n" );
-        else if ( Token::NE == op )
+        else if ( Token_NE == op )
             fprintf( fp, "    sltu     a0, zero, t0\n" );
-        else if ( Token::LT == op )
+        else if ( Token_LT == op )
             fprintf( fp, "    slt      a0, t0, zero\n" );
-        else if ( Token::GT == op )
+        else if ( Token_GT == op )
             fprintf( fp, "    slt      a0, zero, t0\n" );
         else // LE or GE
         {
             fprintf( fp, "    sltiu    a0, t0, 1\n" ); // check for ==
 
-            if ( Token::LE == op )
+            if ( Token_LE == op )
                 fprintf( fp, "    slt      t1, t0, zero\n" );
             else // GE
                 fprintf( fp, "    slt      t1, zero, t0\n" );
@@ -3769,7 +3867,7 @@ void GenerateRelationalExpression( FILE * fp, map<string, Variable> const & varm
     // This won't be an EXPRESSION for cases like x = x + ...
     // But it will be EXPRESSION when called from GenerateLogicalExpression
 
-    if ( Token::EXPRESSION == vals[ iToken ].token )
+    if ( Token_EXPRESSION == vals[ iToken ].token )
         iToken++;
 
     GenerateExpression( fp, varmap, iToken, beyond, vals );
@@ -3876,7 +3974,7 @@ void GenerateLogicalExpression( FILE * fp, map<string, Variable> const & varmap,
             printf( "    %d:    %s\n", i, TokenStr( vals[ i ].token ) );
     }
 
-    assert( Token::EXPRESSION == vals[ iToken ].token );
+    assert( Token_EXPRESSION == vals[ iToken ].token );
 
     GenerateRelationalExpression( fp, varmap, iToken, beyond, vals );
 
@@ -3909,7 +4007,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
     // On i386, result is in eax
     // On riscv64, result is in a0
 
-    assert( Token::EXPRESSION == vals[ iToken ].token );
+    assert( Token_EXPRESSION == vals[ iToken ].token );
     int tokenCount = vals[ iToken ].value;
 
     #ifdef DEBUG
@@ -3927,7 +4025,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
 
     if ( 2 == tokenCount )
     {
-        if ( Token::CONSTANT == vals[ iToken + 1 ].token )
+        if ( Token_CONSTANT == vals[ iToken + 1 ].token )
         {
             if ( x64Win == g_AssemblyTarget )
                 fprintf( fp, "    mov      eax, %d\n", vals[ iToken + 1 ].value );
@@ -3941,7 +4039,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
                 fprintf( fp, "    sta      curOperand+1\n" );
             }
         }
-        else if ( Token::VARIABLE == vals[ iToken + 1 ].token )
+        else if ( Token_VARIABLE == vals[ iToken + 1 ].token )
         {
             string const & varname = vals[ iToken + 1 ].strValue;
 
@@ -3974,8 +4072,8 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
         iToken += tokenCount;
     }
     else if ( 6 == tokenCount &&
-              Token::VARIABLE == vals[ iToken + 1 ].token &&
-              Token::OPENPAREN == vals[ iToken + 2 ].token )
+              Token_VARIABLE == vals[ iToken + 1 ].token &&
+              Token_OPENPAREN == vals[ iToken + 2 ].token )
     {
         // sa%( st% ) or sa%( 10 )
         // 0 EXPRESSION, value 6, strValue ''
@@ -3988,7 +4086,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
         if ( 1 != vals[ iToken + 1 ].dimensions ) // can't be > 1 or tokenCount would be greater
             RuntimeFail( "scalar variable used as an array", g_lineno );
 
-        if ( Token::CONSTANT == vals[ iToken + 4 ].token )
+        if ( Token_CONSTANT == vals[ iToken + 4 ].token )
         {
             string const & varname = vals[ iToken + 1 ].strValue;
 
@@ -4083,7 +4181,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
     }
     else if ( x64Win == g_AssemblyTarget && 3 == tokenCount )
     {
-        if ( Token::NOT == vals[ iToken + 1 ].token )
+        if ( Token_NOT == vals[ iToken + 1 ].token )
         {
             string const & varname = vals[ iToken + 2 ].strValue;
             
@@ -4097,7 +4195,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
         }
         else
         {
-            assert( Token::MINUS == vals[ iToken + 1 ].token );
+            assert( Token_MINUS == vals[ iToken + 1 ].token );
 
             string const & varname = vals[ iToken + 2 ].strValue;
             if ( IsVariableInReg( varmap, varname ) )
@@ -4112,12 +4210,12 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
     }
     else if ( mos6502Apple1 != g_AssemblyTarget &&
               16 == tokenCount &&
-              Token::VARIABLE == vals[ iToken + 1 ].token &&
-              Token::OPENPAREN == vals[ iToken + 4 ].token &&
-              Token::CONSTANT == vals[ iToken + 6 ].token &&
-              Token::VARIABLE == vals[ iToken + 9 ].token &&
-              Token::OPENPAREN == vals[ iToken + 12 ].token &&
-              Token::CONSTANT == vals[ iToken + 14 ].token &&
+              Token_VARIABLE == vals[ iToken + 1 ].token &&
+              Token_OPENPAREN == vals[ iToken + 4 ].token &&
+              Token_CONSTANT == vals[ iToken + 6 ].token &&
+              Token_VARIABLE == vals[ iToken + 9 ].token &&
+              Token_OPENPAREN == vals[ iToken + 12 ].token &&
+              Token_CONSTANT == vals[ iToken + 14 ].token &&
               isOperatorRelational( vals[ iToken + 2 ].token ) &&
               isOperatorRelational( vals[ iToken + 10 ].token ) )
     {
@@ -4148,7 +4246,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
 
         GenerateOp( fp, varmap, vals, iToken + 1, iToken + 3, vals[ iToken + 2 ].token, 0, iToken + 6 );
 
-        if ( Token::AND == vals[ iToken + 8 ].token )
+        if ( Token_AND == vals[ iToken + 8 ].token )
         {
             if ( x64Win == g_AssemblyTarget )
             {
@@ -4188,7 +4286,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
             else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                 fprintf( fp, "    %-6s   w0, w0, w5\n", OperatorInstructionArm[ finalOp ] );
 
-            if ( Token::AND == vals[ iToken + 8 ].token )
+            if ( Token_AND == vals[ iToken + 8 ].token )
             {
                 if ( arm64Mac == g_AssemblyTarget )
                     fprintf( fp, "  .p2align 3\n" );
@@ -4589,7 +4687,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         LineOfCode & loc = g_linesOfCode[ l ];
         vector<TokenValue> & vals = loc.tokenValues;
 
-        if ( Token::DIM == vals[ 0 ].token )
+        if ( Token_DIM == vals[ 0 ].token )
         {
             int cdwords = vals[ 0 ].dims[ 0 ];
             if ( 2 == vals[ 0 ].dimensions )
@@ -4643,11 +4741,11 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                 }
             }
         }
-        else if ( Token::PRINT == vals[ 0 ].token || Token::IF == vals[ 0 ].token )
+        else if ( Token_PRINT == vals[ 0 ].token || Token_IF == vals[ 0 ].token )
         {
             for ( int t = 0; t < vals.size(); t++ )
             {
-                if ( Token::STRING == vals[ t ].token )
+                if ( Token_STRING == vals[ t ].token )
                 {
                     string strEscaped = singleQuoteEscape( vals[ t ].strValue );
                     if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
@@ -4676,9 +4774,9 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         // risc-v strings get declared below in the non-writeable section
                     }
                 }
-                else if ( Token::ELAP == vals[ t ].token )
+                else if ( Token_ELAP == vals[ t ].token )
                     elapReferenced = true;
-                else if ( Token::TIME == vals[ t ].token )
+                else if ( Token_TIME == vals[ t ].token )
                     timeReferenced = true;
             }
         }
@@ -4686,7 +4784,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
 
     vector<VarCount> varscount;
 
-    for ( auto it = varmap.begin(); it != varmap.end(); it++ )
+    for ( std::map<string, Variable>::iterator  it = varmap.begin(); it != varmap.end(); it++ )
     {
         // enable registers for arm64 arrays since loading addresses via code is slow.
         // it's 5% overall faster this way
@@ -4771,7 +4869,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         }
     }
 
-    for ( auto it = varmap.begin(); it != varmap.end(); it++ )
+    for ( std::map<string, Variable>::iterator it = varmap.begin(); it != varmap.end(); it++ )
     {
         if ( ( 0 == it->second.dimensions ) && ( 0 == it->second.reg.length() )  )
         {
@@ -5051,7 +5149,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             LineOfCode & loc = g_linesOfCode[ l ];
             vector<TokenValue> & vals = loc.tokenValues;
     
-            if ( Token::DIM == vals[ 0 ].token )
+            if ( Token_DIM == vals[ 0 ].token )
             {
                 int cdwords = vals[ 0 ].dims[ 0 ];
                 if ( 2 == vals[ 0 ].dimensions )
@@ -5116,7 +5214,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             LineOfCode & loc = g_linesOfCode[ l ];
             vector<TokenValue> & vals = loc.tokenValues;
     
-            if ( Token::DIM == vals[ 0 ].token )
+            if ( Token_DIM == vals[ 0 ].token )
             {
                 int cdwords = vals[ 0 ].dims[ 0 ];
                 if ( 2 == vals[ 0 ].dimensions )
@@ -5305,11 +5403,11 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             LineOfCode & loc = g_linesOfCode[ l ];
             vector<TokenValue> & vals = loc.tokenValues;
     
-            if ( Token::PRINT == vals[ 0 ].token || Token::IF == vals[ 0 ].token )
+            if ( Token_PRINT == vals[ 0 ].token || Token_IF == vals[ 0 ].token )
             {
                 for ( int t = 0; t < vals.size(); t++ )
                 {
-                    if ( Token::STRING == vals[ t ].token )
+                    if ( Token_STRING == vals[ t ].token )
                     {
                         string e = arm64MacEscape( vals[ t ].strValue );
                         fprintf( fp, "  str_%zd_%d:\n    .string \"%s\"\n", l, t, e.c_str() );
@@ -5393,7 +5491,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             for ( size_t i = 0; i < _countof( MappedRegistersRiscV64 ); i++ )
                 fprintf( fp, "    mv       %s, zero\n", MappedRegistersRiscV64[ i ] );
 
-        for ( auto it = varmap.begin(); it != varmap.end(); it++ )
+        for ( std::map<string, Variable>::iterator it = varmap.begin(); it != varmap.end(); it++ )
         {
             if ( ( 0 != it->second.dimensions ) && ( 0 != it->second.reg.length() ) )
             {
@@ -5448,21 +5546,21 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             if ( EnableTracing && g_Tracing )
                 printf( "generating code for line %zd, token %d %s, valsize %zd\n", l, t, TokenStr( vals[ t ].token ), vals.size() );
 
-            if ( Token::VARIABLE == token )
+            if ( Token_VARIABLE == token )
             {
                 int variableToken = t;
                 t++;
     
-                if ( Token::EQ == vals[ t ].token )
+                if ( Token_EQ == vals[ t ].token )
                 {
                     t++;
     
-                    assert( Token::EXPRESSION == vals[ t ].token );
+                    assert( Token_EXPRESSION == vals[ t ].token );
 
                     if ( i8080CPM == g_AssemblyTarget || !g_ExpressionOptimization )
                         goto label_no_eq_optimization;
 
-                    if ( Token::CONSTANT == vals[ t + 1 ].token &&
+                    if ( Token_CONSTANT == vals[ t + 1 ].token &&
                          2 == vals[ t ].value  )
                     {
                         // e.g.: x% = 3
@@ -5523,7 +5621,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
 
                         t += vals[ t ].value;
                     }
-                    else if ( Token::VARIABLE == vals[ t + 1 ].token && 2 == vals[ t ].value &&
+                    else if ( Token_VARIABLE == vals[ t + 1 ].token && 2 == vals[ t ].value &&
                               IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
                               IsVariableInReg( varmap, vals[ variableToken ].strValue ) )
                     {
@@ -5540,7 +5638,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         t += vals[ t ].value;
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
                               2 == vals[ t ].value )
                     {
                         // e.g.: x% = y%
@@ -5553,11 +5651,11 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         t += vals[ t ].value;
                     }
                     else if ( 6 == vals[ t ].value &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
                               IsVariableInReg( varmap, vals[ variableToken ].strValue ) &&
-                              Token::OPENPAREN == vals[ t + 2 ].token &&
+                              Token_OPENPAREN == vals[ t + 2 ].token &&
                               isTokenSimpleValue( vals[ t + 4 ].token ) &&
-                              ( Token::CONSTANT == vals[ t + 4 ].token || IsVariableInReg( varmap, vals[ t + 4 ].strValue ) ) )
+                              ( Token_CONSTANT == vals[ t + 4 ].token || IsVariableInReg( varmap, vals[ t + 4 ].strValue ) ) )
                     {
                         // e.g.: p% = sp%( st% ) 
                         //       p% = sp%( 4 )
@@ -5574,7 +5672,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
 
                         if ( x64Win == g_AssemblyTarget )
                         {
-                            if ( Token::CONSTANT == vals[ t + 4 ].token )
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
                             {
                                 fprintf( fp, "    mov      %s, [ %s + %d ]\n", GenVariableReg( varmap, vals[ variableToken ].strValue ),
                                                                                GenVariableName( vals[ t + 1 ].strValue ),
@@ -5593,7 +5691,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                             string & vararray = vals[ t + 1 ].strValue;
                             string & varname = vals[ variableToken ].strValue;
 
-                            if ( Token::CONSTANT == vals[ t + 4 ].token )
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
                             {
                                 LoadArm32Address( fp, "r1", varmap, vararray );
 
@@ -5618,7 +5716,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                             string & vararray = vals[ t + 1 ].strValue;
                             string & varname = vals[ variableToken ].strValue;
 
-                            if ( Token::CONSTANT == vals[ t + 4 ].token )
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
                             {
                                 if ( 0 != vals[ t + 4 ].value )
                                 {
@@ -5685,7 +5783,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         }
                         else if ( x86Win == g_AssemblyTarget )
                         {
-                            if ( Token::CONSTANT == vals[ t + 4 ].token )
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
                             {
                                 fprintf( fp, "    mov      %s, [ %s + %d ]\n", GenVariableReg( varmap, vals[ variableToken ].strValue ),
                                                                                GenVariableName( vals[ t + 1 ].strValue ),
@@ -5703,7 +5801,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         {
                             fprintf( fp, "    lla      t0, %s\n", GenVariableName( vals[ t + 1 ].strValue ) );
 
-                            if ( Token::CONSTANT == vals[ t + 4 ].token )
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
                                 fprintf( fp, "    li       t1, %d\n", 4 * vals[ t + 4 ].value );
                             else
                             {
@@ -5719,8 +5817,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
                               6 == vals[ t ].value &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
-                              Token::OPENPAREN == vals[ t + 2 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_OPENPAREN == vals[ t + 2 ].token &&
                               isTokenSimpleValue( vals[ t + 4 ].token ) )
                     {
                         // e.g.: p% = sp%( st% ) 
@@ -5739,7 +5837,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         string & vararray = vals[ t + 1 ].strValue;
                         string & varname = vals[ variableToken ].strValue;
 
-                        if ( Token::CONSTANT == vals[ t + 4 ].token )
+                        if ( Token_CONSTANT == vals[ t + 4 ].token )
                         {
                             fprintf( fp, "    lda      #%d\n", 2 * vals[ t + 4 ].value );
                             fprintf( fp, "    clc\n" );
@@ -5785,8 +5883,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                     }
                     else if ( i8086DOS == g_AssemblyTarget &&
                               6 == vals[ t ].value &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
-                              Token::OPENPAREN == vals[ t + 2 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_OPENPAREN == vals[ t + 2 ].token &&
                               isTokenSimpleValue( vals[ t + 4 ].token ) )
                     {
                         // e.g.: p% = sp%( st% ) 
@@ -5805,7 +5903,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         string & vararray = vals[ t + 1 ].strValue;
                         string & varname = vals[ variableToken ].strValue;
 
-                        if ( Token::CONSTANT == vals[ t + 4 ].token )
+                        if ( Token_CONSTANT == vals[ t + 4 ].token )
                         {
                             fprintf( fp, "    mov      ax, ds: [ %s + %d ]\n", GenVariableName( vararray ), 2 * vals[ t + 4 ].value );
                         }
@@ -5878,11 +5976,11 @@ label_no_eq_optimization:
                         }
                     }
                 }
-                else if ( Token::OPENPAREN == vals[ t ].token )
+                else if ( Token_OPENPAREN == vals[ t ].token )
                 {
                     t++;
 
-                    assert( Token::EXPRESSION == vals[ t ].token );
+                    assert( Token_EXPRESSION == vals[ t ].token );
 
                     if ( !g_ExpressionOptimization )
                         goto label_no_array_eq_optimization;
@@ -5890,9 +5988,9 @@ label_no_eq_optimization:
                     if ( x64Win == g_AssemblyTarget &&
                          false &&                        // This code is smaller on x64, but overall runtime is 10% slower!?!
                          8 == vals.size() &&
-                         Token::CONSTANT == vals[ t + 1 ].token &&
-                         Token::EQ == vals[ t + 3 ].token &&
-                         Token::CONSTANT == vals[ t + 5 ].token )
+                         Token_CONSTANT == vals[ t + 1 ].token &&
+                         Token_EQ == vals[ t + 3 ].token &&
+                         Token_CONSTANT == vals[ t + 5 ].token )
                     {
                         // e.g.: b%( 0 ) = 0
 
@@ -5913,9 +6011,9 @@ label_no_eq_optimization:
                     }
                     else if ( ( arm64Mac == g_AssemblyTarget  || arm64Win == g_AssemblyTarget ) &&
                               8 == vals.size() &&
-                              Token::CONSTANT == vals[ t + 1 ].token &&
-                              Token::EQ == vals[ t + 3 ].token &&
-                              Token::CONSTANT == vals[ t + 5 ].token )
+                              Token_CONSTANT == vals[ t + 1 ].token &&
+                              Token_EQ == vals[ t + 3 ].token &&
+                              Token_CONSTANT == vals[ t + 5 ].token )
                     {
                         // line 73 has 8 tokens  ====>> 73 b%(4) = 0
                         //   0 VARIABLE, value 0, strValue 'b%'
@@ -5957,9 +6055,9 @@ label_no_eq_optimization:
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
                               8 == vals.size() &&
-                              Token::CONSTANT == vals[ t + 1 ].token &&
-                              Token::EQ == vals[ t + 3 ].token &&
-                              Token::CONSTANT == vals[ t + 5 ].token &&
+                              Token_CONSTANT == vals[ t + 1 ].token &&
+                              Token_EQ == vals[ t + 3 ].token &&
+                              Token_CONSTANT == vals[ t + 5 ].token &&
                               vals[ t + 1 ].value < 64 )
                     {
                         // line 73 has 8 tokens  ====>> 73 b%(4) = 0
@@ -5990,10 +6088,10 @@ label_no_eq_optimization:
                     }
                     else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
                               8 == vals.size() &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
                               IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
                               IsVariableInReg( varmap, vals[ variableToken ].strValue ) &&
-                              Token::CONSTANT == vals[ t + 5 ].token )
+                              Token_CONSTANT == vals[ t + 5 ].token )
                     {
                         // line 4328 has 8 tokens  ====>> 4328 b%(p%) = 0
                         //   0 VARIABLE, value 0, strValue 'b%'
@@ -6018,9 +6116,9 @@ label_no_eq_optimization:
                     }
                     else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
                               8 == vals.size() &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
                               IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
-                              Token::VARIABLE == vals[ t + 5 ].token &&
+                              Token_VARIABLE == vals[ t + 5 ].token &&
                               IsVariableInReg( varmap, vals[ t + 5 ].strValue ) )
                     {
                         // line 4230 has 8 tokens  ====>> 4230 sv%(st%) = v%
@@ -6051,8 +6149,8 @@ label_no_eq_optimization:
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
                               8 == vals.size() &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
-                              Token::VARIABLE == vals[ t + 5 ].token )
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 5 ].token )
                     {
                         // line 4230 has 8 tokens  ====>> 4230 sv%(st%) = v%
                         //   0 VARIABLE, value 0, strValue 'sv%'
@@ -6093,8 +6191,8 @@ label_no_eq_optimization:
                     }
                     else if ( i8086DOS == g_AssemblyTarget &&
                               8 == vals.size() &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
-                              Token::VARIABLE == vals[ t + 5 ].token )
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 5 ].token )
                     {
                         // line 4230 has 8 tokens  ====>> 4230 sv%(st%) = v%
                         //   0 VARIABLE, value 0, strValue 'sv%'
@@ -6117,9 +6215,9 @@ label_no_eq_optimization:
                     }
                     else if ( x86Win == g_AssemblyTarget &&
                               8 == vals.size() &&
-                              Token::VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
                               IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
-                              Token::VARIABLE == vals[ t + 5 ].token )
+                              Token_VARIABLE == vals[ t + 5 ].token )
                     {
                         // line 4230 has 8 tokens  ====>> 4230 sv%(st%) = v%
                         //   0 VARIABLE, value 0, strValue 'sv%'
@@ -6155,7 +6253,7 @@ label_no_array_eq_optimization:
 
                         GenerateOptimizedExpression( fp, varmap, t, vals );
 
-                        if ( Token::COMMA == vals[ t ].token )
+                        if ( Token_COMMA == vals[ t ].token )
                         {
                             Variable * pvar = FindVariable( varmap, vals[ variableToken ].strValue );
 
@@ -6306,9 +6404,9 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    add      t0, t0, a0\n" );
                         }
 
-                        assert( Token::EXPRESSION == vals[ t ].token );
+                        assert( Token_EXPRESSION == vals[ t ].token );
     
-                        if ( Token::CONSTANT == vals[ t + 1 ].token && 2 == vals[ t ].value )
+                        if ( Token_CONSTANT == vals[ t + 1 ].token && 2 == vals[ t ].value )
                         {
                             if ( x64Win == g_AssemblyTarget )
                                 fprintf( fp, "    mov      DWORD PTR [rbx + rax], %d\n", vals[ t + 1 ].value );
@@ -6355,21 +6453,21 @@ label_no_array_eq_optimization:
 
                             t += 2;
                         }
-                        else if ( Token::VARIABLE == vals[ t + 1 ].token && 2 == vals[ t ].value &&
+                        else if ( Token_VARIABLE == vals[ t + 1 ].token && 2 == vals[ t ].value &&
                                   IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
                         {
-                            string & varname = vals[ t + 1 ].strValue;
+                            string & varone = vals[ t + 1 ].strValue;
 
                             if ( x64Win == g_AssemblyTarget )
-                                fprintf( fp, "    mov      DWORD PTR [rbx + rax], %s\n", GenVariableReg( varmap, varname ) );
+                                fprintf( fp, "    mov      DWORD PTR [rbx + rax], %s\n", GenVariableReg( varmap, varone ) );
                             else if ( arm32Linux == g_AssemblyTarget )
-                                fprintf( fp, "    str      %s, [r1]\n", GenVariableReg( varmap, varname ) );
+                                fprintf( fp, "    str      %s, [r1]\n", GenVariableReg( varmap, varone ) );
                             else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
-                                fprintf( fp, "    str      %s, [x1]\n", GenVariableReg( varmap, varname ) );
+                                fprintf( fp, "    str      %s, [x1]\n", GenVariableReg( varmap, varone ) );
                             else if ( x86Win == g_AssemblyTarget )
-                                fprintf( fp, "    mov      DWORD PTR [ebx + eax], %s\n", GenVariableReg( varmap, varname ) );
+                                fprintf( fp, "    mov      DWORD PTR [ebx + eax], %s\n", GenVariableReg( varmap, varone ) );
                             else if ( riscv64 == g_AssemblyTarget )
-                                fprintf( fp, "    sw       %s, (t0)\n", GenVariableReg(varmap, varname ) );
+                                fprintf( fp, "    sw       %s, (t0)\n", GenVariableReg(varmap, varone ) );
 
                             t += 2;
                         }
@@ -6456,7 +6554,7 @@ label_no_array_eq_optimization:
                 if ( t == vals.size() )
                     break;
             }
-            else if ( Token::END == token )
+            else if ( Token_END == token )
             {
                 if ( x64Win == g_AssemblyTarget || mos6502Apple1 == g_AssemblyTarget || i8086DOS == g_AssemblyTarget ||
                      x86Win == g_AssemblyTarget )
@@ -6469,7 +6567,7 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    j        end_execution\n" );
                 break;
             }
-            else if ( Token::FOR == token )
+            else if ( Token_FOR == token )
             {
                 string const & varname = vals[ t ].strValue;
 
@@ -6586,13 +6684,13 @@ label_no_array_eq_optimization:
                 {
                     fprintf( fp, "    xchg\n" );
                     fprintf( fp, "    lhld     %s\n", GenVariableName( varname ) );
-                    Generate8080Relation( fp, Token::GE, "fc$", (int) l );
+                    Generate8080Relation( fp, Token_GE, "fc$", (int) l );
                     fprintf( fp, "    jmp      af$%zd\n", l ); // af == after for
                     fprintf( fp, "  fc$%zd:\n", l );  // fc == for code
                 }
                 else if ( mos6502Apple1 == g_AssemblyTarget )
                 {
-                    Generate6502Relation( fp, GenVariableName( varname ), "curOperand", Token::LE, "_for_continue_", (int) l );
+                    Generate6502Relation( fp, GenVariableName( varname ), "curOperand", Token_LE, "_for_continue_", (int) l );
                     fprintf( fp, "    jmp      after_for_loop_%zd\n", l );
                     fprintf( fp, "_for_continue_%zd:\n", l );
                 }
@@ -6615,7 +6713,7 @@ label_no_array_eq_optimization:
 
                 break;
             }
-            else if ( Token::NEXT == token )
+            else if ( Token_NEXT == token )
             {
                 if ( 0 == forGosubStack.size() )
                     RuntimeFail( "next without for", l );
@@ -6623,7 +6721,7 @@ label_no_array_eq_optimization:
                 ForGosubItem & item = forGosubStack.top();
                 string const & loopVal = g_linesOfCode[ item.pcReturn ].tokenValues[ 0 ].strValue;
 
-                if ( loopVal.compare( vals[ t ].strValue ) )
+                if ( stcmp( loopVal, vals[ t ].strValue ) )
                     RuntimeFail( "NEXT statement variable doesn't match current FOR loop variable", l );
 
                 if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
@@ -6722,7 +6820,7 @@ label_no_array_eq_optimization:
                 forGosubStack.pop();
                 break;
             }
-            else if ( Token::GOSUB == token )
+            else if ( Token_GOSUB == token )
             {
                 // not worth the runtime check for return without gosub?
                 //fprintf( fp, "    inc      [gosubCount]\n" );
@@ -6760,7 +6858,7 @@ label_no_array_eq_optimization:
 
                 break;
             }
-            else if ( Token::GOTO == token )
+            else if ( Token_GOTO == token )
             {
                 if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                     fprintf( fp, "    jmp      line_number_%d\n", vals[ t ].value );
@@ -6779,7 +6877,7 @@ label_no_array_eq_optimization:
 
                 break;
             }
-            else if ( Token::RETURN == token )
+            else if ( Token_RETURN == token )
             {
                 if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                     fprintf( fp, "    jmp      label_gosub_return\n" );
@@ -6798,23 +6896,23 @@ label_no_array_eq_optimization:
 
                 break;
             }
-            else if ( Token::PRINT == token )
+            else if ( Token_PRINT == token )
             {
                 t++;
     
                 while ( t < vals.size() )
                 {
-                    if ( Token::SEMICOLON == vals[ t ].token )
+                    if ( Token_SEMICOLON == vals[ t ].token )
                     {
                         t++;
                         continue;
                     }
-                    else if ( Token::EXPRESSION != vals[ t ].token ) // likely ELSE
+                    else if ( Token_EXPRESSION != vals[ t ].token ) // likely ELSE
                         break;
     
-                    assert( Token::EXPRESSION == vals[ t ].token );
+                    assert( Token_EXPRESSION == vals[ t ].token );
     
-                    if ( Token::STRING == vals[ t + 1 ].token )
+                    if ( Token_STRING == vals[ t + 1 ].token )
                     {
                         if ( x64Win == g_AssemblyTarget )
                         {
@@ -6874,7 +6972,7 @@ label_no_array_eq_optimization:
 
                         t += vals[ t ].value;
                     }
-                    else if ( Token::TIME == vals[ t + 1 ].token )
+                    else if ( Token_TIME == vals[ t + 1 ].token )
                     {
                         // HH:MM:SS
                         // HH:MM:SS:mm (on DOS because why not?)
@@ -6933,7 +7031,7 @@ label_no_array_eq_optimization:
 
                         t += vals[ t ].value;
                     }
-                    else if ( Token::ELAP == vals[ t + 1 ].token )
+                    else if ( Token_ELAP == vals[ t + 1 ].token )
                     {
                         // show elapsed time in milliseconds on platforms where it's possible
 
@@ -6980,10 +7078,10 @@ label_no_array_eq_optimization:
 
                         t += vals[ t ].value;
                     }
-                    else if ( Token::CONSTANT == vals[ t + 1 ].token ||
-                              Token::VARIABLE == vals[ t + 1 ].token )
+                    else if ( Token_CONSTANT == vals[ t + 1 ].token ||
+                              Token_VARIABLE == vals[ t + 1 ].token )
                     {
-                        assert( Token::EXPRESSION == vals[ t ].token );
+                        assert( Token_EXPRESSION == vals[ t ].token );
                         GenerateOptimizedExpression( fp, varmap, t, vals );
 
                         if ( x64Win == g_AssemblyTarget )
@@ -7049,7 +7147,7 @@ label_no_array_eq_optimization:
                 if ( t == vals.size() )
                     break;
             }
-            else if ( Token::ATOMIC == token )
+            else if ( Token_ATOMIC == token )
             {
                 string & varname = vals[ t + 1 ].strValue;
 
@@ -7057,14 +7155,14 @@ label_no_array_eq_optimization:
                 {
                     if ( IsVariableInReg( varmap, varname ) )
                     {
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    inc      %s\n", GenVariableReg( varmap, varname ) );
                         else
                             fprintf( fp, "    dec      %s\n", GenVariableReg( varmap, varname ) );
                     }
                     else
                     {
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    inc      DWORD PTR [%s]\n", GenVariableName( varname ) );
                         else
                             fprintf( fp, "    dec      DWORD PTR [%s]\n", GenVariableName( varname ) );
@@ -7074,7 +7172,7 @@ label_no_array_eq_optimization:
                 {
                     if ( IsVariableInReg( varmap, varname ) )
                     {
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    add      %s, %s, #1\n", GenVariableReg( varmap, varname ),
                                                                       GenVariableReg( varmap, varname ) );
                         else
@@ -7086,7 +7184,7 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    ldr      r0, =%s\n", GenVariableName( varname ) );
                         fprintf( fp, "    ldr      r1, [r0]\n" );
 
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    add      r1, r1, #1\n" );
                         else
                             fprintf( fp, "    sub      r1, r1, #1\n" );
@@ -7098,7 +7196,7 @@ label_no_array_eq_optimization:
                 {
                     if ( IsVariableInReg( varmap, varname ) )
                     {
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    add      %s, %s, 1\n", GenVariableReg( varmap, varname ),
                                                                      GenVariableReg( varmap, varname ) );
                         else
@@ -7109,7 +7207,7 @@ label_no_array_eq_optimization:
                     {
                         LoadArm64Address( fp, "x0", varname );
                         fprintf( fp, "    ldr      w1, [x0]\n" );
-                        if ( Token::INC == vals[ t + 1 ].token )
+                        if ( Token_INC == vals[ t + 1 ].token )
                             fprintf( fp, "    add      x1, x1, 1\n" );
                         else
                             fprintf( fp, "    sub      x1, x1, 1\n" );
@@ -7121,7 +7219,7 @@ label_no_array_eq_optimization:
                 {
                     fprintf( fp, "    lhld     %s\n", GenVariableName( varname ) );
 
-                    if ( Token::INC == vals[ t + 1 ].token )
+                    if ( Token_INC == vals[ t + 1 ].token )
                         fprintf( fp, "    inx      h\n" );
                     else
                         fprintf( fp, "    dcx      h\n" );
@@ -7130,7 +7228,7 @@ label_no_array_eq_optimization:
                 }
                 else if ( mos6502Apple1 == g_AssemblyTarget )
                 {
-                    if ( Token::INC == vals[ t + 1 ].token )
+                    if ( Token_INC == vals[ t + 1 ].token )
                     {
                         fprintf( fp, "    inc      %s\n", GenVariableName( varname ) );
                         fprintf( fp, "    bne      _inc_no_high_%zd\n", l );
@@ -7148,7 +7246,7 @@ label_no_array_eq_optimization:
                 }
                 else if ( i8086DOS == g_AssemblyTarget )
                 {
-                    if ( Token::INC == vals[ t + 1 ].token )
+                    if ( Token_INC == vals[ t + 1 ].token )
                         fprintf( fp, "    inc      WORD PTR ds: [%s]\n", GenVariableName( varname ) );
                     else
                         fprintf( fp, "    dec      WORD PTR ds: [%s]\n", GenVariableName( varname ) );
@@ -7159,25 +7257,25 @@ label_no_array_eq_optimization:
                     {
                         fprintf( fp, "    addi     %s, %s, %d\n", GenVariableReg( varmap, varname ),
                                                                   GenVariableReg( varmap, varname ),
-                                                                  ( Token::INC == vals[ t + 1 ].token ) ? 1 : -1 );
+                                                                  ( Token_INC == vals[ t + 1 ].token ) ? 1 : -1 );
                     }
                     else
                     {
                         fprintf( fp, "    lla      t0, %s\n", GenVariableName( varname ) );
                         fprintf( fp, "    lw       a0, (t0)\n" );
-                        fprintf( fp, "    addi     a0, a0, %d\n", ( Token::INC == vals[ t + 1 ].token ) ? 1 : -1 );
+                        fprintf( fp, "    addi     a0, a0, %d\n", ( Token_INC == vals[ t + 1 ].token ) ? 1 : -1 );
                         fprintf( fp, "    sw       a0, (t0)\n" );
                     }
                 }
 
                 break;
             }
-            else if ( Token::IF == token )
+            else if ( Token_IF == token )
             {
                 activeIf = l;
     
                 t++;
-                assert( Token::EXPRESSION == vals[ t ].token );
+                assert( Token_EXPRESSION == vals[ t ].token );
 
                 if ( !g_ExpressionOptimization )
                     goto label_no_if_optimization;
@@ -7187,19 +7285,19 @@ label_no_array_eq_optimization:
                 if ( i8080CPM == g_AssemblyTarget &&
                      19 == vals.size() &&
                      16 == vals[ t ].value &&
-                     Token::VARIABLE == vals[ t + 1 ].token &&
-                     Token::EQ ==  vals[ t + 2 ].token &&
-                     Token::OPENPAREN == vals[ t + 4 ].token &&
-                     Token::CONSTANT == vals[ t + 6 ].token &&
-                     Token::AND == vals[ t + 8 ].token &&
-                     Token::VARIABLE == vals[ t + 9 ].token &&
-                     Token::EQ == vals[ t + 10 ].token &&
-                     Token::OPENPAREN == vals[ t + 12 ].token &&
-                     Token::CONSTANT == vals[ t + 14 ].token &&
-                     Token::THEN == vals[ t + 16 ].token &&
+                     Token_VARIABLE == vals[ t + 1 ].token &&
+                     Token_EQ ==  vals[ t + 2 ].token &&
+                     Token_OPENPAREN == vals[ t + 4 ].token &&
+                     Token_CONSTANT == vals[ t + 6 ].token &&
+                     Token_AND == vals[ t + 8 ].token &&
+                     Token_VARIABLE == vals[ t + 9 ].token &&
+                     Token_EQ == vals[ t + 10 ].token &&
+                     Token_OPENPAREN == vals[ t + 12 ].token &&
+                     Token_CONSTANT == vals[ t + 14 ].token &&
+                     Token_THEN == vals[ t + 16 ].token &&
                      0 == vals[ t + 16 ].value &&
-                     !vals[ t + 3 ].strValue.compare( vals[ t + 11 ].strValue ) &&
-                     Token::RETURN == vals[ t + 17 ].token )
+                     !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                     Token_RETURN == vals[ t + 17 ].token )
                 {
                     // line 2020 has 19 tokens  ====>> 2020 if wi% = b%( 1 ) and wi% = b%( 2 ) then return
                     //    0 IF, value 0, strValue ''
@@ -7251,19 +7349,19 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           19 == vals.size() &&
                           16 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::EQ ==  vals[ t + 2 ].token &&
-                          Token::OPENPAREN == vals[ t + 4 ].token &&
-                          Token::CONSTANT == vals[ t + 6 ].token &&
-                          Token::AND == vals[ t + 8 ].token &&
-                          Token::VARIABLE == vals[ t + 9 ].token &&
-                          Token::EQ == vals[ t + 10 ].token &&
-                          Token::OPENPAREN == vals[ t + 12 ].token &&
-                          Token::CONSTANT == vals[ t + 14 ].token &&
-                          Token::THEN == vals[ t + 16 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_EQ ==  vals[ t + 2 ].token &&
+                          Token_OPENPAREN == vals[ t + 4 ].token &&
+                          Token_CONSTANT == vals[ t + 6 ].token &&
+                          Token_AND == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 9 ].token &&
+                          Token_EQ == vals[ t + 10 ].token &&
+                          Token_OPENPAREN == vals[ t + 12 ].token &&
+                          Token_CONSTANT == vals[ t + 14 ].token &&
+                          Token_THEN == vals[ t + 16 ].token &&
                           0 == vals[ t + 16 ].value &&
-                          !vals[ t + 3 ].strValue.compare( vals[ t + 11 ].strValue ) &&
-                          Token::RETURN == vals[ t + 17 ].token &&
+                          !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                          Token_RETURN == vals[ t + 17 ].token &&
                           vals[ t + 6 ].value < 64 &&
                           vals[ t + 14 ].value < 64 )
                 {
@@ -7315,19 +7413,19 @@ label_no_array_eq_optimization:
                 else if ( riscv64 == g_AssemblyTarget &&
                           19 == vals.size() &&
                           16 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::EQ ==  vals[ t + 2 ].token &&
-                          Token::OPENPAREN == vals[ t + 4 ].token &&
-                          Token::CONSTANT == vals[ t + 6 ].token &&
-                          Token::AND == vals[ t + 8 ].token &&
-                          Token::VARIABLE == vals[ t + 9 ].token &&
-                          Token::EQ == vals[ t + 10 ].token &&
-                          Token::OPENPAREN == vals[ t + 12 ].token &&
-                          Token::CONSTANT == vals[ t + 14 ].token &&
-                          Token::THEN == vals[ t + 16 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_EQ ==  vals[ t + 2 ].token &&
+                          Token_OPENPAREN == vals[ t + 4 ].token &&
+                          Token_CONSTANT == vals[ t + 6 ].token &&
+                          Token_AND == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 9 ].token &&
+                          Token_EQ == vals[ t + 10 ].token &&
+                          Token_OPENPAREN == vals[ t + 12 ].token &&
+                          Token_CONSTANT == vals[ t + 14 ].token &&
+                          Token_THEN == vals[ t + 16 ].token &&
                           0 == vals[ t + 16 ].value &&
-                          !vals[ t + 3 ].strValue.compare( vals[ t + 11 ].strValue ) &&
-                          Token::RETURN == vals[ t + 17 ].token &&
+                          !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                          Token_RETURN == vals[ t + 17 ].token &&
                           vals[ t + 6 ].value < 64 &&
                           vals[ t + 14 ].value < 64 &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
@@ -7368,19 +7466,19 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                      19 == vals.size() &&
                      16 == vals[ t ].value &&
-                     Token::VARIABLE == vals[ t + 1 ].token &&
-                     Token::EQ ==  vals[ t + 2 ].token &&
-                     Token::OPENPAREN == vals[ t + 4 ].token &&
-                     Token::CONSTANT == vals[ t + 6 ].token &&
-                     Token::AND == vals[ t + 8 ].token &&
-                     Token::VARIABLE == vals[ t + 9 ].token &&
-                     Token::EQ == vals[ t + 10 ].token &&
-                     Token::OPENPAREN == vals[ t + 12 ].token &&
-                     Token::CONSTANT == vals[ t + 14 ].token &&
-                     Token::THEN == vals[ t + 16 ].token &&
+                     Token_VARIABLE == vals[ t + 1 ].token &&
+                     Token_EQ ==  vals[ t + 2 ].token &&
+                     Token_OPENPAREN == vals[ t + 4 ].token &&
+                     Token_CONSTANT == vals[ t + 6 ].token &&
+                     Token_AND == vals[ t + 8 ].token &&
+                     Token_VARIABLE == vals[ t + 9 ].token &&
+                     Token_EQ == vals[ t + 10 ].token &&
+                     Token_OPENPAREN == vals[ t + 12 ].token &&
+                     Token_CONSTANT == vals[ t + 14 ].token &&
+                     Token_THEN == vals[ t + 16 ].token &&
                      0 == vals[ t + 16 ].value &&
-                     !vals[ t + 3 ].strValue.compare( vals[ t + 11 ].strValue ) &&
-                     Token::RETURN == vals[ t + 17 ].token )
+                     !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                     Token_RETURN == vals[ t + 17 ].token )
                 {
                     // line 2020 has 19 tokens  ====>> 2020 if wi% = b%( 1 ) and wi% = b%( 2 ) then return
                     //    0 IF, value 0, strValue ''
@@ -7420,19 +7518,19 @@ label_no_array_eq_optimization:
                           ( !( ( x86Win == g_AssemblyTarget ) && !g_i386Target686 ) ) &&
                           10 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::VARIABLE == vals[ t + 3 ].token &&
+                          Token_VARIABLE == vals[ t + 3 ].token &&
                           IsVariableInReg( varmap, vals[ t + 3 ].strValue ) &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
                           IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
-                          Token::EQ == vals[ t + 6 ].token &&
-                          Token::EXPRESSION == vals[ t + 7 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          Token_EXPRESSION == vals[ t + 7 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::VARIABLE == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 8 ].token &&
                           IsVariableInReg( varmap, vals[ t + 8 ].strValue ) )
                 {
                     // line 4342 has 10 tokens  ====>> 4342 if v% > al% then al% = v%
@@ -7478,16 +7576,16 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           10 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::VARIABLE == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::EQ == vals[ t + 6 ].token &&
-                          Token::EXPRESSION == vals[ t + 7 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          Token_EXPRESSION == vals[ t + 7 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::VARIABLE == vals[ t + 8 ].token )
+                          Token_VARIABLE == vals[ t + 8 ].token )
                 {
                     // line 4342 has 10 tokens  ====>> 4342 if v% > al% then al% = v%
                     //   0 IF, value 0, strValue ''
@@ -7521,16 +7619,16 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           10 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::VARIABLE == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::EQ == vals[ t + 6 ].token &&
-                          Token::EXPRESSION == vals[ t + 7 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          Token_EXPRESSION == vals[ t + 7 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::VARIABLE == vals[ t + 8 ].token )
+                          Token_VARIABLE == vals[ t + 8 ].token )
                 {
                     // line 4342 has 10 tokens  ====>> 4342 if v% > al% then al% = v%
                     //   0 IF, value 0, strValue ''
@@ -7551,7 +7649,7 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    mov      ax, ds: [ %s ]\n", GenVariableName( lhs ) );
                     fprintf( fp, "    cmp      ax, ds: [ %s ]\n", GenVariableName( rhs ) );
                     fprintf( fp, "    %-6s   line_number_%zd\n", RelationalNotInstructionX64[ op ], l + 1 ); // same as x64
-                    if ( lhs.compare( vals[ t + 8 ].strValue ) )
+                    if ( stcmp( lhs, vals[ t + 8 ].strValue ) )
                         fprintf( fp, "    mov      ax, ds: [ %s ]\n", GenVariableName( vals[ t + 8 ].strValue ) );
                     fprintf( fp, "    mov      WORD PTR ds: [ %s ], ax\n", GenVariableName( vals[ t + 5 ].strValue ) );
                     break;
@@ -7562,21 +7660,21 @@ label_no_array_eq_optimization:
                           riscv64 != g_AssemblyTarget &&
                           19 == vals.size() &&
                           16 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::OPENPAREN == vals[ t + 4 ].token &&
-                          Token::CONSTANT == vals[ t + 6 ].token &&
-                          Token::AND == vals[ t + 8 ].token &&
-                          Token::VARIABLE == vals[ t + 9 ].token &&
+                          Token_OPENPAREN == vals[ t + 4 ].token &&
+                          Token_CONSTANT == vals[ t + 6 ].token &&
+                          Token_AND == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 9 ].token &&
                           IsVariableInReg( varmap, vals[ t + 9 ].strValue ) &&
                           isOperatorRelational( vals[ t + 10 ].token ) &&
-                          Token::OPENPAREN == vals[ t + 12 ].token &&
-                          Token::CONSTANT == vals[ t + 14 ].token &&
-                          Token::THEN == vals[ t + 16 ].token &&
+                          Token_OPENPAREN == vals[ t + 12 ].token &&
+                          Token_CONSTANT == vals[ t + 14 ].token &&
+                          Token_THEN == vals[ t + 16 ].token &&
                           0 == vals[ t + 16 ].value &&
-                          !vals[ t + 3 ].strValue.compare( vals[ t + 11 ].strValue ) &&
-                          Token::RETURN == vals[ t + 17 ].token )
+                          !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                          Token_RETURN == vals[ t + 17 ].token )
                 {
                     // line 2020 has 19 tokens  ====>> 2020 if wi% = b%( 1 ) and wi% = b%( 2 ) then return
                     //    0 IF, value 0, strValue ''
@@ -7712,24 +7810,24 @@ label_no_array_eq_optimization:
                           riscv64 != g_AssemblyTarget &&
                           15 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
-                          Token::AND == vals[ t + 2 ].token  &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
                           1 == vals[ t + 3 ].value &&
-                          Token::THEN == vals[ t + 4 ].token &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
                           IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
-                          Token::EQ == vals[ t + 6 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::ELSE == vals[ t + 9 ].token &&
-                          Token::VARIABLE == vals[ t + 10 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_ELSE == vals[ t + 9 ].token &&
+                          Token_VARIABLE == vals[ t + 10 ].token &&
                           IsVariableInReg( varmap, vals[ t + 10 ].strValue ) &&
-                          Token::EQ == vals[ t + 11 ].token &&
+                          Token_EQ == vals[ t + 11 ].token &&
                           2 == vals[ t + 12 ].value &&
-                          !vals[ t + 5 ].strValue.compare( vals[ t + 10 ].strValue ) &&
-                          Token::CONSTANT == vals[ t + 13 ].token )
+                          !stcmp( vals[ t + 5 ], vals[ t + 10 ] ) &&
+                          Token_CONSTANT == vals[ t + 13 ].token )
                 {
                     // line 4150 has 15 tokens  ====>> 4150 if st% and 1 then v% = 2 else v% = 9
                     // token   0 IF, value 0, strValue ''
@@ -7784,20 +7882,20 @@ label_no_array_eq_optimization:
                 else if ( i8080CPM == g_AssemblyTarget &&
                           15 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token  &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::EQ == vals[ t + 6 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::ELSE == vals[ t + 9 ].token &&
-                          Token::VARIABLE == vals[ t + 10 ].token &&
-                          Token::EQ == vals[ t + 11 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_ELSE == vals[ t + 9 ].token &&
+                          Token_VARIABLE == vals[ t + 10 ].token &&
+                          Token_EQ == vals[ t + 11 ].token &&
                           2 == vals[ t + 12 ].value &&
-                          !vals[ t + 5 ].strValue.compare( vals[ t + 10 ].strValue ) &&
-                          Token::CONSTANT == vals[ t + 13 ].token )
+                          !stcmp( vals[ t + 5 ], vals[ t + 10 ] ) &&
+                          Token_CONSTANT == vals[ t + 13 ].token )
                 {
                     // line 4150 has 15 tokens  ====>> 4150 if st% and 1 then v% = 2 else v% = 9
                     // token   0 IF, value 0, strValue ''
@@ -7835,20 +7933,20 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           15 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token  &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::EQ == vals[ t + 6 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::ELSE == vals[ t + 9 ].token &&
-                          Token::VARIABLE == vals[ t + 10 ].token &&
-                          Token::EQ == vals[ t + 11 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_ELSE == vals[ t + 9 ].token &&
+                          Token_VARIABLE == vals[ t + 10 ].token &&
+                          Token_EQ == vals[ t + 11 ].token &&
                           2 == vals[ t + 12 ].value &&
-                          !vals[ t + 5 ].strValue.compare( vals[ t + 10 ].strValue ) &&
-                          Token::CONSTANT == vals[ t + 13 ].token )
+                          !stcmp( vals[ t + 5 ], vals[ t + 10 ] ) &&
+                          Token_CONSTANT == vals[ t + 13 ].token )
                 {
                     // line 4150 has 15 tokens  ====>> 4150 if st% and 1 then v% = 2 else v% = 9
                     // token   0 IF, value 0, strValue ''
@@ -7890,20 +7988,20 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           15 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token  &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::EQ == vals[ t + 6 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
                           2 == vals[ t + 7 ].value &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::ELSE == vals[ t + 9 ].token &&
-                          Token::VARIABLE == vals[ t + 10 ].token &&
-                          Token::EQ == vals[ t + 11 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_ELSE == vals[ t + 9 ].token &&
+                          Token_VARIABLE == vals[ t + 10 ].token &&
+                          Token_EQ == vals[ t + 11 ].token &&
                           2 == vals[ t + 12 ].value &&
-                          !vals[ t + 5 ].strValue.compare( vals[ t + 10 ].strValue ) &&
-                          Token::CONSTANT == vals[ t + 13 ].token )
+                          !stcmp( vals[ t + 5 ], vals[ t + 10 ] ) &&
+                          Token_CONSTANT == vals[ t + 13 ].token )
                 {
                     // line 4150 has 15 tokens  ====>> 4150 if st% and 1 then v% = 2 else v% = 9
                     // token   0 IF, value 0, strValue ''
@@ -7943,21 +8041,21 @@ label_no_array_eq_optimization:
                           riscv64 != g_AssemblyTarget &&
                           23 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
-                          Token::AND == vals[ t + 2 ].token  &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
                           1 == vals[ t + 3 ].value &&
-                          Token::THEN == vals[ t + 4 ].token &&
-                          Token::OPENPAREN == vals[ t + 6 ].token &&
-                          Token::CONSTANT == vals[ t + 12 ].token &&
-                          Token::OPENPAREN == vals[ t + 15 ].token &&
-                          Token::CONSTANT == vals[ t + 21 ].token &&
-                          Token::VARIABLE == vals[ t + 8 ].token &&
-                          Token::VARIABLE == vals[ t + 17 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_OPENPAREN == vals[ t + 6 ].token &&
+                          Token_CONSTANT == vals[ t + 12 ].token &&
+                          Token_OPENPAREN == vals[ t + 15 ].token &&
+                          Token_CONSTANT == vals[ t + 21 ].token &&
+                          Token_VARIABLE == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 17 ].token &&
                           IsVariableInReg( varmap, vals[ t + 17 ].strValue ) &&
-                          !vals[ t + 5 ].strValue.compare( vals[ t + 14 ].strValue ) &&
-                          !vals[ t + 8 ].strValue.compare( vals[ t + 17 ].strValue ) )
+                          !stcmp( vals[ t + 5 ], vals[ t + 14 ] ) &&
+                          !stcmp( vals[ t + 8 ], vals[ t + 17 ] ) )
                 {
                     // line 4200 has 23 tokens  ====>> 4200 if st% and 1 then b%(p%) = 1 else b%(p%) = 2
                     //     0 IF, value 0, strValue ''
@@ -8022,16 +8120,16 @@ label_no_array_eq_optimization:
                           ( !( ( x86Win == g_AssemblyTarget ) && !g_i386Target686 ) ) &&
                           11 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
                           IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::GOTO == vals[ t + 9 ].token )
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_GOTO == vals[ t + 9 ].token )
                 {
                     // line 4110 has 11 tokens  ====>> 4110 if wi% = 1 then re% = 6: goto 4280
                     //    0 IF, value 0, strValue ''
@@ -8072,14 +8170,14 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           11 == vals.size() &&
                           4 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 5 ].token &&
-                          Token::CONSTANT == vals[ t + 8 ].token &&
-                          Token::GOTO == vals[ t + 9 ].token )
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_GOTO == vals[ t + 9 ].token )
                 {
                     // line 4110 has 11 tokens  ====>> 4110 if wi% = 1 then re% = 6: goto 4280
                     //    0 IF, value 0, strValue ''
@@ -8108,13 +8206,13 @@ label_no_array_eq_optimization:
                           riscv64 != g_AssemblyTarget &&
                           9 == vals.size() &&
                           6 == vals[ t ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::OPENPAREN == vals[ t + 2 ].token &&
-                          Token::VARIABLE == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_OPENPAREN == vals[ t + 2 ].token &&
+                          Token_VARIABLE == vals[ t + 4 ].token &&
                           IsVariableInReg( varmap, vals[ t + 4 ].strValue ) &&
-                          Token::THEN == vals[ t + 6 ].token &&
+                          Token_THEN == vals[ t + 6 ].token &&
                           0 == vals[ t + 6 ].value &&
-                          Token::GOTO == vals[ t + 7 ].token )
+                          Token_GOTO == vals[ t + 7 ].token )
                 {
                     // line 4180 has 9 tokens  ====>> 4180 if 0 <> b%(p%) then goto 4500
                     //   token   0 IF, value 0, strValue ''
@@ -8165,15 +8263,15 @@ label_no_array_eq_optimization:
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
                           7 == vals.size() &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
-                          Token::AND == vals[ t + 2 ].token &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
+                          Token_AND == vals[ t + 2 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
                           vals[ t + 3 ].value < 256 &&  // arm64 requires small values 
                           vals[ t + 3 ].value >= 0 &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
                 {
                     // line 4330 has 7 tokens  ====>> 4330 if st% and 1 goto 4340
                     //    0 IF, value 0, strValue ''
@@ -8202,12 +8300,12 @@ label_no_array_eq_optimization:
                 }
                 else if ( i8080CPM == g_AssemblyTarget &&
                           7 == vals.size() &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
                 {
                     // line 4330 has 7 tokens  ====>> 4330 if st% and 1 goto 4340
                     //    0 IF, value 0, strValue ''
@@ -8226,12 +8324,12 @@ label_no_array_eq_optimization:
                 }
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           7 == vals.size() &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
                 {
                     // line 4330 has 7 tokens  ====>> 4330 if st% and 1 goto 4340
                     //    0 IF, value 0, strValue ''
@@ -8253,14 +8351,14 @@ label_no_array_eq_optimization:
                 }
                 else if ( i8086DOS == g_AssemblyTarget &&
                           7 == vals.size() &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          Token::AND == vals[ t + 2 ].token &&
-                          Token::CONSTANT == vals[ t + 3 ].token &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
                           vals[ t + 3 ].value < 256 &&  // arm64 requires small values 
                           vals[ t + 3 ].value >= 0 &&
-                          Token::THEN == vals[ t + 4 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
                 {
                     // line 4330 has 7 tokens  ====>> 4330 if st% and 1 goto 4340
                     //    0 IF, value 0, strValue ''
@@ -8279,12 +8377,12 @@ label_no_array_eq_optimization:
                 else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
                           IsVariableInReg( varmap, vals[ t + 2 ].strValue ) &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::GOTO == vals[ t + 4 ].token )
+                          Token_GOTO == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ====>> 2110 if 0 = wi% goto 2200
                     //  0 IF, value 0, strValue ''
@@ -8301,11 +8399,11 @@ label_no_array_eq_optimization:
                 else if ( i8080CPM == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::GOTO == vals[ t + 4 ].token )
+                          Token_GOTO == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ====>> 2110 if 0 = wi% goto 2200
                     //  0 IF, value 0, strValue ''
@@ -8325,11 +8423,11 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::GOTO == vals[ t + 4 ].token )
+                          Token_GOTO == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ====>> 2110 if 0 = wi% goto 2200
                     //  0 IF, value 0, strValue ''
@@ -8352,11 +8450,11 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::GOTO == vals[ t + 4 ].token )
+                          Token_GOTO == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ====>> 2110 if 0 = wi% goto 2200
                     //  0 IF, value 0, strValue ''
@@ -8373,11 +8471,11 @@ label_no_array_eq_optimization:
                 else if ( i8080CPM == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::RETURN == vals[ t + 4 ].token )
+                          Token_RETURN == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ===>>> 4530 if st% = 0 then return
                     //  0 IF, value 0, strValue ''
@@ -8397,11 +8495,11 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::RETURN == vals[ t + 4 ].token )
+                          Token_RETURN == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ===>>> 4530 if st% = 0 then return
                     //  0 IF, value 0, strValue ''
@@ -8424,11 +8522,11 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::RETURN == vals[ t + 4 ].token )
+                          Token_RETURN == vals[ t + 4 ].token )
                 {
                     // line 2110 has 6 tokens  ===>>> 4530 if st% = 0 then return
                     //  0 IF, value 0, strValue ''
@@ -8445,12 +8543,12 @@ label_no_array_eq_optimization:
                 else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
-                          Token::NOT == vals[ t + 1 ].token &&
-                          Token::VARIABLE == vals[ t + 2 ].token &&
+                          Token_NOT == vals[ t + 1 ].token &&
+                          Token_VARIABLE == vals[ t + 2 ].token &&
                           IsVariableInReg( varmap, vals[ t + 2 ].strValue ) &&
-                          Token::THEN == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 3 ].token &&
                           0 == vals[ t + 3 ].value &&
-                          Token::RETURN == vals[ t + 4 ].token )
+                          Token_RETURN == vals[ t + 4 ].token )
                 {
                     // line 4530 has 6 tokens  ====>> 4530 if st% = 0 then return
                     //  0 IF, value 0, strValue ''
@@ -8484,7 +8582,7 @@ label_no_array_eq_optimization:
 
                     Token ifOp = vals[ t + 2 ].token;
 
-                    if ( Token::VARIABLE == vals[ 2 ].token && Token::CONSTANT == vals[ 4 ].token )
+                    if ( Token_VARIABLE == vals[ 2 ].token && Token_CONSTANT == vals[ 4 ].token )
                     {
                         string & varname = vals[ 2 ].strValue;
                         if ( IsVariableInReg( varmap, varname ) )
@@ -8529,7 +8627,7 @@ label_no_array_eq_optimization:
                             }
                         }
                     }
-                    else if ( ( Token::VARIABLE == vals[ 2 ].token && Token::VARIABLE == vals[ 4 ].token ) &&
+                    else if ( ( Token_VARIABLE == vals[ 2 ].token && Token_VARIABLE == vals[ 4 ].token ) &&
                               ( IsVariableInReg( varmap, vals[ 2 ].strValue ) || IsVariableInReg( varmap, vals[ 4 ].strValue ) ) )
                     {
                         string & varname2 = vals[ 2 ].strValue;
@@ -8580,7 +8678,7 @@ label_no_array_eq_optimization:
                     }
                     else
                     {
-                        if ( Token::CONSTANT == vals[ 2 ].token )
+                        if ( Token_CONSTANT == vals[ 2 ].token )
                         {
                             if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                                 fprintf( fp, "    mov      eax, %d\n", vals[ 2 ].value );
@@ -8618,7 +8716,7 @@ label_no_array_eq_optimization:
                             }
                         }
     
-                        if ( Token::CONSTANT == vals[ 4 ].token )
+                        if ( Token_CONSTANT == vals[ 4 ].token )
                         {
                             if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                                 fprintf( fp, "    cmp      eax, %d\n", vals[ 4 ].value );
@@ -8666,10 +8764,10 @@ label_no_array_eq_optimization:
                     }
 
                     t += vals[ t ].value;
-                    assert( Token::THEN == vals[ t ].token );
+                    assert( Token_THEN == vals[ t ].token );
                     t++;
 
-                    if ( Token::GOTO == vals[ t ].token )
+                    if ( Token_GOTO == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    %-6s   line_number_%d\n", RelationalInstructionX64[ ifOp ], vals[ t ].value );
@@ -8679,7 +8777,7 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    b.%s     line_number_%d\n", ConditionsArm[ ifOp ], vals[ t ].value );
                         break;
                     }
-                    else if ( Token::RETURN == vals[ t ].token )
+                    else if ( Token_RETURN == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    %-6s   label_gosub_return\n", RelationalInstructionX64[ ifOp ] );
@@ -8714,10 +8812,10 @@ label_no_array_eq_optimization:
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           4 == vals[ t ].value &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          ( Token::CONSTANT == vals[ t + 3 ].token || Token::VARIABLE == vals[ t + 3 ].token ) &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          ( Token_CONSTANT == vals[ t + 3 ].token || Token_VARIABLE == vals[ t + 3 ].token ) &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
 
                 {
                     // line 4505 has 7 tokens  ====>> 4505 if p% < 9 then goto 4180
@@ -8735,7 +8833,7 @@ label_no_array_eq_optimization:
                     char aclhs[ 100 ];
                     strcpy( aclhs, GenVariableName( lhs ) );
 
-                    if ( Token::VARIABLE == vals[ t + 3 ].token )
+                    if ( Token_VARIABLE == vals[ t + 3 ].token )
                     {
                         string & rhs = vals[ t + 3 ].strValue;
                         Generate6502Relation( fp, aclhs, GenVariableName( rhs ), op, "_if_true_", (int) l );
@@ -8758,10 +8856,10 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget &&
                           4 == vals[ t ].value &&
                           0 == vals[ t + 4 ].value &&
-                          Token::VARIABLE == vals[ t + 1 ].token &&
-                          ( Token::CONSTANT == vals[ t + 3 ].token || Token::VARIABLE == vals[ t + 3 ].token ) &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          ( Token_CONSTANT == vals[ t + 3 ].token || Token_VARIABLE == vals[ t + 3 ].token ) &&
                           isOperatorRelational( vals[ t + 2 ].token ) &&
-                          Token::GOTO == vals[ t + 5 ].token )
+                          Token_GOTO == vals[ t + 5 ].token )
 
                 {
                     // line 4505 has 7 tokens  ====>> 4505 if p% < 9 then goto 4180
@@ -8777,7 +8875,7 @@ label_no_array_eq_optimization:
                     string & lhs = vals[ t + 1 ].strValue;
 
 
-                    if ( Token::VARIABLE == vals[ t + 3 ].token )
+                    if ( Token_VARIABLE == vals[ t + 3 ].token )
                     {
                         fprintf( fp, "    mov      ax, ds: [ %s ]\n", GenVariableName( lhs ) );
                         fprintf( fp, "    cmp      ax, ds: [ %s ]\n", GenVariableName( vals[ t + 3 ].strValue ) );
@@ -8793,8 +8891,8 @@ label_no_array_eq_optimization:
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
                           3 == vals[ t ].value && 
-                          Token::NOT == vals[ t + 1 ].token && 
-                          Token::VARIABLE == vals[ t + 2 ].token )
+                          Token_NOT == vals[ t + 1 ].token && 
+                          Token_VARIABLE == vals[ t + 2 ].token )
                 {
                     // line 4530 has 6 tokens  ====>> 4530 if st% = 0 then return
                     // token   0 IF, value 0, strValue ''
@@ -8831,10 +8929,10 @@ label_no_array_eq_optimization:
                     }
 
                     t += vals[ t ].value;
-                    assert( Token::THEN == vals[ t ].token );
+                    assert( Token_THEN == vals[ t ].token );
                     t++;
 
-                    if ( Token::GOTO == vals[ t ].token )
+                    if ( Token_GOTO == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    je       line_number_%d\n", vals[ t ].value );
@@ -8844,7 +8942,7 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    b.eq     line_number_%d\n", vals[ t ].value );
                         break;
                     }
-                    else if ( Token::RETURN == vals[ t ].token )
+                    else if ( Token_RETURN == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    je       label_gosub_return\n" );
@@ -8883,7 +8981,7 @@ label_no_if_optimization:
                     // This general case will work for all the cases above, if with worse generated code
 
                     GenerateOptimizedExpression( fp, varmap, t, vals );
-                    assert( Token::THEN == vals[ t ].token );
+                    assert( Token_THEN == vals[ t ].token );
                     t++;
 
                     if ( x64Win == g_AssemblyTarget )                                                                                                            
@@ -8908,7 +9006,7 @@ label_no_if_optimization:
                         fprintf( fp, "    cmp      eax, 0\n" );
                     // no code here for riscv64
 
-                    if ( Token::GOTO == vals[ t ].token )
+                    if ( Token_GOTO == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    jne      line_number_%d\n", vals[ t ].value );
@@ -8930,7 +9028,7 @@ label_no_if_optimization:
 
                         break;
                     }
-                    else if ( Token::RETURN == vals[ t ].token )
+                    else if ( Token_RETURN == vals[ t ].token )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    jne      label_gosub_return\n" );
@@ -9007,7 +9105,7 @@ label_no_if_optimization:
                     }
                 }
             }
-            else if ( Token::ELSE == token )
+            else if ( Token_ELSE == token )
             {
                 assert( -1 != activeIf );
                 if ( x64Win == g_AssemblyTarget )
@@ -9977,7 +10075,7 @@ label_no_if_optimization:
             LineOfCode & loc = g_linesOfCode[ l ];
             vector<TokenValue> & vals = loc.tokenValues;
     
-            if ( Token::DIM == vals[ 0 ].token )
+            if ( Token_DIM == vals[ 0 ].token )
             {
                 int cdwords = vals[ 0 ].dims[ 0 ];
                 if ( 2 == vals[ 0 ].dimensions )
@@ -10699,6 +10797,8 @@ label_no_if_optimization:
                 outputfile, YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
 } //GenerateASM
 
+#endif //BA_ENABLE_COMPILER
+
 void ParseInputFile( const char * inputfile )
 {
     CFile fileInput( fopen( inputfile, "rb" ) );
@@ -10762,7 +10862,7 @@ void ParseInputFile( const char * inputfile )
             int tokenLen = 0;
             Token token = readToken( pline, tokenLen );
 
-            if ( Token::INVALID == token )
+            if ( Token_INVALID == token )
                 Fail( "invalid token", fileLine, 0, line );
 
             LineOfCode loc( lineNum, line );
@@ -10775,11 +10875,11 @@ void ParseInputFile( const char * inputfile )
             {
                 pline = ParseStatements( token, lineTokens, pline, line, fileLine );
             }
-            else if ( Token::FOR == token )
+            else if ( Token_FOR == token )
             {
                 pline = pastWhite( pline + tokenLen );
                 token = readToken( pline, tokenLen );
-                if ( Token::VARIABLE == token )
+                if ( Token_VARIABLE == token )
                 {
                     tokenValue.strValue.insert( 0, pline, tokenLen );
                     makelower( tokenValue.strValue );
@@ -10790,7 +10890,7 @@ void ParseInputFile( const char * inputfile )
 
                 pline = pastWhite( pline + tokenLen );
                 token = readToken( pline, tokenLen );
-                if ( Token::EQ != token )
+                if ( Token_EQ != token )
                     Fail( "expected an equal sign in FOR statement", fileLine, 1 + pline - line, line );
 
                 pline = pastWhite( pline + tokenLen );
@@ -10798,23 +10898,23 @@ void ParseInputFile( const char * inputfile )
 
                 pline = pastWhite( pline );
                 token = readToken( pline, tokenLen );
-                if ( Token::TO != token )
+                if ( Token_TO != token )
                     Fail( "expected a TO in FOR statement", fileLine, 1 + pline - line, line );
 
                 pline = pastWhite( pline + tokenLen );
                 pline = ParseExpression( lineTokens, pline, line, fileLine );
             }
-            else if ( Token::IF == token )
+            else if ( Token_IF == token )
             {
                 lineTokens.push_back( tokenValue );
                 pline = pastWhite( pline + tokenLen );
                 pline = ParseExpression( lineTokens, pline, line, fileLine );
-                if ( Token::EXPRESSION == lineTokens[ lineTokens.size() - 1 ].token )
+                if ( Token_EXPRESSION == lineTokens[ lineTokens.size() - 1 ].token )
                     Fail( "expected an expression after an IF statement", fileLine, 1 + pline - line, line );
 
                 pline = pastWhite( pline );
                 token = readToken( pline, tokenLen );
-                if ( Token::THEN == token )
+                if ( Token_THEN == token )
                 {
                     // THEN is optional in the source code but manditory in p-code
 
@@ -10823,18 +10923,18 @@ void ParseInputFile( const char * inputfile )
                 }
 
                 tokenValue.Clear();
-                tokenValue.token = Token::THEN;
+                tokenValue.token = Token_THEN;
                 size_t thenOffset = lineTokens.size();
                 lineTokens.push_back( tokenValue );
 
                 pline = ParseStatements( token, lineTokens, pline, line, fileLine );
 
-                if ( Token::THEN == lineTokens[ lineTokens.size() - 1 ].token )
+                if ( Token_THEN == lineTokens[ lineTokens.size() - 1 ].token )
                     Fail( "expected a statement after a THEN", fileLine, 1 + pline - line, line );
 
                 pline = pastWhite( pline );
                 token = readToken( pline, tokenLen );
-                if ( Token::ELSE == token )
+                if ( Token_ELSE == token )
                 {
                     tokenValue.Clear();
                     tokenValue.token = token;
@@ -10844,29 +10944,29 @@ void ParseInputFile( const char * inputfile )
                     pline = pastWhite( pline + tokenLen );
                     token = readToken( pline, tokenLen );
                     pline = ParseStatements( token, lineTokens, pline, line, fileLine );
-                    if ( Token::ELSE == lineTokens[ lineTokens.size() - 1 ].token )
+                    if ( Token_ELSE == lineTokens[ lineTokens.size() - 1 ].token )
                         Fail( "expected a statement after an ELSE", fileLine, 1 + pline - line, line );
                 }
             }
-            else if ( Token::REM == token )
+            else if ( Token_REM == token )
             {
                 // can't just throw out REM statements yet because a goto/gosub may reference them
 
                 lineTokens.push_back( tokenValue );
             }
-            else if ( Token::TRON == token )
+            else if ( Token_TRON == token )
             {
                 lineTokens.push_back( tokenValue );
             }
-            else if ( Token::TROFF == token )
+            else if ( Token_TROFF == token )
             {
                 lineTokens.push_back( tokenValue );
             }
-            else if ( Token::NEXT == token )
+            else if ( Token_NEXT == token )
             {
                 pline = pastWhite( pline + tokenLen );
                 token = readToken( pline, tokenLen );
-                if ( Token::VARIABLE == token )
+                if ( Token_VARIABLE == token )
                 {
                     tokenValue.strValue.insert( 0, pline, tokenLen );
                     makelower( tokenValue.strValue );
@@ -10875,24 +10975,24 @@ void ParseInputFile( const char * inputfile )
                 else
                     Fail( "expected a variable with NEXT statement", fileLine, 1 + pline - line, line );
             }
-            else if ( Token::DIM == token )
+            else if ( Token_DIM == token )
             {
                 pline = pastWhite( pline + tokenLen );
                 token = readToken( pline, tokenLen );
-                if ( Token::VARIABLE == token )
+                if ( Token_VARIABLE == token )
                 {
                     tokenValue.strValue.insert( 0, pline, tokenLen );
                     makelower( tokenValue.strValue );
                     pline = pastWhite( pline + tokenLen );
                     token = readToken( pline, tokenLen );
 
-                    if ( Token::OPENPAREN != token )
+                    if ( Token_OPENPAREN != token )
                         Fail( "expected open paren for DIM statment", fileLine, 1 + pline - line, line );
 
                     pline = pastWhite( pline + tokenLen );
                     token = readToken( pline, tokenLen );
 
-                    if ( Token::CONSTANT != token )
+                    if ( Token_CONSTANT != token )
                         Fail( "expected a numeric constant first dimension", fileLine, 1 + pline - line, line );
 
                     tokenValue.dims[ 0 ] = atoi( pline );
@@ -10903,12 +11003,12 @@ void ParseInputFile( const char * inputfile )
                     token = readToken( pline, tokenLen );
                     tokenValue.dimensions = 1;
 
-                    if ( Token::COMMA == token )
+                    if ( Token_COMMA == token )
                     {
                         pline = pastWhite( pline + tokenLen );
                         token = readToken( pline, tokenLen );
 
-                        if ( Token::CONSTANT != token )
+                        if ( Token_CONSTANT != token )
                             Fail( "expected a numeric constant second dimension", fileLine, 1 + pline - line, line );
 
                         tokenValue.dims[ 1 ] = atoi( pline );
@@ -10920,7 +11020,7 @@ void ParseInputFile( const char * inputfile )
                         tokenValue.dimensions = 2;
                     }
 
-                    if ( Token::CLOSEPAREN == token )
+                    if ( Token_CLOSEPAREN == token )
                         lineTokens.push_back( tokenValue );
                     else
                         Fail( "expected close paren or next dimension", fileLine, 1 + pline - line, line );
@@ -10950,13 +11050,17 @@ void InterpretCode( map<string, Variable> & varmap )
     bool basicTracing = false;
     g_pc = 0;  // program counter
 
-    #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+    #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
         int pcPrevious = 0;
         g_linesOfCode[ 0 ].timesExecuted--; // avoid off by 1 on first iteration of loop
         uint64_t timePrevious = __rdtsc();
     #endif
 
+#ifdef WATCOM
+    uint32_t timeBegin = DosTimeInMS();
+#else
     steady_clock::time_point timeBegin = steady_clock::now();
+#endif
 
     do
     {
@@ -10966,7 +11070,7 @@ void InterpretCode( map<string, Variable> & varmap )
         // As a result, about half of the times shown in the report are just overhead of tracking the data.
         // Look for relative differences when determining where to optimize.
 
-        #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+        #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
             if ( showExecutionTime )
             {
                 // __rdtsc makes the app run 2x slower.
@@ -10979,7 +11083,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 timePrevious = timeNow;
                 pcPrevious = g_pc;
             }
-        #endif //ENABLE_INTERPRETER_EXECUTION_TIME
+        #endif //BA_ENABLE_INTERPRETER_EXECUTION_TIME
 
         vector<TokenValue> const & vals = g_linesOfCode[ g_pc ].tokenValues;
         Token token = g_linesOfCode[ g_pc ].firstToken;
@@ -11001,11 +11105,11 @@ void InterpretCode( map<string, Variable> & varmap )
             // A table of function pointers is much slower.
             // The order of the tokens is based on usage in the ttt app.
 
-            if ( Token::IF == token )
+            if ( Token_IF == token )
             {
                 t++;
                 int val = evalProc( t, vals );
-                assert( Token::THEN == vals[ t ].token );
+                assert( Token_THEN == vals[ t ].token );
 
                 if ( val )
                     t++;
@@ -11021,19 +11125,19 @@ void InterpretCode( map<string, Variable> & varmap )
                     else
                     {
                         int elseOffset = vals[ t ].value;
-                        assert( Token::ELSE == vals[ t + elseOffset ].token );
+                        assert( Token_ELSE == vals[ t + elseOffset ].token );
                         t += ( elseOffset + 1 );
                     }
                 }
             }
-            else if ( Token::VARIABLE == token )
+            else if ( Token_VARIABLE == token )
             {
                 Variable *pvar = vals[ t ].pVariable;
                 assert( pvar && "variable hasn't been declared or cached" );
 
                 t++;
 
-                if ( Token::OPENPAREN == vals[ t ].token )
+                if ( Token_OPENPAREN == vals[ t ].token )
                 {
                     if ( 0 == pvar->dimensions )
                         RuntimeFail( "variable used as array isn't an array", g_lineno );
@@ -11044,7 +11148,7 @@ void InterpretCode( map<string, Variable> & varmap )
                     if ( RangeCheckArrays && FailsRangeCheck( arrayIndex, pvar->dims[ 0 ] ) )
                         RuntimeFail( "array offset out of bounds", g_lineno );
 
-                    if ( Token::COMMA == vals[ t ].token )
+                    if ( Token_COMMA == vals[ t ].token )
                     {
                         t++;
 
@@ -11060,8 +11164,8 @@ void InterpretCode( map<string, Variable> & varmap )
                         arrayIndex +=  indexB;
                     }
 
-                    assert( Token::CLOSEPAREN == vals[ t ].token );
-                    assert( Token::EQ == vals[ t + 1 ].token );
+                    assert( Token_CLOSEPAREN == vals[ t ].token );
+                    assert( Token_EQ == vals[ t + 1 ].token );
 
                     t += 2; // past ) and =
                     int val = evalProc( t, vals );
@@ -11070,7 +11174,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 }
                 else
                 {
-                    assert( Token::EQ == vals[ t ].token );
+                    assert( Token_EQ == vals[ t ].token );
 
                     t++;
                     int val = evalProc( t, vals );
@@ -11089,28 +11193,28 @@ void InterpretCode( map<string, Variable> & varmap )
                     goto label_next_pc;
                 }
             }
-            else if ( Token::GOTO == token )
+            else if ( Token_GOTO == token )
             {
                 g_pc = vals[ t ].value;
                 goto label_next_pc;
             }
-            else if ( Token::ATOMIC == token )
+            else if ( Token_ATOMIC == token )
             {
                 Variable * pvar = vals[ t + 1 ].pVariable;
                 assert( pvar && "atomic variable hasn't been declared or cached" );
 
-                if ( Token::INC == vals[ t + 1 ].token )
+                if ( Token_INC == vals[ t + 1 ].token )
                     pvar->value++;
                 else
                 {
-                    assert( Token::DEC == vals[ t + 1 ].token );
+                    assert( Token_DEC == vals[ t + 1 ].token );
                     pvar->value--;
                 }
 
                 g_pc++;
                 goto label_next_pc;
             }
-            else if ( Token::GOSUB == token )
+            else if ( Token_GOSUB == token )
             {
                 ForGosubItem fgi( false, g_pc + 1 );
                 forGosubStack.push( fgi );
@@ -11118,7 +11222,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 g_pc = vals[ t ].value;
                 goto label_next_pc;
             }
-            else if ( Token::RETURN == token )
+            else if ( Token_RETURN == token )
             {
                 do 
                 {
@@ -11138,7 +11242,7 @@ void InterpretCode( map<string, Variable> & varmap )
 
                 goto label_next_pc;
             }
-            else if ( Token::FOR == token )
+            else if ( Token_FOR == token )
             {
                 bool continuation = false;
 
@@ -11186,8 +11290,8 @@ void InterpretCode( map<string, Variable> & varmap )
                             RuntimeFail( "no matching NEXT found for FOR", g_lineno );
 
                         if ( g_linesOfCode[ g_pc ].tokenValues.size() > 0 &&
-                             Token::NEXT == g_linesOfCode[ g_pc ].tokenValues[ 0 ].token &&
-                             ! g_linesOfCode[ g_pc ].tokenValues[ 0 ].strValue.compare( vals[ 0 ].strValue ) )
+                             Token_NEXT == g_linesOfCode[ g_pc ].tokenValues[ 0 ].token &&
+                             ! stcmp( g_linesOfCode[ g_pc ].tokenValues[ 0 ], vals[ 0 ] ) )
                             break;
                     } while ( true );
                 }
@@ -11195,7 +11299,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 g_pc++;
                 goto label_next_pc;
             }
-            else if ( Token::NEXT == token )
+            else if ( Token_NEXT == token )
             {
                 if ( 0 == forGosubStack.size() )
                     RuntimeFail( "NEXT without FOR", g_lineno );
@@ -11206,47 +11310,58 @@ void InterpretCode( map<string, Variable> & varmap )
 
                 string & loopVal = g_linesOfCode[ item.pcReturn ].tokenValues[ 0 ].strValue;
 
-                if ( loopVal.compare( vals[ t ].strValue ) )
+                if ( stcmp( loopVal, vals[ t ].strValue ) )
                     RuntimeFail( "NEXT statement variable doesn't match current FOR loop variable", g_lineno );
 
                 g_pc = item.pcReturn;
                 goto label_next_pc;
             }
-            else if ( Token::PRINT == token )
+            else if ( Token_PRINT == token )
             {
                 g_pc++;
                 t++;
 
                 while ( t < vals.size() )
                 {
-                    if ( Token::SEMICOLON == vals[ t ].token )
+                    if ( Token_SEMICOLON == vals[ t ].token )
                     {
                         t++;
                         continue;
                     }
-                    else if ( Token::EXPRESSION != vals[ t ].token ) // ELSE is typical
+                    else if ( Token_EXPRESSION != vals[ t ].token ) // ELSE is typical
                         break;
 
-                    assert( Token::EXPRESSION == vals[ t ].token );
+                    assert( Token_EXPRESSION == vals[ t ].token );
 
-                    if ( Token::STRING == vals[ t + 1 ].token )
+                    if ( Token_STRING == vals[ t + 1 ].token )
                     {
                         printf( "%s", vals[ t + 1 ].strValue.c_str() );
                         t += 2;
                     }
-                    else if ( Token::TIME == vals[ t + 1 ].token )
+                    else if ( Token_TIME == vals[ t + 1 ].token )
                     {
+#ifdef WATCOM
+                        struct dostime_t now;
+                        _dos_gettime( & now );
+                        printf( "%02u:%02u:%02u.%03u", now.hour, now.minute, now.second, now.hsecond * 10 );
+#else
                         auto now = system_clock::now();
                         uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
                         auto timer = system_clock::to_time_t( now );
                         std::tm bt = * /*std::*/ localtime( &timer );
-                        printf( "%02u:%02u:%02u.%03u", bt.tm_hour, bt.tm_min, bt.tm_sec, (uint32_t) ms );
+                        printf( "%02u:%02u:%02u.%03u", (uint32_t) bt.tm_hour, (uint32_t) bt.tm_min, (uint32_t) bt.tm_sec, (uint32_t) ms );
+#endif
                         t += 2;
                     }
-                    else if ( Token::ELAP == vals[ t + 1 ].token )
+                    else if ( Token_ELAP == vals[ t + 1 ].token )
                     {
+#ifdef WATCOM
+                        uint32_t timeNow = DosTimeInMS();
+                        long long duration = timeNow - timeBegin;
+#else
                         steady_clock::time_point timeNow = steady_clock::now();
                         long long duration = duration_cast<std::chrono::milliseconds>( timeNow - timeBegin ).count();
+#endif
                         static char acElap[ 100 ];
                         acElap[ 0 ] = 0;
                         PrintNumberWithCommas( acElap, duration );
@@ -11263,14 +11378,14 @@ void InterpretCode( map<string, Variable> & varmap )
                 printf( "\n" );
                 goto label_next_pc;
             }
-            else if ( Token::ELSE == token )
+            else if ( Token_ELSE == token )
             {
                 g_pc++;
                 goto label_next_pc;
             }
-            else if ( Token::END == token )
+            else if ( Token_END == token )
             {
-                #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+                #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
                     if ( showExecutionTime )
                     {
                         uint64_t timeNow = __rdtsc();
@@ -11280,7 +11395,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 #endif
                 goto label_exit_execution;
             }
-            else if ( Token::DIM == token )
+            else if ( Token_DIM == token )
             {
                 // if the variable has already been defined, delete it first.
 
@@ -11300,7 +11415,11 @@ void InterpretCode( map<string, Variable> & varmap )
                 if ( 2 == var.dimensions )
                     items *= var.dims[ 1 ];
                 var.array.resize( items );
+#ifdef WATCOM
+                varmap.insert( std::pair<string, Variable> ( var.name, var ) );
+#else
                 varmap.emplace( var.name, var );
+#endif
 
                 // update all references to this array
 
@@ -11313,7 +11432,7 @@ void InterpretCode( map<string, Variable> & varmap )
                     for ( size_t z = 0; z < lineOC.tokenValues.size(); z++ )
                     {
                         TokenValue & tv = lineOC.tokenValues[ z ];
-                        if ( Token::VARIABLE == tv.token && !tv.strValue.compare( vals[ 0 ].strValue ) )
+                        if ( Token_VARIABLE == tv.token && !stcmp( tv, vals[ 0 ] ) )
                             tv.pVariable = pvar;
                     }
                 }
@@ -11321,13 +11440,13 @@ void InterpretCode( map<string, Variable> & varmap )
                 g_pc++;
                 goto label_next_pc;
             }
-            else if ( Token::TRON == token )
+            else if ( Token_TRON == token )
             {
                 basicTracing = true;
                 g_pc++;
                 goto label_next_pc;
             }
-            else if ( Token::TROFF == token )
+            else if ( Token_TROFF == token )
             {
                 basicTracing = false;
                 g_pc++;
@@ -11345,7 +11464,7 @@ void InterpretCode( map<string, Variable> & varmap )
 
     label_exit_execution:
 
-    #ifdef ENABLE_INTERPRETER_EXECUTION_TIME
+    #ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
         if ( showExecutionTime )
         {
             static char acTimes[ 100 ];
@@ -11373,7 +11492,7 @@ void InterpretCode( map<string, Variable> & varmap )
                 printf( "\n" );
             }
         }
-    #endif //ENABLE_INTERPRETER_EXECUTION_TIME
+    #endif //BA_ENABLE_INTERPRETER_EXECUTION_TIME
 
     if ( !g_Quiet )
         printf( "exiting the basic interpreter\n" );
@@ -11381,19 +11500,25 @@ void InterpretCode( map<string, Variable> & varmap )
 
 extern int main( int argc, char *argv[] )
 {
+#ifdef WATCOM
+    uint32_t timeAppStart = DosTimeInMS();
+#else
     steady_clock::time_point timeAppStart = steady_clock::now();
+#endif
 
     // validate the parallel arrays and enum are actually parallel
 
-    assert( ( Token::INVALID + 1 ) == _countof( Tokens ) );
-    assert( ( Token::INVALID + 1 ) == _countof( Operators ) );
-    assert( 11 == Token::MULT );
+    assert( ( Token_INVALID + 1 ) == _countof( Tokens ) );
+    assert( ( Token_INVALID + 1 ) == _countof( Operators ) );
+    assert( 11 == Token_MULT );
 
     // not critical, but interpreted performance is faster if it's a multiple of 2.
 
+#ifndef WATCOM
     if ( 8 == sizeof( size_t ) && 64 != sizeof( TokenValue ) )
         printf( "sizeof tokenvalue: %zd\n", sizeof( TokenValue ) );
     assert( 4 == sizeof( size_t ) || 64 == sizeof( TokenValue ) );
+#endif
 
     bool showListing = false;
     bool executeCode = true;
@@ -11525,11 +11650,19 @@ extern int main( int argc, char *argv[] )
 
     if ( showParseTime )
     {
+#ifdef WATCOM
+        uint32_t timeParseComplete = DosTimeInMS();
+        long long durationParse = timeParseComplete - timeAppStart;
+        double parseInMS = (double) durationParse;
+#else
         steady_clock::time_point timeParseComplete = steady_clock::now();      
         long long durationParse = duration_cast<std::chrono::nanoseconds>( timeParseComplete - timeAppStart ).count();
         double parseInMS = (double) durationParse / 1000000.0;
+#endif
         printf( "Time to parse %s: %lf ms\n", inputfile, parseInMS );
     }
+
+#ifdef BA_ENABLE_COMPILER
 
     if ( generateASM )
     {
@@ -11545,6 +11678,8 @@ extern int main( int argc, char *argv[] )
 
         GenerateASM( asmfile, varmap, useRegistersInASM );
     }
+
+#endif
 
     if ( executeCode )
         InterpretCode( varmap );
