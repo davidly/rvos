@@ -1647,13 +1647,14 @@ void riscv_invoke_ecall( RiscV & cpu )
                     struct termios val;
                     memset( &val, 0, sizeof val );
                     tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
-#ifdef __APPLE__ 
+
                     val.c_iflag = pt->c_iflag;
                     val.c_oflag = pt->c_oflag;
                     val.c_cflag = pt->c_cflag;
                     val.c_lflag = pt->c_lflag;                   
-#else
-                    memcpy( &val, pt, sizeof( struct local_kernel_termios ) );
+#ifndef __APPLE__
+                    val.c_line = pt->c_line;
+                    memcpy( & val.c_cc, & pt->c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
                     tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
                     tcsetattr( 0, TCSANOW, &val );
