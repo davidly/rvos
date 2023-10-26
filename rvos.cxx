@@ -611,6 +611,158 @@ int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
 
 #endif
 
+#ifdef __APPLE__
+
+tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
+{
+    tcflag_t r = 0;
+    if ( f & 1 ) // OPOST is the same bit
+        r |= 1;
+
+    if ( f & 4 ) // ONLCR
+        r |= 2;
+
+    if ( f & 8 ) // OCRNL
+        r |= 0x10;
+
+    if ( f & 0x10 ) // ONOCR
+        r |= 0x20;
+
+    if ( f & 0x20 ) // ONLRET
+        r |= 0x40;
+
+    return r;
+} //map_termios_oflag_linux_to_macos
+
+tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
+{
+    tcflag_t r = 0;
+    if ( f & 1 ) // OPOST is the same bit
+        r |= 1;
+
+    if ( f & 2 ) // ONLCR
+        r |= 4;
+
+    if ( f & 0x10 ) // OCRNL
+        r |= 8;
+
+    if ( f & 0x20 ) // ONOCR
+        r |= 0x10;
+
+    if ( f & 0x40 ) // ONLRET
+        r |= 0x20;
+
+    return r;
+} //map_termios_oflag_linux_to_macos
+
+tcflag_t map_termios_iflag_linux_to_macos( tcflag_t f )
+{
+    tcflag_t r = f;
+
+    if ( f & 0x400 ) // IXON
+    {
+        r &= ~ 0x400;
+        r |= 0x200;
+    }
+
+    return r;
+} //map_termios_oflag_linux_to_macos
+
+tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
+{
+    tcflag_t r = f;
+
+    if ( f & 0x200 ) // IXON
+    {
+        r &= ~ 0x200;
+        r |= 0x400;
+    }
+
+    return r;
+} //map_termios_oflag_linux_to_macos
+
+tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
+{
+    tcflag_t r = f;
+
+    if ( f & 0x40 ) // ECHO
+    {
+        r &= ~ 0x40;
+        r |= 0x10;
+    }
+
+    if ( f & 2 ) // ECHONL
+    {
+        r &= ~ 2;
+        r |= 0x100;
+    }
+
+    if ( f & 1 ) // ICANON
+    {
+        r &= ~ 1;
+        r |= 0x80;
+    }
+
+    if ( f & 0x8000 ) // ISIG
+    {
+        r &= ~ 0x8000;
+        r |= 0x400;
+    }
+
+    return r;
+} //map_termios_lflag_linux_to_macos
+
+tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
+{
+    tcflag_t r = f;
+
+    if ( f & 0x10 ) // ECHO
+    {
+        r &= ~ 0x10;
+        r |= 0x40;
+    }
+
+    if ( f & 0x100 ) // ECHONL
+    {
+        r &= ~ 0x100;
+        r |= 2;
+    }
+
+    if ( f & 0x80 ) // ICANON
+    {
+        r &= ~ 0x80;
+        r |= 1;
+    }
+
+    if ( f & 0x400 ) // ISIG
+    {
+        r &= ~ 0x400;
+        r |= 0x8000;
+    }
+
+    return r;
+} //map_termios_lflag_linux_to_macos
+
+tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
+{
+    tcflag_t r = f;
+    if ( 0x30 == r ) // PARENB
+        r = 0x300;
+
+    return r;
+} //map_termios_cflag_linux_to_macos
+
+tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
+{
+    tcflag_t r = f;
+    if ( 0x300 == r ) // PARENB
+        r = 0x30;
+
+    return r;
+} //map_termios_cflag_linux_to_macos
+
+#endif
+
 struct SysCall
 {
     const char * name;
@@ -1631,11 +1783,18 @@ void riscv_invoke_ecall( RiscV & cpu )
                 {
                     struct termios val;
                     tcgetattr( 0, &val );
+                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
                     pt->c_iflag = val.c_iflag;
                     pt->c_oflag = val.c_oflag;
                     pt->c_cflag = val.c_cflag;
                     pt->c_lflag = val.c_lflag;
-#ifndef __APPLE__
+#ifdef __APPLE__
+                    pt->c_iflag = map_termios_iflag_macos_to_linux( pt->c_iflag );
+                    pt->c_oflag = map_termios_oflag_macos_to_linux( pt->c_oflag );
+                    pt->c_cflag = map_termios_cflag_macos_to_linux( pt->c_cflag );
+                    pt->c_lflag = map_termios_lflag_macos_to_linux( pt->c_lflag );
+                    tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+#else
                     pt->c_line = val.c_line;
                     memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
@@ -1647,12 +1806,24 @@ void riscv_invoke_ecall( RiscV & cpu )
                     struct termios val;
                     memset( &val, 0, sizeof val );
                     tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
+                    tracer.Trace( "oflag: %#x, OPOST %#x, ONLCR %#x, OCRNL %#x, ONOCR %#x, ONLRET %#x\n", pt->c_oflag, OPOST, ONLCR, OCRNL, ONOCR, ONLRET );
+                    tracer.Trace( "iflag: %#x, IGNBRK %#x, BRKINT %#x, PARMRK %#x, ISTRIP %#x, INLCR %#x, IGNCR %#x, ICRNL %#x, IXON %#x\n", 
+                                  pt->c_iflag, IGNBRK, BRKINT, PARMRK, ISTRIP, INLCR, IGNCR, ICRNL, IXON );
+                    tracer.Trace( "cflag: %#x, CSIZE %#x, PARENB %#x, CS8 %#x\n", CSIZE, PARENB, CS8 );
+                    tracer.Trace( "lflag: %#x, ECHO %#x, ECHONL %#x, ICANON %#x, ISIG %#x, IEXTEN %#x\n", ECHO, ECHONL, ICANON, ISIG, IEXTEN );
 
                     val.c_iflag = pt->c_iflag;
                     val.c_oflag = pt->c_oflag;
                     val.c_cflag = pt->c_cflag;
-                    val.c_lflag = pt->c_lflag;                   
-#ifndef __APPLE__
+                    val.c_lflag = pt->c_lflag;
+                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );                   
+#ifdef __APPLE__
+                    val.c_iflag = map_termios_iflag_linux_to_macos( val.c_iflag );
+                    val.c_oflag = map_termios_oflag_linux_to_macos( val.c_oflag );
+                    val.c_cflag = map_termios_cflag_linux_to_macos( val.c_cflag );
+                    val.c_lflag = map_termios_lflag_linux_to_macos( val.c_lflag );
+                    tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+#else
                     val.c_line = pt->c_line;
                     memcpy( & val.c_cc, & pt->c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
