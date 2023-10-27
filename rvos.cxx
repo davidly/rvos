@@ -613,6 +613,11 @@ int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
 
 #ifdef __APPLE__
 
+// For each of these flag fields o/i/l/c this code translates the subset of the values actually used in the apps
+// I validated. There are certainly other cases that are still broken (though many aren't implemented in MacOS,
+// so translating them wouldn't have any impact). If anyone understands the historical reasons for the differences
+// in these flags I'd love to hear about it. Why did coders knowngly pick different constant values?
+
 tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
@@ -637,7 +642,7 @@ tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
 tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
-    if ( f & 1 ) // OPOST is the same bit
+    if ( f & 1 ) // OPOST is the same bit for both
         r |= 1;
 
     if ( f & 2 ) // ONLCR
@@ -664,6 +669,11 @@ tcflag_t map_termios_iflag_linux_to_macos( tcflag_t f )
         r &= ~ 0x400;
         r |= 0x200;
     }
+    else if ( f & 0x1000 ) // IXOFF
+    {
+        r &= ~ 0x1000;
+        r |= 0x400;
+    }
 
     return r;
 } //map_termios_oflag_linux_to_macos
@@ -677,86 +687,159 @@ tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
         r &= ~ 0x200;
         r |= 0x400;
     }
+    else if ( f & 0x400 ) // IXOFF
+    {
+        r &= ~ 0x400;
+        r |= 0x1000;
+    }
 
     return r;
 } //map_termios_oflag_linux_to_macos
 
 tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
 {
-    tcflag_t r = f;
-
-    if ( f & 0x40 ) // ECHO
-    {
-        r &= ~ 0x40;
-        r |= 0x10;
-    }
-
-    if ( f & 2 ) // ECHONL
-    {
-        r &= ~ 2;
-        r |= 0x100;
-    }
+    tcflag_t r = 0;
 
     if ( f & 1 ) // ICANON
-    {
-        r &= ~ 1;
         r |= 0x80;
-    }
+
+    if ( f & 2 ) // ECHONL
+        r |= 0x100;
+
+    if ( f & 8 ) // ECHOK
+        r |= 8;
+
+    if ( f & 0x10 ) // ECHOKE
+        r |= 2;
+
+    if ( f & 0x20 ) // ECHOE
+        r |= 4;
+
+    if ( f & 0x40 ) // ECHO
+        r |= 0x10;
+
+    if ( f & 0x100 ) // EXTPROC
+        r |= 0x400000;
+
+    if ( f & 0x200 ) // ECHOPRT
+        r |= 0x40;
+
+    if ( f & 0x400 ) // ECONL
+        r |= 0x20;
 
     if ( f & 0x8000 ) // ISIG
-    {
-        r &= ~ 0x8000;
         r |= 0x400;
-    }
+
+    if ( f & 0x10000 ) // IEXTEN
+        r |= 0x800;
 
     return r;
 } //map_termios_lflag_linux_to_macos
 
 tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
 {
-    tcflag_t r = f;
-
-    if ( f & 0x10 ) // ECHO
-    {
-        r &= ~ 0x10;
-        r |= 0x40;
-    }
-
-    if ( f & 0x100 ) // ECHONL
-    {
-        r &= ~ 0x100;
-        r |= 2;
-    }
+    tcflag_t r = 0;
 
     if ( f & 0x80 ) // ICANON
-    {
-        r &= ~ 0x80;
         r |= 1;
-    }
+
+    if ( f & 0x100 ) // ECHONL
+        r |= 2;
+
+    if ( f & 8 ) // ECHOK
+        r |= 8;
+
+    if ( f & 2 ) // ECHOKE
+        r |= 0x10;
+
+    if ( f & 4 ) // ECHOE
+        r |= 0x20;
+
+    if ( f & 0x10 ) // ECHO
+        r |= 0x40;
+
+    if ( f & 0x400000 ) // EXTPROC
+        r |= 0x100;
+
+    if ( f & 0x40 ) // ECHOPRT
+        r |= 0x200;
+
+    if ( f & 0x20 ) // ECONL
+        r |= 0x400;
 
     if ( f & 0x400 ) // ISIG
-    {
-        r &= ~ 0x400;
         r |= 0x8000;
-    }
+
+    if ( f & 0x800 ) // IEXTEN
+        r |= 0x10000;
 
     return r;
 } //map_termios_lflag_linux_to_macos
 
 tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
 {
-    tcflag_t r = f;
-    if ( 0x30 == r ) // PARENB
-        r = 0x300;
+    tcflag_t r = 0;
+
+    if ( f & 0x10 ) // CS5
+        r |= 0x100;
+
+    if ( f & 0x20 ) // CS6  CLOCAL is also 0x20 on linux and 0x400 on MacOS
+        r |= 0x200;
+
+    if ( f & 0x30 ) // CS7
+        r |= 0x300;
+
+    if ( f & 0x40 ) // CSIZE
+        r |= 0x400;
+
+    if ( f & 0x80 ) // CSTOPB
+        r |= 0x800;
+
+    if ( f & 0x100 ) // CREAD
+        r |= 0x1000;
+
+    if ( f & 0x200 ) // PARENB
+        r |= 0x2000;
+
+    if ( f & 0x400 ) // CS8
+        r |=  0x4000;
+
+    if ( f & 0x800 ) // HUPCL
+        r |= 0x8000;
 
     return r;
 } //map_termios_cflag_linux_to_macos
 
 tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 {
-    tcflag_t r = f;
-    if ( 0x300 == r ) // PARENB
-        r = 0x30;
+    tcflag_t r = 0;
+
+    if ( f & 0x100 ) // CS5
+        r |= 0x10;
+
+    if ( f & 0x200 ) // CS6  CLOCAL is also 0x20 on linux and 0x400 on MacOS
+        r |= 0x20;
+
+    if ( f & 0x300 ) // CS7
+        r |= 0x30;
+
+    if ( f & 0x400 ) // CSIZE
+        r |= 0x40;
+
+    if ( f & 0x800 ) // CSTOPB
+        r |= 0x80;
+
+    if ( f & 0x1000 ) // CREAD
+        r |= 0x100;
+
+    if ( f & 0x2000 ) // PARENB
+        r |= 0x200;
+
+    if ( f & 0x4000 ) // CS8
+        r |=  0x400;
+
+    if ( f & 0x8000 ) // HUPCL
+        r |= 0x800;
 
     return r;
 } //map_termios_cflag_linux_to_macos
@@ -1806,11 +1889,14 @@ void riscv_invoke_ecall( RiscV & cpu )
                     struct termios val;
                     memset( &val, 0, sizeof val );
                     tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
-                    tracer.Trace( "oflag: %#x, OPOST %#x, ONLCR %#x, OCRNL %#x, ONOCR %#x, ONLRET %#x\n", pt->c_oflag, OPOST, ONLCR, OCRNL, ONOCR, ONLRET );
-                    tracer.Trace( "iflag: %#x, IGNBRK %#x, BRKINT %#x, PARMRK %#x, ISTRIP %#x, INLCR %#x, IGNCR %#x, ICRNL %#x, IXON %#x\n", 
-                                  pt->c_iflag, IGNBRK, BRKINT, PARMRK, ISTRIP, INLCR, IGNCR, ICRNL, IXON );
-                    tracer.Trace( "cflag: %#x, CSIZE %#x, PARENB %#x, CS8 %#x\n", CSIZE, PARENB, CS8 );
-                    tracer.Trace( "lflag: %#x, ECHO %#x, ECHONL %#x, ICANON %#x, ISIG %#x, IEXTEN %#x\n", ECHO, ECHONL, ICANON, ISIG, IEXTEN );
+                    tracer.Trace( "  oflag %#x OPOST %#x ONLCR %#x OCRNL %#x ONOCR %#x ONLRET %#x\n",
+                                  pt->c_oflag, OPOST, ONLCR, OCRNL, ONOCR, ONLRET );
+                    tracer.Trace( "  iflag %#x IGNBRK %#x BRKINT %#x IGNPAR %#x PARMRK %#x INPCK %#x ISTRIP %#x INLCR %#x IGNCR %#x ICRNL %#x IXON %#x IXOFF %#x IXANY %#x IMAXBEL %#x IUTF8 %#x\n",
+                                  pt->c_iflag, IGNBRK, BRKINT, IGNPAR, PARMRK, INPCK, ISTRIP, INLCR, IGNCR, ICRNL, IXON, IXOFF, IXANY, IMAXBEL, IUTF8 );
+                    tracer.Trace( "  cflag %#x CSIZE %#x, CSTOPB %#x CREAD %#x PARENB %#x PARODD %#x CS5 %#x CS6 %#x CS7 %#x CS8 %#x HUPCL %#x CLOCAL %#x\n",
+                                  CSIZE, CSTOPB, CREAD, PARENB, PARODD, CS5, CS6, CS7, CS8, HUPCL, CLOCAL );
+                    tracer.Trace( "  lflag %#x ECHOKE %#x ECHOE %#x ECHOK %#x ECHO %#x ECHONL %#x ECHOPRT %#x ECHOCTL %#x ICANON %#x ISIG %#x IEXTEN %#x EXTPROC %#x TOSTOP %#x\n",
+                                  ECHOKE, ECHOE, ECHOK, ECHO, ECHONL, ECHOPRT, ECHOCTL, ICANON, ISIG, IEXTEN, EXTPROC, TOSTOP );
 
                     val.c_iflag = pt->c_iflag;
                     val.c_oflag = pt->c_oflag;
