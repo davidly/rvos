@@ -1265,6 +1265,8 @@ void riscv_invoke_ecall( RiscV & cpu )
                         g_FindFirst = 0;
                     }
                     g_FindFirstDescriptor = -1;
+                    update_a0_errno( cpu, 0 );
+                    break;
                 }
     #endif
 #endif
@@ -1646,6 +1648,10 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  rvos command SYS_mkdirat path %s\n", path );
             int result = _mkdir( path );
 #else
+#ifdef __APPLE__
+            if ( -100 == directory )
+                directory = -2;
+#endif     
             mode_t mode = (mode_t) cpu.regs[ RiscV::a2 ];
             tracer.Trace( "  rvos command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
             int result = mkdirat( directory, path, mode );
@@ -1670,6 +1676,10 @@ void riscv_invoke_ecall( RiscV & cpu )
                     result = remove( path );
             }
 #else
+#ifdef __APPLE__
+            if ( -100 == directory )
+                directory = -2;
+#endif     
             int result = unlinkat( directory, path, flags );
 #endif
             update_a0_errno( cpu, result );
