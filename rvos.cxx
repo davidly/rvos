@@ -1778,6 +1778,10 @@ void riscv_invoke_ecall( RiscV & cpu )
 #ifdef _WIN32
             int result = rename( oldpath, newpath );
 #elif defined( __APPLE__ )
+            if ( -100 == olddirfd )
+                olddirfd = -2;
+            if ( -100 == newdirfd )
+                newdirfd = -2;
             int result = renameat( olddirfd, oldpath, newdirfd, newpath ); // macos has no renameat2s
 #else
             int result = renameat2( olddirfd, oldpath, newdirfd, newpath, flags );
