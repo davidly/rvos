@@ -24,14 +24,7 @@
 #include <math.h>
 #include <chrono>
 
-#ifdef _MSC_VER
-    #include <intrin.h>
-    
-    #ifdef _M_ARM64
-        #include <windows.h> // needed for 128-bit multiply on arm64
-    #endif
-#endif
-
+#include <djl_128.hxx>
 #include <djltrace.hxx>
 
 #include "riscv.hxx"
@@ -1366,7 +1359,7 @@ void RiscV::trace_state()
     }
 } //trace_state
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 __declspec(noinline)
 #endif
 void RiscV::unhandled()
@@ -1938,63 +1931,27 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         regs[ rd ] = regs[ rs1 ] * regs[ rs2 ]; // mul rd, rs1, rs2
                     else if ( 1 == funct3 ) // mulh rd, rs1, rs2     signed * signed
                     {
-                        #ifdef _MSC_VER
-                            int64_t high;
-    
-                            #ifdef _M_ARM64
-                                Multiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #else
-                                _mul128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #endif
-    
-                            regs[ rd ] = high;
-                        #else
-                            __int128 result = (__int128) regs[ rs1 ] * (__int128) regs[ rs2 ];
-                            result >>= 64;
-                            regs[ rd ] = (int64_t) result;
-                        #endif
+                        int64_t high;
+                        CMultiply128::mul_s64_s64( regs[ rs1 ], regs[ rs2 ], &high );
+                        regs[ rd ] = high;
                     }
                     else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
                     {
-                        #ifdef _MSC_VER
-                            int64_t reg1 = regs[ rs1 ];
-                            bool negative = ( reg1 < 0 );
-                            uint64_t ureg1 = negative ? -reg1 : reg1;
-                            uint64_t high;
-    
-                            #ifdef _M_ARM64
-                                UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #else
-                                _umul128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #endif
-    
-                            int64_t result = (int64_t) high;
-                            if ( negative )
-                                result = -result;
-                            regs[ rd ] = result;
-                        #else
-                            __int128 result = (__int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
-                            result >>= 64;
-                            regs[ rd ] = (int64_t) result;
-                        #endif
+                        int64_t reg1 = regs[ rs1 ];
+                        bool negative = ( reg1 < 0 );
+                        uint64_t ureg1 = negative ? -reg1 : reg1;
+                        uint64_t high;
+                        CMultiply128::mul_u64_u64( regs[ rs1 ], regs[ rs2 ], &high );
+                        int64_t result = (int64_t) high;
+                        if ( negative )
+                            result = -result;
+                        regs[ rd ] = result;
                     }
                     else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
                     {
-                        #ifdef _MSC_VER
-                            uint64_t high;
-    
-                            #ifdef _M_ARM64
-                                UnsignedMultiply128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #else
-                                _umul128( regs[ rs1 ], regs[ rs2 ], &high );
-                            #endif
-    
-                            regs[ rd ] = high;
-                        #else
-                            unsigned __int128 result = (unsigned __int128) regs[ rs1 ] * (unsigned __int128) regs[ rs2 ];
-                            result >>= 64;
-                            regs[ rd ] = (uint64_t) result;
-                        #endif
+                        uint64_t high;
+                        CMultiply128::mul_u64_u64( regs[ rs1 ], regs[ rs2 ], &high );
+                        regs[ rd ] = high;
                     }
                     else if ( 4 == funct3 )
                     {

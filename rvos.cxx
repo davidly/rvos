@@ -1559,7 +1559,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_newfstatat:
         {
             const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            tracer.Trace( "  rvos command SYS_newfstatat, id %ld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
+            tracer.Trace( "  rvos command SYS_newfstatat, id %lld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
             int descriptor = (int) cpu.regs[ RiscV::a0 ];
             int result = 0;
 
@@ -1714,13 +1714,13 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (uint64_t) pvec->iov_base ) );
 
 #ifdef _WIN32
-            size_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), (unsigned) pvec->iov_len );
+            int64_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), (unsigned) pvec->iov_len );
 #else
             struct iovec vec_local;
             vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
             vec_local.iov_len = pvec->iov_len;
             tracer.Trace( "  write length: %u to descriptor %d at addr %p\n", pvec->iov_len, descriptor, vec_local.iov_base );
-            size_t result = writev( descriptor, &vec_local, cpu.regs[ RiscV::a2 ] );
+            int64_t result = writev( descriptor, &vec_local, cpu.regs[ RiscV::a2 ] );
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -1804,7 +1804,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             void * buf = cpu.getmem( cpu.regs[ RiscV::a0 ] );
             size_t buflen = cpu.regs[ RiscV::a1 ];
             unsigned int flags = (unsigned int) cpu.regs[ RiscV::a2 ];
-            ssize_t result = 0;
+            int64_t result = 0;
 
 #if defined(_WIN32) || defined(__APPLE__)
             int * pbuf = (int *) buf;
@@ -1851,7 +1851,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             char * buf = (char *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
             size_t bufsiz = (size_t) cpu.regs[ RiscV::a3 ];
             tracer.Trace( "  readlinkat pathname %p == '%s', buf %p, bufsiz %zd, dirfd %d\n", pathname, pathname, buf, bufsiz, dirfd );
-            size_t result = -1;
+            int64_t result = -1;
 
 #ifdef _WIN32
             errno = EINVAL; // no symbolic links on Windows as far as this emulator is concerned
