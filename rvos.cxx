@@ -846,6 +846,29 @@ tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 
 #endif
 
+#ifdef __ARM_32BIT_STATE
+    int linux_riscv64_to_arm32_open_flags( int flags )
+    {
+        // values are the same aside from these, which are flipped:
+        //               riscv64      arm32
+        // O_DIRECT      0x4000       0x10000
+        // O_DIRECTORY   0x10000      0x4000
+
+        int r = flags;
+        if ( flags & 0x4000 )
+        {
+            r &= ~0x4000;
+            r |= 0x10000;
+        }
+        if ( flags & 0x10000 )
+        {
+            r &= ~0x10000;
+            r |= 0x4000;
+        }
+        return r;
+    } //linux_risc64v_to_arm32_open_flags
+#endif
+
 struct SysCall
 {
     const char * name;
@@ -1540,6 +1563,9 @@ void riscv_invoke_ecall( RiscV & cpu )
             else
                 descriptor = _open( pname, flags, mode );
 #else
+#ifdef __ARM_32BIT_STATE
+            flags = linux_riscv64_to_arm32_open_flags( flags );
+#endif
             descriptor = openat( directory, pname, flags, mode );
 #endif
             update_a0_errno( cpu, descriptor );
