@@ -1754,7 +1754,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_clock_gettime:
         {
             clockid_t cid = (clockid_t) cpu.regs[ RiscV::a0 ];
-
+            struct timespec_syscall * ptimespec = (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
             #ifdef __APPLE__ // Linux vs MacOS
                 if ( 1 == cid )
                     cid = CLOCK_REALTIME;
@@ -1763,9 +1763,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             #endif
 
 #ifdef _WIN32
-            int result = msc_clock_gettime( cid, (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            int result = msc_clock_gettime( cid, ptimespec );
 #else
-            int result = clock_gettime( cid, (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a1 ] ) );
+            struct timespec local_ts; // this varies in size from platform to platform
+            int result = clock_gettime( cid, & local_ts );
+            ptimespec->tv_sec = local_ts.tv_sec;
+            ptimespec->tv_nsec = local_ts.tv_nsec;
 #endif
             update_a0_errno( cpu, result );
             break;
