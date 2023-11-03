@@ -106,6 +106,11 @@ different on the actual hardware -- it calls bamain (not main) and the text prin
     * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
     * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
 
+If you get a runtime error like this then use the /h flag to reserve more RAM for the heap.
+
+        terminate called after throwing an instance of 'std::bad_alloc'
+          what():  std::bad_alloc
+          
 RVOS has a few simple checks for memory references outside of bounds with debug builds. When detected it shows 
 some state and exits. Real RISC-V memory protection instructions are not implemented. For example:
 
