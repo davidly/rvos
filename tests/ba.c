@@ -9608,6 +9608,14 @@ label_no_if_optimization:
         // incredibly slow iterative addition.
 
         fprintf( fp, "imul:\n" );
+        fprintf( fp, "    mov      a, l\n" );
+        fprintf( fp, "    cpi      0\n" );
+        fprintf( fp, "    jnz      mul$notzero\n" );
+        fprintf( fp, "    mov      a, h\n" );
+        fprintf( fp, "    cpi      0\n" );
+        fprintf( fp, "    jnz      mul$notzero\n" );
+        fprintf( fp, "    ret\n" );
+        fprintf( fp, "  mul$notzero:\n" );
         fprintf( fp, "    mvi      b, 80h\n" );
         fprintf( fp, "    mov      a, h\n" );
         fprintf( fp, "    ana      b\n" );
