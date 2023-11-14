@@ -89,7 +89,8 @@ uint64_t g_bottom_of_stack = 0;                // just beyond where brk might mo
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
 
-// fake descriptors
+// fake descriptors.
+// /etc/timezone is not implemented, so apps running in RVOS on Windows assume UTC
 
 const uint64_t findFirstDescriptor = 3000;
 const uint64_t timebaseFrequencyDescriptor = 3001;
@@ -572,7 +573,7 @@ static const char * clockids[] =
     "thread_cputime_id",
     "monotonic_raw",
     "realtime_coarse",
-    "monotinic_coarse",
+    "monotonic_coarse",
 };
 
 typedef int clockid_t;
@@ -1185,8 +1186,6 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
                 int r = g_consoleConfig.portable_getch();
 #endif
-                //if ( 13 == r )
-                //    r = 10;
                 * (char *) buffer = r;
                 cpu.regs[ RiscV::a0 ] = 1;
                 tracer.Trace( "  getch read character %u == '%c'\n", r, printable( r ) );
@@ -1462,7 +1461,6 @@ void riscv_invoke_ecall( RiscV & cpu )
             else
             {
                 uint64_t ask_offset = ask - g_base_address;
-
                 tracer.Trace( "  ask_offset %llx, g_end_of_data %llx, end_of_stack %llx\n", ask_offset, g_end_of_data, g_bottom_of_stack );
 
                 if ( ask_offset >= g_end_of_data && ask_offset < g_bottom_of_stack )
@@ -1531,7 +1529,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             int mode = (int) cpu.regs[ RiscV::a3 ];
             int64_t descriptor = 0;
 
-            tracer.Trace( "  open dir %d, flags %x, mode %x, file %s\n", directory, flags, mode, pname );
+            tracer.Trace( "  open dir %d, flags %x, mode %x, file '%s'\n", directory, flags, mode, pname );
 
             if ( !strcmp( pname, "/proc/device-tree/cpus/timebase-frequency" ) )
             {
@@ -2653,7 +2651,11 @@ int main( int argc, char * argv[] )
         char *parg = argv[i];
         char c = *parg;
 
-        if ( ( 0 == pcApp ) && ( '-' == c || '/' == c ) )
+        if ( ( 0 == pcApp ) && ( '-' == c
+#if defined( WATCOM ) || defined( _WIN32 )
+            || '/' == c
+#endif
+           ) )
         {
             char ca = tolower( parg[1] );
 
