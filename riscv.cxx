@@ -111,6 +111,7 @@ static const uint8_t riscv_types[ 32 ] =
     IllType, // 1f
 };
 
+#pragma warning(disable: 4100)
 void RiscV::assert_type( uint8_t t ) { assert( t == riscv_types[ opcode_type ] ); }
 
 static const char * register_names[ 32 ] =
@@ -158,7 +159,7 @@ static bool g_failOnUncompressError = true;
 
     #include "rvctable.txt"
     
-    uint32_t RiscV::uncompress_rvc( uint32_t x )
+    uint32_t RiscV::uncompress_rvc( uint16_t x )
     {
         uint32_t op32 = rvc_lookup[ x ];
         if ( 0 == op32 )
@@ -224,7 +225,7 @@ static uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
 } //compose_B
 
-uint32_t RiscV::uncompress_rvc( uint32_t x )
+uint32_t RiscV::uncompress_rvc( uint16_t x )
 {
     uint32_t op32 = 0;
     uint16_t op2 = x & 0x3;
@@ -594,7 +595,7 @@ void RiscV::trace_state()
     sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s2 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s2 ] );
 
     static const char * previous_symbol = 0;
-    const char * symbol_name = riscv_symbol_lookup( *this, pc );
+    const char * symbol_name = riscv_symbol_lookup( pc );
     if ( symbol_name == previous_symbol )
         symbol_name = "";
     else
@@ -694,8 +695,8 @@ void RiscV::trace_state()
                     if ( 0 == i_top2 )
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
-                        uint32_t result = val << i_shamt5;
-                        uint64_t result64 = sign_extend( result, 32 );
+                        //uint32_t result = val << i_shamt5;
+                        //uint64_t result64 = sign_extend( result, 32 );
                         tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
                     }
                 }
@@ -1939,7 +1940,6 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         int64_t reg1 = regs[ rs1 ];
                         bool negative = ( reg1 < 0 );
-                        uint64_t ureg1 = negative ? -reg1 : reg1;
                         uint64_t high;
                         CMultiply128::mul_u64_u64( regs[ rs1 ], regs[ rs2 ], &high );
                         int64_t result = (int64_t) high;

@@ -10,13 +10,13 @@ do
 done
 
 echo "an nap" >>linux_test.txt
-rvos /h:30 tests/an nap  >>linux_test.txt
+rvos -h:30 tests/an nap  >>linux_test.txt
 
 echo "ba /p /q tp.bas" >>linux_test.txt
-rvos /h:30 tests/ba /p /q tests/tp.bas >>linux_test.txt
+rvos -h:30 tests/ba /p /q tests/tp.bas >>linux_test.txt
 
 echo "mysort /r words.txt sorted.txt" >>linux_test.txt
-rvos /h:30 tests/mysort /r tests/words.txt tests/sorted.txt >>linux_test.txt
+rvos -h:30 tests/mysort /r tests/words.txt tests/sorted.txt >>linux_test.txt
 
 echo "tcrash sph" >>linux_test.txt
 rvos tests/tcrash sph >>linux_test.txt

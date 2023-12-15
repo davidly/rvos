@@ -95,6 +95,7 @@ bool * g_ptracenow = 0;                        // if this variable exists in the
 const uint64_t findFirstDescriptor = 3000;
 const uint64_t timebaseFrequencyDescriptor = 3001;
 
+#pragma warning(disable: 4200) // 0-sized array
 struct linux_dirent64_syscall {
     uint64_t d_ino;     /* Inode number */
     uint64_t d_off;     /* Offset to next linux_dirent */
@@ -153,9 +154,11 @@ struct stat_linux_syscall {
     struct timespec  st_ctim;  /* Time of last status change */
 
 #ifndef st_atime
+#ifndef OLDGCC
     #define st_atime  st_atim.tv_sec  /* Backward compatibility */
     #define st_mtine  st_mtim.tv_sec
     #define st_ctime  st_ctim.tv_sec
+#endif
 #endif
 
     uint64_t   st_mystery_spot_2;
@@ -361,14 +364,6 @@ char printable( uint8_t x )
     return x;
 } //printable
 
-class CFile
-{
-    public: 
-        FILE *fp;
-        CFile( FILE * f ) : fp( f ) {}
-        ~CFile() { fclose( fp ); }
-};
-
 void usage( char const * perror = 0 )
 {
     g_consoleConfig.RestoreConsole( false );
@@ -393,7 +388,7 @@ struct linux_timeval
     uint64_t tv_usec;      // suseconds_t
 };
 
-int gettimeofday( linux_timeval * tp, struct timezone * tzp )
+int gettimeofday( linux_timeval * tp )
 {
     // the OLDGCC's chrono implementation is built on time(), which calls this but
     // has only second resolution. So the microseconds returned here are lost.
@@ -902,6 +897,8 @@ static const SysCall syscalls[] =
     { "SYS_set_robust_list", SYS_set_robust_list },
     { "SYS_clock_gettime", SYS_clock_gettime },
     { "SYS_clock_nanosleep", SYS_clock_nanosleep },
+    { "SYS_sched_setaffinity", SYS_sched_setaffinity },
+    { "SYS_sched_getaffinity", SYS_sched_getaffinity },
     { "SYS_tgkill", SYS_tgkill },
     { "SYS_sigaction", SYS_sigaction },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
@@ -983,6 +980,8 @@ void update_a0_errno(  RiscV & cpu, int64_t result )
 
 // this is called when the risc-v app has an ecall instruction
 // https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
+
+#pragma warning(disable: 4189) // unreferenced local variable
 
 void riscv_invoke_ecall( RiscV & cpu )
 {
@@ -1074,7 +1073,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_clock_nanosleep:
         {
             clockid_t clockid = (clockid_t) cpu.regs[ RiscV::a0 ];
-            int flags = cpu.regs[ RiscV::a1 ];
+            int flags = (int) cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  nanosleep id %d flags %x\n", clockid, flags );
 
             const struct timespec * request = (const struct timespec *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
@@ -1086,6 +1085,18 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  nanosleep sec %lld, nsec %lld == %lld ms\n", request->tv_sec, request->tv_nsec, ms );
             sleep_ms( ms );
             update_a0_errno( cpu, 0 );
+            break;
+        }
+        case SYS_sched_setaffinity:
+        {
+            tracer.Trace( "  setaffinity, EPERM %d\n", EPERM );
+            update_a0_errno( cpu, EPERM );
+            break;
+        }
+        case SYS_sched_getaffinity:
+        {
+            tracer.Trace( "  getaffinity, EPERM %d\n", EPERM );
+            update_a0_errno( cpu, EPERM );
             break;
         }
         case SYS_newfstat:
@@ -1135,6 +1146,8 @@ void riscv_invoke_ecall( RiscV & cpu )
                 pout->st_atim = local_stat.st_atimespec;
                 pout->st_mtim = local_stat.st_mtimespec;
                 pout->st_ctim = local_stat.st_ctimespec;
+#elif defined(OLDGCC)
+                // no time on old gcc intended for embedded systems
 #else
                 pout->st_atim = local_stat.st_atim;
                 pout->st_mtim = local_stat.st_mtim;
@@ -1155,7 +1168,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             linux_timeval * ptimeval = (linux_timeval *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
             int result = 0;
             if ( 0 != ptimeval )
-                result = gettimeofday( ptimeval, 0 );
+                result = gettimeofday( ptimeval );
 
             cpu.regs[ RiscV::a0 ] = result;
             break;
@@ -1186,9 +1199,9 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
                 int r = g_consoleConfig.portable_getch();
 #endif
-                * (char *) buffer = r;
+                * (char *) buffer = (char) r;
                 cpu.regs[ RiscV::a0 ] = 1;
-                tracer.Trace( "  getch read character %u == '%c'\n", r, printable( r ) );
+                tracer.Trace( "  getch read character %u == '%c'\n", r, printable( (uint8_t) r ) );
                 break;
             }
             else if ( timebaseFrequencyDescriptor == descriptor && buffer_size >= 8 )
@@ -1221,7 +1234,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 if ( 1 == descriptor || 2 == descriptor ) // stdout / stderr
                     tracer.Trace( "  writing '%.*s'\n", (int) count, p );
 
-                tracer.TraceBinaryData(  p, count, 4 );
+                tracer.TraceBinaryData( p, (uint32_t) count, 4 );
                 size_t written = write( descriptor, p, (int) count );
                 update_a0_errno( cpu, written );
             }
@@ -1336,7 +1349,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                         pcur->d_ino = 100; // fake
                         tracer.Trace( "  len: %zd, sizeof struct %zd\n", len, sizeof( struct linux_dirent64_syscall ) );
                         size_t dname_off = offsetof( struct linux_dirent64_syscall, d_name );
-                        pcur->d_reclen = dname_off + len + 1;
+                        pcur->d_reclen = (uint16_t) ( dname_off + len + 1 );
                         pcur->d_off = pcur->d_reclen;
                         strcpy( pcur->d_name, fd.cFileName );
                         if ( FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes )
@@ -1371,7 +1384,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                         pcur->d_ino = 100; // fake
                         tracer.Trace( "  len: %zd, sizeof struct %zd\n", len, sizeof( struct linux_dirent64_syscall ) );
                         size_t dname_off = offsetof( struct linux_dirent64_syscall, d_name );
-                        pcur->d_reclen = dname_off + len + 1;
+                        pcur->d_reclen = (uint16_t) ( dname_off + len + 1 );
                         pcur->d_off = pcur->d_reclen;
                         strcpy( pcur->d_name, fd.cFileName );
 
@@ -1727,7 +1740,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             else if ( 1 == futex_op ) // FUTEX_WAKE
                 cpu.regs[ RiscV::a0 ] = 0;
             else    
-                cpu.regs[ RiscV::a0 ] = -1; // fail this until/unless there is a real-world use
+                cpu.regs[ RiscV::a0 ] = (uint64_t) -1; // fail this until/unless there is a real-world use
             break;
         }
         case SYS_writev:
@@ -1852,7 +1865,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_pselect6:
         {
-            int nfds = cpu.regs[ RiscV::a0 ];
+            int nfds = (int) cpu.regs[ RiscV::a0 ];
             void * readfds = (void *) cpu.regs[ RiscV::a1 ];
 
             if ( 1 == nfds && 0 != readfds )
@@ -1998,8 +2011,8 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
     tracer.Trace( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
     printf( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
 
-    tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
-    printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu, cpu.pc ) );
+    tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu.pc ) );
+    printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu.pc ) );
 
     tracer.Trace( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
     printf( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
@@ -2052,7 +2065,7 @@ vector<ElfSymbol64> g_symbols;    // symbols in the elf image
 
 // returns the best guess for a symbol name for the address
 
-const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address )
+const char * riscv_symbol_lookup( uint64_t address )
 {
     if ( address < g_base_address || address > ( g_base_address + memory.size() ) )
         return "";
@@ -2308,7 +2321,7 @@ bool load_image( const char * pimage, const char * app_args )
 
             tracer.Trace( "  read type %s: %llx bytes into physical address %llx - %llx\n", head.show_type(), head.file_size,
                           head.physical_address, head.physical_address + head.memory_size - 1 );
-            tracer.TraceBinaryData( memory.data() + head.physical_address - g_base_address, get_min( (size_t) head.file_size, (size_t) 128 ), 4 );
+            tracer.TraceBinaryData( memory.data() + head.physical_address - g_base_address, get_min( (uint32_t) head.file_size, (uint32_t) 128 ), 4 );
         }
     }
 
@@ -2405,7 +2418,7 @@ bool load_image( const char * pimage, const char * app_args )
     pstack--;
     *pstack = app_argc;
 
-    uint64_t to_show =  (uint64_t) ( memory.data() + memory_size ) - (uint64_t) pstack;
+    uint32_t to_show =  (uint32_t) ( (uint64_t) ( memory.data() + memory_size ) - (uint64_t) pstack );
     tracer.Trace( "stack at start (beginning with argc) -- %llu bytes:\n", to_show );
     tracer.TraceBinaryData( (uint8_t *) pstack, to_show, 2 );
 
@@ -2657,7 +2670,7 @@ int main( int argc, char * argv[] )
 #endif
            ) )
         {
-            char ca = tolower( parg[1] );
+            char ca = (char) tolower( parg[1] );
 
             if ( 't' == ca )
                 trace = true;

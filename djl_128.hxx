@@ -3,13 +3,11 @@
 // taken from various places on stackoverflow
 
 #include <inttypes.h>
-#include <stdio.h>
 
 class CMultiply128
 {
     private:
         static uint64_t umul_32_32( uint32_t x, uint32_t y ) { return ( (uint64_t) x ) * y; }
-        static uint64_t smul_32_32( int32_t x, int32_t y ) { return ( (int64_t) x ) * y; }
     
     public:
         static void mul_u64_u64( uint64_t *rh, uint64_t *rl, uint64_t x, uint64_t y )

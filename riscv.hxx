@@ -18,7 +18,7 @@ struct RiscV;
 // callbacks when instructions are executed
 
 extern void riscv_invoke_ecall( RiscV & cpu );                             // called when the ecall instruction is executed
-extern const char * riscv_symbol_lookup( RiscV & cpu, uint64_t address );  // returns the best guess for a symbol name for the address
+extern const char * riscv_symbol_lookup( uint64_t address );               // returns the best guess for a symbol name for the address
 extern void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
 extern void riscv_check_ptracenow( RiscV & cpu );
 
@@ -201,7 +201,7 @@ struct RiscV
 
     void unhandled( void );
 
-    static uint32_t uncompress_rvc( uint32_t x );
+    static uint32_t uncompress_rvc( uint16_t x );
 
     __inline_perf uint64_t decode()
     {
@@ -211,7 +211,7 @@ struct RiscV
         if ( 3 != ( op & 0x3 ) )
         {
             assert( rvc );
-            op = uncompress_rvc( op & 0xffff );
+            op = uncompress_rvc( (uint16_t) ( op & 0xffff ) );
             pc_next -= 2;
         }
 
