@@ -17,16 +17,16 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * Single and double precision floating point instructions are implemented.
     * Atomic and fence instructions are implemented assuming there is just one core.
     * Much of the Gnu C Runtime is tested -- memory, fopen/open families of IO, date/time, printf/sprintf, math, etc.
+    * No network system calls are implemented.
     * I also tested with the BASIC test suite for my compiler BA, which targets RISC-V.
     * The emulator is about as fast as the 400Mhz K210 physical processor when run on an AMD 5950x.
     * The tests folder has test apps written in C. These build with both old and recent g++ for RISC-V.
-    * rvos has been tested on Windows (amd64 and arm64), MacOS (arm64), and Linux (RISC-V, amd64, and arm64).
+    * rvos has been built and tested on Windows (x86, amd64 and arm64), MacOS (arm64), and Linux (RISC-V, amd64, arm32, and arm64).
     * The emulator can run itself nested arbitrarily deeply. Perf is about 64x slower for each nesting.
     * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation and run apps built with g++.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld or the g++ command-line.
     * Gnu CC torture execution tests were run on the emulator.
-    * Built and tested on 32-bit ARM and 32-bit x86.
     * The environment variable "OS=RVOS" is set for apps running in the emulator.
     * Tested with the 6502 / Apple 1 emulator in my ntvao repo built for RISC-V.
     * Tested with the Z80 / CP/M 2.2 emulator in my ntvcm repo built for RISC-V.
@@ -55,7 +55,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
 
 The tests folder has a number of small C/C++ programs that can be compiled using mariscv.bat on Windows or
 mt.sh on Linux. The .elf files produced can be run by rvos. If the app will use more 10 meg of RAM for the 
-heap, use rvos' /h argument to specify how much RAM to allocate. The anagram generater an can use up to 
+heap, use rvos' -h argument to specify how much RAM to allocate. The anagram generater an can use up to 
 30MB in some cases.
 
 * Test files:
@@ -68,7 +68,7 @@ heap, use rvos' /h argument to specify how much RAM to allocate. The anagram gen
     * tap.c       Computes Apéry's number
     * tcrash.c    Tests out of bounds memory, pc, and sp references
     * td.c        Tests doubles
-    * tdir.c      Tests directory function (only works with the newer g++ tools)
+    * tdir.c      Tests directory functions (only works with the newer g++ tools)
     * tenv.c      Tests using C environment functions
     * tf.c        Tests floating point numbers
     * tfile.c     Tests file I/O
@@ -88,7 +88,7 @@ I tested the apps above with 3 versions of g++ that target RISC-V. Generated app
     
 To run the rvos emulator nested in the rvos emulator, on Linux/MacOS/Windows issue a command like:
 
-    rvos /h:60 rvos.elf /h:40 an phoebe bridgers
+    rvos -h:60 rvos.elf -h:40 an phoebe bridgers
     
 That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
@@ -106,7 +106,7 @@ different on the actual hardware -- it calls bamain (not main) and the text prin
     * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
     * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
 
-If you get a runtime error like this then use the /h flag to reserve more RAM for the heap.
+If you get a runtime error like this then use the -h flag to reserve more RAM for the heap.
 
         terminate called after throwing an instance of 'std::bad_alloc'
           what():  std::bad_alloc
