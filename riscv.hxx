@@ -24,8 +24,6 @@ extern void riscv_check_ptracenow( RiscV & cpu );
 
 struct RiscV
 {
-    // only the subset actually used are defined to reduce namespace pollution
-
     static const size_t zero = 0;
     static const size_t ra = 1;
     static const size_t sp = 2;
@@ -220,14 +218,14 @@ struct RiscV
     } //decode
 
     // when inlined, the compiler uses btc for bits. when non-inlined it does the slow thing
-    // bits is the 1-based high bit that will be extended to the left.
+    // bits is the 0-based high bit that will be extended to the left.
 
 #ifdef _MSC_VER
     __forceinline
 #endif
     static int64_t sign_extend( uint64_t x, uint64_t bits )
     {
-        const int64_t m = ( (uint64_t) 1 ) << ( bits - 1 );
+        const int64_t m = ( (uint64_t) 1 ) << bits;
         return ( x ^ m ) - m;
     } //sign_extend
 
@@ -241,14 +239,14 @@ struct RiscV
                      ( ( op >> 9 ) & 0x800 ) |
                      ( ( op >> 20 ) & 0x7fe ) |
                      ( ( op >> 11 ) & 0x100000 );
-        j_imm_u = sign_extend( r, 21 );
+        j_imm_u = sign_extend( r, 20 );
     } //decode_J
 
     __inline_perf void decode_U()
     {
         rd = ( op >> 7 ) & 0x1f;
         u_imm_u = ( op >> 12 ) & 0xfffff;
-        u_imm = sign_extend( u_imm_u, 20 );
+        u_imm = sign_extend( u_imm_u, 19 );
     } //decode_U
 
     __inline_perf void decode_B()
@@ -259,7 +257,7 @@ struct RiscV
         rs1 = theop & 0x1f;
         theop >>= 5;
         rs2 = theop & 0x1f;
-        b_imm = sign_extend( ( ( op >> 7 ) & 0x1e ) | ( ( op << 4 ) & 0x800 ) | ( ( op >> 20 ) & 0x7e0 ) | ( ( op >> 19 ) & 0x1000 ), 13 );
+        b_imm = sign_extend( ( ( op >> 7 ) & 0x1e ) | ( ( op << 4 ) & 0x800 ) | ( ( op >> 20 ) & 0x7e0 ) | ( ( op >> 19 ) & 0x1000 ), 12 );
     } //decode_B
 
     __inline_perf void decode_S()
@@ -267,7 +265,7 @@ struct RiscV
         funct3 = ( op >> 12 ) & 0x7;
         rs1 = ( op >> 15 ) & 0x1f;
         rs2 = ( op >> 20 ) & 0x1f;
-        s_imm = sign_extend( ( ( op >> 20 ) & ( 0x7f << 5 ) ) | ( ( op >> 7 ) & 0x1f ), 12 );
+        s_imm = sign_extend( ( ( op >> 20 ) & ( 0x7f << 5 ) ) | ( ( op >> 7 ) & 0x1f ), 11 );
     } //decode_S
 
     __inline_perf void decode_I()
@@ -280,19 +278,19 @@ struct RiscV
         rs1 = theop & 0x1f;
         theop >>= 5;
         i_imm_u = theop & 0xfff;
-        i_imm = sign_extend( i_imm_u, 12 );
+        i_imm = sign_extend( i_imm_u, 11 );
     } //decode_I
 
     __inline_perf void decode_I_shift()
     {
-        // 5 bit shift amount. sraiw, srai, srliw need this
-
-        i_shamt5 = ( op >> 20 ) & 0x1f;
-     
         // 6 bit shift amount. srli, slliw, slli need this
 
         i_shamt6 = ( op >> 20 ) & 0x3f;
         
+        // 5 bit shift amount. sraiw, srai, srliw need this
+
+        i_shamt5 = i_shamt6 & 0x1f;
+     
         i_top2 = ( op >> 30 );
     } //decode_I_shift
 

@@ -312,7 +312,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
         }
         case 1:
         {
-            uint32_t p_imm = sign_extend( ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f ), 6 );
+            uint32_t p_imm = sign_extend( ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f ), 5 );
             uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
 
             switch( p_funct3 )
@@ -339,14 +339,14 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                         uint32_t amount = ( ( x >> 3 ) & 0x200 ) | ( ( x >> 2 ) & 0x10 ) | ( ( x << 1 ) & 0x40 ) |
                                           ( ( x << 4 ) & 0x180 ) | ( ( x << 3 ) & 0x20 );
                         //tracer.Trace( "addi16sp amount %d\n", amount );
-                        amount = sign_extend( amount, 10 );
+                        amount = sign_extend( amount, 9 );
                         //tracer.Trace( "addi16sp extended amount %d\n", amount );
                         op32 = compose_I( 0, sp, sp, amount, 0x4 );
                     }
                     else // c.lui
                     {
                         uint32_t amount = ( ( x << 5 ) & 0x20000 ) | ( ( x << 10 ) & 0x1f000 );
-                        amount = sign_extend( amount, 18 );
+                        amount = sign_extend( amount, 17 );
                         amount >>= 12;
                         op32 = compose_U( p_rs1rd, amount, 0xd );
                     }
@@ -415,7 +415,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     uint32_t offset = ( ( x >> 1 ) & 0x800 ) | ( ( x >> 7 ) & 0x10 ) | ( ( x >> 1 ) & 0x300 ) | ( ( x << 2 ) & 0x400 ) |
                                       ( ( x >> 1 ) & 0x40 )  | ( ( x << 1 ) & 0x80 ) | ( ( x >> 2 ) & 0xe )   | ( ( x << 3 ) & 0x20 );
                     //tracer.Trace( "j offset decoded as %x = %d\n", offset, offset );
-                    offset = sign_extend( offset, 12 );
+                    offset = sign_extend( offset, 11 );
                     //tracer.Trace( "j offset extended as %x = %d\n", offset, offset );
                     op32 = compose_J( offset, 0x1b );
                     break;
@@ -425,7 +425,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
                     uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
                                       ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
-                    offset = sign_extend( offset, 9 );
+                    offset = sign_extend( offset, 8 );
                     op32 = compose_B( 0, p_rs1, zero, offset, 0x18 );
                     break;
                 }
@@ -434,7 +434,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
                     uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
                                       ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
-                    offset = sign_extend( offset, 9 );
+                    offset = sign_extend( offset, 8 );
                     op32 = compose_B( 1, p_rs1, zero, offset, 0x18 );
                     break;
                 }
@@ -687,7 +687,7 @@ void RiscV::trace_state()
                 if ( 0 == funct3 )
                 {
                     uint32_t x = (uint32_t) ( ( 0xffffffff & regs[ rs1 ] ) + i_imm );
-                    uint64_t ext = sign_extend( x, 32 );
+                    uint64_t ext = sign_extend( x, 31 );
                     tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
                 }
                 else if ( 1 == funct3 )
@@ -696,7 +696,7 @@ void RiscV::trace_state()
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         //uint32_t result = val << i_shamt5;
-                        //uint64_t result64 = sign_extend( result, 32 );
+                        //uint64_t result64 = sign_extend( result, 31 );
                         tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
                     }
                 }
@@ -982,7 +982,7 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t result = sign_extend( (uint32_t) val, 32 );
+                        uint64_t result = sign_extend( (uint32_t) val, 31 );
                         tracer.Trace( "addw    %s, %s, %s  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       regs[ rs1 ], regs[ rs2 ], result );
                     }
@@ -991,7 +991,7 @@ void RiscV::trace_state()
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t amount = 0x1f & regs[ rs2 ];
                         uint32_t result = val << amount;
-                        uint64_t result64 = sign_extend( result, 32 );
+                        uint64_t result64 = sign_extend( result, 31 );
                         tracer.Trace( "sllw    %s, %s, %s  # %x << %d = %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), val, amount, result64 );
                     }
                     else if ( 5 == funct3 )
@@ -1002,7 +1002,7 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t ext = sign_extend( x, 32 );
+                        uint64_t ext = sign_extend( x, 31 );
                         tracer.Trace( "mulw    %s, %s, %s  # %d * %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ], ext );
                     }
                     else if ( 4 == funct3 )
@@ -1321,8 +1321,8 @@ void RiscV::trace_state()
         {
             decode_C();
 
-            int64_t rs1_imm = sign_extend( rs1, 5 );
-            int64_t rc2_imm = sign_extend( c_rc2, 5 );
+            int64_t rs1_imm = sign_extend( rs1, 4 );
+            int64_t rc2_imm = sign_extend( c_rc2, 4 );
 
             if ( 0 == c_imm_flags )
                 tracer.Trace( "cmv%s %s, %s, %s, %s\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), reg_name( c_rc2 ) );
@@ -1471,8 +1471,8 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 // 6-2:   2 (opcode type cmv)
                 // 1-0:   3 (4-byte instruction)
 
-                uint64_t source = ( 0 == ( c_imm_flags & 1 ) ) ? regs[ rs1 ] : sign_extend( rs1, 5 );
-                uint64_t cmp_right = ( 0 == ( c_imm_flags & 2 ) ) ? regs[ c_rc2 ] : ( 6 == funct3 || 7 == funct3 ) ? c_rc2 : sign_extend( c_rc2, 5 );
+                uint64_t source = ( 0 == ( c_imm_flags & 1 ) ) ? regs[ rs1 ] : sign_extend( rs1, 4 );
+                uint64_t cmp_right = ( 0 == ( c_imm_flags & 2 ) ) ? regs[ c_rc2 ] : ( 6 == funct3 || 7 == funct3 ) ? c_rc2 : sign_extend( c_rc2, 4 );
 
                 if ( 0 == funct3 ) // cmveq
                 {
@@ -1554,7 +1554,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         // The new g++ does for amd64 code gen. work around this.
     
                         uint64_t result = regs[ rs1 ] >> i_shamt6;
-                        regs[ rd ] = sign_extend( result, 64 - i_shamt6 );
+                        regs[ rd ] = sign_extend( result, 63 - i_shamt6 );
                     }
                     else
                         unhandled();
@@ -1592,7 +1592,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     int32_t val = 0xffffffff & regs[ rs1 ];
                     int32_t imm = (int32_t) i_imm;
                     int32_t result = val + imm;
-                    regs[ rd ] = sign_extend( (uint32_t) result, 32 );
+                    regs[ rd ] = sign_extend( (uint32_t) result, 31 );
                 }
                 else if ( 1 == funct3 )
                 {
@@ -1601,7 +1601,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t result = val << i_shamt5;
-                        uint64_t result64 = sign_extend( result, 32 );
+                        uint64_t result64 = sign_extend( result, 31 );
                         regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
                     }
                     else
@@ -1618,7 +1618,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         // work around this by manually sign extending the result.
     
                         uint32_t t = regs[ rs1 ] & 0xffffffff;
-                        uint64_t result = sign_extend( t >> i_shamt5, 32 - i_shamt5 );
+                        uint64_t result = sign_extend( t >> i_shamt5, 31 - i_shamt5 );
                         regs[ rd ] = result; // sraiw rd, rs1, i_imm
                     }
                     else
@@ -1727,7 +1727,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
                     }
                     else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
@@ -1744,7 +1744,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
                     {
-                        uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 32 );
+                        uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 31 );
                         uint32_t regval = (uint32_t) regs[ rs2 ];
                         if ( 0 != rd )
                             regs[ rd ] = memval;
@@ -1767,7 +1767,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t val = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( val, 32 );
+                            regs[ rd ] = sign_extend( val, 31 );
                     }
                     else if ( 3 == funct3 ) // lr.d rd, (rs1)
                     {
@@ -1801,7 +1801,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
                     }
                     else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
@@ -1820,7 +1820,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
                     }
                     else if ( 3 == funct3 ) // amoor.d rd, rs2, (rs1)
@@ -1839,7 +1839,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], regs[ rs2 ] & value );
                     }
                     else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
@@ -1858,7 +1858,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
                     }
                     else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
@@ -1877,7 +1877,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 32 );
+                            regs[ rd ] = sign_extend( value, 31 );
                         setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
                     }
                     else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
@@ -1984,7 +1984,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint64_t shift = ( 0x3f & regs[ rs2 ] );
                         uint64_t result = regs[ rs1 ] >> shift;
-                        regs[ rd ] = sign_extend( result, 64 - shift ); // sra rd, rs1, rs2
+                        regs[ rd ] = sign_extend( result, 63 - shift ); // sra rd, rs1, rs2
                     }
                     else
                         unhandled();
@@ -2015,7 +2015,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 0 == funct3 )
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t result = sign_extend( (uint32_t) val, 32 );
+                        uint64_t result = sign_extend( (uint32_t) val, 31 );
                         regs[ rd ] = result; // addw rd, rs1, rs2
                     }
                     else if ( 1 == funct3 )
@@ -2023,7 +2023,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t amount = 0x1f & regs[ rs2 ];
                         uint32_t result = val << amount;
-                        uint64_t result64 = sign_extend( result, 32 );
+                        uint64_t result64 = sign_extend( result, 31 );
                         regs[ rd ] = result64; // sllw rd, rs1, rs2
                     }
                     else if ( 5 == funct3 )
@@ -2036,7 +2036,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 0 == funct3 )
                     {
                         uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t ext = sign_extend( x, 32 );
+                        uint64_t ext = sign_extend( x, 31 );
                         regs[ rd ] = ext; // mulw rd, rs1, rs2
                     }
                     else if ( 4 == funct3 )
@@ -2070,7 +2070,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint64_t shift = ( 0x1f & regs[ rs2 ] );
                         uint64_t result = ( 0xffffffff & regs[ rs1 ] ) >> shift;
-                        result = sign_extend( result, 32 - shift );
+                        result = sign_extend( result, 31 - shift );
                         regs[ rd ] = result; // sraw rd, rs1, rs2
                     }
                     else
