@@ -2163,7 +2163,6 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "  section header entry size: %u\n", ehead.section_header_table_size );
     tracer.Trace( "  section offset: %llu == %llx\n", ehead.section_header_table, ehead.section_header_table );
     tracer.Trace( "  flags: %x\n", ehead.flags );
-
     g_execution_address = ehead.entry_point;
     g_compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
 
@@ -2270,10 +2269,19 @@ bool load_image( const char * pimage, const char * app_args )
 
     qsort( g_symbols.data(), g_symbols.size(), sizeof( ElfSymbol64 ), symbol_compare );
 
-    // remove symbols that don't look like addresses
+    // remove symbols that don't look like they have a valid addresses (rust binaries have tens of thousands of these)
 
-    while ( g_symbols.size() && ( g_symbols[ 0 ].value < g_base_address ) )
-        g_symbols.erase( g_symbols.begin() );
+    size_t to_erase = 0;
+    for ( size_t se = 0; se < g_symbols.size(); se++ )
+    {
+        if ( g_symbols[ se ].value < g_base_address )
+            to_erase++;
+        else
+            break;
+    }
+
+    if ( to_erase > 0 )
+        g_symbols.erase( g_symbols.begin(), g_symbols.begin() + to_erase );
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
