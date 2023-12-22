@@ -220,7 +220,7 @@ static uint32_t compose_B( uint32_t funct3, uint32_t rs1, uint32_t rs2, uint32_t
     // offset 12..1
 
     uint32_t offset = ( ( imm << 19 ) & 0x80000000 ) | ( ( imm << 20 ) & 0x7e000000 ) |
-                      ( ( imm << 7 ) & 0xf00 )         | ( ( imm >> 4 ) & 0x80 );
+                      ( ( imm << 7 ) & 0xf00 )       | ( ( imm >> 4 ) & 0x80 );
     //tracer.Trace( "offset before %x and after composing: %x\n", imm, offset );
     return ( funct3 << 12 ) | ( rs1 << 15 ) | ( rs2 << 20 ) | offset | ( opcode_type << 2 ) | 0x3;
 } //compose_B
@@ -452,6 +452,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                 {
                     if ( 0 == bit12 && 0 == p_rs2 ) // slli64
                     {
+                        tracer.Trace( "warning: ignoring slli64\n" );
                     }
                     else // slli
                     {
@@ -1726,16 +1727,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amoadd.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
                     }
                     else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] + value );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], regs[ rs2 ] + value );
                     }
                     else
                         unhandled();
@@ -1746,17 +1747,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 31 );
                         uint32_t regval = (uint32_t) regs[ rs2 ];
+                        setui32( regs[ rs1 ], regval );
                         if ( 0 != rd )
                             regs[ rd ] = memval;
-                        setui32( regs[ rs1 ], regval );
                     }
                     else if ( 3 == funct3 ) // amoswap.d rd, rs2, (rs1)
                     {
                         uint64_t memval = getui64( regs[ rs1 ] );
                         uint64_t regval = regs[ rs2 ];
+                        setui64( regs[ rs1 ], regval );
                         if ( 0 != rd )
                             regs[ rd ] = memval;
-                        setui64( regs[ rs1 ], regval );
                     }
                     else
                         unhandled();
@@ -1800,16 +1801,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amoxor.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
                     }
                     else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
                     }
                     else
                         unhandled();
@@ -1819,16 +1820,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amoor.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
                     }
                     else if ( 3 == funct3 ) // amoor.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] | value );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], regs[ rs2 ] | value );
                     }
                     else
                         unhandled();
@@ -1838,16 +1839,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amoand.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], regs[ rs2 ] & value );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], regs[ rs2 ] & value );
                     }
                     else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] & value );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], regs[ rs2 ] & value );
                     }
                     else
                         unhandled();
@@ -1857,16 +1858,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amomin.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
                     }
                     else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
                     }
                     else
                         unhandled();
@@ -1876,16 +1877,16 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     if ( 2 == funct3 ) // amomax.w rd, rs2, (rs1)
                     {
                         uint32_t value = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
                         if ( 0 != rd )
                             regs[ rd ] = sign_extend( value, 31 );
-                        setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
                     }
                     else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
                     {
                         uint64_t value = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
                         if ( 0 != rd )
                             regs[ rd ] = value;
-                        setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
                     }
                     else
                         unhandled();
