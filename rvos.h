@@ -25,6 +25,7 @@
 #define SYS_write 64
 #define SYS_writev 66
 #define SYS_pselect6 72   // or sigsuspend?
+#define SYS_ppoll_time32 73
 #define SYS_readlinkat 78
 #define SYS_newfstatat 79
 #define SYS_newfstat 80
@@ -38,7 +39,9 @@
 #define SYS_clock_nanosleep 115
 #define SYS_sched_setaffinity 122
 #define SYS_sched_getaffinity 123
+#define SYS_sched_yield 124
 #define SYS_tgkill 131
+#define SYS_signalstack 132
 #define SYS_sigaction 134
 #define SYS_rt_sigprocmask 135
 #define SYS_prctl 167

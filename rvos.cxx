@@ -108,6 +108,12 @@ struct linux_dirent64_syscall {
     */
 };
 
+struct pollfd_syscall {
+    int fd;
+    short events;
+    short revents;
+};
+
 struct timespec_syscall {
     uint64_t tv_sec;
     uint64_t tv_nsec;
@@ -886,6 +892,7 @@ static const SysCall syscalls[] =
     { "SYS_write", SYS_write },
     { "SYS_writev", SYS_writev },
     { "SYS_pselect6", SYS_pselect6 },
+    { "SYS_ppoll_time32", SYS_ppoll_time32 },
     { "SYS_readlinkat", SYS_readlinkat },
     { "SYS_newfstatat", SYS_newfstatat },
     { "SYS_newfstat", SYS_newfstat },
@@ -899,7 +906,9 @@ static const SysCall syscalls[] =
     { "SYS_clock_nanosleep", SYS_clock_nanosleep },
     { "SYS_sched_setaffinity", SYS_sched_setaffinity },
     { "SYS_sched_getaffinity", SYS_sched_getaffinity },
+    { "SYS_sched_yield", SYS_sched_yield },
     { "SYS_tgkill", SYS_tgkill },
+    { "SYS_signalstack", SYS_signalstack },
     { "SYS_sigaction", SYS_sigaction },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
     { "SYS_prctl", SYS_prctl },
@@ -1017,6 +1026,11 @@ void riscv_invoke_ecall( RiscV & cpu )
             g_exit_code = (int) cpu.regs[ RiscV::a0 ];
             break;
         }
+        case SYS_signalstack:
+        {
+            update_a0_errno( cpu, 0 );
+            break;
+        }
         case rvos_sys_print_text: // print asciiz in a0
         {
             tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
@@ -1097,6 +1111,12 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             tracer.Trace( "  getaffinity, EPERM %d\n", EPERM );
             update_a0_errno( cpu, EPERM );
+            break;
+        }
+        case SYS_sched_yield:
+        {
+            // always succeeds on Linux, even though nothing happens here.
+            update_a0_errno( cpu, 0 );
             break;
         }
         case SYS_newfstat:
@@ -1792,8 +1812,9 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_sigaction:
         {
-            errno = EACCES;
-            update_a0_errno( cpu, -1 );
+            //errno = EACCES;
+            //update_a0_errno( cpu, -1 );
+            update_a0_errno( cpu, 0 );
             break;
         }
         case SYS_rt_sigprocmask:
@@ -1882,6 +1903,21 @@ void riscv_invoke_ecall( RiscV & cpu )
                 cpu.regs[ RiscV::a0 ] = 0;
             }
 
+            break;
+        }
+        case SYS_ppoll_time32:
+        {
+            struct pollfd_syscall * pfds = (struct pollfd_syscall *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            int nfds = (int) cpu.regs[ RiscV::a1 ];
+            struct timespec_syscall * pts = (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+            int * psigmask = (int *) ( ( 0 == cpu.regs[ RiscV::a3 ] ) ? 0 : cpu.getmem( cpu.regs[ RiscV::a3 ] ) );
+
+            tracer.Trace( "  count of file descriptors: %d\n", nfds );
+            for ( int i = 0; i < nfds; i++ )
+                tracer.Trace( "    fd %d: %d\n", i, pfds[ i ].fd );
+
+            // lie and say no I/O is ready
+            cpu.regs[ RiscV::a0 ] = 0;
             break;
         }
         case SYS_readlinkat:
