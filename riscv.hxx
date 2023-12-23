@@ -66,6 +66,7 @@ struct RiscV
         memset( this, 0, sizeof( *this ) );
         pc = start;
         stack_size = stack_commit;                 // remember how much of the top of RAM is allocated to the stack
+        stack_top = top_of_stack;                  // where the stack started
         regs[ sp ] = top_of_stack;                 // points at argc with argv, penv, and aux records above it
         base = base_address;                       // lowest valid address in the app's address space
         mem = memory.data();                       // save the pointer, but don't take ownership
@@ -119,6 +120,7 @@ struct RiscV
     uint64_t base;
     uint8_t * membase;              // host pointer to base of vm's memory
     uint64_t stack_size;
+    uint64_t stack_top;
     uint64_t mem_size;
     bool rvc;
 
