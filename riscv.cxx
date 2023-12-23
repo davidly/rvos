@@ -1721,22 +1721,26 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 decode_R();
     
                 uint32_t top5 = (uint32_t) ( funct7 >> 2 );
+
+                // with just one hart in this emulator, these can be ignored
+                //bool aq = ( 0 != ( 2 & funct7 ) );
+                //bool rl = ( 0 != ( 1 & funct7 ) );
     
                 if ( 0 == top5 )
                 {
                     if ( 2 == funct3 ) // amoadd.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + value ) );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], regs[ rs2 ] + value );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] + memval );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1766,15 +1770,15 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // lr.w rd, (rs1)
                     {
-                        uint32_t val = getui32( regs[ rs1 ] );
+                        uint32_t memval = getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( val, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // lr.d rd, (rs1)
                     {
-                        uint64_t val = getui64( regs[ rs1 ] );
+                        uint64_t memval = getui64( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = val;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1800,17 +1804,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amoxor.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ value ) );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], regs[ rs2 ] ^ value );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] ^ memval );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1819,17 +1823,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amoor.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | value ) );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amoor.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], regs[ rs2 ] | value );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] | memval );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1838,17 +1842,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amoand.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], regs[ rs2 ] & value );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], regs[ rs2 ] & memval );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], regs[ rs2 ] & value );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], regs[ rs2 ] & memval );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1857,17 +1861,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amomin.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], value ) );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], get_min( regs[ rs2 ], value ) );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], get_min( regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
@@ -1876,17 +1880,17 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 {
                     if ( 2 == funct3 ) // amomax.w rd, rs2, (rs1)
                     {
-                        uint32_t value = getui32( regs[ rs1 ] );
-                        setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], value ) );
+                        uint32_t memval = getui32( regs[ rs1 ] );
+                        setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( value, 31 );
+                            regs[ rd ] = sign_extend( memval, 31 );
                     }
                     else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
                     {
-                        uint64_t value = getui64( regs[ rs1 ] );
-                        setui64( regs[ rs1 ], get_max( regs[ rs2 ], value ) );
+                        uint64_t memval = getui64( regs[ rs1 ] );
+                        setui64( regs[ rs1 ], get_max( regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = value;
+                            regs[ rd ] = memval;
                     }
                     else
                         unhandled();
