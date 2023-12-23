@@ -1535,9 +1535,18 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_mmap:
         {
-            // The gnu c runtime is ok with this failing -- it just allocates memory instead
+            // The gnu c runtime is ok with this failing -- it just allocates memory instead probably assuming it's an embedded system.
+            // Same for the gnu runtime with Rust.
+            // But golang actually needs this to succeed.
 
-            tracer.Trace( "  SYS_mmap\n" );
+            uint64_t addr = cpu.regs[ RiscV::a0 ];
+            size_t length = cpu.regs[ RiscV::a1 ];
+            int prot = (int) cpu.regs[ RiscV::a2 ];
+            int flags = (int) cpu.regs[ RiscV::a3 ];
+            int fd = (int) cpu.regs[ RiscV::a4 ];
+            size_t offset = (size_t) cpu.regs[ RiscV::a5 ];
+
+            tracer.Trace( "  SYS_mmap. addr %llx, length %zd, prot %#x, flags %#x, fd %d, offset %zd\n", addr, length, prot, flags, fd, offset );
             errno = EACCES;
             update_a0_errno( cpu, -1 );
             break;
@@ -2414,7 +2423,7 @@ bool load_image( const char * pimage, const char * app_args )
     strcpy( penv_data, "OS=RVOS" );
     tracer.Trace( "args_len %d, penv_data %p\n", args_len, penv_data );
     tracer.Trace( "env data block: at vm address %llx\n", ( penv_data - (char *) memory.data() ) + g_base_address );
-    tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data ), g_args_commit + 0x20, 4 );
+    tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data ), g_args_commit + 0x20, 4 ); // +20 to inspect for bugs
 
     // put the Linux startup info at the top of the stack. this consists of (from high to low):
     //   two 8-byte random numbers used for stack and pointer guards
@@ -2442,10 +2451,12 @@ bool load_image( const char * pimage, const char * app_args )
 
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
 
-    pstack -= 2;
+    pstack -= 4;
     AuxProcessStart * paux = (AuxProcessStart *) pstack;    
-    paux->a_type = 25; // AT_RANDOM
-    paux->a_un.a_val = prandom;
+    paux[0].a_type = 25; // AT_RANDOM
+    paux[0].a_un.a_val = prandom;
+    paux[1].a_type = 6; // AT_PAGESZ
+    paux[1].a_un.a_val = 4096;
 
     pstack--; // end of environment data is 0
 
