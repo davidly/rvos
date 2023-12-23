@@ -64,6 +64,7 @@
 
 #include <djltrace.hxx>
 #include <djl_con.hxx>
+#include <djl_mmap.hxx>
 
 using namespace std;
 using namespace std::chrono;
@@ -77,17 +78,20 @@ bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments and environment variables
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
 uint64_t g_brk_commit = 10 * 1024 * 1024;      // RAM to reserve if the app calls brk to allocate space. 10 meg default
+uint64_t g_mmap_commit = 0 * 1024 * 1024;      // RAM to reserve if the app mmap to allocate space. 0 meg default
 bool g_terminate = false;                      // has the app asked to shut down?
 int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
 uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
 uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
+uint64_t g_mmap_address = 0;                   // offset of where mmap allocations start
 uint64_t g_highwater_brk = 0;                  // highest brk seen during app; peak dynamically-allocated RAM
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
 bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
+CMMap g_mmap;                                  // for mmap and munmap system calls
 
 // fake descriptors.
 // /etc/timezone is not implemented, so apps running in RVOS on Windows assume UTC
@@ -382,6 +386,7 @@ void usage( char const * perror = 0 )
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
     printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 10\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
+    printf( "                 -m:X   # of meg for mmap space 0..1024 are valid. default is 0 (in development)\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
     printf( "  %s\n", build_string() );
@@ -917,6 +922,8 @@ static const SysCall syscalls[] =
     { "SYS_gettid", SYS_gettid },
     { "SYS_sysinfo", SYS_sysinfo },
     { "SYS_brk", SYS_brk },
+    { "SYS_munmap", SYS_munmap },
+    { "SYS_clone", SYS_clone },
     { "SYS_mmap", SYS_mmap },
     { "SYS_mprotect", SYS_mprotect },
     { "SYS_riscv_flush_icache", SYS_riscv_flush_icache },
@@ -977,7 +984,7 @@ void update_a0_errno(  RiscV & cpu, int64_t result )
 {
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
-        tracer.Trace( "  syscall success, returning %lld\n", result );
+        tracer.Trace( "  syscall success, returning %lld = %#llx\n", result, result );
         cpu.regs[ RiscV::a0 ] = result;
     }
     else
@@ -1512,6 +1519,29 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_address, cpu.regs[ RiscV::a0 ] );
             break;
         }
+        case SYS_munmap:
+        {
+            uint64_t address = cpu.regs[ RiscV::a0 ];
+            uint64_t length = cpu.regs[ RiscV::a1 ];
+            bool ok = g_mmap.free( address, length );
+            if ( ok )
+                update_a0_errno( cpu, 0 );
+            else
+            {
+                errno = EINVAL;
+                update_a0_errno( cpu, -1 );
+            }
+
+            break;
+        }
+        case SYS_clone:
+        {
+            // can't create a new process or thread with rvos
+
+            errno = EACCES;
+            update_a0_errno( cpu, -1 );
+            break;
+        }
         case rvos_sys_rand: // rand64. returns an unsigned random number in a0
         {
             tracer.Trace( "  rvos command generate random number\n" );
@@ -1545,9 +1575,39 @@ void riscv_invoke_ecall( RiscV & cpu )
             int flags = (int) cpu.regs[ RiscV::a3 ];
             int fd = (int) cpu.regs[ RiscV::a4 ];
             size_t offset = (size_t) cpu.regs[ RiscV::a5 ];
+            tracer.Trace( "  SYS_mmap. addr %llx, length %zd, protection %#x, flags %#x, fd %d, offset %zd\n", addr, length, prot, flags, fd, offset );
 
-            tracer.Trace( "  SYS_mmap. addr %llx, length %zd, prot %#x, flags %#x, fd %d, offset %zd\n", addr, length, prot, flags, fd, offset );
-            errno = EACCES;
+            if ( 0 != ( length & 0xfff ) )
+            {
+                // golang does this. golang runtime is kinda funny.
+                tracer.Trace( "  warning: mmap allocation length isn't 4k-page aligned\n" );
+                length = round_up( length, (uint64_t) 4096 );
+            }
+
+            if ( 0 != prot )
+            {
+                if ( 0 == ( length & 0xfff ) )
+                {
+                    if ( ( 0 == ( 0x100 & flags ) ) && ( 2 & flags ) ) // 2 == MAP_ANONYMOUS, 0x100 = MAP_FIXED
+                    {
+                        uint64_t result = g_mmap.allocate( length );
+                        if ( 0 != result )
+                        {
+                            update_a0_errno( cpu, result );
+                            break;
+                        }
+                    }
+                    else
+                        tracer.Trace( "  error: mmap flags aren't supported\n" );
+                }
+                else
+                    tracer.Trace( "  error mmap length isn't 4k-page-aligned\n" );
+            }
+            else
+                tracer.Trace( "  mmap reservation without commitment isn't supported\n" );
+    
+            tracer.Trace( "  mmap failed\n" );
+            errno = ENOMEM;
             update_a0_errno( cpu, -1 );
             break;
         }
@@ -2315,6 +2375,9 @@ bool load_image( const char * pimage, const char * app_args )
     // allocate space after uninitialized memory for brk to request space and the stack at the end
     // memory map from high to low addresses:
     //     <end of allocated memory>
+    //     (memory for mmap fulfillment)
+    //     g_mmap_address
+    //     (wasted space so g_mmap_address is 4k-aligned)
     //     Linux start data on the stack (see details below)
     //     g_top_of_stack
     //     g_bottom_of_stack
@@ -2344,6 +2407,12 @@ bool load_image( const char * pimage, const char * app_args )
 
     g_bottom_of_stack = memory_size;
     memory_size += g_stack_commit;
+
+    uint64_t top_of_aux = memory_size;
+    memory_size = round_up( memory_size, (uint64_t) 4096 ); // mmap should hand out 4k-aligned pages
+    g_mmap_address = memory_size;
+    memory_size += g_mmap_commit;
+    g_mmap.initialize( g_base_address + g_mmap_address, g_mmap_commit );
 
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
@@ -2436,7 +2505,7 @@ bool load_image( const char * pimage, const char * app_args )
     //   1..n argv string pointers
     //   argc  <<<==== sp should point here when the entrypoint (likely _start) is invoked
 
-    uint64_t * pstack = (uint64_t *) ( memory.data() + memory_size );
+    uint64_t * pstack = (uint64_t *) ( memory.data() + top_of_aux );
 
     pstack--;
     *pstack = rand64();
@@ -2475,20 +2544,22 @@ bool load_image( const char * pimage, const char * app_args )
     pstack--;
     *pstack = app_argc;
 
-    uint32_t to_show =  (uint32_t) ( (uint64_t) ( memory.data() + memory_size ) - (uint64_t) pstack );
-    tracer.Trace( "stack at start (beginning with argc) -- %llu bytes:\n", to_show );
-    tracer.TraceBinaryData( (uint8_t *) pstack, to_show, 2 );
-
-    uint64_t diff = (uint64_t) ( ( memory.data() + memory_size ) - (uint8_t *) pstack );
-    g_top_of_stack = g_base_address + memory_size - diff;
+    g_top_of_stack = (uint64_t) ( ( (uint8_t *) pstack - memory.data() ) + g_base_address );
+    uint64_t aux_data_size = top_of_aux - (uint64_t) ( (uint8_t *) pstack - memory.data() );
+    tracer.Trace( "stack at start (beginning with argc) -- %llu bytes at address %p:\n", aux_data_size, pstack );
+    tracer.TraceBinaryData( (uint8_t *) pstack, (uint32_t) aux_data_size, 2 );
 
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  first byte beyond allocated memory:                 %llx\n", g_base_address + memory_size );
-    tracer.Trace( "  <random, alignment, aux recs, env, argv>            (%lld bytes)\n", diff );
+    tracer.Trace( "  <mmap arena>\n" );
+    tracer.Trace( "  mmap start adddress:                                %llx\n", g_base_address + g_mmap_address );
+    tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
+    tracer.Trace( "  start of aux data:                                  %llx\n", g_top_of_stack + aux_data_size );
+    tracer.Trace( "  <random, alignment, aux recs, env, argv>            (%lld == %llx bytes)\n", aux_data_size, aux_data_size );
     tracer.Trace( "  initial stack pointer g_top_of_stack:               %llx\n", g_top_of_stack );
-    tracer.Trace( "  <stack>                                             (%lld bytes)\n", g_stack_commit );
+    tracer.Trace( "  <stack>                                             (%lld == %llx bytes)\n", g_stack_commit, g_stack_commit );
     tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %llx\n", g_bottom_of_stack );
-    tracer.Trace( "  <unallocated space between brk and the stack>       (%lld bytes)\n", g_brk_commit );
+    tracer.Trace( "  <unallocated space between brk and the stack>       (%lld == %llx bytes)\n", g_brk_commit, g_brk_commit );
     tracer.Trace( "  end_of_data / current brk:                          %llx\n", g_base_address + g_end_of_data );
     tracer.Trace( "  <argv data, pointed to by argv array above>\n" );
     tracer.Trace( "  start of argv data:                                 %llx\n", g_base_address + arg_data );
@@ -2745,6 +2816,17 @@ int main( int argc, char * argv[] )
                     usage( "invalid heap size specified" );
 
                 g_brk_commit = heap * 1024 * 1024;
+            }
+            else if ( 'm' == ca )
+            {
+                if ( ':' != parg[2] )
+                    usage( "the -m argument requires a value" );
+
+                uint64_t mmap_space = strtoull( parg + 3 , 0, 10 );
+                if ( mmap_space > 1024 ) // limit to a gig
+                    usage( "invalid mmap size specified" );
+
+                g_mmap_commit = mmap_space * 1024 * 1024;
             }
             else if ( 'e' == ca )
                 elfInfo = true;
