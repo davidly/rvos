@@ -231,6 +231,50 @@ main:
     lw       a4, (t0)
     li       a1, 0x7
     bne      a1, a4, test_fail_28
+
+  test_amomaxu.w:
+    li       a0, 7
+    lla      t0, fourBytes
+    sw       a0, (t0)
+    li       a1, 0xe
+    amomaxu.w a3, a1, (t0)
+    bne      a0, a3, test_fail_29
+    lw       a4, (t0)
+    li       a1, 0xe
+    bne      a1, a4, test_fail_30
+
+  test_amominu.w:
+    li       a0, 7
+    lla      t0, fourBytes
+    sw       a0, (t0)
+    li       a1, 0xe
+    amominu.w a3, a1, (t0)
+    bne      a0, a3, test_fail_31
+    lw       a4, (t0)
+    li       a1, 0x7
+    bne      a1, a4, test_fail_32
+
+  test_amomaxu.d:
+    li       a0, 7
+    lla      t0, fourBytes
+    sw       a0, (t0)
+    li       a1, 0xe
+    amomaxu.d a3, a1, (t0)
+    bne      a0, a3, test_fail_33
+    lw       a4, (t0)
+    li       a1, 0xe
+    bne      a1, a4, test_fail_34
+
+  test_amominu.d:
+    li       a0, 7
+    lla      t0, fourBytes
+    sw       a0, (t0)
+    li       a1, 0xe
+    amominu.d a3, a1, (t0)
+    bne      a0, a3, test_fail_35
+    lw       a4, (t0) 
+    li       a1, 0x7
+    bne      a1, a4, test_fail_36
     j        clean_exit
 
   test_fail_1:
@@ -316,6 +360,30 @@ main:
     j        show_error
   test_fail_28:
     li       a0, 28
+    j        show_error
+  test_fail_29:          
+    li       a0, 29
+    j        show_error
+  test_fail_30:
+    li       a0, 30
+    j        show_error
+  test_fail_31:
+    li       a0, 31
+    j        show_error
+  test_fail_32:
+    li       a0, 32
+    j        show_error
+  test_fail_33:
+    li       a0, 33
+    j        show_error
+  test_fail_34:
+    li       a0, 34
+    j        show_error
+  test_fail_35:
+    li       a0, 35
+    j        show_error
+  test_fail_36:
+    li       a0, 36
     j        show_error
 
   show_error:

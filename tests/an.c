@@ -11,8 +11,6 @@
 #include <mutex>
 #include <chrono>
 
-//#include <rvos.h>
-
 using namespace std;
 using namespace std::chrono;
 
@@ -1306,7 +1304,6 @@ extern "C" int main( int argc, char * argv[] )
     g_IncrementalProgress = false;
     int maxAnagramWords = 3;
 
-
     for ( int i = 1; i < argc; i++ )
     {
         char * parg = argv[ i ];
@@ -1545,6 +1542,7 @@ extern "C" int main( int argc, char * argv[] )
         printf( "longestchain %d, unused %d, moreThan5 %d, collisions %d, singles %d\n", longestChain, unused, moreThan5, collisions, singles );
 #endif
 
+        delete g_SortedWords;
     }
     catch( ... )
     {
