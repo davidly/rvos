@@ -18,7 +18,7 @@ class CMMap
         size_t binary_search( uint64_t key )
         {
             if ( 0 == entries.size() )
-               return -1;
+               return (size_t) -1;
             
             size_t low = 0;
             size_t high = entries.size() - 1;
@@ -27,12 +27,12 @@ class CMMap
                 size_t mid = low + ( ( high - low ) / 2 );
                 if ( entries[ mid ].address == key )
                     return mid;
-                if ( key < entries[mid].address )
+                if ( key < entries[ mid ].address )
                     high = mid - 1;
                 else
                     low = mid + 1;
             }
-            return -1;
+            return (size_t) -1;
         } //binary_search
 
     public:
