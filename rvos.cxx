@@ -2427,6 +2427,8 @@ bool load_image( const char * pimage, const char * app_args )
 
     // load the program into RAM
 
+    uint64_t first_uninitialized_data = 0;
+
     for ( uint16_t ph = 0; ph < ehead.program_header_table_entries; ph++ )
     {
         size_t o = ehead.program_header_table + ( ph * ehead.program_header_table_size );
@@ -2443,8 +2445,10 @@ bool load_image( const char * pimage, const char * app_args )
             if ( 0 == read )
                 usage( "can't read image" );
 
-            tracer.Trace( "  read type %s: %llx bytes into physical address %llx - %llx\n", head.show_type(), head.file_size,
-                          head.physical_address, head.physical_address + head.memory_size - 1 );
+            first_uninitialized_data = get_max( head.physical_address + head.file_size, first_uninitialized_data );
+
+            tracer.Trace( "  read type %s: %llx bytes into physical address %llx - %llx then uninitialized to %llx \n", head.show_type(), head.file_size,
+                          head.physical_address, head.physical_address + head.file_size - 1, head.physical_address + head.memory_size - 1 );
             tracer.TraceBinaryData( memory.data() + head.physical_address - g_base_address, get_min( (uint32_t) head.file_size, (uint32_t) 128 ), 4 );
         }
     }
@@ -2551,19 +2555,23 @@ bool load_image( const char * pimage, const char * app_args )
 
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  first byte beyond allocated memory:                 %llx\n", g_base_address + memory_size );
-    tracer.Trace( "  <mmap arena>\n" );
+    tracer.Trace( "  <mmap arena>                                        (%lld = %llx bytes)\n", g_mmap_commit, g_mmap_commit );
     tracer.Trace( "  mmap start adddress:                                %llx\n", g_base_address + g_mmap_address );
     tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
     tracer.Trace( "  start of aux data:                                  %llx\n", g_top_of_stack + aux_data_size );
     tracer.Trace( "  <random, alignment, aux recs, env, argv>            (%lld == %llx bytes)\n", aux_data_size, aux_data_size );
     tracer.Trace( "  initial stack pointer g_top_of_stack:               %llx\n", g_top_of_stack );
-    tracer.Trace( "  <stack>                                             (%lld == %llx bytes)\n", g_stack_commit, g_stack_commit );
-    tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %llx\n", g_bottom_of_stack );
+    uint64_t stack_bytes = g_stack_commit - aux_data_size;
+    tracer.Trace( "  <stack>                                             (%lld == %llx bytes)\n", stack_bytes, stack_bytes );
+    tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %llx\n", g_base_address + g_bottom_of_stack );
     tracer.Trace( "  <unallocated space between brk and the stack>       (%lld == %llx bytes)\n", g_brk_commit, g_brk_commit );
     tracer.Trace( "  end_of_data / current brk:                          %llx\n", g_base_address + g_end_of_data );
-    tracer.Trace( "  <argv data, pointed to by argv array above>\n" );
+    uint64_t argv_bytes = g_end_of_data - arg_data;
+    tracer.Trace( "  <argv data, pointed to by argv array above>         (%lld == %llx bytes)\n", argv_bytes, argv_bytes );
     tracer.Trace( "  start of argv data:                                 %llx\n", g_base_address + arg_data );
-    tracer.Trace( "  <uninitialized data per the .elf file>\n" );
+    uint64_t uninitialized_bytes = g_base_address + arg_data - first_uninitialized_data;
+    tracer.Trace( "  <uninitialized data per the .elf file>              (%lld == %llx bytes)\n", uninitialized_bytes, uninitialized_bytes );
+    tracer.Trace( "  first byte of uninitialized data:                   %llx\n", first_uninitialized_data );
     tracer.Trace( "  <initialized data from the .elf file>\n" );
     tracer.Trace( "  <code from the .elf file>\n" );
     tracer.Trace( "  initial pc execution_addess:                        %llx\n", g_execution_address );
@@ -2924,6 +2932,7 @@ int main( int argc, char * argv[] )
         }
 
         tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
+        g_mmap.trace_allocations();
     }
 
     g_consoleConfig.RestoreConsole( false );
