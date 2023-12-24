@@ -94,16 +94,16 @@ errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
-start time: 09:06:43.439
-15414047 microseconds for 1000 iterations
-end time: 09:06:58.853
+start time: 06:33:46.962
+13923093 microseconds for 1000 iterations
+end time: 06:34:00.885
 final move count 6493
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main
-address space 10000 to a3a070
-  zero:                0,   ra:            101b0,   sp:           a39fb0,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            101b0,   sp:           a39fa0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:                0,   a1:            1827b, 
+    s0:           a3a000,   s1:                8,   a0:                0,   a1:            1827b, 
     a2:                0,   a3:                0,   a4:                a,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -113,14 +113,14 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main
-address space 10000 to a3a070
-  zero:                0,   ra:            101e4,   sp:           a39fb0,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            101e4,   sp:           a39fa0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:                0,   a1:            18283, 
+    s0:           a3a000,   s1:                8,   a0:                0,   a1:            18283, 
     a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -130,14 +130,14 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200 
-address space 10000 to a3a070
-  zero:                0,   ra:            10338,   sp:           a39fb0,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            10338,   sp:           a39fa0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:                0,   a1:            1828c, 
+    s0:           a3a000,   s1:                8,   a0:                0,   a1:            1828c, 
     a2:                0,   a3:                0,   a4:                1,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -147,14 +147,14 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000 
-address space 10000 to a3a070
-  zero:                0,   ra:            10360,   sp:           a39fb0,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            10360,   sp:           a39fa0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:                0,   a1:            18294, 
+    s0:           a3a000,   s1:                8,   a0:                0,   a1:            18294, 
     a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -164,15 +164,15 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
-rvos (amd64) fatal error: stack pointer is below stack memory: a1a030
-pc: 100c8 _Z7recursemPKc
-address space 10000 to a3a070
-  zero:                0,   ra:            10130,   sp:           a1a030,   gp:                0, 
+rvos (amd64) fatal error: stack pointer is below stack memory: a19f20
+pc: 11cfa sprintf
+address space 10000 to a3b000
+  zero:                0,   ra:            10114,   sp:           a19f20,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a1a870,   s1:                8,   a0:               7c,   a1:           a1a460, 
-    a2:                1,   a3:                a,   a4:           a1a460,   a5:               7c, 
+    s0:           a1a440,   s1:                8,   a0:           a1a030,   a1:            18268, 
+    a2:               7c,   a3:                a,   a4:               7c,   a5:           a1a030, 
     a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
@@ -181,14 +181,14 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
-rvos (amd64) fatal error: stack pointer is above the top of memory: b39fb0
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39fa0
 pc: 110b8 rvos_sp_add
-address space 10000 to a3a070
-  zero:                0,   ra:            103a0,   sp:           b39fb0,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            103a0,   sp:           b39fa0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:           100000,   a1:            182a4, 
+    s0:           a3a000,   s1:                8,   a0:           100000,   a1:            182a4, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -198,14 +198,14 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
-rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fb2
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fa2
 pc: 110b8 rvos_sp_add
-address space 10000 to a3a070
-  zero:                0,   ra:            103b8,   sp:           a39fb2,   gp:                0, 
+address space 10000 to a3b000
+  zero:                0,   ra:            103b8,   sp:           a39fa2,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a3a010,   s1:                8,   a0:                2,   a1:            182ac, 
+    s0:           a3a000,   s1:                8,   a0:                2,   a1:            182ac, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
@@ -215,11 +215,11 @@ address space 10000 to a3a070
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 09:06:40 by msft C++ ver 1938 on windows
+Built for amd64 debug on 24 Dec 23 06:33:43 by msft C++ ver 1939 on windows
 
 starting...
 64930 moves
-35.118000 milliseconds
+32.613003 milliseconds
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -240,12 +240,12 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
 success
 parsing input file tests\tp.bas
-start time: 16:06:59.000
+start time: 14:34:01.000
 0 ms for 1 iterations
-end time: 16:06:59.000
+end time: 14:34:01.000
 final move count 6493
 exiting the basic interpreter
-year: 2023, month 10, day 6, hour 8, min 6, sec 59
+year: 2023, month 12, day 24, hour 6, min 34, sec 1
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057

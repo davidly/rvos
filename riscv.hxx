@@ -68,7 +68,7 @@ struct RiscV
         stack_size = stack_commit;                 // remember how much of the top of RAM is allocated to the stack
         stack_top = top_of_stack;                  // where the stack started
         regs[ sp ] = top_of_stack;                 // points at argc with argv, penv, and aux records above it
-        base = base_address;                       // lowest valid address in the app's address space
+        base = base_address;                       // lowest valid address in the app's address space, maps to offset 0 in mem
         mem = memory.data();                       // save the pointer, but don't take ownership
         mem_size = memory.size();
         beyond = mem + memory.size();              // addresses at beyond and later are illegal

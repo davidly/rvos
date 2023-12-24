@@ -84,8 +84,8 @@ int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
 uint64_t g_base_address = 0;                   // vm address of start of memory
 uint64_t g_execution_address = 0;              // where the program counter starts
-uint64_t g_brk_address = 0;                    // offset of brk, initially g_end_of_data
-uint64_t g_mmap_address = 0;                   // offset of where mmap allocations start
+uint64_t g_brk_offset = 0;                     // offset of brk, initially g_end_of_data
+uint64_t g_mmap_offset = 0;                    // offset of where mmap allocations start
 uint64_t g_highwater_brk = 0;                  // highest brk seen during app; peak dynamically-allocated RAM
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
@@ -1494,10 +1494,10 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_brk:
         {
-            uint64_t original = g_brk_address;
+            uint64_t original = g_brk_offset;
             uint64_t ask = cpu.regs[ RiscV::a0 ];
             if ( 0 == ask )
-                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_address );
+                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_offset );
             else
             {
                 uint64_t ask_offset = ask - g_base_address;
@@ -1505,18 +1505,18 @@ void riscv_invoke_ecall( RiscV & cpu )
 
                 if ( ask_offset >= g_end_of_data && ask_offset < g_bottom_of_stack )
                 {
-                    g_brk_address = cpu.getoffset( ask );
-                    if ( g_brk_address > g_highwater_brk )
-                        g_highwater_brk = g_brk_address;
+                    g_brk_offset = cpu.getoffset( ask );
+                    if ( g_brk_offset > g_highwater_brk )
+                        g_highwater_brk = g_brk_offset;
                 }
                 else
                 {
                     tracer.Trace( "  allocation request was too large, failing it by returning current brk\n" );
-                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_address );
+                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_offset );
                 }
             }
 
-            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_address, cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_offset, cpu.regs[ RiscV::a0 ] );
             break;
         }
         case SYS_munmap:
@@ -2202,8 +2202,6 @@ bool load_image( const char * pimage, const char * app_args )
 {
     tracer.Trace( "loading image %s\n", pimage );
 
-    ElfHeader64 ehead = {0};
-
     FILE * fp = fopen( pimage, "rb" );
     if ( !fp )
     {
@@ -2212,8 +2210,8 @@ bool load_image( const char * pimage, const char * app_args )
     }
 
     CFile file( fp );
+    ElfHeader64 ehead = {0};
     size_t read = fread( &ehead, sizeof ehead, 1, fp );
-
     if ( 1 != read )
         usage( "elf image file is invalid" );
 
@@ -2245,7 +2243,6 @@ bool load_image( const char * pimage, const char * app_args )
         tracer.Trace( "program header %u at offset %zu\n", ph, o );
 
         ElfProgramHeader64 head = {0};
-
         fseek( fp, (long) o, SEEK_SET );
         read = fread( &head, get_min( sizeof( head ), (size_t) ehead.program_header_table_size ), 1, fp );
         if ( 1 != read )
@@ -2272,6 +2269,9 @@ bool load_image( const char * pimage, const char * app_args )
         if ( ( 0 != head.physical_address ) && ( ( 0 == g_base_address ) || g_base_address > head.physical_address ) )
             g_base_address = head.physical_address;
     }
+
+    if ( 0 == g_base_address )
+        usage( "base address of elf image is invalid; physical address required" );
 
     memory_size -= g_base_address;
     tracer.Trace( "memory_size of content to load from elf file: %llx\n", memory_size );
@@ -2352,6 +2352,8 @@ bool load_image( const char * pimage, const char * app_args )
     if ( to_erase > 0 )
         g_symbols.erase( g_symbols.begin(), g_symbols.begin() + to_erase );
 
+    // set the sized of each symbol if it's not already set
+
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
         if ( 0 == g_symbols[se].size )
@@ -2363,32 +2365,28 @@ bool load_image( const char * pimage, const char * app_args )
         }
     }
 
-    tracer.Trace( "elf image has %zd usable symbols:\n", g_symbols.size() );
+    tracer.Trace( "elf image has %zu usable symbols:\n", g_symbols.size() );
     tracer.Trace( "             address              size  name\n" );
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
         tracer.Trace( "    %16llx  %16llx  %s\n", g_symbols[ se ].value, g_symbols[ se ].size, & g_string_table[ g_symbols[ se ].name ] );
 
-    if ( 0 == g_base_address )
-        usage( "base address of elf image is invalid; physical address required" );
-
-    // allocate space after uninitialized memory for brk to request space and the stack at the end
     // memory map from high to low addresses:
     //     <end of allocated memory>
     //     (memory for mmap fulfillment)
-    //     g_mmap_address
-    //     (wasted space so g_mmap_address is 4k-aligned)
+    //     g_mmap_offset
+    //     (wasted space so g_mmap_offset is 4k-aligned)
     //     Linux start data on the stack (see details below)
     //     g_top_of_stack
     //     g_bottom_of_stack
     //     (unallocated space between brk and the bottom of the stack)
-    //     g_brk_address with uninitialized RAM (just after arg_data initially)
+    //     g_brk_offset with uninitialized RAM (just after arg_data_offset initially)
     //     g_end_of_data
-    //     arg_data
+    //     arg_data_offset
     //     uninitalized data (size read from the .elf file)
     //     initialized data (size & data read from the .elf file)
     //     code (read from the .elf file)
-    //     g_base_address (offset read from the .elf file)
+    //     g_base_address (offset read from the .elf file).
 
     // stacks by convention on risc-v are 16-byte aligned. make sure to start aligned
 
@@ -2398,10 +2396,10 @@ bool load_image( const char * pimage, const char * app_args )
         memory_size &= ~0xf;
     }
 
-    uint64_t arg_data = memory_size;
+    uint64_t arg_data_offset = memory_size;
     memory_size += g_args_commit;
     g_end_of_data = memory_size;
-    g_brk_address = memory_size;
+    g_brk_offset = memory_size;
     g_highwater_brk = memory_size;
     memory_size += g_brk_commit;
 
@@ -2410,9 +2408,9 @@ bool load_image( const char * pimage, const char * app_args )
 
     uint64_t top_of_aux = memory_size;
     memory_size = round_up( memory_size, (uint64_t) 4096 ); // mmap should hand out 4k-aligned pages
-    g_mmap_address = memory_size;
+    g_mmap_offset = memory_size;
     memory_size += g_mmap_commit;
-    g_mmap.initialize( g_base_address + g_mmap_address, g_mmap_commit );
+    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit );
 
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
@@ -2422,7 +2420,10 @@ bool load_image( const char * pimage, const char * app_args )
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
         if ( !strcmp( "g_TRACENOW", & g_string_table[ g_symbols[ se ].name ] ) )
+        {
             g_ptracenow = (bool *) ( memory.data() + g_symbols[ se ].value - g_base_address );
+            break;
+        }
     }
 
     // load the program into RAM
@@ -2454,9 +2455,9 @@ bool load_image( const char * pimage, const char * app_args )
     }
 
     // write the command-line arguments into the vm memory in a place where _start can find them.
-    // there's an array of pointers to the args followed by the arg strings at offset arg_data.
+    // there's an array of pointers to the args followed by the arg strings at offset arg_data_offset.
 
-    uint64_t * parg_data = (uint64_t *) ( memory.data() + arg_data );
+    uint64_t * parg_data = (uint64_t *) ( memory.data() + arg_data_offset );
     const uint32_t max_args = 40;
     char * buffer_args = (char *) & ( parg_data[ max_args ] );
     size_t image_len = strlen( pimage );
@@ -2481,7 +2482,7 @@ bool load_image( const char * pimage, const char * app_args )
             *space = 0;
 
         uint64_t offset = pargs - buffer_args;
-        parg_data[ app_argc ] = (uint64_t) ( offset + arg_data + g_base_address + max_args * sizeof( uint64_t ) );
+        parg_data[ app_argc ] = (uint64_t) ( offset + arg_data_offset + g_base_address + max_args * sizeof( uint64_t ) );
         tracer.Trace( "  argument %d is '%s', at vm address %llx\n", app_argc, pargs, parg_data[ app_argc ] );
 
         app_argc++;
@@ -2496,13 +2497,14 @@ bool load_image( const char * pimage, const char * app_args )
     strcpy( penv_data, "OS=RVOS" );
     tracer.Trace( "args_len %d, penv_data %p\n", args_len, penv_data );
     tracer.Trace( "env data block: at vm address %llx\n", ( penv_data - (char *) memory.data() ) + g_base_address );
-    tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data ), g_args_commit + 0x20, 4 ); // +20 to inspect for bugs
+    tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data_offset ), g_args_commit + 0x20, 4 ); // +20 to inspect for bugs
 
     // put the Linux startup info at the top of the stack. this consists of (from high to low):
     //   two 8-byte random numbers used for stack and pointer guards
     //   optional filler to make sure alignment of all startup info is 16 bytes
     //   AT_NULL aux record
     //   AT_RANDOM aux record -- point to the 2 random 8-byte numbers above
+    //   AT_PAGESZ aux record -- golang runtime fails if it can't find the page size here
     //   0 environment termination
     //   0..n environment string pointers
     //   0 argv termination
@@ -2532,9 +2534,8 @@ bool load_image( const char * pimage, const char * app_args )
     paux[1].a_un.a_val = 4096;
 
     pstack--; // end of environment data is 0
-
     pstack--; // move to where the one environment variable is set OS=RVOS
-    *pstack = (uint64_t) ( env_offset + arg_data + g_base_address + max_args * sizeof( uint64_t ) );
+    *pstack = (uint64_t) ( env_offset + arg_data_offset + g_base_address + max_args * sizeof( uint64_t ) );
     tracer.Trace( "the OS environment argument is at VM address %llx\n", *pstack );
 
     pstack--; // the last argv is 0 to indicate the end
@@ -2556,7 +2557,7 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  first byte beyond allocated memory:                 %llx\n", g_base_address + memory_size );
     tracer.Trace( "  <mmap arena>                                        (%lld = %llx bytes)\n", g_mmap_commit, g_mmap_commit );
-    tracer.Trace( "  mmap start adddress:                                %llx\n", g_base_address + g_mmap_address );
+    tracer.Trace( "  mmap start adddress:                                %llx\n", g_base_address + g_mmap_offset );
     tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
     tracer.Trace( "  start of aux data:                                  %llx\n", g_top_of_stack + aux_data_size );
     tracer.Trace( "  <random, alignment, aux recs, env, argv>            (%lld == %llx bytes)\n", aux_data_size, aux_data_size );
@@ -2566,10 +2567,10 @@ bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %llx\n", g_base_address + g_bottom_of_stack );
     tracer.Trace( "  <unallocated space between brk and the stack>       (%lld == %llx bytes)\n", g_brk_commit, g_brk_commit );
     tracer.Trace( "  end_of_data / current brk:                          %llx\n", g_base_address + g_end_of_data );
-    uint64_t argv_bytes = g_end_of_data - arg_data;
+    uint64_t argv_bytes = g_end_of_data - arg_data_offset;
     tracer.Trace( "  <argv data, pointed to by argv array above>         (%lld == %llx bytes)\n", argv_bytes, argv_bytes );
-    tracer.Trace( "  start of argv data:                                 %llx\n", g_base_address + arg_data );
-    uint64_t uninitialized_bytes = g_base_address + arg_data - first_uninitialized_data;
+    tracer.Trace( "  start of argv data:                                 %llx\n", g_base_address + arg_data_offset );
+    uint64_t uninitialized_bytes = g_base_address + arg_data_offset - first_uninitialized_data;
     tracer.Trace( "  <uninitialized data per the .elf file>              (%lld == %llx bytes)\n", uninitialized_bytes, uninitialized_bytes );
     tracer.Trace( "  first byte of uninitialized data:                   %llx\n", first_uninitialized_data );
     tracer.Trace( "  <initialized data from the .elf file>\n" );
@@ -2631,7 +2632,6 @@ void elf_info( const char * pimage )
 
     g_execution_address = ehead.entry_point;
     g_compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
-
     uint64_t memory_size = 0;
 
     for ( uint16_t ph = 0; ph < ehead.program_header_table_entries; ph++ )
@@ -2908,11 +2908,11 @@ int main( int argc, char * argv[] )
         cpu->trace_instructions( traceInstructions );
         uint64_t cycles = 0;
 
-        #ifdef _WIN32
-            g_tAppStart = high_resolution_clock::now();
-        #endif
-
         high_resolution_clock::time_point tStart = high_resolution_clock::now();
+
+        #ifdef _WIN32
+            g_tAppStart = tStart;
+        #endif
 
         do
         {
