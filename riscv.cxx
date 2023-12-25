@@ -1917,7 +1917,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = memval;
+                            regs[ rd ] = sign_extend( memval, 31 ); // AMOs always sign-extend value placed in rd
                     }
                     else if ( 3 == funct3 ) // amominu.d rd, rs2, (rs1)
                     {
@@ -1936,7 +1936,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = memval;
+                            regs[ rd ] = sign_extend( memval, 31 ); // AMOs always sign-extend value placed in rd
                     }
                     else if ( 3 == funct3 ) // amomaxu.d rd, rs2, (rs1)
                     {
