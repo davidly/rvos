@@ -937,7 +937,7 @@ void RiscV::trace_state()
                     if ( 2 == funct3 )
                         tracer.Trace( "amomaxu.w %s, %s, (%s)  # max( %u, %u )\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ),
                                       (uint32_t) regs[ rs2 ], getui32( regs[ rs1 ] ) );
-                    else if ( 2 == funct3 )
+                    else if ( 3 == funct3 )
                         tracer.Trace( "amomaxu.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
             }
