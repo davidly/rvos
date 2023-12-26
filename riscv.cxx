@@ -32,6 +32,10 @@
 using namespace std;
 using namespace std::chrono;
 
+// conditional move and conditional return instruction extensions
+
+#define USE_DJL_RISCV_EXTENSIONS 0
+
 // set to 1 to use the instruction decompression lookup table
 // set to 0 to use the C code or to generate the table
 
@@ -1333,6 +1337,7 @@ void RiscV::trace_state()
             }
             break;
         }
+#if USE_DJL_RISCV_EXTENSIONS
         case CType: // risc-v extension cmvxx instructions
         {
             decode_C();
@@ -1361,6 +1366,13 @@ void RiscV::trace_state()
             
             break;
         }
+#else
+        case CType: // generic risc-v extensions
+        {
+            tracer.Trace( "unknown risc-v extension\n" );
+            break;
+        }
+#endif
         case CsrType:
         {
             break;
@@ -1467,6 +1479,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     unhandled();
                 break;
             }
+#if USE_DJL_RISCV_EXTENSIONS
             case 2: // risc-v extension cmvxx conditional move
             {
                 assert_type( CType );
@@ -1525,6 +1538,18 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 
                 break;
             }
+#else
+            case 2: //risc-v extension instruction.
+            {
+                // The rust compiler for risc-v uses these instructions in its runtime and I don't know what they're for.
+                // The instructions modify t4, a5, a3, t2, and t1 but can be ignored and the app runs ok.
+                // Specifically: 0x01a0000b, 0x0244000b, 0x0245800b, 0x02460000b, 0x0247000b, and 0x0249800b
+                // are used when setting up and running libc exit handlers.
+                // This should probably just exit rvos instead.
+
+                break;
+            }
+#endif
             case 3:
             {
                 assert_type( IType );
@@ -1674,6 +1699,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     unhandled();
                 break;
             }
+#if USE_DJL_RISCV_EXTENSIONS
             case 0xa:
             {
                 assert_type( RType );
@@ -1730,6 +1756,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 
                 break;
             }
+#endif
             case 0xb:
             {
                 assert_type( RType );

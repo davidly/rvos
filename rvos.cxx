@@ -386,7 +386,7 @@ void usage( char const * perror = 0 )
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
     printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 10\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
-    printf( "                 -m:X   # of meg for mmap space 0..1024 are valid. default is 0 (in development)\n" );
+    printf( "                 -m:X   # of meg for mmap space 0..1024 are valid. default is 0\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
     printf( "  %s\n", build_string() );
@@ -2740,6 +2740,8 @@ void elf_info( const char * pimage )
         printf( "base address of elf image is zero; physical address required for the rvos emulator\n" );
 
     printf( "contains 2-byte compressed RVC instructions: %s\n", g_compressed_rvc ? "yes" : "no" );
+    printf( "contains 4-byte float instructions: %s\n", ( ehead.flags & 2 ) ? "yes" : "no" );
+    printf( "contains 8-byte double instructions: %s\n", ( ehead.flags & 4 ) ? "yes" : "no" );
     printf( "vm g_base_address %llx\n", g_base_address );
     printf( "memory_size: %llx\n", memory_size );
     printf( "g_stack_commit: %llx\n", g_stack_commit );
