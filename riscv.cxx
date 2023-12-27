@@ -597,7 +597,7 @@ void RiscV::trace_state()
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
-    sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s2 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s2 ] );
+    sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s7 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s7 ] );
 
     static const char * previous_symbol = 0;
     const char * symbol_name = riscv_symbol_lookup( pc );
@@ -1296,9 +1296,9 @@ void RiscV::trace_state()
                         tracer.Trace( "fcvt.d.w %s, %s  # %ld = %.2f\n", freg_name( rd ), reg_name( rs1 ), (int32_t) regs[ rs1 ], (double) (int32_t) regs[ rs1 ] );
                     else if ( 1 == rs2 )
                         tracer.Trace( "fcvt.d.wu %s, %s  # %lu = %.2f\n", freg_name( rd ), reg_name( rs1 ), (uint32_t) regs[ rs1 ], (double) (int32_t) regs[ rs1 ] );
-                    else if ( 2 == funct3 )
+                    else if ( 2 == rs2 )
                         tracer.Trace( "fcvt.d.l %s, %s  # %lld = %.2f\n", freg_name( rd ), reg_name( rs1 ), (int64_t) regs[ rs1 ], (double) (int64_t) regs[ rs1 ] );
-                    else if ( 3 == funct3 )
+                    else if ( 3 == rs2 )
                         tracer.Trace( "fcvt.d.lu %s, %s  # %llu = %.2f\n", freg_name( rd ), reg_name( rs1 ), (uint64_t) regs[ rs1 ], (double) (int64_t) regs[ rs1 ] );
                 }
                 else if ( 0x70 == funct7 )

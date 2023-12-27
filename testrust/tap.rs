@@ -4,10 +4,10 @@ use std::cmp;
 
 extern "C" {
     fn srand( seed: usize );
-    fn rand() -> u32;
+    fn rand() -> usize;
 }
                 
-fn my_rand() -> u32 {
+fn my_rand() -> usize {
     unsafe {
         return rand();
     }
@@ -22,8 +22,8 @@ fn my_srand( seed: usize ) {
 fn rand32() -> u32 {
     // rand() in the C runtime generally returns numbers <= 32767
 
-    let a : u32 = my_rand();
-    let b : u32 = my_rand();
+    let a : u32 = my_rand() as u32;
+    let b : u32 = my_rand() as u32;
     return a | ( b << 16 );
 }
 
@@ -67,7 +67,7 @@ fn second_implementation()
 {
     println!( "second implementation..." );
 
-    my_srand( 0xbaebeaba );
+    my_srand( 0xbaebeabad00bee );
     const TOTAL: u64 = 1000000;
     let mut total_coprimes: u64 = 0;
     let mut prev_times_ten: u64 = 10;
