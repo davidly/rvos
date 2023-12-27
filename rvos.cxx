@@ -2762,7 +2762,7 @@ void elf_info( const char * pimage )
             read = fread( notes.data(), 1, head.size, fp );
             if ( 0 == read )
                 usage( "can't read notes\n" );
-            tracer.PrintBinaryData( notes.data(), head.size, 4 );
+            tracer.PrintBinaryData( notes.data(), (uint32_t) head.size, 4 );
         }
     }
 
