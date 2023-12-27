@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for arg in t tenv ts tf tm tap ttt sieve e an tdir tpi td ba mysort tphi ttime terrno;
+for arg in t glob tenv ts tf tm tap ttt sieve e an tdir tpi td ba mysort tphi ttime terrno;
 do
     echo $arg
     mt.sh "$arg"
