@@ -600,14 +600,26 @@ void RiscV::trace_state()
     sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s7 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s7 ] );
 
     static const char * previous_symbol = 0;
-    const char * symbol_name = riscv_symbol_lookup( pc );
+    uint64_t offset;
+    const char * symbol_name = riscv_symbol_lookup( pc, offset );
     if ( symbol_name == previous_symbol )
         symbol_name = "";
     else
         previous_symbol = symbol_name;
 
-    tracer.Trace( "pc %8llx %s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx a4 %llx a5 %llx gp %llx %s ra %llx sp %llx t %2llx %c => ",
-                  pc, symbol_name, op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], regs[ a4 ], regs[ a5 ], regs[ gp ], acExtra,
+    char symbol_offset[40];
+    symbol_offset[ 0 ] = 0;
+
+    if ( 0 != symbol_name[ 0 ] )
+    {
+        if ( 0 != offset )
+            sprintf( symbol_offset, " + %llx", offset );
+        strcat( symbol_offset, "\n            " );
+    }
+
+    tracer.Trace( "pc %8llx %s%s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx a4 %llx a5 %llx gp %llx %s ra %llx sp %llx t %2llx %c => ",
+                  pc, symbol_name, symbol_offset,
+                  op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], regs[ a4 ], regs[ a5 ], regs[ gp ], acExtra,
                   regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
 
     switch ( optype )

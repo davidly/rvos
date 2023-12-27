@@ -326,7 +326,7 @@ struct ElfSectionHeader64
         if ( 3 == basetype )
             return "string table";
         if ( 4 == basetype )
-            return "relocation entries";
+            return "relocation entries with addends";
         if ( 5 == basetype )
             return "symbol hash table";
         if ( 6 == basetype )
@@ -336,13 +336,17 @@ struct ElfSectionHeader64
         if ( 8 == basetype )
             return "nobits";
         if ( 9 == basetype )
-            return "rel";
+            return "relocation entries without addends";
         if ( 10 == basetype )
             return "shlib";
         if ( 11 == basetype )
             return "dynsym";
         if ( 12 == basetype )
             return "num";
+        if ( 14 == basetype )
+            return "initialization functions";
+        if ( 15 == basetype )
+            return "termination functions";
         return "unknown";
     }
 
@@ -2082,6 +2086,10 @@ void riscv_invoke_ecall( RiscV & cpu )
             break;
         }
         case SYS_set_tid_address:
+        {
+            cpu.regs[ RiscV::a0 ] = 1;
+            break;
+        }
         case SYS_set_robust_list:
         case SYS_prlimit64:
         case SYS_mprotect:
@@ -2116,8 +2124,10 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
     tracer.Trace( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
     printf( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
 
-    tracer.Trace( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu.pc ) );
-    printf( "pc: %llx %s\n", cpu.pc, riscv_symbol_lookup( cpu.pc ) );
+    uint64_t offset = 0;
+    const char * psymbol = riscv_symbol_lookup( cpu.pc, offset );
+    tracer.Trace( "pc: %llx %s + %llx\n", cpu.pc, psymbol, offset );
+    printf( "pc: %llx %s + %llx\n", cpu.pc, psymbol, offset );
 
     tracer.Trace( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
     printf( "address space %llx to %llx\n", g_base_address, g_base_address + memory.size() );
@@ -2170,7 +2180,7 @@ vector<ElfSymbol64> g_symbols;    // symbols in the elf image
 
 // returns the best guess for a symbol name for the address
 
-const char * riscv_symbol_lookup( uint64_t address )
+const char * riscv_symbol_lookup( uint64_t address, uint64_t & offset )
 {
     if ( address < g_base_address || address > ( g_base_address + memory.size() ) )
         return "";
@@ -2181,8 +2191,12 @@ const char * riscv_symbol_lookup( uint64_t address )
     ElfSymbol64 * psym = (ElfSymbol64 *) bsearch( &key, g_symbols.data(), g_symbols.size(), sizeof( key ), symbol_find_compare );
 
     if ( 0 != psym )
+    {
+        offset = address - psym->value;
         return & g_string_table[ psym->name ];
+    }
 
+    offset = 0;
     return "";
 } //riscv_symbol_lookup
 
@@ -2218,8 +2232,14 @@ bool load_image( const char * pimage, const char * app_args )
     if ( 0x464c457f != ehead.magic )
         usage( "elf image file's magic header is invalid" );
 
+    if ( 2 != ehead.type )
+        usage( "elf image isn't an executable file" );
+
     if ( 0xf3 != ehead.machine )
         usage( "elf image isn't for RISC-V" );
+
+    if ( 0 == ehead.entry_point )
+        usage( "elf entry point is 0, which is invalid" );
 
     tracer.Trace( "header fields:\n" );
     tracer.Trace( "  entry address: %llx\n", ehead.entry_point );
@@ -2621,6 +2641,7 @@ void elf_info( const char * pimage )
 
     printf( "header fields:\n" );
     printf( "  bit_width: %u\n", ehead.bit_width );
+    printf( "  type: %u\n", ehead.type );
     printf( "  entry address: %llx\n", ehead.entry_point );
     printf( "  program entries: %u\n", ehead.program_header_table_entries );
     printf( "  program header entry size: %u\n", ehead.program_header_table_size );
@@ -2733,6 +2754,15 @@ void elf_info( const char * pimage )
                 printf( "     value: %llx\n", sym_entry.value );
                 printf( "     size:  %llu\n", sym_entry.size );
             }
+        }
+        else if ( 7 == head.type && 0 != head.size )
+        {
+            vector<uint8_t> notes( head.size );
+            fseek( fp, (long) head.offset, SEEK_SET );
+            read = fread( notes.data(), 1, head.size, fp );
+            if ( 0 == read )
+                usage( "can't read notes\n" );
+            tracer.PrintBinaryData( notes.data(), head.size, 4 );
         }
     }
 

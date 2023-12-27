@@ -1,5 +1,7 @@
 echo running t... > test_rvos.txt
 rvos tests\t >>test_rvos.txt
+echo running glob... >> test_rvos.txt
+rvos tests\glob >>test_rvos.txt
 echo runing ts... >> test_rvos.txt
 rvos tests\ts >>test_rvos.txt
 echo running sieve... >> test_rvos.txt

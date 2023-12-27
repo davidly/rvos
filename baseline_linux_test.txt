@@ -1,4 +1,4 @@
-Thu Oct 19 07:26:11 PDT 2023
+Wed Dec 27 13:05:16 PST 2023
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -17,12 +17,18 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
+[0mglob
+[1 qin CTest constructor
+top main
+value of ctest::foo: 666
+end of main
+in ~CTest destructor
 [0mtenv
-[1 qenvironment variable 0: 0x75e50 == 'OS=RVOS'
+[1 qenvironment variable 0: 0x737d0 == 'OS=RVOS'
 is RVOS: yes
-pval: 0xa95e6e
+pval: 0xa937de
 value: toast!
-OS: 0x75e53
+OS: 0x737d3
 value: RVOS
 [0mts
 [1 qtop of app
@@ -106,7 +112,7 @@ done
 [0mttt
 [1 qstarting...
 64930 moves
-22.000002 milliseconds
+21.206001 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -115,9 +121,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 07:26:12.103
-8862030 microseconds for 1000 iterations
-end time: 07:26:20.965
+[1 qstart time: 13:05:16.838
+8727949 microseconds for 1000 iterations
+end time: 13:05:25.566
 final move count 6493
 [0mtins
 [1 qhello
@@ -153,7 +159,7 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qyear: 2023, month 10, day 19, hour 6, min 26, sec 20
+[1 qyear: 2023, month 12, day 27, hour 13, min 5, sec 25
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -162,10 +168,10 @@ success
 [0man nap
 [1 qpan
 [0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 4.821403 ms
-start time: 07:26:21.098
-223 ms for 1 iterations
-end time: 07:26:21.321
+[1 qTime to parse tests/tp.bas: 4.880576 ms
+start time: 13:05:25.684
+210 ms for 1 iterations
+end time: 13:05:25.894
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt
@@ -173,38 +179,38 @@ sorting
 writing...
 done
 [0mtcrash sph
-[1 q[0mrvos (amd64) fatal error: stack pointer is above the top of memory: b96340
-pc: 109cc rvos_sp_add
-address space 10000 to a965a0
-  zero:                0,   ra:            108a4,   sp:           b96340,   gp:            6f9d0, 
-    tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a963a0,   s1:                2,   a0:           100000,   a1:            4aeac, 
-    a2:           a96560,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a96548,   s3:                1, 
-    s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+[1 q[0mrvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
+pc: 109cc rvos_sp_add + 4
+address space 10000 to a95000
+  zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:           100000,   a1:            4aeac, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
     Copyright(C) DJL 2023
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 15:19:27 by g++ on linux
+Built for amd64 debug on 27 Dec 23 13:05:13 by g++ on linux
 
 tcrash mh
 [1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
-pc: 10824 main
-address space 10000 to a965a0
-  zero:                0,   ra:            10704,   sp:           a96340,   gp:            6f9d0, 
-    tp:            76d00,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a963a0,   s1:                2,   a0:                0,   a1:            4ae8b, 
-    a2:           a96560,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:            6fa80,   a7: 7d127c602f47422f,   s2:           a96548,   s3:                1, 
-    s4:           a96560,   s5:                1,   s6:            1066c,   s7:            103e0, 
+pc: 10824 main + 1b8
+address space 10000 to a95000
+  zero:                0,   ra:            10704,   sp:           a94810,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae8b, 
+    a2:           a94a30,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:            6fa80,   a7: 7d127c602f47422f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693b6,   t6:            10000, 
     Copyright(C) DJL 2023
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 6 Oct 23 15:19:27 by g++ on linux
+Built for amd64 debug on 27 Dec 23 13:05:13 by g++ on linux
 
