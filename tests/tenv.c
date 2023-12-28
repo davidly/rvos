@@ -20,6 +20,8 @@ int main( int argc, char * argv[], char * envp[] )
 
     char ac[100];
     strcpy( ac, "MYVAL=toast!" );
+    char * ptoast = (char *) malloc( strlen( ac ) + 1 );
+    strcpy( ptoast, ac );
     putenv( ac );
 
     char * pval = getenv( "MYVAL" );
@@ -31,6 +33,11 @@ int main( int argc, char * argv[], char * envp[] )
     printf( "OS: %p\n", posval );
     if ( 0 != posval )
         printf( "value: %s\n", posval );
+
+    char * timezoneval = getenv( "TZ" );
+    printf( "TZ: %p\n", timezoneval );
+    if ( 0 != timezoneval )
+        printf( "TZ: '%s'\n", timezoneval );
 
     return 0;
 } //main

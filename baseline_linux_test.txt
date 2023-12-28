@@ -1,4 +1,4 @@
-Wed Dec 27 13:05:16 PST 2023
+Thu Dec 28 14:01:13 PST 2023
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -30,6 +30,7 @@ pval: 0xa937de
 value: toast!
 OS: 0x737d3
 value: RVOS
+TZ: (nil)
 [0mts
 [1 qtop of app
 print an int 27
@@ -112,7 +113,7 @@ done
 [0mttt
 [1 qstarting...
 64930 moves
-21.206001 milliseconds
+21.411001 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -121,9 +122,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 13:05:16.838
-8727949 microseconds for 1000 iterations
-end time: 13:05:25.566
+[1 qstart time: 14:01:14.279
+8442437 microseconds for 1000 iterations
+end time: 14:01:22.721
 final move count 6493
 [0mtins
 [1 qhello
@@ -159,7 +160,10 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qyear: 2023, month 12, day 27, hour 13, min 5, sec 25
+[1 qbefore TZ is set: tz: '(null)', year: 2023, month 12, day 28, hour 14, min 1, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 28, hour 17, min 1, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 28, hour 14, min 1, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 28, hour 22, min 1, sec 22
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -168,10 +172,10 @@ success
 [0man nap
 [1 qpan
 [0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 4.880576 ms
-start time: 13:05:25.684
-210 ms for 1 iterations
-end time: 13:05:25.894
+[1 qTime to parse tests/tp.bas: 4.770198 ms
+start time: 14:01:22.838
+206 ms for 1 iterations
+end time: 14:01:23.043
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt
@@ -194,7 +198,7 @@ address space 10000 to a95000
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 27 Dec 23 13:05:13 by g++ on linux
+Built for amd64 debug on 28 Dec 23 13:59:12 by g++ on linux
 
 tcrash mh
 [1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -212,5 +216,5 @@ address space 10000 to a95000
 License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 27 Dec 23 13:05:13 by g++ on linux
+Built for amd64 debug on 28 Dec 23 13:59:12 by g++ on linux
 

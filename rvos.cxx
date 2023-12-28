@@ -2212,6 +2212,17 @@ int symbol_compare( const void * a, const void * b )
     return -1;
 } //symbol_compare
 
+void remove_spaces( char * p )
+{
+    char * o;
+    for ( o = p; *p; p++ )
+    {
+        if ( ' ' != *p )
+            *o++ = *p;
+    }
+    *o = 0;
+} //remove_spaces
+
 bool load_image( const char * pimage, const char * app_args )
 {
     tracer.Trace( "loading image %s\n", pimage );
@@ -2515,8 +2526,54 @@ bool load_image( const char * pimage, const char * app_args )
     uint64_t env_offset = args_len + 1;
     char * penv_data = (char *) ( buffer_args + env_offset );
     strcpy( penv_data, "OS=RVOS" );
+    uint64_t env_os_address = ( penv_data - (char *) memory.data() ) + g_base_address;
+    uint64_t env_count = 1;
+    uint64_t env_tz_address = 0;
+
+     // The local time zone is found by libc on Linux/MaxOS, but not on Windows.
+     // Workaround: set the TZ environment variable.
+
+#ifdef _WIN32
+    DYNAMIC_TIME_ZONE_INFORMATION tzi = {0};
+    DWORD dw = GetDynamicTimeZoneInformation( &tzi );
+    if ( TIME_ZONE_ID_INVALID != dw )
+    {
+        char acName[ 32 ] = {0};
+        if ( TIME_ZONE_ID_STANDARD == dw )
+            wcstombs( acName, tzi.StandardName, sizeof( acName ) );
+        else if ( TIME_ZONE_ID_DAYLIGHT == dw )
+            wcstombs( acName, tzi.DaylightName, sizeof( acName ) );
+        else if ( TIME_ZONE_ID_UNKNOWN == dw )
+            strcpy( acName, "local" );
+
+        if ( 0 != acName[ 0 ] )
+        {
+            char * ptz_data = penv_data + 1 + strlen( penv_data );
+            env_tz_address = ( ptz_data - (char *) memory.data() ) + g_base_address;
+            strcpy( ptz_data, "TZ=" );
+
+            // libc doesn't like spaces in spite of the doc saying it's OK:
+            // https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_431.html
+
+            remove_spaces( acName );
+            strcat( (char *) ptz_data, acName );
+
+            if ( tzi.Bias >= 0 )
+                strcat( (char *) ptz_data, "+" );
+            itoa( tzi.Bias / 60, (char *) ( ptz_data + strlen( ptz_data ) ), 10 );
+            int minutes = abs( tzi.Bias % 60 );
+            if ( 0 != minutes )
+            {
+                strcat( ptz_data, ":" );
+                itoa( minutes, (char *) ( ptz_data + strlen( ptz_data ) ), 10 );
+            }
+            tracer.Trace( "ptz_data: '%s'\n", ptz_data );
+            env_count++;
+        }
+    }
+#endif
+
     tracer.Trace( "args_len %d, penv_data %p\n", args_len, penv_data );
-    tracer.Trace( "env data block: at vm address %llx\n", ( penv_data - (char *) memory.data() ) + g_base_address );
     tracer.TraceBinaryData( (uint8_t *) ( memory.data() + arg_data_offset ), g_args_commit + 0x20, 4 ); // +20 to inspect for bugs
 
     // put the Linux startup info at the top of the stack. this consists of (from high to low):
@@ -2541,7 +2598,7 @@ bool load_image( const char * pimage, const char * app_args )
 
     // ensure that after all of this the stack is 16-byte aligned
 
-    if ( 1 == ( 1 & app_argc ) )
+    if ( 0 == ( 1 & ( app_argc + env_count ) ) )
         pstack--;
 
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
@@ -2554,9 +2611,16 @@ bool load_image( const char * pimage, const char * app_args )
     paux[1].a_un.a_val = 4096;
 
     pstack--; // end of environment data is 0
-    pstack--; // move to where the one environment variable is set OS=RVOS
-    *pstack = (uint64_t) ( env_offset + arg_data_offset + g_base_address + max_args * sizeof( uint64_t ) );
+    pstack--; // move to where the OS environment variable is set OS=RVOS
+    *pstack = env_os_address; // (uint64_t) ( env_offset + arg_data_offset + g_base_address + max_args * sizeof( uint64_t ) );
     tracer.Trace( "the OS environment argument is at VM address %llx\n", *pstack );
+
+    if ( 0 != env_tz_address )
+    {
+        pstack--; // move to where the TZ environment variable is set TZ=xxx
+        *pstack = env_tz_address;
+        tracer.Trace( "the TZ environment argument is at VM address %llx\n", *pstack );
+    }
 
     pstack--; // the last argv is 0 to indicate the end
 

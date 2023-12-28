@@ -3,8 +3,8 @@ fn main()
     println!( "testing real number operations" );
 
     let r32 : f32 = 1.0 / 3.14159;
-    let r64 : f64 = 1.0 / 2.71828;
     println!( "r32: {}", r32 );
+    let r64 : f64 = 1.0 / 2.71828;
     println!( "r64: {}", r64 );
 
     let r32sin : f32 = r32.sin();

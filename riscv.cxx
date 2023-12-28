@@ -895,16 +895,16 @@ void RiscV::trace_state()
                 else if ( 2 == top5 )
                 {
                     if ( 2 == funct3 )
-                        tracer.Trace( "lr.w %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "lr.w   %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 3 == funct3 )
-                        tracer.Trace( "lr.d %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "lr.d   %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
                 }
                 else if ( 3 == top5 )
                 {
                     if ( 2 == funct3 )
-                        tracer.Trace( "sc.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "sc.w  %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                    else if ( 3 == funct3 )
-                        tracer.Trace( "sc.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "sc.d  %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
                 else if ( 4 == top5 )
                 {
