@@ -1,0 +1,326 @@
+running t... 
+a: 0 4000000000000000
+a: 4 0
+ua: 0 4000000000000000
+ua: 4 0
+a: ffffffffffffffff ffffffffffffffff
+a: ffffffffffffffff ffffffffffffffdf = -33
+int8_t result: 6
+uint8_t result: 6
+int16_t result: 6
+uint16_t result: 6
+int32_t result: 6
+uint32_t result: 6
+int64_t result: 6
+uint64_t result: 6
+int128_t result: 6
+uint128_t result: 6
+end of the app
+runing glob... 
+in CTest constructor
+top main
+value of ctest::foo: 666
+end of main
+in ~CTest destructor
+runing ts... 
+top of app
+print an int 27
+print an int64_t 27
+sizeof T: 1, result: ff
+sizeof T: 1, result: 7f
+sizeof T: 2, result: ffff
+sizeof T: 2, result: 7fff
+sizeof T: 4, result: ffffffff
+sizeof T: 4, result: 7fffffff
+sizeof T: 8, result: ffffffffffffffff
+sizeof T: 8, result: 7fffffffffffffff
+now test left shifts
+sizeof T: 1, result: fe
+sizeof T: 1, result: fe
+sizeof T: 2, result: fffe
+sizeof T: 2, result: fffe
+sizeof T: 4, result: fffffffe
+sizeof T: 4, result: fffffffe
+sizeof T: 8, result: fffffffffffffffe
+sizeof T: 8, result: fffffffffffffffe
+now test comparisons
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+testing printf
+  string: 'hello'
+  char: 'h'
+  int: 27, 1b
+  negative int: -27, ffffffe5
+  int64_t: 27, 1b
+  negative int64_t: -27, ffffffffffffffe5
+  float: 3.141573
+  negative float: -3.141573
+stop
+running sieve... 
+1899 primes.
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+done
+starting, should tend towards 1.2020569031595942854...
+  at           10 iterations: 1.19753198567419305576
+  at          100 iterations: 1.20200740065967814907
+  at         1000 iterations: 1.20205640365934329772
+  at        10000 iterations: 1.20205689816009808624
+  at       100000 iterations: 1.20205690310973234425
+next implementation...
+  at           10 iterations: 1.25000000000000000000
+  at          100 iterations: 1.14942528735632176762
+  at         1000 iterations: 1.21802679658952506259
+  at        10000 iterations: 1.20293516179477921746
+  at       100000 iterations: 1.20124448929090532623
+done
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+should tend towards 1.61803398874989484820458683436563811772030
+  at  5 iterations: 1.6250000000000000
+  at 10 iterations: 1.6179775280898876
+  at 15 iterations: 1.6180344478216819
+  at 20 iterations: 1.6180339850173580
+  at 25 iterations: 1.6180339887802426
+  at 30 iterations: 1.6180339887496482
+  at 35 iterations: 1.6180339887498969
+  at 40 iterations: 1.6180339887498949
+done
+hello
+test instructions is complete
+errno opening a file for read that doesn't exist: 2 (2 file not found expected)
+start time: 15:34:05.848
+12156694 microseconds for 1000 iterations
+end time: 15:34:18.005
+final move count 6493
+mkdir failed, error 17
+folder 'testfolder' exists; deleting it
+start of app cleanup: rmdir of folder failed, error 41
+rvos (amd64) fatal error: memory reference prior to address space: 200
+pc: 10c78 main + 268
+address space 10000 to aa7000
+  zero:                0,   ra:            10a78,   sp:           aa6b60,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:                0,   a1:            5ba73, 
+    a2:           aa6d80,   a3:                0,   a4:                a,   a5:              200, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+pc: 10bc8 main + 1b8
+address space 10000 to aa7000
+  zero:                0,   ra:            10aa8,   sp:           aa6b60,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:                0,   a1:            5ba7b, 
+    a2:           aa6d80,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: pc is lower than memory: 200
+pc: 200  + 0
+address space 10000 to aa7000
+  zero:                0,   ra:            10be8,   sp:           aa6b60,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:                0,   a1:            5ba84, 
+    a2:           aa6d80,   a3:                0,   a4:                0,   a5:              200, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+pc: 2000000000000000  + 0
+address space 10000 to aa7000
+  zero:                0,   ra:            10c10,   sp:           aa6b60,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:                0,   a1:            5ba8c, 
+    a2:           aa6d80,   a3:                0,   a4:                0,   a5: 2000000000000000, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: stack pointer is below stack memory: a86ce0
+pc: 255a8 __vfprintf_internal + c
+address space 10000 to aa7000
+  zero:                0,   ra:            11fa0,   sp:           a86ce0,   gp:            81c80, 
+    tp:            87540,   t0:                0,   t1:           a873f0,   t2:                0, 
+    s0:                0,   s1: ffffffffffffffff,   a0:           a87298,   a1:            5ba60, 
+    a2:           a873f0,   a3:                0,   a4:               18,   a5:           a87430, 
+    a6:                0,   a7: fffffffffbad0000,   s2:           a87430,   s3:           a87298, 
+    s4:            5ba60,   s5:           a873f0,   s6:            7ddc0,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:               79,   t5:            7a994,   t6:                a, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b60
+pc: 10d74 rvos_sp_add + 4
+address space 10000 to aa7000
+  zero:                0,   ra:            10c48,   sp:           ba6b60,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:           100000,   a1:            5ba9c, 
+    a2:           aa6d80,   a3:                0,   a4:                0,   a5:                1, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: aa6b62
+pc: 10d74 rvos_sp_add + 4
+address space 10000 to aa7000
+  zero:                0,   ra:            10c5c,   sp:           aa6b62,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bc0,   s1:                2,   a0:                2,   a1:            5baa4, 
+    a2:           aa6d80,   a3:                0,   a4:                0,   a5:                1, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d68,   s3:                1, 
+    s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
+    Copyright(C) DJL 2023
+License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Built for amd64 debug on 28 Dec 23 14:02:22 by msft C++ ver 1939 on windows
+
+starting...
+64930 moves
+31.035002 milliseconds
+hello from printf
+float from printf: 45.678000
+division result: 333.333344, square root 18.257420
+result of 20.2 * -1.342: -27.108400
+result of 20.2 * -1.342 as a double: -27.108400
+sinf of 30 degress is 0.500000
+cosf of 30 degrees is 0.866025
+tanf of 30 degrees is 0.577350
+atanf of 1.000000 is 0.785398
+atan2f of 0.3, 0.2 is 0.982794
+acosf of 0.3 is 1.266104
+asinf of 0.3 is 0.304693
+tanhf of 2.2 is 0.304693
+logf of 0.3: -1.203973
+log10f of 300: 2.477121
+pi has mantissa: 0.785398, exponent 2
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+stop
+success
+parsing input file debianrv\tp.bas
+start time: 15:34:18.247
+253 ms for 1 iterations
+end time: 15:34:18.500
+final move count 6493
+exiting the basic interpreter
+before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 28, hour 15, min 34, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 28, hour 18, min 34, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 28, hour 15, min 34, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 28, hour 23, min 34, sec 18
+sprintf double 3.14159265358979311600
+double from printf: 3.14159265358979311600
+float from printf: 1.202057
+double from printf r: -3.776373
+sqrt of pi: 1.772454
+sin of 30 degress is 0.500000
+cos of 30 degrees is 0.866025
+tan of 30 degrees is 0.577350
+atan of 1.000000 is 0.785398
+atan2 of 0.3, 0.2 is 0.982794
+acos of 0.3 is 1.266104
+asin of 0.3 is 0.304693
+tanh of 2.2 is 0.304693
+log of 0.3: -1.203973
+log10 of 300: 2.477121
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+pi has mantissa: 0.785398, exponent 2
+stop
+sorting debianrv\words.txt ==> debianrv\sorted.txt
+sorting
+writing...
+done
+a delve id
+a delved i
+a die veld
+a dive led
+a dived le
+a led vied
+add ive le
+add le vie
+addle ive
+addle vie
+aid delve
+aide veld
+ale dived
+ave did le
+ave id led
+ave idled
+dad ive le
+dad le vie
+dale dive
+dale vied
+david eel
+david lee
+dead evil
+dead levi
+dead live
+dead veil
+dead vile
+deal dive
+deal vied
+dee valid
+deed vial
+did leave
+died vale
+died veal
+dive lade
+dive lead
+dived lea
+evade lid
+eve id lad
+id leaved
+idea veld
+lade vied
+lead vied
+main in rust
+serial runtime: Some(5.2302ms)
+moves:          6493
+iterations:     1
