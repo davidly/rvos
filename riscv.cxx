@@ -1375,13 +1375,22 @@ void RiscV::trace_state()
                 else
                     tracer.Trace( "cmv%s %s, %lld, %s, %lld\n", cmp_type( funct3 ), reg_name( rd ), rs1_imm, reg_name( c_rc1 ), rc2_imm );
             }
-            
             break;
         }
 #else
         case CType: // generic risc-v extensions
         {
-            tracer.Trace( "unknown risc-v extension\n" );
+            // See the comment in run() about T-Head extension instructions
+
+            if ( 0x01a0000b == op ) // th.sync.i
+                tracer.Trace( "th.sync.i\n" );
+            else if ( ( 0x02400000 == ( op & 0xfff00000 ) ) && ( 0 == ( op & 0x7ff0 ) ) ) // th.dcache.isw rs1
+            {
+                uint64_t dcache_rs1 = ( ( op >> 15 ) & 0x1f );
+                tracer.Trace( "th.dcache.isw %s\n", reg_name( dcache_rs1 ) );
+            }
+            else
+                tracer.Trace( "unknown risc-v extension\n" );
             break;
         }
 #endif
@@ -1551,14 +1560,25 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 break;
             }
 #else
-            case 2: //risc-v extension instruction.
+            case 2: // risc-v extension instructions.
             {
-                // The rust compiler for risc-v uses these instructions in its runtime and I don't know what they're for.
-                // The instructions modify t4, a5, a3, t2, and t1 but can be ignored and the app runs ok.
-                // Specifically: 0x01a0000b, 0x0244000b, 0x0245800b, 0x02460000b, 0x0247000b, and 0x0249800b
-                // are used when setting up and running libc exit handlers.
-                // This should probably just exit rvos instead.
+                // The rust compiler's libc I'm using uses these extension instructions in tcache_init.part.0, called by __malloc.
+                // I think these are the T-Head / Alibaba extensions:
+                //   0x01a0000b: th.sync.i. all instructions retire prior to this one and the instruction pipeline is flushed.
+                //       https://github.com/T-head-Semi/thead-extension-spec/blob/master/xtheadsync/sync_i.adoc
+                //   0x024xx00b: th.dcache.isw. invalidate D-cache by set/way
+                //       https://github.com/T-head-Semi/thead-extension-spec/blob/master/xtheadcmo/dcache_isw.adoc
+                // There is no pipelining or caching in the emulator, so just ignore them.
 
+                if ( 0x01a0000b == op ) // th.sync.i
+                    break;
+
+                if ( ( 0x02400000 == ( op & 0xfff00000 ) ) && ( 0 == ( op & 0x7ff0 ) ) ) // th.dcache.isw rs1
+                    break;
+
+                // crash on anything else so it can be debugged
+
+                unhandled();
                 break;
             }
 #endif
