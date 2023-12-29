@@ -146,264 +146,267 @@ an illegal access to memory. It was used for the crash dump above. Here is a sim
     } //main
 
 Here is the trace listing for tbad.c using rvos -t -i tbad:
-old and new console output mode: 0003, 000f
-loading image tbad.elf
-header fields:
-  entry address: 100d8
-  program entries: 3
-  program header entry size: 56
-  program offset: 64 == 40
-  section entries: 18
-  section header entry size: 64
-  section offset: 6656 == 1a00
-  flags: 3
-program header 0 at offset 64
-  type: 1 / load
-  offset in image: 1000
-  virtual address: 10000
-  physical address: 10000
-  file size: 1f0
-  memory size: 1f0
-  alignment: 1000
-program header 1 at offset 120
-  type: 1 / load
-  offset in image: 11f0
-  virtual address: 101f0
-  physical address: 101f0
-  file size: 0
-  memory size: 10
-  alignment: 1000
-program header 2 at offset 176
-  type: 0 / unused
-  offset in image: 0
-  virtual address: 10200
-  physical address: 10200
-  file size: 0
-  memory size: 38
-  alignment: 8
-memory_size of content to load from elf file: 238
-section header 0 at offset 6656 == 1a00
-  type: 0 / unused
-  flags: 0 / 
-  address: 0
-  offset: 0
-  size: 0
-section header 1 at offset 6720 == 1a40
-  type: 1 / program data
-  flags: 6 / alloc, executable, 
-  address: 10000
-  offset: 1000
-  size: 1e0
-section header 2 at offset 6784 == 1a80
-  type: e / initialization functions
-  flags: 3 / write, alloc, 
-  address: 101e0
-  offset: 11e0
-  size: 8
-section header 3 at offset 6848 == 1ac0
-  type: f / termination functions
-  flags: 3 / write, alloc, 
-  address: 101e8
-  offset: 11e8
-  size: 8
-section header 4 at offset 6912 == 1b00
-  type: 1 / program data
-  flags: 1 / write, 
-  address: 101f0
-  offset: 11f0
-  size: 0
-section header 5 at offset 6976 == 1b40
-  type: 1 / program data
-  flags: 1 / write, 
-  address: 101f0
-  offset: 11f0
-  size: 0
-section header 6 at offset 7040 == 1b80
-  type: 8 / nobits
-  flags: 3 / write, alloc, 
-  address: 101f0
-  offset: 11f0
-  size: 10
-section header 7 at offset 7104 == 1bc0
-  type: 8 / nobits
-  flags: 3 / write, alloc, 
-  address: 10200
-  offset: 0
-  size: 38
-section header 8 at offset 7168 == 1c00
-  type: 1 / program data
-  flags: 30 / merge, asciz strings, 
-  address: 0
-  offset: 11f0
-  size: 11
-section header 9 at offset 7232 == 1c40
-  type: 1 / program data
-  flags: 0 / 
-  address: 0
-  offset: 1201
-  size: 6f
-section header 10 at offset 7296 == 1c80
-  type: 1 / program data
-  flags: 0 / 
-  address: 0
-  offset: 1270
-  size: 60
-section header 11 at offset 7360 == 1cc0
-  type: 1 / program data
-  flags: 0 / 
-  address: 0
-  offset: 12d0
-  size: 30
-section header 12 at offset 7424 == 1d00
-  type: 1 / program data
-  flags: 0 / 
-  address: 0
-  offset: 1300
-  size: 20
-section header 13 at offset 7488 == 1d40
-  type: 1 / program data
-  flags: 0 / 
-  address: 0
-  offset: 1320
-  size: 5a
-section header 14 at offset 7552 == 1d80
-  type: 1 / program data
-  flags: 30 / merge, asciz strings, 
-  address: 0
-  offset: 137a
-  size: eb
-section header 15 at offset 7616 == 1dc0
-  type: 2 / symbol table
-  flags: 0 / 
-  address: 0
-  offset: 1468
-  size: 390
-section header 16 at offset 7680 == 1e00
-  type: 3 / string table
-  flags: 0 / 
-  address: 0
-  offset: 17f8
-  size: 15a
-section header 17 at offset 7744 == 1e40
-  type: 3 / string table
-  flags: 0 / 
-  address: 0
-  offset: 1952
-  size: ab
-elf image has 19 usable symbols:
-             address              size  name
-               10000                10  main
-               10010                24  deregister_tm_clones
-               10034                2c  register_tm_clones
-               10060                42  __do_global_dtors_aux
-               100a2                36  frame_dummy
-               100d8                24  _start
-               100fc                20  rvos_print_text
-               1011c                20  rvos_get_datetime
-               1013c                1c  rvos_rand
-               10158                20  rvos_exit
-               10178                20  rvos_print_double
-               10198                1c  rvos_gettimeofday
-               101b4                20  rvos_trace_instructions
-               101d4                 c  rvos_sp_add
-               101e0                 8  __frame_dummy_init_array_entry
-               101e8                18  __do_global_dtors_aux_fini_array_entry
-               10200                 0  __TMC_END__
-               10200                 8  completed.5485
-               10208                30  object.5490
-  read type load: 1f0 bytes into physical address 10000 - 101ef then uninitialized to 101ef 
-    0000  93 07 a0 00 23 00 f0 20 13 05 00 00 67 80 00 00 : 17 05 00 00 13 05 05 1f 97 07 00 00 93 87 87 1e  ....#.. ....g...................
-    0020  63 89 a7 00 17 03 ff ff 13 03 c3 fd 63 03 03 00 : 02 83 82 80 17 05 00 00 13 05 c5 1c 97 05 00 00  c...........c...................
-    0040  93 85 45 1c 89 8d 8d 85 89 47 b3 c5 f5 02 81 c9 : 17 03 ff ff 13 03 03 fb 63 03 03 00 02 83 82 80  ..E......G..............c.......
-    0060  97 07 00 00 83 c7 07 1a 85 ef 41 11 06 e4 97 00 : 00 00 e7 80 20 fa 97 07 ff ff 93 87 a7 f8 89 cb  ..........A......... ...........
-  argument 0 is 'tbad.elf', at vm address 10380
-ptz_data: 'TZ=PacificStandardTime+8'
-args_len 9, penv_data 000002D758F5D3EA
-    0000  80 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0060  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0080  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    00a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    00c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    00e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0100  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0120  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0140  74 62 61 64 2e 65 6c 66 00 00 4f 53 3d 52 56 4f : 53 00 54 5a 3d 50 61 63 69 66 69 63 53 74 61 6e  tbad.elf..OS=RVOS.TZ=PacificStan
-    0160  64 61 72 64 54 69 6d 65 2b 38 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  dardTime+8......................
-    0180  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    01a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    01c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    01e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0200  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0220  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0240  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0260  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0280  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    02a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    02c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    02e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0300  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0320  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0340  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0360  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0380  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    03a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    03c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    03e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-    0400  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-the OS environment argument is at VM address 1038a
-the TZ environment argument is at VM address 10392
-stack at start (beginning with argc) -- 112 bytes at address 000002D75997D630:
-  0000  01 00 00 00 00 00 00 00 80 03 01 00 00 00 00 00 : 00 00 00 00 00 00 00 00 92 03 01 00 00 00 00 00  ................................
-  0020  8a 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 : 19 00 00 00 00 00 00 00 f0 0f a3 00 00 00 00 00  ................................
-  0040  06 00 00 00 00 00 00 00 00 10 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-  0060  bb c1 78 6d 7c 3b c9 02 d6 2c b6 5e b8 92 f0 ec :                                                  ..xm|;...,.^....
-memory map from highest to lowest addresses:
-  first byte beyond allocated memory:                 a31000
-  <mmap arena>                                        (0 = 0 bytes)
-  mmap start adddress:                                a31000
-  <align to 4k-page for mmap allocations>
-  start of aux data:                                  a30640
-  <random, alignment, aux recs, env, argv>            (112 == 70 bytes)
-  initial stack pointer g_top_of_stack:               a305d0
-  <stack>                                             (130960 == 1ff90 bytes)
-  last byte stack can use (g_bottom_of_stack):        a10640
-  <unallocated space between brk and the stack>       (10485760 == a00000 bytes)
-  end_of_data / current brk:                          10640
-  <argv data, pointed to by argv array above>         (1024 == 400 bytes)
-  start of argv data:                                 10240
-  <uninitialized data per the .elf file>              (80 == 50 bytes)
-  first byte of uninitialized data:                   101f0
-  <initialized data from the .elf file>
-  <code from the .elf file>
-  initial pc execution_addess:                        100d8
-  <code per the .elf file>
-  start of the address space per the .elf file:       10000
-vm memory first byte beyond:     000002D75997E060
-vm memory start:                 000002D758F5D060
-memory_size:                     0xa21000 == 10620928
-risc-v compressed instructions:  yes
-pc    100d8 _start
-             op    13503 a0 0 a1 0 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  0 I => ld      a0, 0(sp)  # 0(a305d0)
-pc    100dc  op   810593 a0 1 a1 0 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    a1, sp, 8
-pc    100e0  op   150413 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    s0, a0, 1
-pc    100e4  op   800493 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 2 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    s1, zero, 8
-pc    100e8  op  2940433 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 2 s1 8, s7 0 ra 0 sp a305d0 t  c R => mul     s0, s0, s1 # 2 * 8
-pc    100ec  op   858633 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 0 sp a305d0 t  c R => add     a2, a1, s0 # a305d8 + 10
-pc    100f0  op f11ff0ef a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 0 sp a305d0 t 1b J => jal     -240 #    10000
-pc    10000 main
-             op   a00793 a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 100f4 sp a305d0 t  4 I => addi    a5, zero, 10
-pc    10004  op 20f00023 a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 a gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 100f4 sp a305d0 t  8 S => sb      a5, 512(zero)  #   a, 512(0)
-rvos (amd64) fatal error: memory reference prior to address space: 200
-pc: 10004 main + 4
-address space 10000 to a31000
-  zero:                0,   ra:            100f4,   sp:           a305d0,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2:                0, 
-    s0:               10,   s1:                8,   a0:                1,   a1:           a305d8, 
-    a2:           a305e8,   a3:                0,   a4:                0,   a5:                a, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 13:04:12 by msft C++ ver 1939 on windows
+
+    old and new console output mode: 0003, 000f
+    loading image tbad.elf
+    header fields:
+      entry address: 100d8
+      program entries: 3
+      program header entry size: 56
+      program offset: 64 == 40
+      section entries: 18
+      section header entry size: 64
+      section offset: 6656 == 1a00
+      flags: 3
+    program header 0 at offset 64
+      type: 1 / load
+      offset in image: 1000
+      virtual address: 10000
+      physical address: 10000
+      file size: 1f0
+      memory size: 1f0
+      alignment: 1000
+    program header 1 at offset 120
+      type: 1 / load
+      offset in image: 11f0
+      virtual address: 101f0
+      physical address: 101f0
+      file size: 0
+      memory size: 10
+      alignment: 1000
+    program header 2 at offset 176
+      type: 0 / unused
+      offset in image: 0
+      virtual address: 10200
+      physical address: 10200
+      file size: 0
+      memory size: 38
+      alignment: 8
+    memory_size of content to load from elf file: 238
+    section header 0 at offset 6656 == 1a00
+      type: 0 / unused
+      flags: 0 / 
+      address: 0
+      offset: 0
+      size: 0
+    section header 1 at offset 6720 == 1a40
+      type: 1 / program data
+      flags: 6 / alloc, executable, 
+      address: 10000
+      offset: 1000
+      size: 1e0
+    section header 2 at offset 6784 == 1a80
+      type: e / initialization functions
+      flags: 3 / write, alloc, 
+      address: 101e0
+      offset: 11e0
+      size: 8
+    section header 3 at offset 6848 == 1ac0
+      type: f / termination functions
+      flags: 3 / write, alloc, 
+      address: 101e8
+      offset: 11e8
+      size: 8
+    section header 4 at offset 6912 == 1b00
+      type: 1 / program data
+      flags: 1 / write, 
+      address: 101f0
+      offset: 11f0
+      size: 0
+    section header 5 at offset 6976 == 1b40
+      type: 1 / program data
+      flags: 1 / write, 
+      address: 101f0
+      offset: 11f0
+      size: 0
+    section header 6 at offset 7040 == 1b80
+      type: 8 / nobits
+      flags: 3 / write, alloc, 
+      address: 101f0
+      offset: 11f0
+      size: 10
+    section header 7 at offset 7104 == 1bc0
+      type: 8 / nobits
+      flags: 3 / write, alloc, 
+      address: 10200
+      offset: 0
+      size: 38
+    section header 8 at offset 7168 == 1c00
+      type: 1 / program data
+      flags: 30 / merge, asciz strings, 
+      address: 0
+      offset: 11f0
+      size: 11
+    section header 9 at offset 7232 == 1c40
+      type: 1 / program data
+      flags: 0 / 
+      address: 0
+      offset: 1201
+      size: 6f
+    section header 10 at offset 7296 == 1c80
+      type: 1 / program data
+      flags: 0 / 
+      address: 0
+      offset: 1270
+      size: 60
+    section header 11 at offset 7360 == 1cc0
+      type: 1 / program data
+      flags: 0 / 
+      address: 0
+      offset: 12d0
+      size: 30
+    section header 12 at offset 7424 == 1d00
+      type: 1 / program data
+      flags: 0 / 
+      address: 0
+      offset: 1300
+      size: 20
+    section header 13 at offset 7488 == 1d40
+      type: 1 / program data
+      flags: 0 / 
+      address: 0
+      offset: 1320
+      size: 5a
+    section header 14 at offset 7552 == 1d80
+      type: 1 / program data
+      flags: 30 / merge, asciz strings, 
+      address: 0
+      offset: 137a
+      size: eb
+    section header 15 at offset 7616 == 1dc0
+      type: 2 / symbol table
+      flags: 0 / 
+      address: 0
+      offset: 1468
+      size: 390
+    section header 16 at offset 7680 == 1e00
+      type: 3 / string table
+      flags: 0 / 
+      address: 0
+      offset: 17f8
+      size: 15a
+    section header 17 at offset 7744 == 1e40
+      type: 3 / string table
+      flags: 0 / 
+      address: 0
+      offset: 1952
+      size: ab
+    elf image has 19 usable symbols:
+                 address              size  name
+                   10000                10  main
+                   10010                24  deregister_tm_clones
+                   10034                2c  register_tm_clones
+                   10060                42  __do_global_dtors_aux
+                   100a2                36  frame_dummy
+                   100d8                24  _start
+                   100fc                20  rvos_print_text
+                   1011c                20  rvos_get_datetime
+                   1013c                1c  rvos_rand
+                   10158                20  rvos_exit
+                   10178                20  rvos_print_double
+                   10198                1c  rvos_gettimeofday
+                   101b4                20  rvos_trace_instructions
+                   101d4                 c  rvos_sp_add
+                   101e0                 8  __frame_dummy_init_array_entry
+                   101e8                18  __do_global_dtors_aux_fini_array_entry
+                   10200                 0  __TMC_END__
+                   10200                 8  completed.5485
+                   10208                30  object.5490
+      read type load: 1f0 bytes into physical address 10000 - 101ef then uninitialized to 101ef 
+        0000  93 07 a0 00 23 00 f0 20 13 05 00 00 67 80 00 00 : 17 05 00 00 13 05 05 1f 97 07 00 00 93 87 87 1e  ....#.. ....g...................
+        0020  63 89 a7 00 17 03 ff ff 13 03 c3 fd 63 03 03 00 : 02 83 82 80 17 05 00 00 13 05 c5 1c 97 05 00 00  c...........c...................
+        0040  93 85 45 1c 89 8d 8d 85 89 47 b3 c5 f5 02 81 c9 : 17 03 ff ff 13 03 03 fb 63 03 03 00 02 83 82 80  ..E......G..............c.......
+        0060  97 07 00 00 83 c7 07 1a 85 ef 41 11 06 e4 97 00 : 00 00 e7 80 20 fa 97 07 ff ff 93 87 a7 f8 89 cb  ..........A......... ...........
+      argument 0 is 'tbad.elf', at vm address 10380
+    ptz_data: 'TZ=PacificStandardTime+8'
+    args_len 9, penv_data 000002D758F5D3EA
+        0000  80 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0060  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0080  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        00a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        00c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        00e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0100  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0120  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0140  74 62 61 64 2e 65 6c 66 00 00 4f 53 3d 52 56 4f : 53 00 54 5a 3d 50 61 63 69 66 69 63 53 74 61 6e  tbad.elf..OS=RVOS.TZ=PacificStan
+        0160  64 61 72 64 54 69 6d 65 2b 38 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  dardTime+8......................
+        0180  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        01a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        01c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        01e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0200  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0220  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0240  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0260  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0280  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        02a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        02c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        02e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0300  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0320  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0340  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0360  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0380  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        03a0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        03c0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        03e0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+        0400  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+    the OS environment argument is at VM address 1038a
+    the TZ environment argument is at VM address 10392
+    stack at start (beginning with argc) -- 112 bytes at address 000002D75997D630:
+      0000  01 00 00 00 00 00 00 00 80 03 01 00 00 00 00 00 : 00 00 00 00 00 00 00 00 92 03 01 00 00 00 00 00  ................................
+      0020  8a 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 : 19 00 00 00 00 00 00 00 f0 0f a3 00 00 00 00 00  ................................
+      0040  06 00 00 00 00 00 00 00 00 10 00 00 00 00 00 00 : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
+      0060  bb c1 78 6d 7c 3b c9 02 d6 2c b6 5e b8 92 f0 ec :                                                  ..xm|;...,.^....
+    memory map from highest to lowest addresses:
+      first byte beyond allocated memory:                 a31000
+      <mmap arena>                                        (0 = 0 bytes)
+      mmap start adddress:                                a31000
+      <align to 4k-page for mmap allocations>
+      start of aux data:                                  a30640
+      <random, alignment, aux recs, env, argv>            (112 == 70 bytes)
+      initial stack pointer g_top_of_stack:               a305d0
+      <stack>                                             (130960 == 1ff90 bytes)
+      last byte stack can use (g_bottom_of_stack):        a10640
+      <unallocated space between brk and the stack>       (10485760 == a00000 bytes)
+      end_of_data / current brk:                          10640
+      <argv data, pointed to by argv array above>         (1024 == 400 bytes)
+      start of argv data:                                 10240
+      <uninitialized data per the .elf file>              (80 == 50 bytes)
+      first byte of uninitialized data:                   101f0
+      <initialized data from the .elf file>
+      <code from the .elf file>
+      initial pc execution_addess:                        100d8
+      <code per the .elf file>
+      start of the address space per the .elf file:       10000
+    vm memory first byte beyond:     000002D75997E060
+    vm memory start:                 000002D758F5D060
+    memory_size:                     0xa21000 == 10620928
+    risc-v compressed instructions:  yes
+    pc    100d8 _start
+                 op    13503 a0 0 a1 0 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  0 I => ld      a0, 0(sp)  # 0(a305d0)
+    pc    100dc  op   810593 a0 1 a1 0 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    a1, sp, 8
+    pc    100e0  op   150413 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 0 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    s0, a0, 1
+    pc    100e4  op   800493 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 2 s1 0, s7 0 ra 0 sp a305d0 t  4 I => addi    s1, zero, 8
+    pc    100e8  op  2940433 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 2 s1 8, s7 0 ra 0 sp a305d0 t  c R => mul     s0, s0, s1 # 2 * 8
+    pc    100ec  op   858633 a0 1 a1 a305d8 a2 0 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 0 sp a305d0 t  c R => add     a2, a1, s0 # a305d8 + 10
+    pc    100f0  op f11ff0ef a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 0 sp a305d0 t 1b J => jal     -240 #    10000
+    pc    10000 main
+                 op   a00793 a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 0 gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 100f4 sp a305d0 t  4 I => addi    a5, zero, 10
+    pc    10004  op 20f00023 a0 1 a1 a305d8 a2 a305e8 a3 0 a4 0 a5 a gp 0 t0 0 t1 0 s0 10 s1 8, s7 0 ra 100f4 sp a305d0 t  8 S => sb      a5, 512(zero)  #   a, 512(0)
+    rvos (amd64) fatal error: memory reference prior to address space: 200
+    pc: 10004 main + 4
+    address space 10000 to a31000
+      zero:                0,   ra:            100f4,   sp:           a305d0,   gp:                0, 
+        tp:                0,   t0:                0,   t1:                0,   t2:                0, 
+        s0:               10,   s1:                8,   a0:                1,   a1:           a305d8, 
+        a2:           a305e8,   a3:                0,   a4:                0,   a5:                a, 
+        a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+        s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+        s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+        t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+    Built for amd64 debug on 29 Dec 23 13:04:12 by msft C++ ver 1939 on windows
+
+
