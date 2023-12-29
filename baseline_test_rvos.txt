@@ -1,4 +1,4 @@
-Fri 12/29/2023  8:53:15.35 
+Fri 12/29/2023  9:23:23.41 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp1k using brk heap 
-start time: 08:53:16.783
-14524616 microseconds for 1000 iterations
-end time: 08:53:31.308
+start time: 09:23:24.795
+14663653 microseconds for 1000 iterations
+end time: 09:23:39.458
 final move count 6493
 running test app tp1k using mmap heap 
-start time: 08:53:31.318
-12381330 microseconds for 1000 iterations
-end time: 08:53:43.699
+start time: 09:23:39.469
+12336877 microseconds for 1000 iterations
+end time: 09:23:51.806
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-32.903000 milliseconds
+35.144001 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-33.566002 milliseconds
+33.308002 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 16, min 53, sec 43
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 53, sec 43
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 8, min 53, sec 43
+before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 17, min 23, sec 52
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 12, min 23, sec 52
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 9, min 23, sec 52
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 53, sec 43
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 16, min 53, sec 43
+before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 12, min 23, sec 52
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 17, min 23, sec 52
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -326,26 +326,26 @@ stop
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Friday, December 29, 2023 8:53:43 AM
+  Started : Friday, December 29, 2023 9:23:52 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
-    Files : *.
+    Files : *
 	    
   Options : /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
 
 ------------------------------------------------------------------------------
 
-	                   0	\\lee-server\documents\scratch\debianrv\rust\
+	                  20	\\lee-server\documents\scratch\debianrv\rust\
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :         1         0         1         0         0         0
-   Files :         0         0         0         0         0         0
-   Bytes :         0         0         0         0         0         0
+   Files :        20         0        20         0         0         0
+   Bytes :   40.53 m         0   40.53 m         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Friday, December 29, 2023 8:53:45 AM
+   Ended : Friday, December 29, 2023 9:23:53 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -389,12 +389,12 @@ r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
 main in rust
-serial runtime: Some(5.4704ms)
+serial runtime: Some(5.5466ms)
 moves:          6493
 iterations:     1
 running test app ttt using mmap 
 main in rust
-serial runtime: Some(5.5755ms)
+serial runtime: Some(5.5114ms)
 moves:          6493
 iterations:     1
 running test app e using brk heap 
@@ -441,6 +441,28 @@ second implementation...
   1.1989688867573887     at 100000 iterations
   1.2018855180006394     at 1000000 iterations
 exiting finding ap with great success
+running test app tphi using brk heap 
+phi should tend towards 1.61803398874989484820458683436563811772030
+  at    5 iterations: 1.625
+  at   10 iterations: 1.6179775280898876
+  at   15 iterations: 1.618034447821682
+  at   20 iterations: 1.618033985017358
+  at   25 iterations: 1.6180339887802426
+  at   30 iterations: 1.6180339887496482
+  at   35 iterations: 1.618033988749897
+  at   40 iterations: 1.618033988749895
+exiting finding phi with great success
+running test app tphi using mmap 
+phi should tend towards 1.61803398874989484820458683436563811772030
+  at    5 iterations: 1.625
+  at   10 iterations: 1.6179775280898876
+  at   15 iterations: 1.618034447821682
+  at   20 iterations: 1.618033985017358
+  at   25 iterations: 1.6180339887802426
+  at   30 iterations: 1.6180339887496482
+  at   35 iterations: 1.618033988749897
+  at   40 iterations: 1.618033988749895
+exiting finding phi with great success
 running tcrash memory low 
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main + 290
@@ -541,9 +563,9 @@ Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
 
 running ba tp.bas 
 parsing input file tests\tp.bas
-start time: 16:53:55.000
-1,000 ms for 1 iterations
-end time: 16:53:56.000
+start time: 17:24:04.000
+0 ms for 1 iterations
+end time: 17:24:04.000
 final move count 6493
 exiting the basic interpreter
 running mysort 

@@ -74,7 +74,7 @@ class CMMap
                 tracer.Trace( "  in mmap allocate, base %#lx\n", base );
 
                 MMapEntry entry = { base, l };
-                entries.emplace_back( entry );
+                entries.push_back( entry );
                 return base;
             }
             else
@@ -89,7 +89,7 @@ class CMMap
                 if ( l < ( length - ( free_offset - base ) ) )
                 {
                     MMapEntry newentry = { free_offset, l };
-                    entries.emplace_back( newentry );
+                    entries.push_back( newentry );
                     return free_offset;
                 }
             }

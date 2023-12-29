@@ -1585,7 +1585,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 // golang does this. golang runtime is kinda funny.
                 tracer.Trace( "  warning: mmap allocation length isn't 4k-page aligned\n" );
-                length = round_up( length, (uint64_t) 4096 );
+                length = round_up( length, (size_t) 4096 );
             }
 
             if ( 0 != prot )
