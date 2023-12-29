@@ -2141,13 +2141,18 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
 
         if ( 3 == ( i & 3 ) )
         {
-            tracer.Trace( "\n  " );
-            printf( "\n  " );
+            tracer.Trace( "\n" );
+            printf( "\n" );
+            if ( 31 != i )
+            {
+                tracer.Trace( "  " );
+                printf( "  " );
+            }
         }
     }
 
-    tracer.Trace( "  %s\n", build_string() );
-    printf( "  %s\n", build_string() );
+    tracer.Trace( "%s\n", build_string() );
+    printf( "%s\n", build_string() );
 
     tracer.Flush();
     fflush( stdout );

@@ -1,4 +1,5 @@
-running t... 
+Fri 12/29/2023  8:32:40.01 
+running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
 ua: 0 4000000000000000
@@ -16,11 +17,35 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
-running glob... 
+running test app t using mmap heap 
+a: 0 4000000000000000
+a: 4 0
+ua: 0 4000000000000000
+ua: 4 0
+a: ffffffffffffffff ffffffffffffffff
+a: ffffffffffffffff ffffffffffffffdf = -33
+int8_t result: 6
+uint8_t result: 6
+int16_t result: 6
+uint16_t result: 6
+int32_t result: 6
+uint32_t result: 6
+int64_t result: 6
+uint64_t result: 6
+int128_t result: 6
+uint128_t result: 6
+end of the app
+running test app glob using brk heap 
 top main
 value of ctest::foo: 0
 end of main
-runing ts... 
+running test app glob using mmap heap 
+in CTest constructor
+top main
+value of ctest::foo: 666
+end of main
+in ~CTest destructor
+running test app ts using brk heap 
 top of app
 print an int 27
 print an int64_t 27
@@ -64,10 +89,61 @@ testing printf
   float: 3.141573
   negative float: -3.141573
 stop
-running sieve... 
+running test app ts using mmap heap 
+top of app
+print an int 27
+print an int64_t 27
+sizeof T: 1, result: ff
+sizeof T: 1, result: 7f
+sizeof T: 2, result: ffff
+sizeof T: 2, result: 7fff
+sizeof T: 4, result: ffffffff
+sizeof T: 4, result: 7fffffff
+sizeof T: 8, result: ffffffffffffffff
+sizeof T: 8, result: 7fffffffffffffff
+now test left shifts
+sizeof T: 1, result: fe
+sizeof T: 1, result: fe
+sizeof T: 2, result: fffe
+sizeof T: 2, result: fffe
+sizeof T: 4, result: fffffffe
+sizeof T: 4, result: fffffffe
+sizeof T: 8, result: fffffffffffffffe
+sizeof T: 8, result: fffffffffffffffe
+now test comparisons
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+testing printf
+  string: 'hello'
+  char: 'h'
+  int: 27, 1b
+  negative int: -27, ffffffe5
+  int64_t: 27, 1b
+  negative int64_t: -27, ffffffffffffffe5
+  float: 3.141573
+  negative float: -3.141573
+stop
+running test app sieve using brk heap 
 1899 primes.
+running test app sieve using mmap heap 
+1899 primes.
+running test app e using brk heap 
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 done
+running test app e using mmap heap 
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+done
+running test app tap using brk heap 
 starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
   at          100 iterations: 1.20200740065967814907
@@ -81,7 +157,25 @@ next implementation...
   at        10000 iterations: 1.20540019286403077281
   at       100000 iterations: 1.20192307692307687184
 done
+running test app tap using mmap heap 
+starting, should tend towards 1.2020569031595942854...
+  at           10 iterations: 1.19753198567419305576
+  at          100 iterations: 1.20200740065967814907
+  at         1000 iterations: 1.20205640365934329772
+  at        10000 iterations: 1.20205689816009808624
+  at       100000 iterations: 1.20205690310973234425
+next implementation...
+  at           10 iterations: 1.25000000000000000000
+  at          100 iterations: 1.14942528735632176762
+  at         1000 iterations: 1.21802679658952506259
+  at        10000 iterations: 1.20293516179477921746
+  at       100000 iterations: 1.20124448929090532623
+done
+running test app tpi using brk heap 
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+running test app tpi using mmap heap 
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+running test app tphi using brk heap 
 should tend towards 1.61803398874989484820458683436563811772030
   at  5 iterations: 1.6250000000000000
   at 10 iterations: 1.6179775280898876
@@ -92,138 +186,52 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
+running test app tphi using mmap heap 
+should tend towards 1.61803398874989484820458683436563811772030
+  at  5 iterations: 1.6250000000000000
+  at 10 iterations: 1.6179775280898876
+  at 15 iterations: 1.6180344478216819
+  at 20 iterations: 1.6180339850173580
+  at 25 iterations: 1.6180339887802426
+  at 30 iterations: 1.6180339887496482
+  at 35 iterations: 1.6180339887498969
+  at 40 iterations: 1.6180339887498949
+done
+running test app tins using brk heap 
 hello
 test instructions is complete
+running test app tins using mmap heap 
+hello
+test instructions is complete
+running test app terrno using brk heap 
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
-start time: 13:53:52.186
-15298792 microseconds for 1000 iterations
-end time: 13:54:07.485
+running test app terrno using mmap heap 
+errno opening a file for read that doesn't exist: 2 (2 file not found expected)
+errno doing write to stdin file descriptor: 13. (13 permission denied expected)
+errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
+success
+running test app tp1k using brk heap 
+start time: 08:32:41.450
+15268774 microseconds for 1000 iterations
+end time: 08:32:56.719
 final move count 6493
-rvos (amd64) fatal error: memory reference prior to address space: 200
-pc: 103d4 main + 290
-address space 10000 to a3b000
-  zero:                0,   ra:            101b0,   sp:           a39f90,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1827b, 
-    a2:                0,   a3:                0,   a4:                a,   a5:              200, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
-pc: 10318 main + 1d4
-address space 10000 to a3b000
-  zero:                0,   ra:            101e4,   sp:           a39f90,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18283, 
-    a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: pc is lower than memory: 200
-pc: 200  + 0
-address space 10000 to a3b000
-  zero:                0,   ra:            10338,   sp:           a39f90,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1828c, 
-    a2:                0,   a3:                0,   a4:                1,   a5:              200, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
-pc: 2000000000000000  + 0
-address space 10000 to a3b000
-  zero:                0,   ra:            10360,   sp:           a39f90,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18294, 
-    a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: stack pointer is below stack memory: a19f10
-pc: 11cfa sprintf + 2
-address space 10000 to a3b000
-  zero:                0,   ra:            10114,   sp:           a19f10,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a1a430,   s1:                8,   a0:           a1a020,   a1:            18268, 
-    a2:               7c,   a3:                a,   a4:               7c,   a5:           a1a020, 
-    a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39f90
-pc: 110b8 rvos_sp_add + 4
-address space 10000 to a3b000
-  zero:                0,   ra:            103a0,   sp:           b39f90,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:           100000,   a1:            182a4, 
-    a2:                0,   a3:                0,   a4:                1,   a5:                1, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
-rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39f92
-pc: 110b8 rvos_sp_add + 4
-address space 10000 to a3b000
-  zero:                0,   ra:            103b8,   sp:           a39f92,   gp:                0, 
-    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                2,   a1:            182ac, 
-    a2:                0,   a3:                0,   a4:                1,   a5:                1, 
-    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
-    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for amd64 debug on 28 Dec 23 13:51:47 by msft C++ ver 1939 on windows
-
+running test app tp1k using mmap heap 
+start time: 08:32:56.729
+12579980 microseconds for 1000 iterations
+end time: 08:33:09.309
+final move count 6493
+running test app ttt using brk heap 
 starting...
 64930 moves
-33.311001 milliseconds
+34.016003 milliseconds
+running test app ttt using mmap heap 
+starting...
+64930 moves
+33.619003 milliseconds
+running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -242,17 +250,40 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
+running test app tf using mmap heap 
+hello from printf
+float from printf: 45.678000
+division result: 333.333344, square root 18.257420
+result of 20.2 * -1.342: -27.108400
+result of 20.2 * -1.342 as a double: -27.108400
+sinf of 30 degress is 0.500000
+cosf of 30 degrees is 0.866025
+tanf of 30 degrees is 0.577350
+atanf of 1.000000 is 0.785398
+atan2f of 0.3, 0.2 is 0.982794
+acosf of 0.3 is 1.266104
+asinf of 0.3 is 0.304693
+tanhf of 2.2 is 0.304693
+logf of 0.3: -1.203973
+log10f of 300: 2.477121
+pi has mantissa: 0.785398, exponent 2
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+stop
+running test app tm using brk heap 
 success
-parsing input file tests\tp.bas
-start time: 21:54:07.000
-0 ms for 1 iterations
-end time: 21:54:07.000
-final move count 6493
-exiting the basic interpreter
-before TZ is set: tz: '(null)', year: 2023, month 12, day 28, hour 21, min 54, sec 7
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 28, hour 16, min 54, sec 7
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 28, hour 13, min 54, sec 7
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 28, hour 13, min 54, sec 7
+running test app tm using mmap heap 
+success
+running test app ttime using brk heap 
+before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 16, min 33, sec 9
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 33, sec 9
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 8, min 33, sec 9
+running test app ttime using mmap heap 
+before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 33, sec 9
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 16, min 33, sec 9
+running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
@@ -271,10 +302,256 @@ log10 of 300: 2.477121
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 stop
+running test app td using mmap heap 
+sprintf double 3.14159265358979311600
+double from printf: 3.14159265358979311600
+float from printf: 1.202057
+double from printf r: -3.776373
+sqrt of pi: 1.772454
+sin of 30 degress is 0.500000
+cos of 30 degrees is 0.866025
+tan of 30 degrees is 0.577350
+atan of 1.000000 is 0.785398
+atan2 of 0.3, 0.2 is 0.982794
+acos of 0.3 is 1.266104
+asin of 0.3 is 0.304693
+tanh of 2.2 is 0.304693
+log of 0.3: -1.203973
+log10 of 300: 2.477121
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+pi has mantissa: 0.785398, exponent 2
+stop
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : Friday, December 29, 2023 8:33:09 AM
+   Source : \\lee-server\documents\scratch\debianrv\rust\
+     Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
+
+    Files : *.
+	    
+  Options : /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	                   0	\\lee-server\documents\scratch\debianrv\rust\
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         1         0         1         0         0         0
+   Files :         0         0         0         0         0         0
+   Bytes :         0         0         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+   Ended : Friday, December 29, 2023 8:33:10 AM
+
+running test app ato using brk heap 
+testing atomic operations
+exiting atomic testing with great success
+running test app ato using mmap 
+testing atomic operations
+exiting atomic testing with great success
+running test app real using brk heap 
+testing real number operations
+r32: 0.31831014
+r64: 0.36787968862663156
+r32 sin: 0.31296203
+r64 sin: 0.3596377963109607
+r32 cos: 0.9497656
+r64 cos: 0.9330919866039982
+r32 tan: 0.329515
+r64 tan: 0.3854258759844972
+r32 asin: 0.3239464
+r64 asin: 0.37672777417563674
+r32 acos: 1.24685
+r64 acos: 1.1940685526192598
+r32 atan: 0.3081693
+r64 atan: 0.3525136397354091
+exiting real number testing with great success
+running test app real using mmap 
+testing real number operations
+r32: 0.31831014
+r64: 0.36787968862663156
+r32 sin: 0.31296203
+r64 sin: 0.3596377963109607
+r32 cos: 0.9497656
+r64 cos: 0.9330919866039982
+r32 tan: 0.329515
+r64 tan: 0.3854258759844972
+r32 asin: 0.3239464
+r64 asin: 0.37672777417563674
+r32 acos: 1.24685
+r64 acos: 1.1940685526192598
+r32 atan: 0.3081693
+r64 atan: 0.3525136397354091
+exiting real number testing with great success
+running test app ttt using brk heap 
+main in rust
+serial runtime: Some(5.7517ms)
+moves:          6493
+iterations:     1
+running test app ttt using mmap 
+main in rust
+serial runtime: Some(5.503ms)
+moves:          6493
+iterations:     1
+running test app e using brk heap 
+testing finding e
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+exiting finding e with great success
+running test app e using mmap 
+testing finding e
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+exiting finding e with great success
+running test app tap using brk heap 
+starting, should tend towards 1.2020569031595942854...
+first implementation...
+  1.197531985674193      at 10 iterations
+  1.2020074006596781     at 100 iterations
+  1.2020564036593433     at 1000 iterations
+  1.202056898160098      at 10000 iterations
+  1.2020569031097323     at 100000 iterations
+  1.202056903150321      at 1000000 iterations
+  1.202056903150321      at 10000000 iterations
+second implementation...
+  1.1111111111111112     at 10 iterations
+  1.25                   at 100 iterations
+  1.2285012285012284     at 1000 iterations
+  1.1987532965715655     at 10000 iterations
+  1.1989688867573887     at 100000 iterations
+  1.2018855180006394     at 1000000 iterations
+exiting finding ap with great success
+running test app tap using mmap 
+starting, should tend towards 1.2020569031595942854...
+first implementation...
+  1.197531985674193      at 10 iterations
+  1.2020074006596781     at 100 iterations
+  1.2020564036593433     at 1000 iterations
+  1.202056898160098      at 10000 iterations
+  1.2020569031097323     at 100000 iterations
+  1.202056903150321      at 1000000 iterations
+  1.202056903150321      at 10000000 iterations
+second implementation...
+  1.1111111111111112     at 10 iterations
+  1.25                   at 100 iterations
+  1.2285012285012284     at 1000 iterations
+  1.1987532965715655     at 10000 iterations
+  1.1989688867573887     at 100000 iterations
+  1.2018855180006394     at 1000000 iterations
+exiting finding ap with great success
+running tcrash memory low 
+rvos (amd64) fatal error: memory reference prior to address space: 200
+pc: 103d4 main + 290
+address space 10000 to a3b000
+  zero:                0,   ra:            101b0,   sp:           a39f90,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1827b, 
+    a2:                0,   a3:                0,   a4:                a,   a5:              200, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash memory high 
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+pc: 10318 main + 1d4
+address space 10000 to a3b000
+  zero:                0,   ra:            101e4,   sp:           a39f90,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18283, 
+    a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash pc low 
+rvos (amd64) fatal error: pc is lower than memory: 200
+pc: 200  + 0
+address space 10000 to a3b000
+  zero:                0,   ra:            10338,   sp:           a39f90,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1828c, 
+    a2:                0,   a3:                0,   a4:                1,   a5:              200, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash pc high 
+rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+pc: 2000000000000000  + 0
+address space 10000 to a3b000
+  zero:                0,   ra:            10360,   sp:           a39f90,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18294, 
+    a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash stack pointer low 
+rvos (amd64) fatal error: stack pointer is below stack memory: a19f10
+pc: 11cfa sprintf + 2
+address space 10000 to a3b000
+  zero:                0,   ra:            10114,   sp:           a19f10,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a1a430,   s1:                8,   a0:           a1a020,   a1:            18268, 
+    a2:               7c,   a3:                a,   a4:               7c,   a5:           a1a020, 
+    a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                c,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash stack pointer l=high 
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39f90
+pc: 110b8 rvos_sp_add + 4
+address space 10000 to a3b000
+  zero:                0,   ra:            103a0,   sp:           b39f90,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:           100000,   a1:            182a4, 
+    a2:                0,   a3:                0,   a4:                1,   a5:                1, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running tcrash stack pointer misaligned 
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39f92
+pc: 110b8 rvos_sp_add + 4
+address space 10000 to a3b000
+  zero:                0,   ra:            103b8,   sp:           a39f92,   gp:                0, 
+    tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
+    s0:           a39ff0,   s1:                8,   a0:                2,   a1:            182ac, 
+    a2:                0,   a3:                0,   a4:                1,   a5:                1, 
+    a6:                0,   a7:                0,   s2:                0,   s3:                0, 
+    s4:                0,   s5:                0,   s6:                0,   s7:                0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:                0,   t5:                0,   t6:                0, 
+Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+
+running ba tp.bas 
+parsing input file tests\tp.bas
+start time: 16:33:21.000
+0 ms for 1 iterations
+end time: 16:33:21.000
+final move count 6493
+exiting the basic interpreter
+running mysort 
 sorting tests\words.txt ==> tests\sorted.txt
 sorting
 writing...
 done
+running an 
 a delve id
 a delved i
 a die veld
