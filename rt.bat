@@ -69,7 +69,9 @@ echo running ba tp.bas >>%outputfile%
 rvos tests\ba tests\tp.bas >>%outputfile% >>%outputfile%
 
 echo running mysort >>%outputfile%
+del tests\sorted.txt
 rvos /h:2 tests\mysort /q /u tests\words.txt tests\sorted.txt >>%outputfile%
+head tests\sorted.txt >>%outputfile%
 
 echo running an >>%outputfile%
 rvos /h:40 tests\an david lee >>%outputfile%

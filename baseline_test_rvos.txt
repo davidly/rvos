@@ -1,4 +1,4 @@
-Fri 12/29/2023  8:32:40.01 
+Fri 12/29/2023  8:53:15.35 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp1k using brk heap 
-start time: 08:32:41.450
-15268774 microseconds for 1000 iterations
-end time: 08:32:56.719
+start time: 08:53:16.783
+14524616 microseconds for 1000 iterations
+end time: 08:53:31.308
 final move count 6493
 running test app tp1k using mmap heap 
-start time: 08:32:56.729
-12579980 microseconds for 1000 iterations
-end time: 08:33:09.309
+start time: 08:53:31.318
+12381330 microseconds for 1000 iterations
+end time: 08:53:43.699
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-34.016003 milliseconds
+32.903000 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-33.619003 milliseconds
+33.566002 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 16, min 33, sec 9
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 33, sec 9
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 8, min 33, sec 9
+before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 16, min 53, sec 43
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 53, sec 43
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 8, min 53, sec 43
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 33, sec 9
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 33, sec 9
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 16, min 33, sec 9
+before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 11, min 53, sec 43
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 8, min 53, sec 43
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 16, min 53, sec 43
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -326,7 +326,7 @@ stop
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Friday, December 29, 2023 8:33:09 AM
+  Started : Friday, December 29, 2023 8:53:43 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -345,7 +345,7 @@ stop
    Files :         0         0         0         0         0         0
    Bytes :         0         0         0         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Friday, December 29, 2023 8:33:10 AM
+   Ended : Friday, December 29, 2023 8:53:45 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -389,12 +389,12 @@ r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
 main in rust
-serial runtime: Some(5.7517ms)
+serial runtime: Some(5.4704ms)
 moves:          6493
 iterations:     1
 running test app ttt using mmap 
 main in rust
-serial runtime: Some(5.503ms)
+serial runtime: Some(5.5755ms)
 moves:          6493
 iterations:     1
 running test app e using brk heap 
@@ -541,9 +541,9 @@ Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
 
 running ba tp.bas 
 parsing input file tests\tp.bas
-start time: 16:33:21.000
-0 ms for 1 iterations
-end time: 16:33:21.000
+start time: 16:53:55.000
+1,000 ms for 1 iterations
+end time: 16:53:56.000
 final move count 6493
 exiting the basic interpreter
 running mysort 
@@ -551,6 +551,16 @@ sorting tests\words.txt ==> tests\sorted.txt
 sorting
 writing...
 done
+
+a
+aaaaaahhhh
+aardvark
+aardwolf
+aaron
+aback
+abacus
+abaft
+abalone
 running an 
 a delve id
 a delved i
