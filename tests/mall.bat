@@ -1,4 +1,5 @@
 call mariscv t
+call mariscv tbad
 call mariscv glob
 call mariscv tenv
 call mariscv ts

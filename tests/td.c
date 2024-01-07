@@ -25,7 +25,8 @@ extern "C" int main()
     double sq = sqrt( pi );
     printf( "sqrt of pi: %lf\n", sq );
 
-    double radians = pi / 180.0 * 30.0;
+    double radians = ( 30.0 * pi ) / 180.0;
+    printf( "pi in radians: %lf\n", radians );
 
     double s = sin( radians );
     printf( "sin of 30 degress is %lf\n", s );
@@ -77,6 +78,18 @@ extern "C" int main()
     int exponent;
     double mantissa = frexp( pi, &exponent );
     printf( "pi has mantissa: %lf, exponent %d\n", mantissa, exponent );
+    
+    int loops = 1000;
+    r = 1.0;
+    for ( int i = 0; i < loops; i++ )
+        r *= 1.14157222;
+
+    t = r;
+    for ( int i = 0; i < loops; i++ )
+        r /= 1.14157222;
+
+    printf( "r should be 1.0: %lf\n", r );
+    printf( "  r high point %lf\n", t );
     
     printf( "stop\n" );
     return 0;

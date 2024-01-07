@@ -1,4 +1,4 @@
-Fri 12/29/2023  9:23:23.41 
+Sun 01/07/2024  8:16:36.85 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp1k using brk heap 
-start time: 09:23:24.795
-14663653 microseconds for 1000 iterations
-end time: 09:23:39.458
+start time: 08:16:38.276
+14519802 microseconds for 1000 iterations
+end time: 08:16:52.796
 final move count 6493
 running test app tp1k using mmap heap 
-start time: 09:23:39.469
-12336877 microseconds for 1000 iterations
-end time: 09:23:51.806
+start time: 08:16:52.807
+12333876 microseconds for 1000 iterations
+end time: 08:17:05.141
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-35.144001 milliseconds
+34.836002 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-33.308002 milliseconds
+33.114002 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,21 +274,22 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: '(null)', year: 2023, month 12, day 29, hour 17, min 23, sec 52
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 12, min 23, sec 52
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 9, min 23, sec 52
+before TZ is set: tz: '(null)', year: 2024, month 1, day 7, hour 16, min 17, sec 5
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 7, hour 11, min 17, sec 5
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 7, hour 8, min 17, sec 5
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 7, hour 8, min 17, sec 5
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 29, hour 12, min 23, sec 52
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 29, hour 9, min 23, sec 52
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 29, hour 17, min 23, sec 52
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 7, hour 8, min 17, sec 5
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 7, hour 11, min 17, sec 5
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 7, hour 8, min 17, sec 5
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 7, hour 16, min 17, sec 5
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
 double from printf r: -3.776373
 sqrt of pi: 1.772454
+pi in radians: 0.523599
 sin of 30 degress is 0.500000
 cos of 30 degrees is 0.866025
 tan of 30 degrees is 0.577350
@@ -301,6 +302,8 @@ log of 0.3: -1.203973
 log10 of 300: 2.477121
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
+r should be 1.0: 1.000000
+  r high point 3187071009115104228782838925952666189789578000000000000000.000000
 stop
 running test app td using mmap heap 
 sprintf double 3.14159265358979311600
@@ -326,7 +329,7 @@ stop
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Friday, December 29, 2023 9:23:52 AM
+  Started : Sunday, January 7, 2024 8:17:05 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -336,16 +339,16 @@ stop
 
 ------------------------------------------------------------------------------
 
-	                  20	\\lee-server\documents\scratch\debianrv\rust\
+	                  22	\\lee-server\documents\scratch\debianrv\rust\
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :         1         0         1         0         0         0
-   Files :        20         0        20         0         0         0
-   Bytes :   40.53 m         0   40.53 m         0         0         0
+   Files :        22         0        22         0         0         0
+   Bytes :   40.54 m         0   40.54 m         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Friday, December 29, 2023 9:23:53 AM
+   Ended : Sunday, January 7, 2024 8:17:06 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -389,12 +392,12 @@ r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
 main in rust
-serial runtime: Some(5.5466ms)
+serial runtime: Some(5.6392ms)
 moves:          6493
 iterations:     1
 running test app ttt using mmap 
 main in rust
-serial runtime: Some(5.5114ms)
+serial runtime: Some(5.4906ms)
 moves:          6493
 iterations:     1
 running test app e using brk heap 
@@ -467,105 +470,105 @@ running tcrash memory low
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 103d4 main + 290
 address space 10000 to a3b000
-  zero:                0,   ra:            101b0,   sp:           a39f90,   gp:                0, 
+  zero:                0,   ra:            101b0,   sp:           a39fd0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1827b, 
+    s0:           a3a030,   s1:                8,   a0:                0,   a1:            1828b, 
     a2:                0,   a3:                0,   a4:                a,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash memory high 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10318 main + 1d4
 address space 10000 to a3b000
-  zero:                0,   ra:            101e4,   sp:           a39f90,   gp:                0, 
+  zero:                0,   ra:            101e4,   sp:           a39fd0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18283, 
+    s0:           a3a030,   s1:                8,   a0:                0,   a1:            18293, 
     a2:                0,   a3:                0,   a4:                a,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash pc low 
 rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200  + 0
 address space 10000 to a3b000
-  zero:                0,   ra:            10338,   sp:           a39f90,   gp:                0, 
+  zero:                0,   ra:            10338,   sp:           a39fd0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            1828c, 
+    s0:           a3a030,   s1:                8,   a0:                0,   a1:            1829c, 
     a2:                0,   a3:                0,   a4:                1,   a5:              200, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash pc high 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000  + 0
 address space 10000 to a3b000
-  zero:                0,   ra:            10360,   sp:           a39f90,   gp:                0, 
+  zero:                0,   ra:            10360,   sp:           a39fd0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                0,   a1:            18294, 
+    s0:           a3a030,   s1:                8,   a0:                0,   a1:            182a4, 
     a2:                0,   a3:                0,   a4:                1,   a5: 2000000000000000, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer low 
-rvos (amd64) fatal error: stack pointer is below stack memory: a19f10
-pc: 11cfa sprintf + 2
+rvos (amd64) fatal error: stack pointer is below stack memory: a19f50
+pc: 11d0a sprintf + 2
 address space 10000 to a3b000
-  zero:                0,   ra:            10114,   sp:           a19f10,   gp:                0, 
+  zero:                0,   ra:            10114,   sp:           a19f50,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a1a430,   s1:                8,   a0:           a1a020,   a1:            18268, 
-    a2:               7c,   a3:                a,   a4:               7c,   a5:           a1a020, 
+    s0:           a1a470,   s1:                8,   a0:           a1a060,   a1:            18278, 
+    a2:               7c,   a3:                a,   a4:               7c,   a5:           a1a060, 
     a6:               ff,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer l=high 
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39f90
-pc: 110b8 rvos_sp_add + 4
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39fd0
+pc: 110c8 rvos_sp_add + 4
 address space 10000 to a3b000
-  zero:                0,   ra:            103a0,   sp:           b39f90,   gp:                0, 
+  zero:                0,   ra:            103a0,   sp:           b39fd0,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:           100000,   a1:            182a4, 
+    s0:           a3a030,   s1:                8,   a0:           100000,   a1:            182b4, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer misaligned 
-rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39f92
-pc: 110b8 rvos_sp_add + 4
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fd2
+pc: 110c8 rvos_sp_add + 4
 address space 10000 to a3b000
-  zero:                0,   ra:            103b8,   sp:           a39f92,   gp:                0, 
+  zero:                0,   ra:            103b8,   sp:           a39fd2,   gp:                0, 
     tp:                0,   t0:                0,   t1:                0,   t2: ffffffffffffffff, 
-    s0:           a39ff0,   s1:                8,   a0:                2,   a1:            182ac, 
+    s0:           a3a030,   s1:                8,   a0:                2,   a1:            182bc, 
     a2:                0,   a3:                0,   a4:                1,   a5:                1, 
     a6:                0,   a7:                0,   s2:                0,   s3:                0, 
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on 29 Dec 23 08:32:38 by msft C++ ver 1939 on windows
+Built for amd64 debug on  5 Jan 24 08:39:15 by msft C++ ver 1939 on windows
 
 running ba tp.bas 
 parsing input file tests\tp.bas
-start time: 17:24:04.000
-0 ms for 1 iterations
-end time: 17:24:04.000
+start time: 16:17:17.000
+1,000 ms for 1 iterations
+end time: 16:17:18.000
 final move count 6493
 exiting the basic interpreter
 running mysort 
@@ -583,7 +586,7 @@ aback
 abacus
 abaft
 abalone
-running an 
+running an with brk
 a delve id
 a delved i
 a die veld
@@ -627,3 +630,486 @@ id leaved
 idea veld
 lade vied
 lead vied
+running an with mmap 
+bb deeper ogrish
+bb desire gopher
+bb eider gophers
+bb ergo perished
+bb goer perished
+bb gopher reside
+bb gore perished
+bb greedier hops
+bb greedier posh
+bb greedier shop
+bb ogre perished
+bb ogrish peered
+bb pedigrees rho
+be bride gophers
+be brides gopher
+be bridges ephor
+be debris gopher
+be prober sighed
+bebop dirge hers
+bebop dirges her
+bebop dregs heir
+bebop dregs hire
+bebop eh girders
+bebop ergs hider
+bebop ergs hired
+bebop err sighed
+bebop erred sigh
+bebop gird sheer
+bebop girder she
+bebop girders he
+bebop grid sheer
+bebop grids here
+bebop her ridges
+bebop hers ridge
+bed bier gophers
+beds bier gopher
+bedsore herb pig
+bee bird gophers
+bee birds gopher
+beep begs horrid
+beep border sigh
+beep bred ogrish
+beep bridges rho
+beep brig hordes
+beep brig shored
+beep girder hobs
+beep girders hob
+beeper bird gosh
+beeper bird hogs
+beeper birds hog
+beeper brig dohs
+beeper brig shod
+beeper gird hobs
+beeper grid hobs
+beeper grids hob
+beeps beg horrid
+beeps bridge rho
+beeps brig herod
+beeps brig horde
+beeps girder hob
+beer bid gophers
+beer bids gopher
+beer bridge hops
+beer bridge posh
+beer bridge shop
+beer bridges hop
+beer griped hobs
+beer probed sigh
+beers bid gopher
+beers bridge hop
+beers brig hoped
+beers griped hob
+bees bird gopher
+beg biosphere dr
+beg bishop erred
+beg bored perish
+beg brides ephor
+beg briers hoped
+beg debris ephor
+beg dopier herbs
+beg heirs probed
+beg herb periods
+beg herbs period
+beg hider probes
+beg hides prober
+beg hired probes
+beg hires probed
+beg hob respired
+beg orb perished
+beg perish robed
+beg perished rob
+beg probed shire
+beg prober shied
+begs bride ephor
+begs dopier herb
+begs heir probed
+begs herb period
+begs hide prober
+begs hider probe
+begs hire probed
+begs hired probe
+beige drop herbs
+beige drops herb
+beige herb prods
+beige herbs prod
+berber dig hopes
+berber digs hope
+berber doge hips
+berber doge ship
+berber doges hip
+berber dope sigh
+berber gosh pied
+berber hoed pigs
+berber hog spied
+berber hogs pied
+berber hosed pig
+berber pig shoed
+bergs bide ephor
+bergs bier hoped
+bergs biped hero
+bergs bride hope
+bergs hide probe
+bib deer gophers
+bib ephor greeds
+bib err sheepdog
+bib gopher reeds
+bib gophers reed
+bib gored herpes
+bib gored sphere
+bib groped sheer
+bib groper heeds
+bib gropers heed
+bibs deer gopher
+bibs ephor greed
+bibs gopher reed
+bibs groped here
+bibs groper heed
+bide grope herbs
+bide gropes herb
+bides grope herb
+bier deb gophers
+big border sheep
+big bored herpes
+big bored sphere
+big breeder hops
+big breeder posh
+big breeder shop
+big breeders hop
+big breeds ephor
+big heeds prober
+big herb reposed
+big herpes robed
+big probed sheer
+big robed sphere
+biped ergo herbs
+biped goer herbs
+biped goers herb
+biped gore herbs
+biped gores herb
+biped gorse herb
+biped herb ogres
+biped herbs ogre
+bipeds ergo herb
+bipeds goer herb
+bipeds gore herb
+bipeds herb ogre
+bishop breed erg
+bob dirge herpes
+bob dirge sphere
+bob erg perished
+bob girder sheep
+bob greed perish
+bob grip sheered
+bob griped sheer
+bob hedges riper
+bob herpes ridge
+bob prig sheered
+bob ridge sphere
+bobs griped here
+bobs hedge riper
+bode brig herpes
+bode brig sphere
+bode gripe herbs
+bode gripes herb
+bodes gripe herb
+bog breed perish
+bog breeder hips
+bog breeder ship
+bog breeders hip
+bog bride herpes
+bog bride sphere
+bog herb preside
+bogs breeder hip
+bop breeder sigh
+bop bridge sheer
+bop bridges here
+bop briers hedge
+bop brig sheered
+bop edgier herbs
+bops bridge here
+bops edgier herb
+bored brig sheep
+bred ephor gibes
+bred gobi herpes
+bred gobi sphere
+breed brig hopes
+breed gripe hobs
+breed gripes hob
+breed probe sigh
+breeder hob pigs
+breeder hobs pig
+breeders hob pig
+breeds brig hope
+breeds gripe hob
+bribe dog herpes
+bribe dog sphere
+bribe dregs hope
+bribe ergs hoped
+bribe god herpes
+bribe god sphere
+bribe greed hops
+bribe greed posh
+bribe greed shop
+bribe greeds hop
+bribe grope shed
+bribe groped she
+bribe hedge pros
+bribe hedges pro
+bribe herod pegs
+bribe horde pegs
+bribe hordes peg
+bribe peg shored
+bribed eh gropes
+bribed erg hopes
+bribed ergs hope
+bribed go herpes
+bribed go sphere
+bribed gosh peer
+bribed grope she
+bribed gropes he
+bribed hero pegs
+bribed hog peers
+bribed hog spree
+bribed hogs peer
+bribed hop serge
+bribed horse peg
+bribed peg shore
+briber deep gosh
+briber deep hogs
+briber deeps hog
+briber dog sheep
+briber edge hops
+briber edge posh
+briber edge shop
+briber edges hop
+briber god sheep
+briber hedge pos
+briber hedge sop
+briber hoed pegs
+briber hog speed
+briber hop sedge
+briber hosed peg
+briber peg shoed
+briber sheepdog
+bribers deep hog
+bribers edge hop
+bribers eg hoped
+bribers hoed peg
+bribes eh groped
+bribes erg hoped
+bribes greed hop
+bribes groped he
+bribes hedge pro
+bribes herod peg
+bribes horde peg
+bridge eh probes
+bridge he probes
+bridge herb pose
+bridge hob peers
+bridge hob spree
+bridge hobs peer
+bridge orb sheep
+bridge probe she
+bridge rob sheep
+bridges eh probe
+bridges he probe
+bridges hob peer
+brig deeper hobs
+brig depose herb
+brig heed probes
+brig heeds probe
+brig hobs peered
+brig robed sheep
+deep robber sigh
+deeps gibber rho
+deer gibber hops
+deer gibber posh
+deer gibber shop
+dig robber sheep
+dire ebb gophers
+dire ebbs gopher
+dirge ebbs ephor
+dirges ebb ephor
+disrobe herb peg
+do gibber herpes
+do gibber sphere
+doh gibber peers
+doh gibber spree
+dohs gibber peer
+dope gibber hers
+dopes gibber her
+dor gibber sheep
+dries ebb gopher
+ebb ephor ridges
+ebb erg spheroid
+ebb girder hopes
+ebb girders hope
+ebb gopher rides
+ebb gopher sider
+ebb gopher sired
+ebb gophers ride
+ebb gored perish
+ebb gripe hordes
+ebb gripe shored
+ebb griped horse
+ebb griped shore
+ebb gripes herod
+ebb gripes horde
+ebb groped heirs
+ebb groped hires
+ebb groped shire
+ebb groper hides
+ebb groper shied
+ebb gropers hide
+ebb gropes hider
+ebb gropes hired
+ebb hedge priors
+ebb hedges prior
+ebb hog respired
+ebb porridge she
+ebbed ephor rigs
+ebbed gopher sir
+ebbed gosh riper
+ebbed grip horse
+ebbed grip shore
+ebbed gripes rho
+ebbed grips hero
+ebbed groper his
+ebbed gropers hi
+ebbed hero sprig
+ebbed hogs riper
+ebbed horse prig
+ebbed ogrish per
+ebbed ogrish pre
+ebbed ogrish rep
+ebbed prig shore
+ebbs eh porridge
+ebbs ephor ridge
+ebbs girder hope
+ebbs gopher ride
+ebbs gripe herod
+ebbs gripe horde
+ebbs griped hero
+ebbs grope hider
+ebbs grope hired
+ebbs groped heir
+ebbs groped hire
+ebbs groper hide
+ebbs he porridge
+ebbs hedge prior
+edge hip robbers
+edge hips robber
+edge robber ship
+edges hip robber
+eg perish robbed
+eh gibbered pros
+eh gripes robbed
+eh gropes ribbed
+erg hopes ribbed
+ergs hope ribbed
+gibber heed pros
+gibber heeds pro
+gibber her posed
+gibber herd pose
+gibber here pods
+gibber hero sped
+gibber hod peers
+gibber hod spree
+gibber hoed reps
+gibber hop reeds
+gibber hope reds
+gibber hopes red
+gibber hops reed
+gibber hosed per
+gibber hosed pre
+gibber hosed rep
+gibber peer shod
+gibber per shoed
+gibber pod sheer
+gibber pore shed
+gibber pored she
+gibber posh reed
+gibber pre shoed
+gibber reed shop
+gibber rep shoed
+gibber rho speed
+gibber rod sheep
+gibber rope shed
+gibber roped she
+gibbered he pros
+gibbered her pos
+gibbered her sop
+gibbered ho reps
+gibbered hops re
+gibbered oh reps
+gibbered per soh
+gibbered posh re
+gibbered pre soh
+gibbered pro she
+gibbered re shop
+gibbered rep soh
+gibed her probes
+gibed herb pores
+gibed herb poser
+gibed herb prose
+gibed herb ropes
+gibed herb spore
+gibed herbs pore
+gibed herbs rope
+gibed herpes orb
+gibed herpes rob
+gibed hers probe
+gibed orb sphere
+gibed prober she
+gibed rob sphere
+gibes her probed
+gibes herb pored
+gibes herb roped
+gibes herd probe
+go herpes ribbed
+go ribbed sphere
+gosh peer ribbed
+grip here sobbed
+gripe her sobbed
+gripe robbed she
+gripes he robbed
+grope ribbed she
+gropes he ribbed
+hedge pi robbers
+hedge probe ribs
+hedge probes rib
+hedge robber sip
+hedges pi robber
+hedges probe rib
+heed pig robbers
+heed pigs robber
+heeds pig robber
+heir pegs robbed
+heirs peg robbed
+herb pig sobered
+here pigs robbed
+here prig sobbed
+hero pegs ribbed
+hide peg robbers
+hide pegs robber
+hides peg robber
+hip robbed serge
+hip robber sedge
+hire pegs robbed
+hirer peg sobbed
+hires peg robbed
+hog peers ribbed
+hog ribbed spree
+hogs peer ribbed
+hop ribbed serge
+horse peg ribbed
+peer robbed sigh
+peg ribbed shore
+peg robbed shire
+peg robber shied
+pig robbed sheer
+rig robbed sheep

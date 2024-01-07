@@ -4,7 +4,7 @@ setlocal
 set outputfile=test_rvos.txt
 echo %date% %time% >"%outputfile%"
 
-set _testlist=t glob ts, sieve, e, tap, tpi, tphi tins terrno tp1k ttt tf tm ttime td
+set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt tf tm ttime td
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 
@@ -73,8 +73,11 @@ del tests\sorted.txt
 rvos /h:2 tests\mysort /q /u tests\words.txt tests\sorted.txt >>%outputfile%
 head tests\sorted.txt >>%outputfile%
 
-echo running an >>%outputfile%
-rvos /h:40 tests\an david lee >>%outputfile%
+echo running an with brk>>%outputfile%
+rvos -h:40 -m:0 tests\an david lee >>%outputfile%
+
+echo running an with mmap >>%outputfile%
+rvos -h:0 -m:40 debianrv\an phoebe bridgers >>%outputfile%
 
 diff baseline_%outputfile% %outputfile%
 

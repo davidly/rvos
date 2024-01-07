@@ -1,3 +1,6 @@
+// tests cases for rvos.
+// requires a debug build of rvos since these checks aren't in release builds.
+
 #include <cstring>
 #include <stdint.h>
 #include <stdio.h>
@@ -48,39 +51,40 @@ int main( int argc, char * argv[] )
             spm = true;
     }
 
-    if ( mh )
+    if ( mh ) // memory high
     {
         char * pbad = (char *) 0x2000000000000000;
         *pbad = 10;
     }
 
-    if ( pcl )
+    if ( pcl ) // program counter low
     {
         pfunc_t * pf = (pfunc_t *) 0x200;
         int x = (*pf)();
     }
 
-    if ( pch )
+    if ( pch ) // program counter high
     {
         pfunc_t * pf = (pfunc_t *) 0x2000000000000000;
         int x = (*pf)();
     }
 
-    if ( spl )
+    if ( spl ) // stack pointer low
         recurse( 1, "hello" );
 
-    if ( sph )
+    if ( sph ) // stack pointer high
         rvos_sp_add( 0x100000 );
 
-    if ( spm )
+    if ( spm ) // stack pointer misaligned
         rvos_sp_add( 2 );
 
-    if ( ml )
+    if ( ml ) // memory low
     {
         char * pbad = (char *) 0x200;
         *pbad = 10;
     }
 
+    printf( "no crash in tcrash\n" );
     return 0;
 } //main
 
