@@ -1,4 +1,4 @@
-Thu 28 Dec 15:30:04 PST 2023
+Sat Dec 30 07:31:47 PST 2023
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -113,7 +113,7 @@ done
 [0mttt
 [1 qstarting...
 64930 moves
-47.358002 milliseconds
+21.265001 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -122,9 +122,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 15:30:05.368
-19102013 microseconds for 1000 iterations
-end time: 15:30:24.470
+[1 qstart time: 07:31:48.311
+8669529 microseconds for 1000 iterations
+end time: 07:31:56.981
 final move count 6493
 [0mtins
 [1 qhello
@@ -160,10 +160,10 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qbefore TZ is set: tz: '(null)', year: 2023, month 12, day 28, hour 15, min 30, sec 24
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 28, hour 18, min 30, sec 24
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 28, hour 15, min 30, sec 24
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 28, hour 23, min 30, sec 24
+[1 qbefore TZ is set: tz: '(null)', year: 2023, month 12, day 30, hour 7, min 31, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2023, month 12, day 30, hour 10, min 31, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2023, month 12, day 30, hour 7, min 31, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2023, month 12, day 30, hour 15, min 31, sec 56
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 9. (13 permission denied expected)
@@ -172,10 +172,10 @@ success
 [0man nap
 [1 qpan
 [0mba -p -q tp.bas
-[1 qTime to parse tests/tp.bas: 9.330358 ms
-start time: 15:30:24.812
-390 ms for 1 iterations
-end time: 15:30:25.202
+[1 qTime to parse tests/tp.bas: 4.907785 ms
+start time: 07:31:57.101
+176 ms for 1 iterations
+end time: 07:31:57.277
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt
@@ -183,7 +183,7 @@ sorting
 writing...
 done
 [0mtcrash sph
-[1 q[0mrvos (arm64) fatal error: stack pointer is above the top of its starting point: ba6b70
+[1 q[0mrvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b70
 pc: 10d74 rvos_sp_add + 4
 address space 10000 to aa7000
   zero:                0,   ra:            10c48,   sp:           ba6b70,   gp:            81c80, 
@@ -194,14 +194,10 @@ address space 10000 to aa7000
     s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for arm64 debug on 28 Dec 23 14:53:54 by g++ on linux
+Built for amd64 debug on 30 Dec 23 07:24:39 by g++ on linux
 
 tcrash mh
-[1 q[0mrvos (arm64) fatal error: memory reference beyond address space: 2000000000000000
+[1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10bc8 main + 1b8
 address space 10000 to aa7000
   zero:                0,   ra:            10aa8,   sp:           aa6b70,   gp:            81c80, 
@@ -212,11 +208,7 @@ address space 10000 to aa7000
     s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a994,   t6:            10000, 
-    Copyright(C) DJL 2023
-License CC0 1.0 Universal <https://creativecommons.org/publicdomain/zero/1.0/>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Built for arm64 debug on 28 Dec 23 14:53:54 by g++ on linux
+Built for amd64 debug on 30 Dec 23 07:24:39 by g++ on linux
 
 ato
 [1 qtesting atomic operations
@@ -262,7 +254,7 @@ second implementation...
 exiting finding ap with great success
 [0mttt
 [1 qmain in rust
-serial runtime: Some(8.614725ms)
+serial runtime: Some(3.846248ms)
 moves:          6493
 iterations:     1
 [0m

@@ -5,6 +5,8 @@
     It runs in RISC-V M mode, similar to embedded systems.
     It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files targeting Linux.
     Written by David Lee in February 2023
+
+    Useful: https://github.com/jart/cosmopolitan/blob/1.0/libc/sysv/consts.sh
 */
 
 #include <stdint.h>
@@ -393,6 +395,7 @@ void usage( char const * perror = 0 )
     printf( "                 -m:X   # of meg for mmap space 0..1024 are valid. default is 0\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
+    printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
     printf( "  %s\n", build_string() );
     exit( 1 );
 } //usage
@@ -2676,7 +2679,7 @@ bool load_image( const char * pimage, const char * app_args )
     return true;
 } //load_image
 
-void elf_info( const char * pimage )
+void elf_info( const char * pimage, bool verbose )
 {
     ElfHeader64 ehead = {0};
 
@@ -2810,18 +2813,21 @@ void elf_info( const char * pimage )
             if ( 0 == read )
                 usage( "can't read symbol table\n" );
 
-            size_t count = head.size / sizeof( ElfSymbol64 );
-            printf( "  symbols:\n" );
-            for ( size_t sym = 0; sym < symbols.size(); sym++ )
+            if ( verbose )
             {
-                printf( "    symbol # %zd\n", sym );
-                ElfSymbol64 & sym_entry = symbols[ sym ];
-                printf( "     name:  %x == %s\n",   sym_entry.name, ( 0 == sym_entry.name ) ? "" : & string_table[ sym_entry.name ] );
-                printf( "     info:  %x == %s\n",   sym_entry.info, sym_entry.show_info() );
-                printf( "     other: %x == %s\n",   sym_entry.other, sym_entry.show_other() );
-                printf( "     shndx: %x\n",   sym_entry.shndx );
-                printf( "     value: %llx\n", sym_entry.value );
-                printf( "     size:  %llu\n", sym_entry.size );
+                size_t count = head.size / sizeof( ElfSymbol64 );
+                printf( "  symbols:\n" );
+                for ( size_t sym = 0; sym < symbols.size(); sym++ )
+                {
+                    printf( "    symbol # %zd\n", sym );
+                    ElfSymbol64 & sym_entry = symbols[ sym ];
+                    printf( "     name:  %x == %s\n",   sym_entry.name, ( 0 == sym_entry.name ) ? "" : & string_table[ sym_entry.name ] );
+                    printf( "     info:  %x == %s\n",   sym_entry.info, sym_entry.show_info() );
+                    printf( "     other: %x == %s\n",   sym_entry.other, sym_entry.show_other() );
+                    printf( "     shndx: %x\n",   sym_entry.shndx );
+                    printf( "     value: %llx\n", sym_entry.value );
+                    printf( "     size:  %llu\n", sym_entry.size );
+                }
             }
         }
         else if ( 7 == head.type && 0 != head.size )
@@ -2838,9 +2844,12 @@ void elf_info( const char * pimage )
     if ( 0 == g_base_address )
         printf( "base address of elf image is zero; physical address required for the rvos emulator\n" );
 
-    printf( "contains 2-byte compressed RVC instructions: %s\n", g_compressed_rvc ? "yes" : "no" );
-    printf( "contains 4-byte float instructions: %s\n", ( ehead.flags & 2 ) ? "yes" : "no" );
-    printf( "contains 8-byte double instructions: %s\n", ( ehead.flags & 4 ) ? "yes" : "no" );
+    printf( "flags: %#08x\n", ehead.flags );
+    printf( "  contains 2-byte compressed RVC instructions: %s\n", g_compressed_rvc ? "yes" : "no" );
+    printf( "  contains 4-byte float instructions: %s\n", ( ehead.flags & 2 ) ? "yes" : "no" );
+    printf( "  contains 8-byte double instructions: %s\n", ( ehead.flags & 4 ) ? "yes" : "no" );
+    printf( "  RV TSO memory consistency: %s\n", ( ehead.flags & 0x10 ) ? "yes" : "no" );
+    printf( "  contains non-standard extensions: %s\n", ( ehead.flags & 0xff000000 ) ? "yes" : "no" );
     printf( "vm g_base_address %llx\n", g_base_address );
     printf( "memory_size: %llx\n", memory_size );
     printf( "g_stack_commit: %llx\n", g_stack_commit );
@@ -2892,6 +2901,7 @@ int main( int argc, char * argv[] )
     bool showPerformance = false;
     bool traceInstructions = false;
     bool elfInfo = false;
+    bool verboseElfInfo = false;
     bool generateRVCTable = false;
     static char acAppArgs[1024] = {0};
     static char acApp[1024] = {0};
@@ -2941,6 +2951,8 @@ int main( int argc, char * argv[] )
                 elfInfo = true;
             else if ( 'p' == ca )
                 showPerformance = true;
+            else if ( 'v' == ca )
+                verboseElfInfo = true;
             else
                 usage( "invalid argument specified" );
         }
@@ -2997,7 +3009,7 @@ int main( int argc, char * argv[] )
 
     if ( elfInfo )
     {
-        elf_info( acApp );
+        elf_info( acApp, verboseElfInfo );
         g_consoleConfig.RestoreConsole( false );
         return 0;
     }
