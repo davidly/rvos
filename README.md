@@ -24,7 +24,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * The tests folder has test apps written in C. These build with both old and recent g++ for RISC-V.
     * rvos has been built and tested on Windows (x86, amd64 and arm64), MacOS (arm64), and Linux (RISC-V, amd64, arm32, and arm64).
     * The emulator can run itself nested arbitrarily deeply. Perf is about 64x slower for each nesting.
-    * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation and run apps built with g++.
+    * Linux system call emulation isn't great. It's just good enough to test RISC-V emulation and run apps built with g++ and Rust.
     * Build for MacOS using the Linux build scripts (m.sh, etc.)
     * rvos only runs static-linked RISC-V .elf files. Use the -static flag with ld or the g++ command-line.
     * Gnu CC torture execution tests were run on the emulator.
