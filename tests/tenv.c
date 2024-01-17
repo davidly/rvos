@@ -15,7 +15,8 @@ int main( int argc, char * argv[], char * envp[] )
         }
     }
 
-    bool isRVOS = ( 0 != envp && 0 != envp[ 0 ] && !strcmp( envp[ 0 ], "OS=RVOS" ) );
+    char * posval = getenv( "OS" );
+    bool isRVOS = ( ( 0 != posval ) && !strcmp( posval, "RVOS" ) );
     printf( "is RVOS: %s\n", isRVOS ? "yes" : "no" );
 
     char ac[100];
@@ -29,7 +30,7 @@ int main( int argc, char * argv[], char * envp[] )
     if ( 0 != pval )
         printf( "value: %s\n", pval );
 
-    char * posval = getenv( "OS" );
+    posval = getenv( "OS" );
     printf( "OS: %p\n", posval );
     if ( 0 != posval )
         printf( "value: %s\n", posval );
