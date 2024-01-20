@@ -2538,7 +2538,7 @@ bool load_image( const char * pimage, const char * app_args )
     uint64_t env_count = 1;
     uint64_t env_tz_address = 0;
 
-     // The local time zone is found by libc on Linux/MaxOS, but not on Windows.
+     // The local time zone is found by libc on Linux/MacOS, but not on Windows.
      // Workaround: set the TZ environment variable.
 
 #ifdef _WIN32
@@ -3040,7 +3040,8 @@ int main( int argc, char * argv[] )
 
             printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
             printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
-            printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
+            if ( 0 != totalTime )
+                printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
             printf( "app exit code:         %15d\n", g_exit_code );
         }
 
