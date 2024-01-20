@@ -1,23 +1,11 @@
-call mariscv t
-call mariscv tbad
-call mariscv glob
-call mariscv tenv
-call mariscv ts
-call mariscv tf
-call mariscv tap
-call mariscv ttt
-call mariscv sieve
-call mariscv e
-call mariscv an
-call mariscv tpi
-call mariscv td
-call mariscv ba
-call mariscv mysort
-call mariscv tphi
-call mariscv tcrash
-call mariscv ttime
-call mariscv tm
-call mariscv terrno
+@echo off
+setlocal
+
+set _testlist=t tbad glob tenv ts tf tap ttt sieve e an tpi td ba mysort^
+              tphi tcrash ttime tm terrno fileops empty
+
+( for %%t in (%_testlist%) do ( call mariscv %%t ) )
+
 call mta tins
 
 ..\rvos ba /a:r tp1k.bas /x /q

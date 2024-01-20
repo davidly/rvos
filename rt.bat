@@ -4,7 +4,8 @@ setlocal
 set outputfile=test_rvos.txt
 echo %date% %time% >"%outputfile%"
 
-set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt tf tm ttime td
+set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt^
+              tf tm ttime td fileops empty
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 
