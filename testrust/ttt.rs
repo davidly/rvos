@@ -15,6 +15,8 @@ use std::time::Instant;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::env;
 
+static MINMAXMOVES: AtomicUsize = AtomicUsize::new( 0 );
+
 mod board
 {
     use std::fmt;
@@ -46,7 +48,6 @@ mod board
 const AB_PRUNE: bool = true;
 const WIN_LOSE_PRUNE: bool = true;
 const ENABLE_DEBUG: bool = false;
-const ENABLE_MOVECOUNT: bool = true; // slow on many machines
 const SCORE_WIN:  i32 = 6;
 const SCORE_TIE:  i32 = 5;
 const SCORE_LOSE: i32 = 4;
@@ -219,15 +220,10 @@ fn pos8_func( b: & board::Board ) -> board::Piece
 
 type PosFunc = fn( & board::Board ) -> board::Piece;
 static POS_FUNCS: [ PosFunc; 9 ] = [ pos0_func, pos1_func, pos2_func, pos3_func, pos4_func, pos5_func, pos6_func, pos7_func, pos8_func ];
-static MINMAXCALLS: AtomicUsize = AtomicUsize::new( 0 );
 
-fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov: usize ) -> i32
+fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov: usize, move_count : &mut usize ) -> i32
 {
-    // This interlocked increment is incredibly slow. Only turn it on when debugging
-
-    if ENABLE_MOVECOUNT {
-        MINMAXCALLS.fetch_add( 1, Ordering::SeqCst );
-    }
+    *move_count += 1;
 
     if depth >= 4
     {
@@ -258,7 +254,6 @@ fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov
     else {
         value = SCORE_MAX;
         piece_move = board::Piece::O;
-
     }
 
     for x in 0..=8
@@ -266,9 +261,7 @@ fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov
         if board::Piece::Blank == b[ x ]
         {
             b[ x ] = piece_move;
-
-            let score: i32 = min_max( b, alpha, beta, depth + 1, x );
-
+            let score: i32 = min_max( b, alpha, beta, depth + 1, x, move_count );
             b[ x ] = board::Piece::Blank;
 
             if 0 != ( depth & 1 ) { // maximize
@@ -313,6 +306,23 @@ fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov
     return value;
 } //min_max
 
+fn run_board( mov: usize, iterations: i32 )
+{
+    let mut b: board::Board = Default::default();
+    b[ mov ] = board::Piece::X;
+    let mut move_count: usize = 0;
+    
+    for _l in 0..iterations
+    {
+        let score = min_max( &mut b, SCORE_MIN, SCORE_MAX, 0, mov, & mut move_count );
+        if ENABLE_DEBUG && SCORE_TIE != score {
+            println!( "score is {}", score );
+        }
+    }
+
+    MINMAXMOVES.fetch_add( move_count, Ordering::SeqCst );
+} //run_board
+
 fn main()
 {
     println!( "main in rust" );
@@ -329,16 +339,8 @@ fn main()
     }
 
     if ENABLE_DEBUG {
-        let mut btest: board::Board = Default::default();
-        btest[ 0 ] = board::Piece::X;
-        let score = min_max( &mut btest, SCORE_MIN, SCORE_MAX, 0, 0 );
-        println!( "score: {}", score );
-
-        if SCORE_TIE != score {
-            println!( "expected a tie score; so nuclear war works?!?" );
-        }
-
-        let calls = MINMAXCALLS.load( Ordering::SeqCst );
+        run_board( 0, 1 );
+        let calls = MINMAXMOVES.load( Ordering::SeqCst );
         println!( "calls to min_max: {}", calls );
     
         if AB_PRUNE && WIN_LOSE_PRUNE && 1903 != calls {
@@ -359,47 +361,17 @@ fn main()
     
         let thread1 = thread::spawn( move ||
         {
-            let mut b1: board::Board = Default::default();
-            b1[ 0 ] = board::Piece::X;
-    
-            for _l in 0..iterations
-            {
-                let score1 = min_max( &mut b1, SCORE_MIN, SCORE_MAX, 0, 0 );
-    
-                if ENABLE_DEBUG && SCORE_TIE != score1 {
-                    println!( "score1 is {}", score1 );
-                }
-            }
+            run_board( 0, iterations );
         });
     
         let thread2 = thread::spawn( move ||
         {
-            let mut b2: board::Board = Default::default();
-            b2[ 1 ] = board::Piece::X;
-    
-            for _l in 0..iterations
-            {
-                let score2 = min_max( &mut b2, SCORE_MIN, SCORE_MAX, 0, 1 );
-    
-                if ENABLE_DEBUG && SCORE_TIE != score2 {
-                    println!( "score2 is {}", score2 );
-                }
-            }
+            run_board( 1, iterations );
         });
     
         let thread3 = thread::spawn( move ||
         {
-            let mut b3: board::Board = Default::default();
-            b3[ 4 ] = board::Piece::X;
-    
-            for _l in 0..iterations
-            {
-                let score3 = min_max( &mut b3, SCORE_MIN, SCORE_MAX, 0, 4 );
-    
-                if ENABLE_DEBUG && SCORE_TIE != score3 {
-                    println!( "score3 is {}", score3 );
-                }
-            }
+            run_board( 4, iterations );
         });
     
         thread1.join().unwrap();
@@ -408,46 +380,23 @@ fn main()
     
         let parallel_end = Instant::now();
         println!( "parallel runtime: {:?}", parallel_end.checked_duration_since( parallel_start ) );
+        let parallel_moves = MINMAXMOVES.load( Ordering::SeqCst );
+        println!( "moves:          {}", parallel_moves );
     }
 
     // Serial run
 
-    MINMAXCALLS.store( 0, Ordering::SeqCst );
+    MINMAXMOVES.store( 0, Ordering::SeqCst );
     let serial_start = Instant::now();
 
-    let mut b1: board::Board = Default::default();
-    b1[ 0 ] = board::Piece::X;
-
-    let mut b2: board::Board = Default::default();
-    b2[ 1 ] = board::Piece::X;
-
-    let mut b3: board::Board = Default::default();
-    b3[ 4 ] = board::Piece::X;
-
-    for _l in 0..iterations
-    {
-        let score1 = min_max( &mut b1, SCORE_MIN, SCORE_MAX, 0, 0 );
-        if ENABLE_DEBUG && SCORE_TIE != score1 {
-            println!( "score1 is {}", score1 );
-        }
-
-        let score2 = min_max( &mut b2, SCORE_MIN, SCORE_MAX, 0, 1 );
-        if ENABLE_DEBUG && SCORE_TIE != score2 {
-            println!( "score2 is {}", score2 );
-        }
-
-        let score3 = min_max( &mut b3, SCORE_MIN, SCORE_MAX, 0, 4 );
-        if ENABLE_DEBUG && SCORE_TIE != score3 {
-            println!( "score3 is {}", score3 );
-        }
-    }
+    run_board( 0, iterations );
+    run_board( 1, iterations );
+    run_board( 4, iterations );
 
     let serial_end = Instant::now();
-
     println!( "serial runtime: {:?}", serial_end.checked_duration_since( serial_start ) );
-
-    let calls = MINMAXCALLS.load( Ordering::SeqCst );
-    println!( "moves:          {}", calls );
+    let serial_moves = MINMAXMOVES.load( Ordering::SeqCst );
+    println!( "moves:          {}", serial_moves );
     println!( "iterations:     {}", iterations );
 } //main
 
