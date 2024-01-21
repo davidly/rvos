@@ -14,6 +14,7 @@ use std::thread;
 use std::time::Instant;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::env;
+use std::process;
 
 static MINMAXMOVES: AtomicUsize = AtomicUsize::new( 0 );
 
@@ -227,8 +228,6 @@ fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov
 
     if depth >= 4
     {
-        // unlike every other language, these two result in almost identical runtime. Not sure why.
-
         //let p: board::Piece = look_for_winner( & b );
         let p: board::Piece = POS_FUNCS[ mov ]( &b );
 
@@ -325,7 +324,6 @@ fn run_board( mov: usize, iterations: i32 )
 
 fn main()
 {
-    println!( "main in rust" );
     const DEFAULT_ITERATIONS: i32 = 1;
     let mut iterations: i32 = 0;
 
@@ -346,6 +344,8 @@ fn main()
         if AB_PRUNE && WIN_LOSE_PRUNE && 1903 != calls {
             println!( "unexpected # of calls to minmax" );
         }
+
+        process::exit( 0 );
     }
 
     let in_rvos: bool;
@@ -354,34 +354,33 @@ fn main()
         Err(_e) => in_rvos = false,
     }
 
-    if !in_rvos {
+    if !in_rvos {     // rvos just supports one thread
+        MINMAXMOVES.store( 0, Ordering::SeqCst );
         let parallel_start = Instant::now();
     
         // Parallel run
     
-        let thread1 = thread::spawn( move ||
+        let thread0 = thread::spawn( move ||
         {
             run_board( 0, iterations );
         });
     
-        let thread2 = thread::spawn( move ||
+        let thread1 = thread::spawn( move ||
         {
             run_board( 1, iterations );
         });
+
+        // run position 4 on this thread
+
+        run_board( 4, iterations );
     
-        let thread3 = thread::spawn( move ||
-        {
-            run_board( 4, iterations );
-        });
-    
+        thread0.join().unwrap();
         thread1.join().unwrap();
-        thread2.join().unwrap();
-        thread3.join().unwrap();
     
         let parallel_end = Instant::now();
-        println!( "parallel runtime: {:?}", parallel_end.checked_duration_since( parallel_start ) );
+        println!( "parallel runtime: {:?}", parallel_end.checked_duration_since( parallel_start ).unwrap() );
         let parallel_moves = MINMAXMOVES.load( Ordering::SeqCst );
-        println!( "moves:          {}", parallel_moves );
+        println!( "moves:            {}", parallel_moves );
     }
 
     // Serial run
@@ -394,9 +393,9 @@ fn main()
     run_board( 4, iterations );
 
     let serial_end = Instant::now();
-    println!( "serial runtime: {:?}", serial_end.checked_duration_since( serial_start ) );
+    println!( "serial runtime:   {:?}", serial_end.checked_duration_since( serial_start ).unwrap() );
     let serial_moves = MINMAXMOVES.load( Ordering::SeqCst );
-    println!( "moves:          {}", serial_moves );
-    println!( "iterations:     {}", iterations );
+    println!( "moves:            {}", serial_moves );
+    println!( "iterations:       {}", iterations );
 } //main
 
