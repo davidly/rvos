@@ -6,7 +6,8 @@ echo %date% %time% >"%outputfile%"
 
 robocopy \\lee-server\documents\scratch\debianrv debianrv * >>%outputfile%
 
-set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt tf tm ttime td
+set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt tf^
+              tm ttime td fileops empty
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 

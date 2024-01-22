@@ -2,7 +2,7 @@
 setlocal
 
 set _testlist=t tbad glob tenv ts tf tap ttt sieve e an tpi td ba mysort^
-              tphi tcrash ttime tm terrno fileops empty
+              tphi tcrash ttime tm terrno fileops empty t_setjmp
 
 ( for %%t in (%_testlist%) do ( call mariscv %%t ) )
 

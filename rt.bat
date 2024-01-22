@@ -5,7 +5,7 @@ set outputfile=test_rvos.txt
 echo %date% %time% >"%outputfile%"
 
 set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt^
-              tf tm ttime td fileops empty
+              tf tm ttime td fileops t_fileops texp empty
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 
@@ -15,7 +15,7 @@ goto :rustTests
 
 echo running test app %~1 using brk heap >>"%outputfile%"
 rem using brk heap, so old gcc's libc is ok
-rvos -h:10 -m:0 tests\%~1 >>"%outputfile%"
+rvos -h:10 -m:0 linux\%~1 >>"%outputfile%"
 
 echo running test app %~1 using mmap heap >>"%outputfile%"
 rem using mmap heap, so a newer libc is required to not require brk
