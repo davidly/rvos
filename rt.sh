@@ -3,10 +3,16 @@
 date_time=$(date)
 echo "$date_time" >linux_test.txt
 
-for arg in t glob tenv ts tf tm tap ttt sieve e tpi tp1k tins td tphi ttime terrno fileops empty;
+for arg in t glob tenv ts tf tm tap ttt sieve e tpi tp1k tins td tphi ttime terrno fileops t_setjmp tex empty;
 do
     echo $arg >>linux_test.txt
     rvos tests/$arg >>linux_test.txt
+done
+
+for arg in ato real ttt e tap tphi
+do
+    echo $arg >>linux_test.txt
+    rvos debianrv/rust/$arg >>linux_test.txt
 done
 
 echo "an nap" >>linux_test.txt

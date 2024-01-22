@@ -1,4 +1,4 @@
-Wed 01/17/2024 11:47:46.75 
+Mon 01/22/2024  6:57:23.61 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -36,9 +36,11 @@ int128_t result: 6
 uint128_t result: 6
 end of the app
 running test app glob using brk heap 
+in CTest constructor
 top main
-value of ctest::foo: 0
+value of ctest::foo: 666
 end of main
+in ~CTest destructor
 running test app glob using mmap heap 
 in CTest constructor
 top main
@@ -151,11 +153,11 @@ starting, should tend towards 1.2020569031595942854...
   at        10000 iterations: 1.20205689816009808624
   at       100000 iterations: 1.20205690310973234425
 next implementation...
-  at           10 iterations: 1.11111111111111116045
-  at          100 iterations: 1.17647058823529415683
-  at         1000 iterations: 1.19474313022700129316
-  at        10000 iterations: 1.20540019286403077281
-  at       100000 iterations: 1.20192307692307687184
+  at           10 iterations: 1.25000000000000000000
+  at          100 iterations: 1.14942528735632176762
+  at         1000 iterations: 1.21802679658952506259
+  at        10000 iterations: 1.20293516179477921746
+  at       100000 iterations: 1.20124448929090532623
 done
 running test app tap using mmap heap 
 starting, should tend towards 1.2020569031595942854...
@@ -214,23 +216,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp1k using brk heap 
-start time: 11:47:48.235
-14873168 microseconds for 1000 iterations
-end time: 11:48:03.108
+start time: 06:57:24.865
+12171176 microseconds for 1000 iterations
+end time: 06:57:37.036
 final move count 6493
 running test app tp1k using mmap heap 
-start time: 11:48:03.131
-12442091 microseconds for 1000 iterations
-end time: 11:48:15.573
+start time: 06:57:37.047
+12132941 microseconds for 1000 iterations
+end time: 06:57:49.180
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-37.169003 milliseconds
+31.295002 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-33.796001 milliseconds
+31.338001 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +276,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: '(null)', year: 2024, month 1, day 17, hour 19, min 48, sec 15
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 17, hour 14, min 48, sec 15
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 17, hour 11, min 48, sec 15
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 17, hour 11, min 48, sec 15
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 22, hour 6, min 57, sec 49
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 22, hour 9, min 57, sec 49
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 22, hour 6, min 57, sec 49
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 22, hour 14, min 57, sec 49
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 17, hour 11, min 48, sec 15
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 17, hour 14, min 48, sec 15
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 17, hour 11, min 48, sec 15
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 17, hour 19, min 48, sec 15
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 22, hour 6, min 57, sec 49
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 22, hour 9, min 57, sec 49
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 22, hour 6, min 57, sec 49
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 22, hour 14, min 57, sec 49
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -303,7 +305,7 @@ log10 of 300: 2.477121
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
-  r high point 3187071009115104228782838925952666189789578000000000000000.000000
+  r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
 running test app td using mmap heap 
 sprintf double 3.14159265358979311600
@@ -327,12 +329,148 @@ pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
+running test app fileops using brk heap 
+fp: 486336
+current offset: 0
+result of fseek: 0
+file length from ftell: 0
+empty file length: 0
+result of fseek: 0
+result of fwrite (should be 1): 1
+current offset: 8320
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length from portable_filelen: 8320
+result of fseek to middle of file: 0
+result of fwrite to middle of file (should be 1): 1
+fp: 486336
+current offset: 0
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length: 8320
+result of read at offset 0: 512
+result of read at offset 512: 512
+result of read at offset 1024: 512
+result of read at offset 1536: 512
+result of read at offset 2048: 512
+result of read at offset 2560: 512
+result of read at offset 3072: 512
+result of read at offset 3584: 512
+result of read at offset 4096: 512
+result of read at offset 4608: 512
+result of read at offset 5120: 512
+result of read at offset 5632: 512
+result of read at offset 6144: 512
+result of read at offset 6656: 512
+result of read at offset 7168: 512
+result of read at offset 7680: 512
+result of read at offset 8192: 128
+testing backwards read
+result of read at offset 8192: 128
+result of read at offset 7680: 512
+result of read at offset 7168: 512
+result of read at offset 6656: 512
+result of read at offset 6144: 512
+result of read at offset 5632: 512
+result of read at offset 5120: 512
+result of read at offset 4608: 512
+result of read at offset 4096: 512
+result of read at offset 3584: 512
+result of read at offset 3072: 512
+result of read at offset 2560: 512
+result of read at offset 2048: 512
+result of read at offset 1536: 512
+result of read at offset 1024: 512
+result of read at offset 512: 512
+result of read at offset 0: 512
+running test app fileops using mmap heap 
+fp: 619456
+current offset: 0
+result of fseek: 0
+file length from ftell: 0
+empty file length: 0
+result of fseek: 0
+result of fwrite (should be 1): 1
+current offset: 8320
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length from portable_filelen: 8320
+result of fseek to middle of file: 0
+result of fwrite to middle of file (should be 1): 1
+fp: 619456
+current offset: 0
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length: 8320
+result of read at offset 0: 512
+result of read at offset 512: 512
+result of read at offset 1024: 512
+result of read at offset 1536: 512
+result of read at offset 2048: 512
+result of read at offset 2560: 512
+result of read at offset 3072: 512
+result of read at offset 3584: 512
+result of read at offset 4096: 512
+result of read at offset 4608: 512
+result of read at offset 5120: 512
+result of read at offset 5632: 512
+result of read at offset 6144: 512
+result of read at offset 6656: 512
+result of read at offset 7168: 512
+result of read at offset 7680: 512
+result of read at offset 8192: 128
+testing backwards read
+result of read at offset 8192: 128
+result of read at offset 7680: 512
+result of read at offset 7168: 512
+result of read at offset 6656: 512
+result of read at offset 6144: 512
+result of read at offset 5632: 512
+result of read at offset 5120: 512
+result of read at offset 4608: 512
+result of read at offset 4096: 512
+result of read at offset 3584: 512
+result of read at offset 3072: 512
+result of read at offset 2560: 512
+result of read at offset 2048: 512
+result of read at offset 1536: 512
+result of read at offset 1024: 512
+result of read at offset 512: 512
+result of read at offset 0: 512
+running test app t_setjmp using brk heap 
+second
+back in main
+falling out of main
+running test app t_setjmp using mmap heap 
+second
+back in main
+falling out of main
+running test app tex using brk heap 
+top of tex
+caught exception exceptional
+attempting large allocations
+allocation 0 succeeded 0x95230
+allocation 1 succeeded 0x465b40
+caught a standard execption: std::bad_alloc
+leaving main
+running test app tex using mmap heap 
+top of tex
+caught exception exceptional
+attempting large allocations
+allocation 0 succeeded 0x1a1010
+allocation 1 succeeded 0x572010
+caught a standard execption: std::bad_alloc
+leaving main
+running test app empty using brk heap 
+yo
+running test app empty using mmap heap 
+yo
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Wednesday, January 17, 2024 11:48:15 AM
+  Started : Monday, January 22, 2024 6:57:49 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -343,41 +481,15 @@ stop
 ------------------------------------------------------------------------------
 
 	                  22	\\lee-server\documents\scratch\debianrv\rust\
-	    Newer     		   6.6 m	ato  7.5% 15.0% 22.5% 30.0% 37.6% 45.1% 52.6% 60.1% 67.7% 75.2% 82.7% 90.2% 97.7%100%  
-	    Newer     		   12881	ato.rs100%  
-	    Newer     		  150131	ato.s 87%  100%  
-	    Newer     		   6.6 m	e  7.5% 15.0% 22.6% 30.1% 37.7% 45.2% 52.8% 60.3% 67.9% 75.4% 83.0% 90.5% 98.1%100%  
-	    Newer     		     569	e.rs100%  
-	    Newer     		    8498	e.s100%  
-	    Newer     		      61	m.bat100%  
-	    Newer     		     101	m.sh100%  
-	    Newer     		      54	mall.sh100%  
-	    Newer     		   6.7 m	real  7.3% 14.7% 22.1% 29.5% 36.9% 44.3% 51.6% 59.0% 66.4% 73.8% 81.2% 88.6% 95.9%100%  
-	    Newer     		    1180	real.rs100%  
-	    Newer     		   18142	real.s100%  
-	    Newer     		    1522	rvfeat.rs100%  
-	    Newer     		   6.7 m	tap  7.4% 14.9% 22.3% 29.8% 37.2% 44.7% 52.1% 59.6% 67.1% 74.5% 82.0% 89.4% 96.9%100%  
-	    Newer     		    2138	tap.rs100%  
-	    Newer     		   12871	tap.s100%  
-	    Newer     		   6.7 m	tphi  7.4% 14.9% 22.3% 29.8% 37.2% 44.7% 52.2% 59.6% 67.1% 74.5% 82.0% 89.4% 96.9%100%  
-	    Newer     		     586	tphi.rs100%  
-	    Newer     		    9722	tphi.s100%  
-	    Newer     		   6.7 m	ttt  7.4% 14.8% 22.2% 29.6% 37.1% 44.5% 51.9% 59.3% 66.8% 74.2% 81.6% 89.0% 96.5%100%  
-	    Newer     		   10962	ttt.rs100%  
-	    Newer     		  148375	ttt.s 88%  100%  
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :         1         0         1         0         0         0
-   Files :        22        22         0         0         0         0
-   Bytes :   40.54 m   40.54 m         0         0         0         0
-   Times :   0:00:03   0:00:03                       0:00:00   0:00:00
-
-
-   Speed :           11,487,820 Bytes/sec.
-   Speed :              657.338 MegaBytes/min.
-   Ended : Wednesday, January 17, 2024 11:48:20 AM
+   Files :        22         0        22         0         0         0
+   Bytes :   40.54 m         0   40.54 m         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+   Ended : Monday, January 22, 2024 6:57:50 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -421,12 +533,12 @@ r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
 main in rust
-serial runtime: Some(5.5381ms)
+serial runtime: Some(5.1876ms)
 moves:          6493
 iterations:     1
 running test app ttt using mmap 
 main in rust
-serial runtime: Some(5.55ms)
+serial runtime: Some(5.2106ms)
 moves:          6493
 iterations:     1
 running test app e using brk heap 
@@ -507,7 +619,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash memory high 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -521,7 +633,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash pc low 
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -535,7 +647,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash pc high 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -549,7 +661,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer low 
 rvos (amd64) fatal error: stack pointer is below stack memory: a19f50
@@ -563,7 +675,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                c,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer l=high 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: b39fd0
@@ -577,7 +689,7 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer misaligned 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a39fd2
@@ -591,13 +703,13 @@ address space 10000 to a3b000
     s4:                0,   s5:                0,   s6:                0,   s7:                0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:                0,   t5:                0,   t6:                0, 
-Built for amd64 debug on  9 Jan 24 09:01:52 by msft C++ ver 1939 on windows
+Built for amd64 debug on 19 Jan 24 16:15:04 by msft C++ ver 1939 on windows
 
 running ba tp.bas 
 parsing input file tests\tp.bas
-start time: 19:48:31.000
-0 ms for 1 iterations
-end time: 19:48:31.000
+start time: 14:58:00.000
+1,000 ms for 1 iterations
+end time: 14:58:01.000
 final move count 6493
 exiting the basic interpreter
 running mysort 
