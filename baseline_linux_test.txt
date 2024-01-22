@@ -1,4 +1,4 @@
-Mon Jan 22 07:16:32 PST 2024
+Mon Jan 22 07:57:01 PST 2024
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -113,7 +113,7 @@ done
 [0mttt
 [1 qstarting...
 64930 moves
-21.429001 milliseconds
+21.897001 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -122,9 +122,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 07:16:32.977
-8592412 microseconds for 1000 iterations
-end time: 07:16:41.569
+[1 qstart time: 07:57:01.992
+8530283 microseconds for 1000 iterations
+end time: 07:57:10.523
 final move count 6493
 [0mtins
 [1 qhello
@@ -163,10 +163,10 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 22, hour 7, min 16, sec 41
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 22, hour 10, min 16, sec 41
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 22, hour 7, min 16, sec 41
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 22, hour 15, min 16, sec 41
+[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 22, hour 7, min 57, sec 10
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 22, hour 10, min 57, sec 10
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 22, hour 7, min 57, sec 10
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 22, hour 15, min 57, sec 10
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -261,10 +261,9 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 [0mttt
-[1 qmain in rust
-serial runtime: Some(4.008254ms)
-moves:          6493
-iterations:     1
+[1 qserial runtime:   4.03822ms
+moves:            6493
+iterations:       1
 [0me
 [1 qtesting finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
@@ -301,10 +300,10 @@ exiting finding phi with great success
 [0man nap
 [1 qpan
 [0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 5.103885 ms
-start time: 07:16:45.573
-211 ms for 1 iterations
-end time: 07:16:45.784
+[1 qTime to parse tests/tp.bas: 5.047701 ms
+start time: 07:57:14.495
+212 ms for 1 iterations
+end time: 07:57:14.708
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt

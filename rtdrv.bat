@@ -4,10 +4,10 @@ setlocal
 set outputfile=testdrv_rvos.txt
 echo %date% %time% >"%outputfile%"
 
-robocopy \\lee-server\documents\scratch\debianrv debianrv * >>%outputfile%
+robocopy \\lee-server\documents\scratch\debianrv debianrv * /s >>%outputfile%
 
 set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp1k ttt tf^
-              tm ttime td fileops empty
+              tm ttime td fileops t_setjmp tex empty
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 
@@ -26,8 +26,6 @@ rvos -h:0 -m:10 debianrv\%~1 >>"%outputfile%"
 exit /b 0
 
 :runRustTests
-
-robocopy \\lee-server\documents\scratch\debianrv\rust debianrv\rust * >>%outputfile%
 
 set _testlist=ato real ttt e tap tphi
 
