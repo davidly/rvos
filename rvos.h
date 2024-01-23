@@ -62,6 +62,12 @@
 // open apparently undefined for riscv? the old g++ compiler/runtime uses this value
 
 #define SYS_open 1024
+#define SYS_link 1025
+#define SYS_unlink 1026
+#define SYS_mkdir 1030
+#define SYS_stat 1038
+#define SYS_lstat 1039
+#define SYS_time 1062
 
 extern "C" void rvos_printf( const char * fmt, ... );
 extern "C" int rvos_sprintf( char * pc, const char * fmt, ... );

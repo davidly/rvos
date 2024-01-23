@@ -938,6 +938,7 @@ static const SysCall syscalls[] =
     { "SYS_renameat2", SYS_renameat2 },
     { "SYS_getrandom", SYS_getrandom },
     { "SYS_open", SYS_open }, // only called for older systems
+    { "SYS_unlink", SYS_unlink }, // only called for older systems
     { "rvos_sys_rand", rvos_sys_rand },
     { "rvos_sys_print_double", rvos_sys_print_double },
     { "rvos_sys_trace_instructions", rvos_sys_trace_instructions },
@@ -1814,6 +1815,26 @@ void riscv_invoke_ecall( RiscV & cpu )
                 directory = -2;
 #endif     
             int result = unlinkat( directory, path, flags );
+#endif
+            update_a0_errno( cpu, result );
+            break;
+        }
+        case SYS_unlink:
+        {
+            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  rvos command SYS_unlink path %s\n", path );
+#ifdef _WIN32
+            DWORD attr = GetFileAttributesA( path );
+            int result = 0;
+            if ( INVALID_FILE_ATTRIBUTES != result )
+            {
+                if ( attr & FILE_ATTRIBUTE_DIRECTORY )
+                    result = _rmdir( path ); // unlink will fail with error 13 "permission denied", so use rmdir instead
+                else
+                    result = remove( path );
+            }
+#else
+            int result = unlink( path );
 #endif
             update_a0_errno( cpu, result );
             break;
@@ -2896,157 +2917,172 @@ static char * RenderNumberWithCommas( int64_t n, char * ac )
 
 int main( int argc, char * argv[] )
 {
-    bool trace = false;
-    char * pcApp = 0;
-    bool showPerformance = false;
-    bool traceInstructions = false;
-    bool elfInfo = false;
-    bool verboseElfInfo = false;
-    bool generateRVCTable = false;
-    static char acAppArgs[1024] = {0};
-    static char acApp[1024] = {0};
-
-    for ( int i = 1; i < argc; i++ )
+    try
     {
-        char *parg = argv[i];
-        char c = *parg;
-
-        if ( ( 0 == pcApp ) && ( '-' == c
+        bool trace = false;
+        char * pcApp = 0;
+        bool showPerformance = false;
+        bool traceInstructions = false;
+        bool elfInfo = false;
+        bool verboseElfInfo = false;
+        bool generateRVCTable = false;
+        static char acAppArgs[1024] = {0};
+        static char acApp[1024] = {0};
+    
+        for ( int i = 1; i < argc; i++ )
+        {
+            char *parg = argv[i];
+            char c = *parg;
+    
+            if ( ( 0 == pcApp ) && ( '-' == c
 #if defined( WATCOM ) || defined( _WIN32 )
-            || '/' == c
+                || '/' == c
 #endif
-           ) )
-        {
-            char ca = (char) tolower( parg[1] );
-
-            if ( 't' == ca )
-                trace = true;
-            else if ( 'i' == ca )
-                traceInstructions = true;
-            else if ( 'g' == ca )
-                generateRVCTable = true;
-            else if ( 'h' == ca )
+               ) )
             {
-                if ( ':' != parg[2] )
-                    usage( "the -h argument requires a value" );
-
-                uint64_t heap = strtoull( parg + 3 , 0, 10 );
-                if ( heap > 1024 ) // limit to a gig
-                    usage( "invalid heap size specified" );
-
-                g_brk_commit = heap * 1024 * 1024;
+                char ca = (char) tolower( parg[1] );
+    
+                if ( 't' == ca )
+                    trace = true;
+                else if ( 'i' == ca )
+                    traceInstructions = true;
+                else if ( 'g' == ca )
+                    generateRVCTable = true;
+                else if ( 'h' == ca )
+                {
+                    if ( ':' != parg[2] )
+                        usage( "the -h argument requires a value" );
+    
+                    uint64_t heap = strtoull( parg + 3 , 0, 10 );
+                    if ( heap > 1024 ) // limit to a gig
+                        usage( "invalid heap size specified" );
+    
+                    g_brk_commit = heap * 1024 * 1024;
+                }
+                else if ( 'm' == ca )
+                {
+                    if ( ':' != parg[2] )
+                        usage( "the -m argument requires a value" );
+    
+                    uint64_t mmap_space = strtoull( parg + 3 , 0, 10 );
+                    if ( mmap_space > 1024 ) // limit to a gig
+                        usage( "invalid mmap size specified" );
+    
+                    g_mmap_commit = mmap_space * 1024 * 1024;
+                }
+                else if ( 'e' == ca )
+                    elfInfo = true;
+                else if ( 'p' == ca )
+                    showPerformance = true;
+                else if ( 'v' == ca )
+                    verboseElfInfo = true;
+                else
+                    usage( "invalid argument specified" );
             }
-            else if ( 'm' == ca )
-            {
-                if ( ':' != parg[2] )
-                    usage( "the -m argument requires a value" );
-
-                uint64_t mmap_space = strtoull( parg + 3 , 0, 10 );
-                if ( mmap_space > 1024 ) // limit to a gig
-                    usage( "invalid mmap size specified" );
-
-                g_mmap_commit = mmap_space * 1024 * 1024;
-            }
-            else if ( 'e' == ca )
-                elfInfo = true;
-            else if ( 'p' == ca )
-                showPerformance = true;
-            else if ( 'v' == ca )
-                verboseElfInfo = true;
             else
-                usage( "invalid argument specified" );
-        }
-        else
-        {
-            if ( 0 == pcApp )
-                pcApp = parg;
-            else if ( strlen( acAppArgs ) + 3 + strlen( parg ) < _countof( acAppArgs ) )
             {
-                if ( 0 != acAppArgs[0] )
-                    strcat( acAppArgs, " " );
-
-                strcat( acAppArgs, parg );
+                if ( 0 == pcApp )
+                    pcApp = parg;
+                else if ( strlen( acAppArgs ) + 3 + strlen( parg ) < _countof( acAppArgs ) )
+                {
+                    if ( 0 != acAppArgs[0] )
+                        strcat( acAppArgs, " " );
+    
+                    strcat( acAppArgs, parg );
+                }
             }
         }
-    }
-
-    tracer.Enable( trace, L"rvos.log", true );
-    tracer.SetQuiet( true );
-
-    g_consoleConfig.EstablishConsoleOutput( 0, 0 );
-
-    if ( generateRVCTable )
-    {
-        bool ok = RiscV::generate_rvc_table( "rvctable.txt" );
+    
+        tracer.Enable( trace, L"rvos.log", true );
+        tracer.SetQuiet( true );
+    
+        g_consoleConfig.EstablishConsoleOutput( 0, 0 );
+    
+        if ( generateRVCTable )
+        {
+            bool ok = RiscV::generate_rvc_table( "rvctable.txt" );
+            if ( ok )
+                printf( "rvctable.txt successfully created\n" );
+            else
+                printf( "unable to create rvctable.txt\n" );
+    
+            g_consoleConfig.RestoreConsole( false );
+            return 0;
+        }
+    
+        if ( 0 == pcApp )
+        {
+            usage( "no executable specified\n" );
+            assume_false;
+        }
+    
+        strcpy( acApp, pcApp );
+        bool appExists = file_exists( acApp );
+        if ( !appExists )
+        {
+            if ( !ends_with( acApp, ".elf" ) )
+            {
+                strcat( acApp, ".elf" );
+                appExists = file_exists( acApp );
+            }
+        }
+    
+        if ( !appExists )
+            usage( "input .elf executable file not found" );
+    
+        if ( elfInfo )
+        {
+            elf_info( acApp, verboseElfInfo );
+            g_consoleConfig.RestoreConsole( false );
+            return 0;
+        }
+    
+        bool ok = load_image( acApp, acAppArgs );
         if ( ok )
-            printf( "rvctable.txt successfully created\n" );
-        else
-            printf( "unable to create rvctable.txt\n" );
-
-        g_consoleConfig.RestoreConsole( false );
-        return 0;
-    }
-
-    if ( 0 == pcApp )
-    {
-        usage( "no executable specified\n" );
-        assume_false;
-    }
-
-    strcpy( acApp, pcApp );
-    bool appExists = file_exists( acApp );
-    if ( !appExists )
-    {
-        if ( !ends_with( acApp, ".elf" ) )
         {
-            strcat( acApp, ".elf" );
-            appExists = file_exists( acApp );
+            unique_ptr<RiscV> cpu( new RiscV( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit, g_top_of_stack ) );
+            cpu->trace_instructions( traceInstructions );
+            uint64_t cycles = 0;
+    
+            high_resolution_clock::time_point tStart = high_resolution_clock::now();
+    
+            #ifdef _WIN32
+                g_tAppStart = tStart;
+            #endif
+    
+            do
+            {
+                cycles += cpu->run( 1000000 );
+            } while( !g_terminate );
+    
+            char ac[ 100 ];
+            if ( showPerformance )
+            {
+                high_resolution_clock::time_point tDone = high_resolution_clock::now();
+                int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
+    
+                printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
+                printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
+                if ( 0 != totalTime )
+                    printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
+                printf( "app exit code:         %15d\n", g_exit_code );
+            }
+    
+            tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
+            g_mmap.trace_allocations();
         }
     }
-
-    if ( !appExists )
-        usage( "input .elf executable file not found" );
-
-    if ( elfInfo )
+    catch ( bad_alloc & e )
     {
-        elf_info( acApp, verboseElfInfo );
-        g_consoleConfig.RestoreConsole( false );
-        return 0;
+        printf( "caught exception bad_alloc -- out of RAM. If in RVOS use -h or -m to add RAM. %s\n", e.what() );
     }
-
-    bool ok = load_image( acApp, acAppArgs );
-    if ( ok )
+    catch ( exception & e )
     {
-        unique_ptr<RiscV> cpu( new RiscV( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit, g_top_of_stack ) );
-        cpu->trace_instructions( traceInstructions );
-        uint64_t cycles = 0;
-
-        high_resolution_clock::time_point tStart = high_resolution_clock::now();
-
-        #ifdef _WIN32
-            g_tAppStart = tStart;
-        #endif
-
-        do
-        {
-            cycles += cpu->run( 1000000 );
-        } while( !g_terminate );
-
-        char ac[ 100 ];
-        if ( showPerformance )
-        {
-            high_resolution_clock::time_point tDone = high_resolution_clock::now();
-            int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
-
-            printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
-            printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
-            if ( 0 != totalTime )
-                printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
-            printf( "app exit code:         %15d\n", g_exit_code );
-        }
-
-        tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
-        g_mmap.trace_allocations();
+        printf( "caught a standard execption: %s\n", e.what() );
+    }
+    catch( ... )
+    {
+        printf( "caught a generic exception\n" );
     }
 
     g_consoleConfig.RestoreConsole( false );
