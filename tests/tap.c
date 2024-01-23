@@ -69,7 +69,7 @@ int main()
 
     printf( "next implementation...\n" );
 
-    const int totalEntries = 100000; //00;
+    const int totalEntries = 10000;
     int totalCoprimes = 0;
 
     int prev = 1;

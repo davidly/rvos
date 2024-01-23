@@ -1545,11 +1545,20 @@ extern "C" int main( int argc, char * argv[] )
 
         delete g_SortedWords;
     }
+    catch ( bad_alloc & e )
+    {
+        printf( "caught exception bad_alloc -- out of RAM. If in RVOS use -h or -m to add RAM. %s\n", e.what() );
+    }
+    catch ( exception & e )
+    {
+        printf( "caught a standard execption: %s\n", e.what() );
+    }
     catch( ... )
     {
         printf( "caught an exception in an.exe, exiting\n" );
     }
 
+    fflush( stdout );
     return 0;
 } //main
 

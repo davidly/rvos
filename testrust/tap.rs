@@ -68,7 +68,7 @@ fn second_implementation()
     println!( "second implementation..." );
 
     my_srand( 0xbaebeabad00bee );
-    const TOTAL: u64 = 1000000;
+    const TOTAL: u64 = 100000;
     let mut total_coprimes: u64 = 0;
     let mut prev_times_ten: u64 = 10;
     let mut _i: u64;

@@ -3,6 +3,16 @@
 
 using namespace std;
 
+class CUnwound
+{
+    private:
+        int x;
+    public:
+        CUnwound() : x( 44 ) {}
+        ~CUnwound() { printf( "I am unwound, x: %d\n", x ); }
+        void set( int val ) { x = val; }
+};
+
 struct exceptional : std::exception
 {
     const char * what() const noexcept { return "exceptional"; }
@@ -14,7 +24,9 @@ int main()
 
     try
     {
+        CUnwound unwound;
         throw exceptional();
+        unwound.set( 33 );
     }
     catch ( exception & e )
     {
