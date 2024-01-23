@@ -1,4 +1,4 @@
-Tue Jan 23 10:59:01 PST 2024
+Tue Jan 23 14:53:21 PST 2024
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -112,7 +112,7 @@ done
 [0mttt
 [1 qstarting...
 64930 moves
-20.938002 milliseconds
+21.135000 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -121,9 +121,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 10:59:02.091
-8514082 microseconds for 1000 iterations
-end time: 10:59:10.605
+[1 qstart time: 14:53:21.750
+8837886 microseconds for 1000 iterations
+end time: 14:53:30.588
 final move count 6493
 [0mtins
 [1 qhello
@@ -162,10 +162,10 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 10, min 59, sec 10
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 13, min 59, sec 10
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 10, min 59, sec 10
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 18, min 59, sec 10
+[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 14, min 53, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 17, min 53, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 14, min 53, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 22, min 53, sec 30
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -263,7 +263,7 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 [0mttt
-[1 qserial runtime:   4.01203ms
+[1 qserial runtime:   4.116886ms
 moves:            6493
 iterations:       1
 [0me
@@ -279,14 +279,12 @@ first implementation...
   1.202056898160098      at 10000 iterations
   1.2020569031097323     at 100000 iterations
   1.202056903150321      at 1000000 iterations
-  1.202056903150321      at 10000000 iterations
 second implementation...
   1.1111111111111112     at 10 iterations
   1.25                   at 100 iterations
   1.2285012285012284     at 1000 iterations
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
-  1.2018855180006394     at 1000000 iterations
 exiting finding ap with great success
 [0mtphi
 [1 qphi should tend towards 1.61803398874989484820458683436563811772030
@@ -302,10 +300,10 @@ exiting finding phi with great success
 [0man nap
 [1 qpan
 [0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 4.946052 ms
-start time: 10:59:14.623
-210 ms for 1 iterations
-end time: 10:59:14.833
+[1 qTime to parse tests/tp.bas: 5.115958 ms
+start time: 14:53:31.173
+213 ms for 1 iterations
+end time: 14:53:31.386
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt
@@ -324,7 +322,7 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 10:55:16 by g++ on linux
+Built for amd64 debug on 23 Jan 24 12:49:12 by g++ on linux
 
 tcrash mh
 [1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -338,5 +336,5 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 10:55:16 by g++ on linux
+Built for amd64 debug on 23 Jan 24 12:49:12 by g++ on linux
 

@@ -521,7 +521,15 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
     pstat->st_size = 0;
 
     if ( descriptor >= 0 && descriptor <= 2 ) // stdin / stdout / stderr
-        pstat->st_mode = S_IFCHR;
+    {
+        if ( isatty( descriptor ) )
+            pstat->st_mode = S_IFCHR;
+        else
+        {
+            pstat->st_mode = S_IFREG;
+            pstat->st_rdev = 4096; // this is st_blksize on linux
+        }
+    }
     else if ( findFirstDescriptor == descriptor )
     {
         pstat->st_mode = S_IFDIR;
@@ -2039,20 +2047,20 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_ioctl:
         {
-#ifndef _WIN32 // kbhit() works without all this fuss on Windows
             int fd = (int) cpu.regs[ RiscV::a0 ];
             unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
             struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
 
-            if ( 0 == fd )
+            if ( 0 == fd ) // stdin
             {
+#ifndef _WIN32 // kbhit() works without all this fuss on Windows
                 // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
 
                 if ( 0x5401 == request ) // TCGETS
                 {
                     struct termios val;
-                    tcgetattr( 0, &val );
+                    tcgetattr( fd, &val );
                     tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
                     pt->c_iflag = val.c_iflag;
                     pt->c_oflag = val.c_oflag;
@@ -2104,8 +2112,49 @@ void riscv_invoke_ecall( RiscV & cpu )
                     tcsetattr( 0, TCSANOW, &val );
                     tracer.Trace( "  ioctl set termios on stdin\n" );
                 }
+#endif // _WIN32
             }
+            else if ( 1 == fd ) // stdout
+            {
+                if ( 0x5401 == request ) // TCGETS
+                {
+#ifdef _WIN32
+                    if ( isatty( fd ) )
+                        update_a0_errno( cpu, 0 );
+                    else
+                        update_a0_errno( cpu, -1 );
+
+                    break;
+#else
+                    struct termios val;
+                    int result = tcgetattr( fd, &val );
+                    tracer.Trace( "  result: %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+                    if ( -1 == result )
+                    {
+                        update_a0_errno( cpu, -1 );
+                        break;
+                    }
+                    pt->c_iflag = val.c_iflag;
+                    pt->c_oflag = val.c_oflag;
+                    pt->c_cflag = val.c_cflag;
+                    pt->c_lflag = val.c_lflag;
+#ifdef __APPLE__
+                    pt->c_iflag = map_termios_iflag_macos_to_linux( pt->c_iflag );
+                    pt->c_oflag = map_termios_oflag_macos_to_linux( pt->c_oflag );
+                    pt->c_cflag = map_termios_cflag_macos_to_linux( pt->c_cflag );
+                    pt->c_lflag = map_termios_lflag_macos_to_linux( pt->c_lflag );
+                    tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+#else
+                    pt->c_line = val.c_line;
+                    memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
+                    tracer.Trace( "  ioctl queried termios on stdout, sizeof local_kernel_termios %zd, sizeof val %zd\n", 
+                                sizeof( struct local_kernel_termios ), sizeof( val ) );
+#endif // _WIN32
+                }
+                
+            }
+
             cpu.regs[ RiscV::a0 ] = 0;
             break;
         }

@@ -1,4 +1,4 @@
-Tue 01/23/2024 10:30:06.06 
+Tue 01/23/2024 14:24:33.48 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -213,24 +213,24 @@ errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
-running test app tp1k using brk heap 
-start time: 10:30:06.994
-12320186 microseconds for 1000 iterations
-end time: 10:30:19.314
+running test app tp using brk heap 
+start time: 14:28:20.211
+3999924 microseconds for 1 iterations
+end time: 14:28:24.211
 final move count 6493
-running test app tp1k using mmap heap 
-start time: 10:30:19.325
-12042323 microseconds for 1000 iterations
-end time: 10:30:31.367
+running test app tp using mmap heap 
+start time: 14:28:24.301
+4019473 microseconds for 1 iterations
+end time: 14:28:28.321
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-31.460001 milliseconds
+10018.041992 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-35.494003 milliseconds
+9979.001953 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 23, hour 10, min 30, sec 31
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 13, min 30, sec 31
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 10, min 30, sec 31
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 18, min 30, sec 31
+before TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 22, min 29, sec 7
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 17, min 29, sec 7
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 14, min 29, sec 7
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 22, min 29, sec 7
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 23, hour 10, min 30, sec 31
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 13, min 30, sec 31
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 10, min 30, sec 31
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 18, min 30, sec 31
+before TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 22, min 29, sec 7
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 17, min 29, sec 7
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 14, min 29, sec 7
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 22, min 29, sec 7
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -474,7 +474,7 @@ yo
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Tuesday, January 23, 2024 10:30:31 AM
+  Started : Tuesday, January 23, 2024 2:29:18 PM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -493,7 +493,7 @@ yo
    Files :        22         0        22         0         0         0
    Bytes :   40.52 m         0   40.52 m         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Tuesday, January 23, 2024 10:30:32 AM
+   Ended : Tuesday, January 23, 2024 2:29:19 PM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -536,11 +536,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
-serial runtime:   5.3327ms
+serial runtime:   1.9560181s
 moves:            6493
 iterations:       1
 running test app ttt using mmap 
-serial runtime:   5.2239ms
+serial runtime:   1.9181919s
 moves:            6493
 iterations:       1
 running test app e using brk heap 
@@ -560,14 +560,12 @@ first implementation...
   1.202056898160098      at 10000 iterations
   1.2020569031097323     at 100000 iterations
   1.202056903150321      at 1000000 iterations
-  1.202056903150321      at 10000000 iterations
 second implementation...
   1.1111111111111112     at 10 iterations
   1.25                   at 100 iterations
   1.2285012285012284     at 1000 iterations
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
-  1.2018855180006394     at 1000000 iterations
 exiting finding ap with great success
 running test app tap using mmap 
 starting, should tend towards 1.2020569031595942854...
@@ -578,14 +576,12 @@ first implementation...
   1.202056898160098      at 10000 iterations
   1.2020569031097323     at 100000 iterations
   1.202056903150321      at 1000000 iterations
-  1.202056903150321      at 10000000 iterations
 second implementation...
   1.1111111111111112     at 10 iterations
   1.25                   at 100 iterations
   1.2285012285012284     at 1000 iterations
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
-  1.2018855180006394     at 1000000 iterations
 exiting finding ap with great success
 running test app tphi using brk heap 
 phi should tend towards 1.61803398874989484820458683436563811772030
@@ -610,108 +606,108 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
 running tcrash memory low 
-rvos (amd64) fatal error: memory reference prior to address space: 200
+rvos (riscv) fatal error: memory reference prior to address space: 200
 pc: 108d4 main + 268
 address space 10000 to a95000
-  zero:                0,   ra:            106d4,   sp:           a94800,   gp:            6f9d0, 
+  zero:                0,   ra:            106d4,   sp:           a94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:                0,   a1:            4ae93, 
-    a2:           a94a20,   a3:                0,   a4:                a,   a5:              200, 
-    a6:            6fa80,   a7: 7d127c602f43422f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae93, 
+    a2:           a94a30,   a3:                0,   a4:                a,   a5:              200, 
+    a6:            6fa80,   a7: 7d127c602f43422f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash memory high 
-rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+rvos (riscv) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10824 main + 1b8
 address space 10000 to a95000
-  zero:                0,   ra:            10704,   sp:           a94800,   gp:            6f9d0, 
+  zero:                0,   ra:            10704,   sp:           a94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:                0,   a1:            4ae9b, 
-    a2:           a94a20,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:            6fa80,   a7: 7d127c602f47422f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae9b, 
+    a2:           a94a30,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:            6fa80,   a7: 7d127c602f47422f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash pc low 
-rvos (amd64) fatal error: pc is lower than memory: 200
+rvos (riscv) fatal error: pc is lower than memory: 200
 pc: 200  + 0
 address space 10000 to a95000
-  zero:                0,   ra:            10844,   sp:           a94800,   gp:            6f9d0, 
+  zero:                0,   ra:            10844,   sp:           a94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:                0,   a1:            4aea4, 
-    a2:           a94a20,   a3:                0,   a4:                0,   a5:              200, 
-    a6:            6fa80,   a7: 127c602f434c5f2f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aea4, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:              200, 
+    a6:            6fa80,   a7: 127c602f434c5f2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash pc high 
-rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+rvos (riscv) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000  + 0
 address space 10000 to a95000
-  zero:                0,   ra:            1086c,   sp:           a94800,   gp:            6f9d0, 
+  zero:                0,   ra:            1086c,   sp:           a94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:                0,   a1:            4aeac, 
-    a2:           a94a20,   a3:                0,   a4:                0,   a5: 2000000000000000, 
-    a6:            6fa80,   a7: 127c602f474c5f2f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aeac, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5: 2000000000000000, 
+    a6:            6fa80,   a7: 127c602f474c5f2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash stack pointer low 
-rvos (amd64) fatal error: stack pointer is below stack memory: a746a0
+rvos (riscv) fatal error: stack pointer is below stack memory: a746b0
 pc: 1d1b2 __printf_buffer + c
 address space 10000 to a95000
-  zero:                0,   ra:            11588,   sp:           a746a0,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1:           a74c70,   t2:                0, 
-    s0:           a74c18,   s1:                2,   a0:           a74c18,   a1:            4ae80, 
-    a2:           a74c70,   a3:                0,   a4:                0,   a5:               18, 
-    a6:                0,   a7: 25252f5049490005,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+  zero:                0,   ra:            11588,   sp:           a746b0,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1:           a74c80,   t2:                0, 
+    s0:           a74c28,   s1:                2,   a0:           a74c28,   a1:            4ae80, 
+    a2:           a74c80,   a3:                0,   a4:                0,   a5:               18, 
+    a6:                0,   a7: 25252f5049490005,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash stack pointer l=high 
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94800
+rvos (riscv) fatal error: stack pointer is above the top of its starting point: b94810
 pc: 109dc rvos_sp_add + 4
 address space 10000 to a95000
-  zero:                0,   ra:            108a4,   sp:           b94800,   gp:            6f9d0, 
+  zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:           100000,   a1:            4aebc, 
-    a2:           a94a20,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:           100000,   a1:            4aebc, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running tcrash stack pointer misaligned 
-rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94802
+rvos (riscv) fatal error: the stack pointer isn't 16-byte aligned: a94812
 pc: 109dc rvos_sp_add + 4
 address space 10000 to a95000
-  zero:                0,   ra:            108b8,   sp:           a94802,   gp:            6f9d0, 
+  zero:                0,   ra:            108b8,   sp:           a94812,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94860,   s1:                2,   a0:                2,   a1:            4aec4, 
-    a2:           a94a20,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f425f5c2f,   s2:           a94a08,   s3:                1, 
-    s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s0:           a94870,   s1:                2,   a0:                2,   a1:            4aec4, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7: 127c602f425f5c2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 07:54:52 by msft C++ ver 1939 on windows
+Built for riscv debug on 23 Jan 24 14:00:06 by g++ on linux
 
 running ba tp.bas 
 parsing input file linux\tp.bas
-start time: 10:30:43.394
-287 ms for 1 iterations
-end time: 10:30:43.682
+start time: 22:36:08.871
+101,591 ms for 1 iterations
+end time: 22:37:50.373
 final move count 6493
 exiting the basic interpreter
 running mysort 
