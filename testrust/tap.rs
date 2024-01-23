@@ -31,7 +31,7 @@ fn first_implementation()
 {
     println!( "first implementation..." );
 
-    const TOTAL: u64 = 10000000;
+    const TOTAL: u64 = 1000000;
     let mut sofar: f64 = 0.0;
     let mut prev_times_ten: u64 = 10;
     let mut _i: u64;
