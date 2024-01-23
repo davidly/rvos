@@ -46,36 +46,36 @@ exit /b 0
 :singletonTests
 
 echo running tcrash memory low >>%outputfile%
-rvos tests\tcrash ml >>%outputfile%
+rvos linux\tcrash ml >>%outputfile%
 
 echo running tcrash memory high >>%outputfile%
-rvos tests\tcrash mh >>%outputfile%
+rvos linux\tcrash mh >>%outputfile%
 
 echo running tcrash pc low >>%outputfile%
-rvos tests\tcrash pcl >>%outputfile%
+rvos linux\tcrash pcl >>%outputfile%
 
 echo running tcrash pc high >>%outputfile%
-rvos tests\tcrash pch >>%outputfile%
+rvos linux\tcrash pch >>%outputfile%
 
 echo running tcrash stack pointer low >>%outputfile%
-rvos tests\tcrash spl >>%outputfile%
+rvos linux\tcrash spl >>%outputfile%
 
 echo running tcrash stack pointer l=high >>%outputfile%
-rvos tests\tcrash sph >>%outputfile%
+rvos linux\tcrash sph >>%outputfile%
 
 echo running tcrash stack pointer misaligned >>%outputfile%
-rvos tests\tcrash spm >>%outputfile%
+rvos linux\tcrash spm >>%outputfile%
 
 echo running ba tp.bas >>%outputfile%
-rvos tests\ba tests\tp.bas >>%outputfile% >>%outputfile%
+rvos linux\ba linux\tp.bas >>%outputfile% >>%outputfile%
 
 echo running mysort >>%outputfile%
-del tests\sorted.txt
-rvos /h:2 tests\mysort /q /u tests\words.txt tests\sorted.txt >>%outputfile%
-head tests\sorted.txt >>%outputfile%
+del linux\sorted.txt
+rvos /h:2 linux\mysort /q /u linux\words.txt linux\sorted.txt >>%outputfile%
+head linux\sorted.txt >>%outputfile%
 
 echo running an with brk>>%outputfile%
-rvos -h:40 -m:0 tests\an david lee >>%outputfile%
+rvos -h:40 -m:0 linux\an david lee >>%outputfile%
 
 echo running an with mmap >>%outputfile%
 rvos -h:0 -m:40 debianrv\an phoebe bridgers >>%outputfile%

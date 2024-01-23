@@ -1,4 +1,4 @@
-Mon Jan 22 07:57:01 PST 2024
+Tue Jan 23 10:59:01 PST 2024
 t
 [1 qa: 0 4000000000000000
 a: 4 0
@@ -108,12 +108,11 @@ next implementation...
   at          100 iterations: 1.14942528735632176762
   at         1000 iterations: 1.21802679658952506259
   at        10000 iterations: 1.20293516179477921746
-  at       100000 iterations: 1.20124448929090532623
 done
 [0mttt
 [1 qstarting...
 64930 moves
-21.897001 milliseconds
+20.938002 milliseconds
 [0msieve
 [1 q1899 primes.
 [0me
@@ -122,9 +121,9 @@ done
 [0mtpi
 [1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 [0mtp1k
-[1 qstart time: 07:57:01.992
-8530283 microseconds for 1000 iterations
-end time: 07:57:10.523
+[1 qstart time: 10:59:02.091
+8514082 microseconds for 1000 iterations
+end time: 10:59:10.605
 final move count 6493
 [0mtins
 [1 qhello
@@ -163,10 +162,10 @@ stop
   at 40 iterations: 1.6180339887498949
 done
 [0mttime
-[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 22, hour 7, min 57, sec 10
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 22, hour 10, min 57, sec 10
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 22, hour 7, min 57, sec 10
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 22, hour 15, min 57, sec 10
+[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 10, min 59, sec 10
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 13, min 59, sec 10
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 10, min 59, sec 10
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 18, min 59, sec 10
 [0mterrno
 [1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -232,12 +231,15 @@ back in main
 falling out of main
 [0mtex
 [1 qtop of tex
+I am unwound, x: 44
 caught exception exceptional
 attempting large allocations
 allocation 0 succeeded 0x94250
 allocation 1 succeeded 0x464b60
 caught a standard execption: std::bad_alloc
 leaving main
+[0mtrw
+[1 qexiting trw
 [0mempty
 [1 qyo
 [0mato
@@ -261,7 +263,7 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 [0mttt
-[1 qserial runtime:   4.03822ms
+[1 qserial runtime:   4.01203ms
 moves:            6493
 iterations:       1
 [0me
@@ -300,10 +302,10 @@ exiting finding phi with great success
 [0man nap
 [1 qpan
 [0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 5.047701 ms
-start time: 07:57:14.495
-212 ms for 1 iterations
-end time: 07:57:14.708
+[1 qTime to parse tests/tp.bas: 4.946052 ms
+start time: 10:59:14.623
+210 ms for 1 iterations
+end time: 10:59:14.833
 final move count 6493
 [0mmysort /r words.txt sorted.txt
 [1 qsorting tests/words.txt ==> tests/sorted.txt
@@ -322,7 +324,7 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 22 Jan 24 07:08:24 by g++ on linux
+Built for amd64 debug on 23 Jan 24 10:55:16 by g++ on linux
 
 tcrash mh
 [1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -336,5 +338,5 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 22 Jan 24 07:08:24 by g++ on linux
+Built for amd64 debug on 23 Jan 24 10:55:16 by g++ on linux
 
