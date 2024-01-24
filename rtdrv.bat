@@ -52,6 +52,15 @@ rvos debianrv\tcrash pch >>%outputfile%
 rvos debianrv\tcrash spl >>%outputfile%
 rvos debianrv\tcrash sph >>%outputfile%
 rvos debianrv\tcrash spm >>%outputfile%
+
+echo running ttty tests >>%outputfile%
+echo blahblah >bar
+rvos debianrv\ttty >>%outputfile%
+rvos debianrv\ttty <bar >>%outputfile%
+echo should see no, yes, yes, yes
+rvos debianrv\ttty <bar 
+rvos debianrv\ttty
+
 rvos debianrv\ba debianrv\tp.bas >>%outputfile%
 
 rvos /h:2 debianrv\mysort /q /u debianrv\words.txt debianrv\sorted.txt >>%outputfile%

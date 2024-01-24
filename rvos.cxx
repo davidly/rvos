@@ -32,6 +32,17 @@
     };
 
     typedef SSIZE_T ssize_t;
+
+    #define local_KERNEL_NCCS 19
+    struct local_kernel_termios
+    {
+        uint32_t c_iflag;     /* input mode flags */
+        uint32_t c_oflag;     /* output mode flags */
+        uint32_t c_cflag;     /* control mode flags */
+        uint32_t c_lflag;     /* local mode flags */
+        uint8_t c_line;          /* line discipline */
+        uint8_t c_cc[local_KERNEL_NCCS]; /* control characters */
+    };
 #else
     #include <unistd.h>
 
@@ -2054,14 +2065,42 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             if ( 0 == fd ) // stdin
             {
-#ifndef _WIN32 // kbhit() works without all this fuss on Windows
+#ifdef _WIN32
+                if ( 0x5401 == request ) // TCGETS
+                {
+                    if ( isatty( fd ) )
+                    {
+                        // populate with arbitrary but reasonable values
+
+                        memset( pt, 0, sizeof( *pt ) );
+                        pt->c_iflag = 0;
+                        pt->c_oflag = 5;
+                        pt->c_cflag = 0xbf;
+                        pt->c_lflag = 0xa30;
+                        update_a0_errno( cpu, 0 );
+                    }
+                    else
+                        update_a0_errno( cpu, -1 );
+
+                    break;
+                }
+                else if ( 0x5402 == request )
+                {
+                    // kbhit() works without all this fuss on Windows
+                }
+#else
                 // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
 
                 if ( 0x5401 == request ) // TCGETS
                 {
                     struct termios val;
-                    tcgetattr( fd, &val );
-                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+                    int result = tcgetattr( fd, &val );
+                    if ( -1 == result )
+                    {
+                        update_a0_errno( cpu, -1 );
+                        break;
+                    }
+                    tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
                     pt->c_iflag = val.c_iflag;
                     pt->c_oflag = val.c_oflag;
                     pt->c_cflag = val.c_cflag;
@@ -2301,6 +2340,21 @@ void remove_spaces( char * p )
     *o = 0;
 } //remove_spaces
 
+const char * image_type( uint16_t e_type )
+{
+    if ( 0 == e_type )
+        return "et none";
+    if ( 1 == e_type )
+        return "et relocatable file";
+    if ( 2 == e_type )
+        return "et executable";
+    if ( 3 == e_type )
+        return "et dynamic linked shared object";
+    if ( 4 == e_type )
+        return "et core file";
+    return "et unknown";
+} //image_type
+
 bool load_image( const char * pimage, const char * app_args )
 {
     tracer.Trace( "loading image %s\n", pimage );
@@ -2322,7 +2376,10 @@ bool load_image( const char * pimage, const char * app_args )
         usage( "elf image file's magic header is invalid" );
 
     if ( 2 != ehead.type )
-        usage( "elf image isn't an executable file" );
+    {
+        printf( "e_type is %d == %s\n", ehead.type, image_type( ehead.type ) );
+        usage( "elf image isn't an executable file (2)" );
+    }
 
     if ( 0xf3 != ehead.machine )
         usage( "elf image isn't for RISC-V" );

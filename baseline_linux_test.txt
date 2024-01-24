@@ -1,6 +1,6 @@
-Tue Jan 23 14:53:21 PST 2024
+Wed Jan 24 13:53:32 PST 2024
 t
-[1 qa: 0 4000000000000000
+a: 0 4000000000000000
 a: 4 0
 ua: 0 4000000000000000
 ua: 4 0
@@ -17,22 +17,22 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
-[0mglob
-[1 qin CTest constructor
+glob
+in CTest constructor
 top main
 value of ctest::foo: 666
 end of main
 in ~CTest destructor
-[0mtenv
-[1 qenvironment variable 0: 0x737d0 == 'OS=RVOS'
+tenv
+environment variable 0: 0x737d0 == 'OS=RVOS'
 is RVOS: yes
 pval: 0xa937ee
 value: toast!
 OS: 0x737d3
 value: RVOS
 TZ: (nil)
-[0mts
-[1 qtop of app
+ts
+top of app
 print an int 27
 print an int64_t 27
 sizeof T: 1, result: ff
@@ -75,8 +75,8 @@ testing printf
   float: 3.141573
   negative float: -3.141573
 stop
-[0mtf
-[1 qhello from printf
+tf
+hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
 result of 20.2 * -1.342: -27.108400
@@ -94,10 +94,10 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
-[0mtm
-[1 qsuccess
-[0mtap
-[1 qstarting, should tend towards 1.2020569031595942854...
+tm
+success
+tap
+starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
   at          100 iterations: 1.20200740065967814907
   at         1000 iterations: 1.20205640365934329772
@@ -109,27 +109,27 @@ next implementation...
   at         1000 iterations: 1.21802679658952506259
   at        10000 iterations: 1.20293516179477921746
 done
-[0mttt
-[1 qstarting...
+ttt
+starting...
 64930 moves
-21.135000 milliseconds
-[0msieve
-[1 q1899 primes.
-[0me
-[1 q271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+20.634001 milliseconds
+sieve
+1899 primes.
+e
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 done
-[0mtpi
-[1 q314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
-[0mtp1k
-[1 qstart time: 14:53:21.750
-8837886 microseconds for 1000 iterations
-end time: 14:53:30.588
+tpi
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+tp1k
+start time: 13:53:32.369
+8419752 microseconds for 1000 iterations
+end time: 13:53:40.789
 final move count 6493
-[0mtins
-[1 qhello
+tins
+hello
 test instructions is complete
-[0mtd
-[1 qsprintf double 3.14159265358979311600
+td
+sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
 double from printf r: -3.776373
@@ -150,8 +150,8 @@ pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
-[0mtphi
-[1 qshould tend towards 1.61803398874989484820458683436563811772030
+tphi
+should tend towards 1.61803398874989484820458683436563811772030
   at  5 iterations: 1.6250000000000000
   at 10 iterations: 1.6179775280898876
   at 15 iterations: 1.6180344478216819
@@ -161,18 +161,18 @@ stop
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
-[0mttime
-[1 qbefore TZ is set: tz: '(null)', year: 2024, month 1, day 23, hour 14, min 53, sec 30
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 23, hour 17, min 53, sec 30
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 23, hour 14, min 53, sec 30
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 23, hour 22, min 53, sec 30
-[0mterrno
-[1 qerrno opening a file for read that doesn't exist: 2 (2 file not found expected)
+ttime
+before TZ is set: tz: '(null)', year: 2024, month 1, day 24, hour 13, min 53, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 24, hour 16, min 53, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 24, hour 13, min 53, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 24, hour 21, min 53, sec 40
+terrno
+errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
-[0mfileops
-[1 qfp: 486368
+fileops
+fp: 486368
 current offset: 0
 result of fseek: 0
 file length from ftell: 0
@@ -225,12 +225,12 @@ result of read at offset 1536: 512
 result of read at offset 1024: 512
 result of read at offset 512: 512
 result of read at offset 0: 512
-[0mt_setjmp
-[1 qsecond
+t_setjmp
+second
 back in main
 falling out of main
-[0mtex
-[1 qtop of tex
+tex
+top of tex
 I am unwound, x: 44
 caught exception exceptional
 attempting large allocations
@@ -238,15 +238,15 @@ allocation 0 succeeded 0x94250
 allocation 1 succeeded 0x464b60
 caught a standard execption: std::bad_alloc
 leaving main
-[0mtrw
-[1 qexiting trw
-[0mempty
-[1 qyo
-[0mato
-[1 qtesting atomic operations
+trw
+exiting trw
+empty
+yo
+ato
+testing atomic operations
 exiting atomic testing with great success
-[0mreal
-[1 qtesting real number operations
+real
+testing real number operations
 r32: 0.31831014
 r64: 0.36787968862663156
 r32 sin: 0.31296203
@@ -262,16 +262,16 @@ r64 acos: 1.1940685526192598
 r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
-[0mttt
-[1 qserial runtime:   4.116886ms
+ttt
+serial runtime:   3.946579ms
 moves:            6493
 iterations:       1
-[0me
-[1 qtesting finding e
+e
+testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
-[0mtap
-[1 qstarting, should tend towards 1.2020569031595942854...
+tap
+starting, should tend towards 1.2020569031595942854...
 first implementation...
   1.197531985674193      at 10 iterations
   1.2020074006596781     at 100 iterations
@@ -286,8 +286,8 @@ second implementation...
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
 exiting finding ap with great success
-[0mtphi
-[1 qphi should tend towards 1.61803398874989484820458683436563811772030
+tphi
+phi should tend towards 1.61803398874989484820458683436563811772030
   at    5 iterations: 1.625
   at   10 iterations: 1.6179775280898876
   at   15 iterations: 1.618034447821682
@@ -297,21 +297,21 @@ exiting finding ap with great success
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
-[0man nap
-[1 qpan
-[0mba /p /q tp.bas
-[1 qTime to parse tests/tp.bas: 5.115958 ms
-start time: 14:53:31.173
-213 ms for 1 iterations
-end time: 14:53:31.386
+an nap
+pan
+ba /p /q tp.bas
+Time to parse tests/tp.bas: 5.080582 ms
+start time: 13:53:41.355
+208 ms for 1 iterations
+end time: 13:53:41.564
 final move count 6493
-[0mmysort /r words.txt sorted.txt
-[1 qsorting tests/words.txt ==> tests/sorted.txt
+mysort /r words.txt sorted.txt
+sorting tests/words.txt ==> tests/sorted.txt
 sorting
 writing...
 done
-[0mtcrash sph
-[1 q[0mrvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
+tcrash sph
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
 pc: 109dc rvos_sp_add + 4
 address space 10000 to a95000
   zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
@@ -322,10 +322,10 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 12:49:12 by g++ on linux
+Built for amd64 debug on 24 Jan 24 13:53:27 by g++ on linux
 
 tcrash mh
-[1 q[0mrvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10824 main + 1b8
 address space 10000 to a95000
   zero:                0,   ra:            10704,   sp:           a94810,   gp:            6f9d0, 
@@ -336,5 +336,10 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 23 Jan 24 12:49:12 by g++ on linux
+Built for amd64 debug on 24 Jan 24 13:53:27 by g++ on linux
 
+running ttty tests
+is stdin tty:  yes
+is stdout tty: no
+is stdin tty:  no
+is stdout tty: no

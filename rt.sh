@@ -30,4 +30,12 @@ rvos tests/tcrash sph >>linux_test.txt
 echo "tcrash mh" >>linux_test.txt
 rvos tests/tcrash mh >>linux_test.txt
 
+echo "running ttty tests" >>linux_test.txt
+echo "blahblah" >bar
+rvos tests/ttty >>linux_test.txt
+rvos tests/ttty <bar >>linux_test.txt
+echo "should see no, yes, yes, yes"
+rvos tests/ttty <bar 
+rvos tests/ttty
+
 diff baseline_linux_test.txt linux_test.txt

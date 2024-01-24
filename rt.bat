@@ -69,6 +69,14 @@ rvos linux\tcrash spm >>%outputfile%
 echo running ba tp.bas >>%outputfile%
 rvos linux\ba linux\tp.bas >>%outputfile% >>%outputfile%
 
+echo running ttty tests >>%outputfile%
+echo blahblah >bar
+rvos linux\ttty >>%outputfile%
+rvos linux\ttty <bar >>%outputfile%
+echo should see no, yes, yes, yes
+rvos linux\ttty <bar 
+rvos linux\ttty
+
 echo running mysort >>%outputfile%
 del linux\sorted.txt
 rvos /h:2 linux\mysort /q /u linux\words.txt linux\sorted.txt >>%outputfile%
