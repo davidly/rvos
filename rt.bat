@@ -27,7 +27,7 @@ exit /b 0
 
 robocopy \\lee-server\documents\scratch\debianrv\rust debianrv\rust * >>%outputfile%
 
-set _testlist=ato real ttt e tap tphi
+set _testlist=ato real ttt e tap tphi mysort
 
 ( for %%t in (%_testlist%) do ( call :testRunRust %%t ) )
 

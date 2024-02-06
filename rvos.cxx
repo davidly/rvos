@@ -949,6 +949,7 @@ static const SysCall syscalls[] =
     { "SYS_sysinfo", SYS_sysinfo },
     { "SYS_brk", SYS_brk },
     { "SYS_munmap", SYS_munmap },
+    { "SYS_mremap", SYS_mremap },
     { "SYS_clone", SYS_clone },
     { "SYS_mmap", SYS_mmap },
     { "SYS_mprotect", SYS_mprotect },
@@ -1556,6 +1557,32 @@ void riscv_invoke_ecall( RiscV & cpu )
             else
             {
                 errno = EINVAL;
+                update_a0_errno( cpu, -1 );
+            }
+
+            break;
+        }
+        case SYS_mremap:
+        {
+            uint64_t address = cpu.regs[ RiscV::a0 ];
+            uint64_t old_length = cpu.regs[ RiscV::a1 ];
+            uint64_t new_length = cpu.regs[ RiscV::a2 ];
+            int flags = (int) cpu.regs[ RiscV::a3 ];
+
+            if ( 0 != ( new_length & 0xfff ) )
+            {
+                tracer.Trace( "  warning: mremap allocation new length isn't 4k-page aligned\n" );
+                new_length = round_up( new_length, (size_t) 4096 );
+            }
+
+            // flags: MREMAP_MAYMOVE = 1, MREMAP_FIXED = 2, MREMAP_DONTUNMAP = 3. Ignore them all
+
+            uint64_t result = g_mmap.resize( address, old_length, new_length, ( 1 == flags ) );
+            if ( 0 != result )
+                update_a0_errno( cpu, result );
+            else
+            {
+                errno = ENOMEM;
                 update_a0_errno( cpu, -1 );
             }
 
@@ -2582,10 +2609,11 @@ bool load_image( const char * pimage, const char * app_args )
     memory_size = round_up( memory_size, (uint64_t) 4096 ); // mmap should hand out 4k-aligned pages
     g_mmap_offset = memory_size;
     memory_size += g_mmap_commit;
-    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit );
 
     memory.resize( memory_size );
     memset( memory.data(), 0, memory_size );
+
+    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit, memory.data() - g_base_address );
 
     // Find the "tracenow" variable in the app, which can be used to dynamically control instruction tracing
 

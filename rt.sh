@@ -9,7 +9,7 @@ do
     rvos tests/$arg >>linux_test.txt
 done
 
-for arg in ato real ttt e tap tphi
+for arg in ato real ttt e tap tphi mysort;
 do
     echo $arg >>linux_test.txt
     rvos debianrv/rust/$arg >>linux_test.txt
