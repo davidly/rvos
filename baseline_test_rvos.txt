@@ -1,4 +1,4 @@
-Wed 01/24/2024 13:48:56.21 
+Tue 02/06/2024  7:26:12.18 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp1k using brk heap 
-start time: 13:48:57.197
-12978835 microseconds for 1000 iterations
-end time: 13:49:10.176
+start time: 07:26:13.140
+12708429 microseconds for 1000 iterations
+end time: 07:26:25.848
 final move count 6493
 running test app tp1k using mmap heap 
-start time: 13:49:10.187
-12813714 microseconds for 1000 iterations
-end time: 13:49:23.001
+start time: 07:26:25.860
+12186077 microseconds for 1000 iterations
+end time: 07:26:38.046
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-34.498001 milliseconds
+31.353001 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-34.389000 milliseconds
+31.444002 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 24, hour 13, min 49, sec 23
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 24, hour 16, min 49, sec 23
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 24, hour 13, min 49, sec 23
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 24, hour 21, min 49, sec 23
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 6, hour 7, min 26, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 6, hour 10, min 26, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 6, hour 7, min 26, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 6, hour 15, min 26, sec 38
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 1, day 24, hour 13, min 49, sec 23
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 24, hour 16, min 49, sec 23
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 24, hour 13, min 49, sec 23
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 24, hour 21, min 49, sec 23
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 6, hour 7, min 26, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 6, hour 10, min 26, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 6, hour 7, min 26, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 6, hour 15, min 26, sec 38
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -474,7 +474,7 @@ yo
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Wednesday, January 24, 2024 1:49:23 PM
+  Started : Tuesday, February 6, 2024 7:26:38 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -484,16 +484,18 @@ yo
 
 ------------------------------------------------------------------------------
 
-	                  22	\\lee-server\documents\scratch\debianrv\rust\
+	                  24	\\lee-server\documents\scratch\debianrv\rust\
+	  *EXTRA File 		  32.9 m	rvos.log
+	  *EXTRA File 		  543080	sorted.txt
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :         1         0         1         0         0         0
-   Files :        22         0        22         0         0         0
-   Bytes :   40.52 m         0   40.52 m         0         0         0
+   Files :        24         0        24         0         0         2
+   Bytes :   47.76 m         0   47.76 m         0         0   33.50 m
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Wednesday, January 24, 2024 1:49:24 PM
+   Ended : Tuesday, February 6, 2024 7:26:39 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -536,11 +538,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
-serial runtime:   5.7671ms
+serial runtime:   5.2589ms
 moves:            6493
 iterations:       1
 running test app ttt using mmap 
-serial runtime:   5.8921ms
+serial runtime:   5.2254ms
 moves:            6493
 iterations:       1
 running test app e using brk heap 
@@ -605,6 +607,12 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
+running test app mysort using brk heap 
+element count in vector: 58174
+element count after dedup: 58174
+running test app mysort using mmap 
+element count in vector: 58174
+element count after dedup: 58174
 running tcrash memory low 
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 108d4 main + 268
@@ -617,7 +625,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash memory high 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -631,7 +639,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash pc low 
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -645,7 +653,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash pc high 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -659,7 +667,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer low 
 rvos (amd64) fatal error: stack pointer is below stack memory: a746a0
@@ -673,7 +681,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer l=high 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94800
@@ -687,7 +695,7 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running tcrash stack pointer misaligned 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94802
@@ -701,13 +709,13 @@ address space 10000 to a95000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:32:39 by msft C++ ver 1939 on windows
+Built for amd64 debug on  6 Feb 24 07:09:35 by msft C++ ver 1939 on windows
 
 running ba tp.bas 
 parsing input file linux\tp.bas
-start time: 13:49:26.042
-328 ms for 1 iterations
-end time: 13:49:26.370
+start time: 07:26:42.787
+289 ms for 1 iterations
+end time: 07:26:43.077
 final move count 6493
 exiting the basic interpreter
 running ttty tests 
