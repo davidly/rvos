@@ -3210,6 +3210,7 @@ int main( int argc, char * argv[] )
     
             tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
             g_mmap.trace_allocations();
+            tracer.Trace( "app exit code: %d\n", g_exit_code );
         }
     }
     catch ( bad_alloc & e )

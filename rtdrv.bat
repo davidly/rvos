@@ -27,7 +27,7 @@ exit /b 0
 
 :runRustTests
 
-set _testlist=ato real ttt e tap tphi mysort
+set _testlist=ato real ttt e tap tphi mysort fileops
 
 ( for %%t in (%_testlist%) do ( call :testRunRust %%t ) )
 
