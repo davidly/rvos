@@ -1922,8 +1922,14 @@ void riscv_invoke_ecall( RiscV & cpu )
         }
         case SYS_fdatasync:
         {
-            errno = EACCES;
-            update_a0_errno( cpu, -1 );
+            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+
+#ifdef _WIN32
+            int result = _commit( descriptor );
+#else
+            int result = fdatasync( descriptor );
+#endif
+            update_a0_errno( cpu, result );
             break;
         }
         case SYS_sigaction:

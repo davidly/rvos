@@ -296,7 +296,7 @@ fn test_bool( v: &mut AtomicBool )
     // assert_eq!( v.load( Ordering::Relaxed ), false );
 
     v.store( true, Ordering::SeqCst );
-    assert_eq!( v.compare_exchange( true, false, Ordering::Acquire, Ordering::Relaxed), Ok( true ) );
+    assert_eq!( v.compare_exchange( true, false, Ordering::Acquire, Ordering::Relaxed ), Ok( true ) );
     assert_eq!( v.load( Ordering::Relaxed ), false );
     assert_eq!( v.compare_exchange( true, true, Ordering::SeqCst, Ordering::Acquire ), Err( false ) );
     assert_eq!( v.load( Ordering::Relaxed ), false );
