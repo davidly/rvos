@@ -45,6 +45,8 @@ exit /b 0
 
 :singletonTests
 
+rvos -h:0 -m:20 debianrv\tmmap >>%outputfile%
+
 echo running tcrash memory low >>%outputfile%
 rvos linux\tcrash ml >>%outputfile%
 

@@ -45,6 +45,8 @@ exit /b 0
 
 :runSingletonTests
 
+rvos -h:0 -m:20 debianrv\tmmap >>%outputfile%
+
 rvos debianrv\tcrash ml >>%outputfile%
 rvos debianrv\tcrash mh >>%outputfile%
 rvos debianrv\tcrash pcl >>%outputfile%
