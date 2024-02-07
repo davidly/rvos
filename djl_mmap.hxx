@@ -37,9 +37,39 @@ class CMMap
             return (size_t) -1;
         } //binary_search
 
+        void zero_entry( size_t i )
+        {
+            memset( pmem + entries[ i ].address, 0, entries[ i ].length );
+        } //zero_entry
+
+        void validate()
+        {
+#ifndef NDEBUG
+            for ( size_t i = 0; i < entries.size(); i++ )
+            {
+                MMapEntry & entry = entries[ i ];
+                if ( i < ( entries.size() - 1 ) )
+                {
+                    assert( entry.address < entries[ i + 1 ].address );
+                    assert( ( entry.address + entry.length ) <= entries[ i + 1 ].address );
+                }
+                else
+                    assert( ( entry.address + entry.length ) <= ( base + length ) );
+            }
+#endif
+        } //validate
+
     public:
         CMMap() : base( 0 ), length( 0 ), peak( 0 ), pmem( 0 ) {}
-        ~CMMap() {}
+        ~CMMap() { validate(); }
+        uint64_t peak_usage() { return peak; }
+
+        void initialize( uint64_t b, uint64_t l, uint8_t * p )
+        {
+            base = b;
+            length = l;
+            pmem = p;
+        } //initialize
 
         void trace_allocations()
         {
@@ -58,18 +88,6 @@ class CMMap
                 tracer.Trace( "    total memory in use: %llu bytes spanning %llu bytes\n", total, beyond - base );
             }
         } //trace_allocations
-
-        void initialize( uint64_t b, uint64_t l, uint8_t * p )
-        {
-            base = b;
-            length = l;
-            pmem = p;
-        } //initialize
-
-        void zero_entry( size_t i )
-        {
-            memset( pmem + entries[ i ].address, 0, entries[ i ].length );
-        } //zero_entry
 
         uint64_t allocate( uint64_t l )
         {
@@ -92,6 +110,7 @@ class CMMap
                 zero_entry( 0 );
                 peak = l;
                 trace_allocations();
+                validate();
                 return base;
             }
             else
@@ -111,6 +130,7 @@ class CMMap
                         tracer.Trace( "  inserted in the gap, result %llx\n", result );
                         zero_entry( i + 1 );
                         trace_allocations();
+                        validate();
                         return result;
                     }
                 }
@@ -128,6 +148,7 @@ class CMMap
                     entries.push_back( newentry );
                     zero_entry( entries.size() - 1 );
                     trace_allocations();
+                    validate();
                     peak = ( free_offset - base + l );
                     return free_offset;
                 }
@@ -148,6 +169,7 @@ class CMMap
                 else
                     entries.erase( entries.begin() + match );
                 trace_allocations();
+                validate();
             }
             else
             {
@@ -169,6 +191,7 @@ class CMMap
                 {
                     tracer.Trace( "  mremap/resize entry size shrunk\n" );
                     entries[ match ].length = new_l;
+                    validate();
                     return entries[ match ].address;
                 }
 
@@ -179,6 +202,7 @@ class CMMap
                 {
                     tracer.Trace( "  mremap extending entry %zu in place from size %llu to %llu\n", match, old_l, new_l );
                     entries[ match ].length = new_l;
+                    validate();
                     return a;
                 }
 
@@ -203,6 +227,7 @@ class CMMap
                             match = binary_search( a ); // it may have moved after the insert
                             entries.erase( entries.begin() + match );
                             trace_allocations();
+                            validate();
                             return result;
                         }
                     }
@@ -223,6 +248,7 @@ class CMMap
                         memset( pmem + newEntry.address + entries[ match ].length, 0, new_l - entries[ match ].length );
                         entries.erase( entries.begin() + match );
                         trace_allocations();
+                        validate();
                         peak = ( free_offset - base + new_l );
                         return free_offset;
                     }
@@ -237,7 +263,5 @@ class CMMap
 
             return 0;
         } //resize
-
-        uint64_t peak_usage() { return peak; }
 };
 

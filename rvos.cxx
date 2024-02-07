@@ -1648,7 +1648,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 {
                     // 2 == MAP_PRIVATE, 0x20 == MAP_ANONYMOUS, 0x100 = MAP_FIXED
 
-                    if ( ( 0 == ( 0x100 & flags ) ) && ( 0x22 & flags ) )
+                    if ( ( 0 == ( 0x100 & flags ) ) && ( 0x22 == ( 0x22 & flags ) ) )
                     {
                         uint64_t result = g_mmap.allocate( length );
                         if ( 0 != result )
