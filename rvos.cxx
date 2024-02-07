@@ -1551,6 +1551,8 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             uint64_t address = cpu.regs[ RiscV::a0 ];
             uint64_t length = cpu.regs[ RiscV::a1 ];
+            length = round_up( length, (size_t) 4096 );
+
             bool ok = g_mmap.free( address, length );
             if ( ok )
                 update_a0_errno( cpu, 0 );
@@ -1574,6 +1576,8 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  warning: mremap allocation new length isn't 4k-page aligned\n" );
                 new_length = round_up( new_length, (size_t) 4096 );
             }
+
+            old_length = round_up( old_length, (size_t) 4096 );
 
             // flags: MREMAP_MAYMOVE = 1, MREMAP_FIXED = 2, MREMAP_DONTUNMAP = 3. Ignore them all
 
@@ -1642,7 +1646,9 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 if ( 0 == ( length & 0xfff ) )
                 {
-                    if ( ( 0 == ( 0x100 & flags ) ) && ( 2 & flags ) ) // 2 == MAP_ANONYMOUS, 0x100 = MAP_FIXED
+                    // 2 == MAP_PRIVATE, 0x20 == MAP_ANONYMOUS, 0x100 = MAP_FIXED
+
+                    if ( ( 0 == ( 0x100 & flags ) ) && ( 0x22 & flags ) )
                     {
                         uint64_t result = g_mmap.allocate( length );
                         if ( 0 != result )
@@ -1652,7 +1658,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                         }
                     }
                     else
-                        tracer.Trace( "  error: mmap flags aren't supported\n" );
+                        tracer.Trace( "  error: mmap flags %#x aren't supported\n", flags );
                 }
                 else
                     tracer.Trace( "  error mmap length isn't 4k-page-aligned\n" );
@@ -3210,6 +3216,7 @@ int main( int argc, char * argv[] )
     
             tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
             g_mmap.trace_allocations();
+            tracer.Trace( "highwater mmap heap: %15s\n", RenderNumberWithCommas( g_mmap.peak_usage(), ac ) );
             tracer.Trace( "app exit code: %d\n", g_exit_code );
         }
     }

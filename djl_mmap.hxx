@@ -14,6 +14,7 @@ class CMMap
         vector<MMapEntry> entries; // sorted by address
         uint64_t base;
         uint64_t length;
+        uint64_t peak;
         uint8_t * pmem;
 
         size_t binary_search( uint64_t key )
@@ -37,7 +38,7 @@ class CMMap
         } //binary_search
 
     public:
-        CMMap() : base( 0 ), length( 0 ), pmem( 0 ) {}
+        CMMap() : base( 0 ), length( 0 ), peak( 0 ), pmem( 0 ) {}
         ~CMMap() {}
 
         void trace_allocations()
@@ -65,8 +66,14 @@ class CMMap
             pmem = p;
         } //initialize
 
+        void zero_entry( size_t i )
+        {
+            memset( pmem + entries[ i ].address, 0, entries[ i ].length );
+        } //zero_entry
+
         uint64_t allocate( uint64_t l )
         {
+            assert( 0 == ( l & 0xfff ) );
             trace_allocations();
 
             if ( 0 == entries.size() )
@@ -82,6 +89,8 @@ class CMMap
 
                 MMapEntry entry = { base, l };
                 entries.push_back( entry );
+                zero_entry( 0 );
+                peak = l;
                 trace_allocations();
                 return base;
             }
@@ -100,12 +109,13 @@ class CMMap
                         MMapEntry newEntry = { result, l };
                         entries.insert( i + 1 + entries.begin(), newEntry );
                         tracer.Trace( "  inserted in the gap, result %llx\n", result );
+                        zero_entry( i + 1 );
                         trace_allocations();
                         return result;
                     }
                 }
 
-                // just add a new entry at the end if space is available
+                // add a new entry at the end if space is available
 
                 tracer.Trace( "  no sufficient gap found; adding a subsequent mmap entry\n" );
 
@@ -116,7 +126,9 @@ class CMMap
                 {
                     MMapEntry newentry = { free_offset, l };
                     entries.push_back( newentry );
+                    zero_entry( entries.size() - 1 );
                     trace_allocations();
+                    peak = ( free_offset - base + l );
                     return free_offset;
                 }
             }
@@ -146,8 +158,9 @@ class CMMap
             return true;
         } //free
 
-        uint64_t resize( uint64_t a, uint64_t old_l, uint64_t new_l, bool maymove )
+        uint64_t resize( uint64_t a, uint64_t old_l, uint64_t new_l, bool may_move )
         {
+            assert( 0 == ( new_l & 0xfff ) );
             trace_allocations();
             size_t match = binary_search( a );
             if ( -1 != match )
@@ -159,8 +172,43 @@ class CMMap
                     return entries[ match ].address;
                 }
 
-                if ( maymove )
+                // check if it can be extended in place
+
+                if ( ( ( match == ( entries.size() - 1 ) ) && ( ( entries[ match ].address + new_l ) <= length ) ) ||
+                       ( ( entries[ match ].address + new_l ) < entries[ match + 1 ].address ) )
                 {
+                    tracer.Trace( "  mremap extending entry %zu in place from size %llu to %llu\n", match, old_l, new_l );
+                    entries[ match ].length = new_l;
+                    return a;
+                }
+
+                if ( may_move )
+                {
+                    // first look for a gap large enough to work
+    
+                    for ( size_t i = 0; i < entries.size() - 1; i++ )
+                    {
+                        MMapEntry & entry = entries[ i ];
+    
+                        uint64_t gapSize = entries[ i + 1 ].address  - ( entry.address + entry.length );
+                        if ( gapSize >= new_l )
+                        {
+                            uint64_t result = entry.address + entry.length;
+                            MMapEntry newEntry = { result, new_l };
+                            tracer.Trace( "  mremap inserted in gap pmem %p, dst %#llx, src %#llx, old len %lld new len %lld\n",
+                                          pmem, newEntry.address, entries[ match ].address, entries[ match ].length, new_l );
+                            memcpy( pmem + newEntry.address, pmem + entries[ match ].address, entries[ match ].length );
+                            memset( pmem + newEntry.address + entries[ match ].length, 0, new_l - entries[ match ].length );
+                            entries.insert( i + 1 + entries.begin(), newEntry );
+                            match = binary_search( a ); // it may have moved after the insert
+                            entries.erase( entries.begin() + match );
+                            trace_allocations();
+                            return result;
+                        }
+                    }
+
+                    // create a new entry at the end and memcpy the old to the new
+
                     MMapEntry & lastEntry = entries[ entries.size() - 1 ];
                     uint64_t free_offset = lastEntry.address + lastEntry.length;
 
@@ -169,10 +217,13 @@ class CMMap
                         tracer.Trace( "  free_offset %llx, new_l %llx\n", free_offset, new_l );
                         MMapEntry newEntry = { free_offset, new_l };
                         entries.push_back( newEntry );
-                        tracer.Trace( "  pmem %p, dst %#llx, src %#llx, old len %lld\n", pmem, newEntry.address, entries[ match ].address, entries[ match ].length );
+                        tracer.Trace( "  mremap added at end pmem %p, dst %#llx, src %#llx, old len %lld\n",
+                                      pmem, newEntry.address, entries[ match ].address, entries[ match ].length );
                         memcpy( pmem + newEntry.address, pmem + entries[ match ].address, entries[ match ].length );
+                        memset( pmem + newEntry.address + entries[ match ].length, 0, new_l - entries[ match ].length );
                         entries.erase( entries.begin() + match );
                         trace_allocations();
+                        peak = ( free_offset - base + new_l );
                         return free_offset;
                     }
 
@@ -186,6 +237,7 @@ class CMMap
 
             return 0;
         } //resize
-};
 
+        uint64_t peak_usage() { return peak; }
+};
 
