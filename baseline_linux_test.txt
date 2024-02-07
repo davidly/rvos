@@ -1,4 +1,4 @@
-Wed Jan 24 13:53:32 PST 2024
+Wed Feb  7 11:21:50 PST 2024
 t
 a: 0 4000000000000000
 a: 4 0
@@ -112,7 +112,7 @@ done
 ttt
 starting...
 64930 moves
-20.634001 milliseconds
+21.514002 milliseconds
 sieve
 1899 primes.
 e
@@ -121,9 +121,9 @@ done
 tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 tp1k
-start time: 13:53:32.369
-8419752 microseconds for 1000 iterations
-end time: 13:53:40.789
+start time: 11:21:50.946
+8557574 microseconds for 1000 iterations
+end time: 11:21:59.504
 final move count 6493
 tins
 hello
@@ -162,10 +162,10 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 ttime
-before TZ is set: tz: '(null)', year: 2024, month 1, day 24, hour 13, min 53, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 1, day 24, hour 16, min 53, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 1, day 24, hour 13, min 53, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 1, day 24, hour 21, min 53, sec 40
+before TZ is set: tz: '(null)', year: 2024, month 2, day 7, hour 11, min 21, sec 59
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 7, hour 14, min 21, sec 59
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 7, hour 11, min 21, sec 59
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 7, hour 19, min 21, sec 59
 terrno
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -263,7 +263,7 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 ttt
-serial runtime:   3.946579ms
+serial runtime:   4.002732ms
 moves:            6493
 iterations:       1
 e
@@ -297,13 +297,23 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
+mysort
+element count in vector: 58174
+element count after dedup: 58174
+fileops
+exiting fileops with great success
+tmmap test
+MAP_PRIVATE: 0x2
+MAP_ANONYMOUS: 0x20
+MREMAP_MAYMOVE: 0x1
+mmap test completed with great success
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 5.080582 ms
-start time: 13:53:41.355
-208 ms for 1 iterations
-end time: 13:53:41.564
+Time to parse tests/tp.bas: 5.024117 ms
+start time: 11:22:01.076
+209 ms for 1 iterations
+end time: 11:22:01.285
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -322,7 +332,7 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:53:27 by g++ on linux
+Built for amd64 debug on  7 Feb 24 11:21:16 by g++ on linux
 
 tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -336,7 +346,7 @@ address space 10000 to a95000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 24 Jan 24 13:53:27 by g++ on linux
+Built for amd64 debug on  7 Feb 24 11:21:16 by g++ on linux
 
 running ttty tests
 is stdin tty:  yes
