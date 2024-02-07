@@ -15,6 +15,9 @@ do
     rvos debianrv/rust/$arg >>linux_test.txt
 done
 
+echo "tmmap test" >>linux_test.txt
+rvos -h:0 -m:20 tests/tmmap >>linux_test.txt
+
 echo "an nap" >>linux_test.txt
 rvos -h:30 tests/an nap  >>linux_test.txt
 
