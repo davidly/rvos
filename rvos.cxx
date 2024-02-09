@@ -91,7 +91,7 @@ bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const uint64_t g_args_commit = 1024;           // storage spot for command-line arguments and environment variables
 const uint64_t g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack
 uint64_t g_brk_commit = 10 * 1024 * 1024;      // RAM to reserve if the app calls brk to allocate space. 10 meg default
-uint64_t g_mmap_commit = 0 * 1024 * 1024;      // RAM to reserve if the app mmap to allocate space. 0 meg default
+uint64_t g_mmap_commit = 10 * 1024 * 1024;     // RAM to reserve if the app mmap to allocate space. 10 meg default
 bool g_terminate = false;                      // has the app asked to shut down?
 int g_exit_code = 0;                           // exit code of the app in the vm
 vector<uint8_t> memory;                        // RAM for the vm
@@ -401,9 +401,9 @@ void usage( char const * perror = 0 )
     printf( "usage: rvos <elf_executable>\n" );
     printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
-    printf( "                 -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 10\n" );
+    printf( "                 -h:X   # of meg for the heap (brk space). 0..1024 are valid. default is 10\n" );
     printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
-    printf( "                 -m:X   # of meg for mmap space 0..1024 are valid. default is 0\n" );
+    printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 10\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to rvos.log\n" );
     printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
