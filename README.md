@@ -7,7 +7,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
                   -g     (internal) generate rcvtable.txt
                   -h:X   # of meg for the heap (brk space) 0..1024 are valid. default is 10
                   -i     if -t is set, also enables risc-v instruction tracing
-                  -m:X   # of meg for mmap space 0..1024 are valid. default is 0
+                  -m:X   # of meg for mmap space 0..1024 are valid. default is 10
                   -p     shows performance information at app exit
                   -t     enable debug tracing to rvos.log
 
@@ -46,6 +46,7 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * m.sh            Builds rvos on Linux. mr.sh is the same but is release-optimized.
     * mg.bat          Builds rvos on Windows using Mingw64 g++. mgr.bat for release-optimized.
     * mt.sh           Builds test .c apps on Linux
+    * mmac.sh         Builds rvos on MacOS
     * mrvoself.sh     Builds rvos.elf so it can be run in an rvos emulator on Linux
     * marm64.bat      Builds rvos on Arm64 Windows
     * mrvos.bat       Builds rvos.elf targeting a RISC-V Linux machine, which rvos can execute.
@@ -57,15 +58,24 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * djl_os.hxx      eases porting among various operating systems
     * djl_con.hxx     os-dependent console and display functions
     * djl_128.hxx     128-bit integer support
-    * djl_mmap.hxx    very simplistic mmap implementation
+    * djl_mmap.hxx    very simplistic mmap implementation so the GNU C Runtime heap works
     * words.txt       Used by tests\an.c test app to generate anagrams 
 
-The tests folder has a number of small C/C++ programs that can be compiled using mariscv.bat on Windows or
-mt.sh on Linux. The .elf files produced can be run by rvos. If the app will use more 10 meg of RAM for the 
-heap, use rvos' -h argument to specify how much RAM to allocate. The anagram generater an can use up to 
-30MB in some cases.
+The testrust and tests foldesr have a number of small C/C++/Rust programs to validate rvos. If the app will
+use more 20 meg of RAM for the heap, use rvos' -h or -m argument to specify how much RAM to allocate. The anagram 
+generater an can use up to 30MB in some cases.
 
-* Test files:
+* Rust test apps in the testrust folder:
+    * ato.rs      Tests atomic operations on ints of various sizes
+    * e.rs        Computes e
+    * fileops.rs  Tests file i/o
+    * mysort.exe  Tests file i/o and vectors
+    * real.rs     Tests floating point
+    * tap.rs      Computes Apéry's number
+    * tphi.rs     Computes phi
+    * ttt.rs      Proves you can't win at tic-tac-toe
+
+* C test apps in the Test folder:
     * an.c        Anagram generator
     * ba.c        Simple basic interpreter and compiler (can target RISC-V, 6502, 8080, 8086, x86, amd64, arm32, arm64)
     * e.c         Computes e
@@ -88,6 +98,11 @@ heap, use rvos' -h argument to specify how much RAM to allocate. The anagram gen
     * ts.c        Tests bit shifts on various integer types
     * ttime.c     Tests retrieving and showing the current time
     * ttt.c       Proves you can't win at tic-tac-toe
+    * ttty.c      Tests isatty()
+    * fileops.c   Tests fopen() and related functions
+    * trw.c       Tests open() and related functions
+    * t_setjmp.c  Tests setjmp()
+    * tex.c       Tests C++ exceptions
 
 I tested the apps above with 3 versions of g++ that target RISC-V. Generated apps from each utilize different RISC-V instructions and Linux syscalls.
 
@@ -101,7 +116,7 @@ To run the rvos emulator nested in the rvos emulator, on Linux/MacOS/Windows iss
     
 That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
-in the emulator makes it aout 64x slower.
+in the emulator makes it aout 64x slower. Four Grammys and she deserved more.
 
 The Gnu g++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
 
@@ -115,7 +130,7 @@ different on the actual hardware -- it calls bamain (not main) and the text prin
     * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
     * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
 
-If you get a runtime error like this then use the -h flag to reserve more RAM for the heap.
+If you get a runtime error like this then use the -h or -m flags to reserve more RAM for the heap.
 
         terminate called after throwing an instance of 'std::bad_alloc'
           what():  std::bad_alloc
