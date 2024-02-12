@@ -1642,7 +1642,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 length = round_up( length, (size_t) 4096 );
             }
 
-            if ( 0 != prot )
+            if ( 0 == addr )
             {
                 if ( 0 == ( length & 0xfff ) )
                 {
@@ -1664,7 +1664,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     tracer.Trace( "  error mmap length isn't 4k-page-aligned\n" );
             }
             else
-                tracer.Trace( "  mmap reservation without commitment isn't supported\n" );
+                tracer.Trace( "  mmap allocation at specific address isn't supported\n" );
     
             tracer.Trace( "  mmap failed\n" );
             errno = ENOMEM;

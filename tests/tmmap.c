@@ -38,7 +38,7 @@ int main( int argc, char * argv[] )
         void * p = mmap( 0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0 );
         if ( (void *) -1 == p )
         {
-            printf( "unable to mmap %zu bytes, error %d", size, errno );
+            printf( "unable to mmap %zu bytes, error %d = %s", size, errno, strerror( errno ) );
             exit( 1 );
         }
         //printf( "mapped entry %zu size %zu as %p\n", i, size, p );
@@ -51,10 +51,11 @@ int main( int argc, char * argv[] )
     for ( size_t i = 0; i < cmaps; i += 2 )
     {
         size_t size = ( i + 1 ) * 4096;
+        validate( amaps, i, size );
         int result = munmap( amaps[ i ], size );
         if ( -1 == result )
         {
-            printf( "failed to unmap i %zd\n", i );
+            printf( "failed to unmap i %zd, error %d = %s\n", i, errno, strerror( errno ) );
             exit( 1 );
         }
         //printf( "unmapped size %zu as %p\n", size, amaps[ i ] );
@@ -71,7 +72,7 @@ int main( int argc, char * argv[] )
         void * p = mremap( amaps[ i ], size, new_size, MREMAP_MAYMOVE );
         if ( (void *) -1 == p )
         {
-            printf( "unable to mremap %zu bytes, error %d", size, errno );
+            printf( "unable to mremap %zu bytes, error %d = %s\n", size, errno, strerror( errno ) );
             exit( 1 );
         }
         //printf( "remapped entry %zu from size %zu to size %zu as %p\n", i, size, new_size, p );
@@ -87,7 +88,7 @@ int main( int argc, char * argv[] )
         void * p = mmap( 0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0 );
         if ( (void *) -1 == p )
         {
-            printf( "pass two unable to mmap %zu bytes, error %d", size, errno );
+            printf( "pass two unable to mmap %zu bytes, error %d = %s\n", size, errno, strerror( errno ) );
             exit( 1 );
         }
         //printf( "mapped entry %zu size %zu as %p\n", i, size, p );
@@ -105,7 +106,7 @@ int main( int argc, char * argv[] )
         int result = munmap( amaps[ i ], size );
         if ( -1 == result )
         {
-            printf( "failed to unmap i %zd\n", i );
+            printf( "failed to unmap i %zd, error %d = %s\n", i, errno, strerror( errno ) );
             exit( 1 );
         }
         //printf( "unmapped entry %zu size %zu as %p\n", i, size, amaps[ i ] );
