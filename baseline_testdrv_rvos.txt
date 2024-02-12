@@ -1,10 +1,10 @@
-Fri 02/09/2024  5:12:03.55 
+Mon 02/12/2024 15:13:01.31 
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Friday, February 9, 2024 5:12:03 AM
+  Started : Monday, February 12, 2024 3:13:01 PM
    Source : \\lee-server\documents\scratch\debianrv\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\
 
@@ -30,7 +30,7 @@ Fri 02/09/2024  5:12:03.55
    Files :        71         0        71         0         0         6
    Bytes :  132.16 m         0  132.16 m         0         0    1.72 m
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Friday, February 9, 2024 5:12:04 AM
+   Ended : Monday, February 12, 2024 3:13:02 PM
 
 running test app t using brk heap 
 a: 0 4000000000000000
@@ -238,24 +238,24 @@ hello
 test instructions is complete
 running test app terrno using brk heap 
 running test app terrno using mmap heap 
-running test app tp1k using brk heap 
-start time: 05:12:08.966
-12841281 microseconds for 1000 iterations
-end time: 05:12:21.807
+running test app tp using brk heap 
+start time: 15:13:05.731
+12665 microseconds for 1 iterations
+end time: 15:13:05.743
 final move count 6493
-running test app tp1k using mmap heap 
-start time: 05:12:21.819
-12437146 microseconds for 1000 iterations
-end time: 05:12:34.256
+running test app tp using mmap heap 
+start time: 15:13:05.760
+12787 microseconds for 1 iterations
+end time: 15:13:05.773
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-32.579002 milliseconds
+32.013000 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-32.810001 milliseconds
+32.002003 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -299,15 +299,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 9, hour 5, min 12, sec 34
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 9, hour 8, min 12, sec 34
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 9, hour 5, min 12, sec 34
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 9, hour 13, min 12, sec 34
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 12, hour 15, min 13, sec 5
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 12, hour 18, min 13, sec 5
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 12, hour 15, min 13, sec 5
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 12, hour 23, min 13, sec 5
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 9, hour 5, min 12, sec 34
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 9, hour 8, min 12, sec 34
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 9, hour 5, min 12, sec 34
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 9, hour 13, min 12, sec 34
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 12, hour 15, min 13, sec 6
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 12, hour 18, min 13, sec 6
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 12, hour 15, min 13, sec 6
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 12, hour 23, min 13, sec 6
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -535,11 +535,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
-serial runtime:   5.4121ms
+serial runtime:   5.4384ms
 moves:            6493
 iterations:       1
 running test app ttt using mmap 
-serial runtime:   5.4118ms
+serial runtime:   5.4289ms
 moves:            6493
 iterations:       1
 running test app e using brk heap 
@@ -614,6 +614,7 @@ running test app fileops using brk heap
 exiting fileops with great success
 running test app fileops using mmap 
 exiting fileops with great success
+running tmmap 
 MAP_PRIVATE: 0x2
 MAP_ANONYMOUS: 0x20
 MREMAP_MAYMOVE: 0x1
@@ -629,7 +630,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10bc8 main + 1b8
@@ -642,7 +643,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200  + 0
@@ -655,7 +656,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000  + 0
@@ -668,7 +669,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: stack pointer is below stack memory: a86ce0
 pc: 255a8 __vfprintf_internal + c
@@ -681,7 +682,7 @@ address space 10000 to 14a7000
     s4:            5ba60,   s5:           a873f0,   s6:            7ddc0,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:               79,   t5:            7a9b4,   t6:                a, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b60
 pc: 10d7c rvos_sp_add + 4
@@ -694,7 +695,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: aa6b62
 pc: 10d7c rvos_sp_add + 4
@@ -707,7 +708,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:08:19 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
 running ttty tests 
 is stdin tty:  yes
@@ -715,9 +716,9 @@ is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
 parsing input file debianrv\tp.bas
-start time: 05:12:38.717
-260 ms for 1 iterations
-end time: 05:12:38.978
+start time: 15:13:10.317
+262 ms for 1 iterations
+end time: 15:13:10.579
 final move count 6493
 exiting the basic interpreter
 sorting debianrv\words.txt ==> debianrv\sorted.txt
@@ -767,9 +768,9 @@ id leaved
 idea veld
 lade vied
 lead vied
-start time: 05:12:39.969
-1203948 microseconds for 1 iterations
-end time: 05:12:41.173
+start time: 15:13:11.578
+1187096 microseconds for 1 iterations
+end time: 15:13:12.765
 final move count 6493
 
 195D 0001$
@@ -778,3 +779,27 @@ iterations: 1
 0.2 seconds
 moves: 6493
 iterations: 1
+running ntvao, ntvcm, and ntvdm 
+
+195D 0001$
+elapsed milliseconds:              183
+6502 cycles:                 1,660,247
+clock rate:                  unbounded
+ms at 1.022727 Mhz:              1,623 == 0 days, 0 hours, 0 minutes, 1 seconds, 623 milliseconds
+moves: 6493
+iterations: 1
+
+elapsed milliseconds:              179
+Z80  cycles:                 5,242,794
+clock rate:                  unbounded
+approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds, 310 milliseconds
+0.2 seconds
+moves: 6493
+iterations: 1
+
+elapsed milliseconds:              251
+8086 cycles:                 4,773,794
+clock rate:                  unbounded
+approx ms at 4.77Mhz:            1,000  == 0 days, 0 hours, 0 minutes, 1 seconds, 0 milliseconds
+app exit code:                       0
+Mon 02/12/2024 15:13:14.22 
