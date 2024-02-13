@@ -34,15 +34,28 @@ set _testlist=ato real ttt e tap tphi mysort fileops
 
 ( for %%t in (%_testlist%) do ( call :testRunRust %%t ) )
 
+:crashTests
+
+set _testlist=ml mh pcl pch spl sph spm
+
+( for %%t in (%_testlist%) do ( call :testRunCrash %%t ) )
+
 goto :singletonTests
+
+:testrunCrash
+
+echo running tcrash app %~1 >>%outputfile%
+%_rvoscmd% linux\tcrash %~1 >>%outputfile%
+
+exit /b 0
 
 :testRunRust
 
-echo running test app %~1 using brk heap >>"%outputfile%"
-%_rvoscmd% -h:10 -m:0 debianrv\rust\%~1 >>"%outputfile%"
+echo running test app %~1 using brk heap >>%outputfile%
+%_rvoscmd% -h:10 -m:0 debianrv\rust\%~1 >>%outputfile%
 
-echo running test app %~1 using mmap >>"%outputfile%"
-%_rvoscmd% -h:0 -m:10 debianrv\rust\%~1 >>"%outputfile%"
+echo running test app %~1 using mmap >>%outputfile%
+%_rvoscmd% -h:0 -m:10 debianrv\rust\%~1 >>%outputfile%
 
 exit /b 0
 
@@ -56,27 +69,6 @@ echo running ttt_rvu >>%outputfile%
 
 echo running tmmap >>%outputfile%
 %_rvoscmd% -h:0 -m:20 debianrv\tmmap >>%outputfile%
-
-echo running tcrash memory low >>%outputfile%
-%_rvoscmd% linux\tcrash ml >>%outputfile%
-
-echo running tcrash memory high >>%outputfile%
-%_rvoscmd% linux\tcrash mh >>%outputfile%
-
-echo running tcrash pc low >>%outputfile%
-%_rvoscmd% linux\tcrash pcl >>%outputfile%
-
-echo running tcrash pc high >>%outputfile%
-%_rvoscmd% linux\tcrash pch >>%outputfile%
-
-echo running tcrash stack pointer low >>%outputfile%
-%_rvoscmd% linux\tcrash spl >>%outputfile%
-
-echo running tcrash stack pointer l=high >>%outputfile%
-%_rvoscmd% linux\tcrash sph >>%outputfile%
-
-echo running tcrash stack pointer misaligned >>%outputfile%
-%_rvoscmd% linux\tcrash spm >>%outputfile%
 
 echo running ba tp.bas >>%outputfile%
 %_rvoscmd% linux\ba linux\tp.bas >>%outputfile% >>%outputfile%

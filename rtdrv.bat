@@ -34,7 +34,20 @@ set _testlist=ato real ttt e tap tphi mysort fileops
 
 ( for %%t in (%_testlist%) do ( call :testRunRust %%t ) )
 
+:crashTests
+
+set _testlist=ml mh pcl pch spl sph spm
+
+( for %%t in (%_testlist%) do ( call :testRunCrash %%t ) )
+
 goto :runSingletonTests
+
+:testrunCrash
+
+echo running tcrash app %~1 >>%outputfile%
+%_rvoscmd% debianrv\tcrash %~1 >>%outputfile%
+
+exit /b 0
 
 :testRunRust
 
@@ -50,14 +63,6 @@ exit /b 0
 
 echo running tmmap >>%outputfile%
 %_rvoscmd% -h:0 -m:20 debianrv\tmmap >>%outputfile%
-
-%_rvoscmd% debianrv\tcrash ml >>%outputfile%
-%_rvoscmd% debianrv\tcrash mh >>%outputfile%
-%_rvoscmd% debianrv\tcrash pcl >>%outputfile%
-%_rvoscmd% debianrv\tcrash pch >>%outputfile%
-%_rvoscmd% debianrv\tcrash spl >>%outputfile%
-%_rvoscmd% debianrv\tcrash sph >>%outputfile%
-%_rvoscmd% debianrv\tcrash spm >>%outputfile%
 
 echo running ttty tests >>%outputfile%
 echo blahblah >bar

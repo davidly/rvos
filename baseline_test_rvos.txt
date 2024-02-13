@@ -1,4 +1,4 @@
-Mon 02/12/2024 15:12:37.73 
+Tue 02/13/2024  6:30:09.46 
 running test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running test app tp using brk heap 
-start time: 15:12:38.703
-12875 microseconds for 1 iterations
-end time: 15:12:38.715
+start time: 06:30:10.472
+12762 microseconds for 1 iterations
+end time: 06:30:10.485
 final move count 6493
 running test app tp using mmap heap 
-start time: 15:12:38.732
-12977 microseconds for 1 iterations
-end time: 15:12:38.745
+start time: 06:30:10.496
+12694 microseconds for 1 iterations
+end time: 06:30:10.509
 final move count 6493
 running test app ttt using brk heap 
 starting...
 64930 moves
-33.050003 milliseconds
+32.438000 milliseconds
 running test app ttt using mmap heap 
 starting...
 64930 moves
-33.013000 milliseconds
+32.195000 milliseconds
 running test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running test app tm using mmap heap 
 success
 running test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 12, hour 15, min 12, sec 38
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 12, hour 18, min 12, sec 38
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 12, hour 15, min 12, sec 38
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 12, hour 23, min 12, sec 38
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 6, min 30, sec 10
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 9, min 30, sec 10
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 6, min 30, sec 10
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 14, min 30, sec 10
 running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 12, hour 15, min 12, sec 38
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 12, hour 18, min 12, sec 38
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 12, hour 15, min 12, sec 38
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 12, hour 23, min 12, sec 38
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 6, min 30, sec 10
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 9, min 30, sec 10
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 6, min 30, sec 10
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 14, min 30, sec 10
 running test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -474,7 +474,7 @@ yo
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Monday, February 12, 2024 3:12:39 PM
+  Started : Tuesday, February 13, 2024 6:30:11 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -493,7 +493,7 @@ yo
    Files :        33         0        33         0         0         0
    Bytes :   87.70 m         0   87.70 m         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Monday, February 12, 2024 3:12:40 PM
+   Ended : Tuesday, February 13, 2024 6:30:12 AM
 
 running test app ato using brk heap 
 testing atomic operations
@@ -536,11 +536,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running test app ttt using brk heap 
-serial runtime:   5.5496ms
+serial runtime:   5.7304ms
 moves:            6493
 iterations:       1
 running test app ttt using mmap 
-serial runtime:   5.4583ms
+serial runtime:   5.507ms
 moves:            6493
 iterations:       1
 running test app e using brk heap 
@@ -615,30 +615,7 @@ running test app fileops using brk heap
 exiting fileops with great success
 running test app fileops using mmap 
 exiting fileops with great success
-running ttt_riscv 
-starting...
-6493 moves
-2 milliseconds
-1 iterations
-elapsed milliseconds:                2
-RISC-V cycles:                 396,095
-effective clock rate:          198,047
-app exit code:                       0
-running ttt_rvu 
-starting...
-6493 moves
-1 milliseconds
-1 iterations
-elapsed milliseconds:                2
-RISC-V cycles:                 309,728
-effective clock rate:          154,864
-app exit code:                       0
-running tmmap 
-MAP_PRIVATE: 0x2
-MAP_ANONYMOUS: 0x20
-MREMAP_MAYMOVE: 0x1
-mmap test completed with great success
-running tcrash memory low 
+running tcrash app ml 
 rvos (amd64) fatal error: memory reference prior to address space: 200
 pc: 108d4 main + 268
 address space 10000 to 1495000
@@ -652,7 +629,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash memory high 
+running tcrash app mh 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
 pc: 10824 main + 1b8
 address space 10000 to 1495000
@@ -666,7 +643,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash pc low 
+running tcrash app pcl 
 rvos (amd64) fatal error: pc is lower than memory: 200
 pc: 200  + 0
 address space 10000 to 1495000
@@ -680,7 +657,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash pc high 
+running tcrash app pch 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
 pc: 2000000000000000  + 0
 address space 10000 to 1495000
@@ -694,7 +671,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash stack pointer low 
+running tcrash app spl 
 rvos (amd64) fatal error: stack pointer is below stack memory: a746a0
 pc: 1d1b2 __printf_buffer + c
 address space 10000 to 1495000
@@ -708,7 +685,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash stack pointer l=high 
+running tcrash app sph 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94800
 pc: 109dc rvos_sp_add + 4
 address space 10000 to 1495000
@@ -722,7 +699,7 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
-running tcrash stack pointer misaligned 
+running tcrash app spm 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94802
 pc: 109dc rvos_sp_add + 4
 address space 10000 to 1495000
@@ -736,11 +713,34 @@ address space 10000 to 1495000
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
 Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
 
+running ttt_riscv 
+starting...
+6493 moves
+2 milliseconds
+1 iterations
+elapsed milliseconds:                2
+RISC-V cycles:                 396,095
+effective clock rate:          198,047
+app exit code:                       0
+running ttt_rvu 
+starting...
+6493 moves
+2 milliseconds
+1 iterations
+elapsed milliseconds:                2
+RISC-V cycles:                 309,728
+effective clock rate:          154,864
+app exit code:                       0
+running tmmap 
+MAP_PRIVATE: 0x2
+MAP_ANONYMOUS: 0x20
+MREMAP_MAYMOVE: 0x1
+mmap test completed with great success
 running ba tp.bas 
 parsing input file linux\tp.bas
-start time: 15:12:44.348
-298 ms for 1 iterations
-end time: 15:12:44.647
+start time: 06:30:16.302
+308 ms for 1 iterations
+end time: 06:30:16.610
 final move count 6493
 exiting the basic interpreter
 running ttty tests 
@@ -1293,14 +1293,14 @@ rig robbed sheep
 running ntvao, ntvcm, and ntvdm 
 
 195D 0001$
-elapsed milliseconds:              552
+elapsed milliseconds:              561
 6502 cycles:                 1,660,247
 clock rate:                  unbounded
 ms at 1.022727 Mhz:              1,623 == 0 days, 0 hours, 0 minutes, 1 seconds, 623 milliseconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:              953
+elapsed milliseconds:              961
 Z80  cycles:                 5,242,794
 clock rate:                  unbounded
 approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds, 310 milliseconds
@@ -1308,10 +1308,10 @@ approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds,
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:            1,337
+elapsed milliseconds:            1,372
 8086 cycles:                 4,774,105
 clock rate:                  unbounded
 approx ms at 4.77Mhz:            1,000  == 0 days, 0 hours, 0 minutes, 1 seconds, 0 milliseconds
 unique first opcodes:               63
 app exit code:                       0
-Mon 02/12/2024 15:12:49.71 
+Tue 02/13/2024  6:30:21.83 
