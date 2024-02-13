@@ -1,5 +1,5 @@
-Fri Feb  9 05:11:59 PST 2024
-t
+Tue Feb 13 07:24:31 PST 2024
+running C test app t using brk heap
 a: 0 4000000000000000
 a: 4 0
 ua: 0 4000000000000000
@@ -17,13 +17,37 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
-glob
+running C test app t using mmap heap
+a: 0 4000000000000000
+a: 4 0
+ua: 0 4000000000000000
+ua: 4 0
+a: ffffffffffffffff ffffffffffffffff
+a: ffffffffffffffff ffffffffffffffdf = -33
+int8_t result: 6
+uint8_t result: 6
+int16_t result: 6
+uint16_t result: 6
+int32_t result: 6
+uint32_t result: 6
+int64_t result: 6
+uint64_t result: 6
+int128_t result: 6
+uint128_t result: 6
+end of the app
+running C test app glob using brk heap
 in CTest constructor
 top main
 value of ctest::foo: 666
 end of main
 in ~CTest destructor
-tenv
+running C test app glob using mmap heap
+in CTest constructor
+top main
+value of ctest::foo: 666
+end of main
+in ~CTest destructor
+running C test app tenv using brk heap
 environment variable 0: 0x737d0 == 'OS=RVOS'
 is RVOS: yes
 pval: 0xa937ee
@@ -31,7 +55,15 @@ value: toast!
 OS: 0x737d3
 value: RVOS
 TZ: (nil)
-ts
+running C test app tenv using mmap heap
+environment variable 0: 0x737d0 == 'OS=RVOS'
+is RVOS: yes
+pval: 0x937ee
+value: toast!
+OS: 0x737d3
+value: RVOS
+TZ: (nil)
+running C test app ts using brk heap
 top of app
 print an int 27
 print an int64_t 27
@@ -75,7 +107,51 @@ testing printf
   float: 3.141573
   negative float: -3.141573
 stop
-tf
+running C test app ts using mmap heap
+top of app
+print an int 27
+print an int64_t 27
+sizeof T: 1, result: ff
+sizeof T: 1, result: 7f
+sizeof T: 2, result: ffff
+sizeof T: 2, result: 7fff
+sizeof T: 4, result: ffffffff
+sizeof T: 4, result: 7fffffff
+sizeof T: 8, result: ffffffffffffffff
+sizeof T: 8, result: 7fffffffffffffff
+now test left shifts
+sizeof T: 1, result: fe
+sizeof T: 1, result: fe
+sizeof T: 2, result: fffe
+sizeof T: 2, result: fffe
+sizeof T: 4, result: fffffffe
+sizeof T: 4, result: fffffffe
+sizeof T: 8, result: fffffffffffffffe
+sizeof T: 8, result: fffffffffffffffe
+now test comparisons
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+sizeof T: 4, result: 1
+testing printf
+  string: 'hello'
+  char: 'h'
+  int: 27, 1b
+  negative int: -27, ffffffe5
+  int64_t: 27, 1b
+  negative int64_t: -27, ffffffffffffffe5
+  float: 3.141573
+  negative float: -3.141573
+stop
+running C test app tf using brk heap
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -94,9 +170,30 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
-tm
+running C test app tf using mmap heap
+hello from printf
+float from printf: 45.678000
+division result: 333.333344, square root 18.257420
+result of 20.2 * -1.342: -27.108400
+result of 20.2 * -1.342 as a double: -27.108400
+sinf of 30 degress is 0.500000
+cosf of 30 degrees is 0.866025
+tanf of 30 degrees is 0.577350
+atanf of 1.000000 is 0.785398
+atan2f of 0.3, 0.2 is 0.982794
+acosf of 0.3 is 1.266104
+asinf of 0.3 is 0.304693
+tanhf of 2.2 is 0.304693
+logf of 0.3: -1.203973
+log10f of 300: 2.477121
+pi has mantissa: 0.785398, exponent 2
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+stop
+running C test app tm using brk heap
 success
-tap
+running C test app tm using mmap heap
+success
+running C test app tap using brk heap
 starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
   at          100 iterations: 1.20200740065967814907
@@ -109,26 +206,58 @@ next implementation...
   at         1000 iterations: 1.21802679658952506259
   at        10000 iterations: 1.20293516179477921746
 done
-ttt
+running C test app tap using mmap heap
+starting, should tend towards 1.2020569031595942854...
+  at           10 iterations: 1.19753198567419305576
+  at          100 iterations: 1.20200740065967814907
+  at         1000 iterations: 1.20205640365934329772
+  at        10000 iterations: 1.20205689816009808624
+  at       100000 iterations: 1.20205690310973234425
+next implementation...
+  at           10 iterations: 1.25000000000000000000
+  at          100 iterations: 1.14942528735632176762
+  at         1000 iterations: 1.21802679658952506259
+  at        10000 iterations: 1.20293516179477921746
+done
+running C test app ttt using brk heap
 starting...
 64930 moves
-21.263000 milliseconds
-sieve
+20.741001 milliseconds
+running C test app ttt using mmap heap
+starting...
+64930 moves
+20.786001 milliseconds
+running C test app sieve using brk heap
 1899 primes.
-e
+running C test app sieve using mmap heap
+1899 primes.
+running C test app e using brk heap
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 done
-tpi
+running C test app e using mmap heap
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+done
+running C test app tpi using brk heap
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
-tp1k
-start time: 05:11:59.791
-8461216 microseconds for 1000 iterations
-end time: 05:12:08.252
+running C test app tpi using mmap heap
+314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
+running C test app tp using brk heap
+start time: 07:24:31.737
+8252 microseconds for 1 iterations
+end time: 07:24:31.746
 final move count 6493
-tins
+running C test app tp using mmap heap
+start time: 07:24:31.748
+8289 microseconds for 1 iterations
+end time: 07:24:31.756
+final move count 6493
+running C test app tins using brk heap
 hello
 test instructions is complete
-td
+running C test app tins using mmap heap
+hello
+test instructions is complete
+running C test app td using brk heap
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
@@ -150,7 +279,29 @@ pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
-tphi
+running C test app td using mmap heap
+sprintf double 3.14159265358979311600
+double from printf: 3.14159265358979311600
+float from printf: 1.202057
+double from printf r: -3.776373
+sqrt of pi: 1.772454
+pi in radians: 0.523599
+sin of 30 degress is 0.500000
+cos of 30 degrees is 0.866025
+tan of 30 degrees is 0.577350
+atan of 1.000000 is 0.785398
+atan2 of 0.3, 0.2 is 0.982794
+acos of 0.3 is 1.266104
+asin of 0.3 is 0.304693
+tanh of 2.2 is 0.304693
+log of 0.3: -1.203973
+log10 of 300: 2.477121
+l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
+pi has mantissa: 0.785398, exponent 2
+r should be 1.0: 1.000000
+  r high point 3187071009115104228782838925952666189789578010509155762176.000000
+stop
+running C test app tphi using brk heap
 should tend towards 1.61803398874989484820458683436563811772030
   at  5 iterations: 1.6250000000000000
   at 10 iterations: 1.6179775280898876
@@ -161,17 +312,38 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
-ttime
-before TZ is set: tz: '(null)', year: 2024, month 2, day 9, hour 5, min 12, sec 8
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 9, hour 8, min 12, sec 8
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 9, hour 5, min 12, sec 8
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 9, hour 13, min 12, sec 8
-terrno
+running C test app tphi using mmap heap
+should tend towards 1.61803398874989484820458683436563811772030
+  at  5 iterations: 1.6250000000000000
+  at 10 iterations: 1.6179775280898876
+  at 15 iterations: 1.6180344478216819
+  at 20 iterations: 1.6180339850173580
+  at 25 iterations: 1.6180339887802426
+  at 30 iterations: 1.6180339887496482
+  at 35 iterations: 1.6180339887498969
+  at 40 iterations: 1.6180339887498949
+done
+running C test app ttime using brk heap
+before TZ is set: tz: '(null)', year: 2024, month 2, day 13, hour 7, min 24, sec 31
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 10, min 24, sec 31
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 7, min 24, sec 31
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 15, min 24, sec 31
+running C test app ttime using mmap heap
+before TZ is set: tz: '(null)', year: 2024, month 2, day 13, hour 7, min 24, sec 31
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 10, min 24, sec 31
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 7, min 24, sec 31
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 15, min 24, sec 31
+running C test app terrno using brk heap
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
-fileops
+running C test app terrno using mmap heap
+errno opening a file for read that doesn't exist: 2 (2 file not found expected)
+errno doing write to stdin file descriptor: 13. (13 permission denied expected)
+errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
+success
+running C test app fileops using brk heap
 fp: 486368
 current offset: 0
 result of fseek: 0
@@ -225,29 +397,101 @@ result of read at offset 1536: 512
 result of read at offset 1024: 512
 result of read at offset 512: 512
 result of read at offset 0: 512
-t_setjmp
+running C test app fileops using mmap heap
+fp: 619488
+current offset: 0
+result of fseek: 0
+file length from ftell: 0
+empty file length: 0
+result of fseek: 0
+result of fwrite (should be 1): 1
+current offset: 8320
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length from portable_filelen: 8320
+result of fseek to middle of file: 0
+result of fwrite to middle of file (should be 1): 1
+fp: 619488
+current offset: 0
+result of fseek: 0
+file length from ftell: 8320
+8192 + 128 = 8320 file length: 8320
+result of read at offset 0: 512
+result of read at offset 512: 512
+result of read at offset 1024: 512
+result of read at offset 1536: 512
+result of read at offset 2048: 512
+result of read at offset 2560: 512
+result of read at offset 3072: 512
+result of read at offset 3584: 512
+result of read at offset 4096: 512
+result of read at offset 4608: 512
+result of read at offset 5120: 512
+result of read at offset 5632: 512
+result of read at offset 6144: 512
+result of read at offset 6656: 512
+result of read at offset 7168: 512
+result of read at offset 7680: 512
+result of read at offset 8192: 128
+testing backwards read
+result of read at offset 8192: 128
+result of read at offset 7680: 512
+result of read at offset 7168: 512
+result of read at offset 6656: 512
+result of read at offset 6144: 512
+result of read at offset 5632: 512
+result of read at offset 5120: 512
+result of read at offset 4608: 512
+result of read at offset 4096: 512
+result of read at offset 3584: 512
+result of read at offset 3072: 512
+result of read at offset 2560: 512
+result of read at offset 2048: 512
+result of read at offset 1536: 512
+result of read at offset 1024: 512
+result of read at offset 512: 512
+result of read at offset 0: 512
+running C test app t_setjmp using brk heap
 second
 back in main
 falling out of main
-tex
+running C test app t_setjmp using mmap heap
+second
+back in main
+falling out of main
+running C test app tex using brk heap
 top of tex
 I am unwound, x: 44
 caught exception exceptional
 attempting large allocations
-allocation 0 succeeded 0xaa0010
-allocation 1 succeeded 0xe71010
-allocation 2 succeeded 0x94250
-allocation 3 succeeded 0x464b60
+allocation 0 succeeded 0x94250
+allocation 1 succeeded 0x464b60
 caught a standard execption: std::bad_alloc
 leaving main
-trw
+running C test app tex using mmap heap
+top of tex
+I am unwound, x: 44
+caught exception exceptional
+attempting large allocations
+allocation 0 succeeded 0x1a1010
+allocation 1 succeeded 0x572010
+caught a standard execption: std::bad_alloc
+leaving main
+running C test app trw using brk heap
 exiting trw
-empty
+running C test app trw using mmap heap
+exiting trw
+running C test app empty using brk heap
 yo
-ato
+running C test app empty using mmap heap
+yo
+running rust test app ato using brk heap
 testing atomic operations
 exiting atomic testing with great success
-real
+running rust test app ato using mmap heap
+testing atomic operations
+exiting atomic testing with great success
+running rust test app real using brk heap
 testing real number operations
 r32: 0.31831014
 r64: 0.36787968862663156
@@ -264,15 +508,40 @@ r64 acos: 1.1940685526192598
 r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
-ttt
-serial runtime:   3.876428ms
+running rust test app real using mmap heap
+testing real number operations
+r32: 0.31831014
+r64: 0.36787968862663156
+r32 sin: 0.31296203
+r64 sin: 0.3596377963109607
+r32 cos: 0.9497656
+r64 cos: 0.9330919866039982
+r32 tan: 0.329515
+r64 tan: 0.3854258759844972
+r32 asin: 0.3239464
+r64 asin: 0.37672777417563674
+r32 acos: 1.24685
+r64 acos: 1.1940685526192598
+r32 atan: 0.3081693
+r64 atan: 0.3525136397354091
+exiting real number testing with great success
+running rust test app ttt using brk heap
+serial runtime:   3.991883ms
 moves:            6493
 iterations:       1
-e
+running rust test app ttt using mmap heap
+serial runtime:   3.935197ms
+moves:            6493
+iterations:       1
+running rust test app e using brk heap
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
-tap
+running rust test app e using mmap heap
+testing finding e
+271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
+exiting finding e with great success
+running rust test app tap using brk heap
 starting, should tend towards 1.2020569031595942854...
 first implementation...
   1.197531985674193      at 10 iterations
@@ -288,7 +557,23 @@ second implementation...
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
 exiting finding ap with great success
-tphi
+running rust test app tap using mmap heap
+starting, should tend towards 1.2020569031595942854...
+first implementation...
+  1.197531985674193      at 10 iterations
+  1.2020074006596781     at 100 iterations
+  1.2020564036593433     at 1000 iterations
+  1.202056898160098      at 10000 iterations
+  1.2020569031097323     at 100000 iterations
+  1.202056903150321      at 1000000 iterations
+second implementation...
+  1.1111111111111112     at 10 iterations
+  1.25                   at 100 iterations
+  1.2285012285012284     at 1000 iterations
+  1.1987532965715655     at 10000 iterations
+  1.1989688867573887     at 100000 iterations
+exiting finding ap with great success
+running rust test app tphi using brk heap
 phi should tend towards 1.61803398874989484820458683436563811772030
   at    5 iterations: 1.625
   at   10 iterations: 1.6179775280898876
@@ -299,42 +584,40 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
-mysort
+running rust test app tphi using mmap heap
+phi should tend towards 1.61803398874989484820458683436563811772030
+  at    5 iterations: 1.625
+  at   10 iterations: 1.6179775280898876
+  at   15 iterations: 1.618034447821682
+  at   20 iterations: 1.618033985017358
+  at   25 iterations: 1.6180339887802426
+  at   30 iterations: 1.6180339887496482
+  at   35 iterations: 1.618033988749897
+  at   40 iterations: 1.618033988749895
+exiting finding phi with great success
+running rust test app mysort using brk heap
 element count in vector: 58174
 element count after dedup: 58174
-fileops
+running rust test app mysort using mmap heap
+element count in vector: 58174
+element count after dedup: 58174
+running rust test app fileops using brk heap
 exiting fileops with great success
-tmmap test
-MAP_PRIVATE: 0x2
-MAP_ANONYMOUS: 0x20
-MREMAP_MAYMOVE: 0x1
-mmap test completed with great success
-an nap
-pan
-ba /p /q tp.bas
-Time to parse tests/tp.bas: 4.991808 ms
-start time: 05:12:09.831
-211 ms for 1 iterations
-end time: 05:12:10.043
-final move count 6493
-mysort /r words.txt sorted.txt
-sorting tests/words.txt ==> tests/sorted.txt
-sorting
-writing...
-done
-tcrash sph
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
-pc: 109dc rvos_sp_add + 4
+running rust test app fileops using mmap heap
+exiting fileops with great success
+tcrash ml
+rvos (amd64) fatal error: memory reference prior to address space: 200
+pc: 108d4 main + 268
 address space 10000 to 1495000
-  zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
+  zero:                0,   ra:            106d4,   sp:           a94810,   gp:            6f9d0, 
     tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:           100000,   a1:            4aebc, 
-    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a18,   s3:                1, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae93, 
+    a2:           a94a30,   a3:                0,   a4:                a,   a5:              200, 
+    a6:            6fa80,   a7: 7d127c602f43422f,   s2:           a94a18,   s3:                1, 
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:11:56 by g++ on linux
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
 
 tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -348,10 +631,99 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:11:56 by g++ on linux
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
 
+tcrash pcl
+rvos (amd64) fatal error: pc is lower than memory: 200
+pc: 200  + 0
+address space 10000 to 1495000
+  zero:                0,   ra:            10844,   sp:           a94810,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aea4, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:              200, 
+    a6:            6fa80,   a7: 127c602f434c5f2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+
+tcrash pch
+rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+pc: 2000000000000000  + 0
+address space 10000 to 1495000
+  zero:                0,   ra:            1086c,   sp:           a94810,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aeac, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5: 2000000000000000, 
+    a6:            6fa80,   a7: 127c602f474c5f2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+
+tcrash spl
+rvos (amd64) fatal error: stack pointer is below stack memory: a746b0
+pc: 1d1b2 __printf_buffer + c
+address space 10000 to 1495000
+  zero:                0,   ra:            11588,   sp:           a746b0,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1:           a74c80,   t2:                0, 
+    s0:           a74c28,   s1:                2,   a0:           a74c28,   a1:            4ae80, 
+    a2:           a74c80,   a3:                0,   a4:                0,   a5:               18, 
+    a6:                0,   a7: 25252f5049490005,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+
+tcrash sph
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
+pc: 109dc rvos_sp_add + 4
+address space 10000 to 1495000
+  zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:           100000,   a1:            4aebc, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+
+tcrash spm
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94812
+pc: 109dc rvos_sp_add + 4
+address space 10000 to 1495000
+  zero:                0,   ra:            108b8,   sp:           a94812,   gp:            6f9d0, 
+    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           a94870,   s1:                2,   a0:                2,   a1:            4aec4, 
+    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
+    a6:            6fa80,   a7: 127c602f425f5c2f,   s2:           a94a18,   s3:                1, 
+    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
+Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+
+tmmap test
+MAP_PRIVATE: 0x2
+MAP_ANONYMOUS: 0x20
+MREMAP_MAYMOVE: 0x1
+mmap test completed with great success
+an nap
+pan
+ba /p /q tp.bas
+Time to parse tests/tp.bas: 4.855102 ms
+start time: 07:24:34.509
+210 ms for 1 iterations
+end time: 07:24:34.720
+final move count 6493
+mysort /r words.txt sorted.txt
+sorting tests/words.txt ==> tests/sorted.txt
+sorting
+writing...
+done
 running ttty tests
 is stdin tty:  yes
 is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
+Tue Feb 13 07:24:35 PST 2024
