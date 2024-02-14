@@ -16,11 +16,11 @@ goto :rustTests
 
 :testRun
 
-echo running test app %~1 using brk heap >>"%outputfile%"
+echo running C test app %~1 using brk heap >>"%outputfile%"
 rem using brk heap, so old gcc's libc is ok
 %_rvoscmd% -h:10 -m:0 linux\%~1 >>"%outputfile%"
 
-echo running test app %~1 using mmap heap >>"%outputfile%"
+echo running C test app %~1 using mmap heap >>"%outputfile%"
 rem using mmap heap, so a newer libc is required to not require brk
 %_rvoscmd% -h:0 -m:10 linux\%~1 >>"%outputfile%"
 
@@ -51,15 +51,18 @@ exit /b 0
 
 :testRunRust
 
-echo running test app %~1 using brk heap >>%outputfile%
+echo running rust test app %~1 using brk heap >>%outputfile%
 %_rvoscmd% -h:10 -m:0 debianrv\rust\%~1 >>%outputfile%
 
-echo running test app %~1 using mmap >>%outputfile%
+echo running rust test app %~1 using mmap >>%outputfile%
 %_rvoscmd% -h:0 -m:10 debianrv\rust\%~1 >>%outputfile%
 
 exit /b 0
 
 :singletonTests
+
+echo running mid >>%outputfile%
+%_rvoscmd% linux\mid linux\words.txt -l:2000 >>%outputfile%
 
 echo running ttt_riscv >>%outputfile%
 %_rvoscmd% -p ttt_riscv.elf 1 >>%outputfile%

@@ -1,10 +1,10 @@
-Tue 02/13/2024  6:34:05.85 
+Tue 02/13/2024 10:48:59.04 
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Tuesday, February 13, 2024 6:34:05 AM
+  Started : Tuesday, February 13, 2024 10:48:59 AM
    Source : \\lee-server\documents\scratch\debianrv\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\
 
@@ -30,9 +30,9 @@ Tue 02/13/2024  6:34:05.85
    Files :        71         0        71         0         0         6
    Bytes :  132.16 m         0  132.16 m         0         0    1.72 m
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Tuesday, February 13, 2024 6:34:06 AM
+   Ended : Tuesday, February 13, 2024 10:49:00 AM
 
-running test app t using brk heap 
+running C test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
 ua: 0 4000000000000000
@@ -50,7 +50,7 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
-running test app t using mmap heap 
+running C test app t using mmap heap 
 a: 0 4000000000000000
 a: 4 0
 ua: 0 4000000000000000
@@ -68,19 +68,19 @@ uint64_t result: 6
 int128_t result: 6
 uint128_t result: 6
 end of the app
-running test app glob using brk heap 
+running C test app glob using brk heap 
 in CTest constructor
 top main
 value of ctest::foo: 666
 end of main
 in ~CTest destructor
-running test app glob using mmap heap 
+running C test app glob using mmap heap 
 in CTest constructor
 top main
 value of ctest::foo: 666
 end of main
 in ~CTest destructor
-running test app ts using brk heap 
+running C test app ts using brk heap 
 top of app
 print an int 27
 print an int64_t 27
@@ -124,7 +124,7 @@ testing printf
   float: 3.141573
   negative float: -3.141573
 stop
-running test app ts using mmap heap 
+running C test app ts using mmap heap 
 top of app
 print an int 27
 print an int64_t 27
@@ -168,17 +168,17 @@ testing printf
   float: 3.141573
   negative float: -3.141573
 stop
-running test app sieve using brk heap 
+running C test app sieve using brk heap 
 1899 primes.
-running test app sieve using mmap heap 
+running C test app sieve using mmap heap 
 1899 primes.
-running test app e using brk heap 
+running C test app e using brk heap 
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 done
-running test app e using mmap heap 
+running C test app e using mmap heap 
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 done
-running test app tap using brk heap 
+running C test app tap using brk heap 
 starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
   at          100 iterations: 1.20200740065967814907
@@ -191,7 +191,7 @@ next implementation...
   at         1000 iterations: 1.21802679658952506259
   at        10000 iterations: 1.20293516179477921746
 done
-running test app tap using mmap heap 
+running C test app tap using mmap heap 
 starting, should tend towards 1.2020569031595942854...
   at           10 iterations: 1.19753198567419305576
   at          100 iterations: 1.20200740065967814907
@@ -204,11 +204,11 @@ next implementation...
   at         1000 iterations: 1.21802679658952506259
   at        10000 iterations: 1.20293516179477921746
 done
-running test app tpi using brk heap 
+running C test app tpi using brk heap 
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
-running test app tpi using mmap heap 
+running C test app tpi using mmap heap 
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
-running test app tphi using brk heap 
+running C test app tphi using brk heap 
 should tend towards 1.61803398874989484820458683436563811772030
   at  5 iterations: 1.6250000000000000
   at 10 iterations: 1.6179775280898876
@@ -219,7 +219,7 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
-running test app tphi using mmap heap 
+running C test app tphi using mmap heap 
 should tend towards 1.61803398874989484820458683436563811772030
   at  5 iterations: 1.6250000000000000
   at 10 iterations: 1.6179775280898876
@@ -230,33 +230,33 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 35 iterations: 1.6180339887498969
   at 40 iterations: 1.6180339887498949
 done
-running test app tins using brk heap 
+running C test app tins using brk heap 
 hello
 test instructions is complete
-running test app tins using mmap heap 
+running C test app tins using mmap heap 
 hello
 test instructions is complete
-running test app terrno using brk heap 
-running test app terrno using mmap heap 
-running test app tp using brk heap 
-start time: 06:34:10.578
-12653 microseconds for 1 iterations
-end time: 06:34:10.590
+running C test app terrno using brk heap 
+running C test app terrno using mmap heap 
+running C test app tp using brk heap 
+start time: 10:49:03.910
+14536 microseconds for 1 iterations
+end time: 10:49:03.924
 final move count 6493
-running test app tp using mmap heap 
-start time: 06:34:10.606
-12788 microseconds for 1 iterations
-end time: 06:34:10.618
+running C test app tp using mmap heap 
+start time: 10:49:03.936
+13235 microseconds for 1 iterations
+end time: 10:49:03.949
 final move count 6493
-running test app ttt using brk heap 
+running C test app ttt using brk heap 
 starting...
 64930 moves
-31.836002 milliseconds
-running test app ttt using mmap heap 
+33.281002 milliseconds
+running C test app ttt using mmap heap 
 starting...
 64930 moves
-31.970001 milliseconds
-running test app tf using brk heap 
+33.020000 milliseconds
+running C test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -275,7 +275,7 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
-running test app tf using mmap heap 
+running C test app tf using mmap heap 
 hello from printf
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
@@ -294,21 +294,21 @@ log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
 stop
-running test app tm using brk heap 
+running C test app tm using brk heap 
 success
-running test app tm using mmap heap 
+running C test app tm using mmap heap 
 success
-running test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 6, min 34, sec 10
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 9, min 34, sec 10
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 6, min 34, sec 10
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 14, min 34, sec 10
-running test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 6, min 34, sec 10
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 9, min 34, sec 10
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 6, min 34, sec 10
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 14, min 34, sec 10
-running test app td using brk heap 
+running C test app ttime using brk heap 
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 10, min 49, sec 4
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 13, min 49, sec 4
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 10, min 49, sec 4
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 18, min 49, sec 4
+running C test app ttime using mmap heap 
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 13, hour 10, min 49, sec 4
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 13, min 49, sec 4
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 10, min 49, sec 4
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 18, min 49, sec 4
+running C test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
@@ -330,7 +330,7 @@ pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
-running test app td using mmap heap 
+running C test app td using mmap heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
 float from printf: 1.202057
@@ -352,7 +352,7 @@ pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
 stop
-running test app fileops using brk heap 
+running C test app fileops using brk heap 
 fp: 561216
 current offset: 0
 result of fseek: 0
@@ -406,7 +406,7 @@ result of read at offset 1536: 512
 result of read at offset 1024: 512
 result of read at offset 512: 512
 result of read at offset 0: 512
-running test app fileops using mmap heap 
+running C test app fileops using mmap heap 
 fp: 693632
 current offset: 0
 result of fseek: 0
@@ -460,15 +460,15 @@ result of read at offset 1536: 512
 result of read at offset 1024: 512
 result of read at offset 512: 512
 result of read at offset 0: 512
-running test app t_setjmp using brk heap 
+running C test app t_setjmp using brk heap 
 second
 back in main
 falling out of main
-running test app t_setjmp using mmap heap 
+running C test app t_setjmp using mmap heap 
 second
 back in main
 falling out of main
-running test app tex using brk heap 
+running C test app tex using brk heap 
 top of tex
 I am unwound, x: 44
 caught exception exceptional
@@ -477,7 +477,7 @@ allocation 0 succeeded 0xaad70
 allocation 1 succeeded 0x47b680
 caught a standard execption: std::bad_alloc
 leaving main
-running test app tex using mmap heap 
+running C test app tex using mmap heap 
 top of tex
 I am unwound, x: 44
 caught exception exceptional
@@ -486,21 +486,21 @@ allocation 0 succeeded 0x1b6010
 allocation 1 succeeded 0x587010
 caught a standard execption: std::bad_alloc
 leaving main
-running test app trw using brk heap 
+running C test app trw using brk heap 
 exiting trw
-running test app trw using mmap heap 
+running C test app trw using mmap heap 
 exiting trw
-running test app empty using brk heap 
+running C test app empty using brk heap 
 yo
-running test app empty using mmap heap 
+running C test app empty using mmap heap 
 yo
-running test app ato using brk heap 
+running rust test app ato using brk heap 
 testing atomic operations
 exiting atomic testing with great success
-running test app ato using mmap 
+running rust test app ato using mmap 
 testing atomic operations
 exiting atomic testing with great success
-running test app real using brk heap 
+running rust test app real using brk heap 
 testing real number operations
 r32: 0.31831014
 r64: 0.36787968862663156
@@ -517,7 +517,7 @@ r64 acos: 1.1940685526192598
 r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
-running test app real using mmap 
+running rust test app real using mmap 
 testing real number operations
 r32: 0.31831014
 r64: 0.36787968862663156
@@ -534,23 +534,23 @@ r64 acos: 1.1940685526192598
 r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
-running test app ttt using brk heap 
-serial runtime:   5.4056ms
+running rust test app ttt using brk heap 
+serial runtime:   5.9214ms
 moves:            6493
 iterations:       1
-running test app ttt using mmap 
-serial runtime:   5.4926ms
+running rust test app ttt using mmap 
+serial runtime:   5.7209ms
 moves:            6493
 iterations:       1
-running test app e using brk heap 
+running rust test app e using brk heap 
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
-running test app e using mmap 
+running rust test app e using mmap 
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
-running test app tap using brk heap 
+running rust test app tap using brk heap 
 starting, should tend towards 1.2020569031595942854...
 first implementation...
   1.197531985674193      at 10 iterations
@@ -566,7 +566,7 @@ second implementation...
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
 exiting finding ap with great success
-running test app tap using mmap 
+running rust test app tap using mmap 
 starting, should tend towards 1.2020569031595942854...
 first implementation...
   1.197531985674193      at 10 iterations
@@ -582,7 +582,7 @@ second implementation...
   1.1987532965715655     at 10000 iterations
   1.1989688867573887     at 100000 iterations
 exiting finding ap with great success
-running test app tphi using brk heap 
+running rust test app tphi using brk heap 
 phi should tend towards 1.61803398874989484820458683436563811772030
   at    5 iterations: 1.625
   at   10 iterations: 1.6179775280898876
@@ -593,7 +593,7 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
-running test app tphi using mmap 
+running rust test app tphi using mmap 
 phi should tend towards 1.61803398874989484820458683436563811772030
   at    5 iterations: 1.625
   at   10 iterations: 1.6179775280898876
@@ -604,15 +604,15 @@ phi should tend towards 1.61803398874989484820458683436563811772030
   at   35 iterations: 1.618033988749897
   at   40 iterations: 1.618033988749895
 exiting finding phi with great success
-running test app mysort using brk heap 
+running rust test app mysort using brk heap 
 element count in vector: 58174
 element count after dedup: 58174
-running test app mysort using mmap 
+running rust test app mysort using mmap 
 element count in vector: 58174
 element count after dedup: 58174
-running test app fileops using brk heap 
+running rust test app fileops using brk heap 
 exiting fileops with great success
-running test app fileops using mmap 
+running rust test app fileops using mmap 
 exiting fileops with great success
 running tcrash app ml 
 rvos (amd64) fatal error: memory reference prior to address space: 200
@@ -626,7 +626,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app mh 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -640,7 +640,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app pcl 
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -654,7 +654,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app pch 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -668,7 +668,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app spl 
 rvos (amd64) fatal error: stack pointer is below stack memory: a86ce0
@@ -682,7 +682,7 @@ address space 10000 to 14a7000
     s4:            5ba60,   s5:           a873f0,   s6:            7ddc0,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:               79,   t5:            7a9b4,   t6:                a, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app sph 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b60
@@ -696,7 +696,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tcrash app spm 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: aa6b62
@@ -710,7 +710,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:36 by msft C++ ver 1939 on windows
+Built for amd64 debug on 13 Feb 24 10:44:56 by msft C++ ver 1939 on windows
 
 running tmmap 
 MAP_PRIVATE: 0x2
@@ -723,9 +723,9 @@ is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
 parsing input file debianrv\tp.bas
-start time: 06:34:15.149
-260 ms for 1 iterations
-end time: 06:34:15.409
+start time: 10:49:08.689
+279 ms for 1 iterations
+end time: 10:49:08.968
 final move count 6493
 exiting the basic interpreter
 sorting debianrv\words.txt ==> debianrv\sorted.txt
@@ -775,9 +775,9 @@ id leaved
 idea veld
 lade vied
 lead vied
-start time: 06:34:16.402
-1185169 microseconds for 1 iterations
-end time: 06:34:17.588
+start time: 10:49:10.027
+1269681 microseconds for 1 iterations
+end time: 10:49:11.296
 final move count 6493
 
 195D 0001$
@@ -789,14 +789,14 @@ iterations: 1
 running ntvao, ntvcm, and ntvdm 
 
 195D 0001$
-elapsed milliseconds:              185
+elapsed milliseconds:              197
 6502 cycles:                 1,660,247
 clock rate:                  unbounded
 ms at 1.022727 Mhz:              1,623 == 0 days, 0 hours, 0 minutes, 1 seconds, 623 milliseconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:              180
+elapsed milliseconds:              193
 Z80  cycles:                 5,242,794
 clock rate:                  unbounded
 approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds, 310 milliseconds
@@ -804,9 +804,9 @@ approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds,
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:              248
+elapsed milliseconds:              286
 8086 cycles:                 4,773,794
 clock rate:                  unbounded
 approx ms at 4.77Mhz:            1,000  == 0 days, 0 hours, 0 minutes, 1 seconds, 0 milliseconds
 app exit code:                       0
-Tue 02/13/2024  6:34:19.03 
+Tue 02/13/2024 10:49:12.88 

@@ -246,7 +246,7 @@ fn min_max( b: &mut board::Board, mut alpha: i32, mut beta: i32, depth: i32, mov
     let mut value: i32;
     let piece_move: board::Piece;
 
-    if 0 != ( depth & 1 ) { //maximize
+    if 0 != ( depth & 1 ) { // maximize
         value = SCORE_MIN;
         piece_move = board::Piece::X;
     }
