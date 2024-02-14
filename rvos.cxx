@@ -510,7 +510,7 @@ int windows_translate_flags( int flags )
 } //windows_translate_flags
 
 
-uint32_t epoch_days( int y, int m, int d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
+uint32_t epoch_days( uint16_t y, uint16_t m, uint16_t d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
 {
     const uint32_t year_base = 4800;    /* Before min year, multiple of 400. */
     const uint32_t m_adj = m - 3;       /* March-based month. */
