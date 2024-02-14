@@ -509,6 +509,27 @@ int windows_translate_flags( int flags )
     return flags;
 } //windows_translate_flags
 
+
+uint32_t epoch_days( int y, int m, int d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
+{
+    const uint32_t year_base = 4800;    /* Before min year, multiple of 400. */
+    const uint32_t m_adj = m - 3;       /* March-based month. */
+    const uint32_t carry = m_adj > m ? 1 : 0;
+    const uint32_t adjust = carry ? 12 : 0;
+    const uint32_t y_adj = y + year_base - carry;
+    const uint32_t month_days = ((m_adj + adjust) * 62719 + 769) / 2048;
+    const uint32_t leap_days = y_adj / 4 - y_adj / 100 + y_adj / 400;
+    return y_adj * 365 + leap_days + month_days + (d - 1) - 2472632;
+} //epoch_days
+
+uint64_t SystemTime_to_esecs( SYSTEMTIME & st )
+{
+    // takes a Windows system time and returns linux epoch seconds
+    uint32_t edays = epoch_days( st. wYear, st.wMonth, st.wDay );
+    uint32_t secs = ( st.wHour * 3600 ) + ( st.wMinute * 60 ) + st.wSecond;
+    return ( edays * 24 * 3600 ) + secs;
+} //SystemTime_to_esecs
+
 int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
 {
     char ac[ MAX_PATH ];
@@ -567,15 +588,34 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
             return -1;
         }
 
-        if ( ok && ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
-            pstat->st_mode = S_IFDIR;
-        else
-            pstat->st_mode = S_IFREG;
+        if ( ok )
+        {
+            if ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+                pstat->st_mode = S_IFDIR;
+            else
+                pstat->st_mode = S_IFREG;
+
+            // in spirit: st_mtim = data.ftLastWriteTime;
+
+            SYSTEMTIME st = {0};
+            FileTimeToSystemTime( &data.ftLastWriteTime, &st );
+            pstat->st_mtim.tv_sec = SystemTime_to_esecs( st );
+        }
 
         pstat->st_rdev = 4096; // this is st_blksize on linux
 
         if ( !ok && ( descriptor > 0 ) )
-            data.nFileSizeLow = portable_filelen( descriptor );
+        {
+            struct _stat statbuf;
+            int result = _fstat( descriptor, &statbuf );
+            if ( 0 == result )
+            {
+                pstat->st_mtim.tv_sec = statbuf.st_mtime;
+                data.nFileSizeLow = statbuf.st_size;
+            }
+            else
+                return -1;
+        }
 
         pstat->st_size = data.nFileSizeLow;
     }
@@ -1055,10 +1095,11 @@ void riscv_invoke_ecall( RiscV & cpu )
         case SYS_exit_group:
         case SYS_tgkill:
         {
-            tracer.Trace( "  rvos command 1: exit app\n" );
             g_terminate = true;
             cpu.end_emulation();
             g_exit_code = (int) cpu.regs[ RiscV::a0 ];
+            tracer.Trace( "  rvos app exit code %d\n", g_exit_code );
+            update_a0_errno( cpu, 0 );
             break;
         }
         case SYS_signalstack:
@@ -1613,6 +1654,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
             printf( "%lf", d );
             fflush( stdout );
+            update_a0_errno( cpu, 0 );
             break;
         }
         case rvos_sys_trace_instructions:
@@ -2285,7 +2327,7 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
 
     tracer.Trace( "  " );
     printf( "  " );
-    for ( size_t i = 0; i < 32; i++ )
+    for ( size_t i = 0; i < _countof( register_names ); i++ )
     {
         tracer.Trace( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
         printf( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
