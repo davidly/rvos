@@ -1592,7 +1592,7 @@ void riscv_invoke_ecall( RiscV & cpu )
         {
             uint64_t address = cpu.regs[ RiscV::a0 ];
             uint64_t length = cpu.regs[ RiscV::a1 ];
-            length = round_up( length, (size_t) 4096 );
+            length = round_up( length, (uint64_t) 4096 );
 
             bool ok = g_mmap.free( address, length );
             if ( ok )
@@ -1615,10 +1615,10 @@ void riscv_invoke_ecall( RiscV & cpu )
             if ( 0 != ( new_length & 0xfff ) )
             {
                 tracer.Trace( "  warning: mremap allocation new length isn't 4k-page aligned\n" );
-                new_length = round_up( new_length, (size_t) 4096 );
+                new_length = round_up( new_length, (uint64_t) 4096 );
             }
 
-            old_length = round_up( old_length, (size_t) 4096 );
+            old_length = round_up( old_length, (uint64_t) 4096 );
 
             // flags: MREMAP_MAYMOVE = 1, MREMAP_FIXED = 2, MREMAP_DONTUNMAP = 3. Ignore them all
 
@@ -2001,6 +2001,8 @@ void riscv_invoke_ecall( RiscV & cpu )
 
 #ifdef _WIN32
             int result = _commit( descriptor );
+#elif defined( __APPLE__ )
+            int result = fsync( descriptor ); // fdatasync isn't available on MacOS
 #else
             int result = fdatasync( descriptor );
 #endif
