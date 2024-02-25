@@ -3078,33 +3078,6 @@ int ends_with( const char * str, const char * end )
     return ( 0 == _stricmp( str + len - lenend, end ) );
 } //ends_with
 
-static void RenderNumber( int64_t n, char * ac )
-{
-    if ( n < 0 )
-    {
-        strcat( ac, "-" );
-        RenderNumber( -n, ac );
-        return;
-    }
-   
-    if ( n < 1000 )
-    {
-        sprintf( ac + strlen( ac ), "%lld", n );
-        return;
-    }
-
-    RenderNumber( n / 1000, ac );
-    sprintf( ac + strlen( ac ), ",%03lld", n % 1000 );
-    return;
-} //RenderNumber
-
-static char * RenderNumberWithCommas( int64_t n, char * ac )
-{
-    ac[ 0 ] = 0;
-    RenderNumber( n, ac );
-    return ac;
-} //RenderNumberWithCommas
-
 int main( int argc, char * argv[] )
 {
     try
@@ -3251,16 +3224,16 @@ int main( int argc, char * argv[] )
                 high_resolution_clock::time_point tDone = high_resolution_clock::now();
                 int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
     
-                printf( "elapsed milliseconds:  %15s\n", RenderNumberWithCommas( totalTime, ac ) );
-                printf( "RISC-V cycles:         %15s\n", RenderNumberWithCommas( cycles, ac ) );
+                printf( "elapsed milliseconds:  %15s\n", CDJLTrace::RenderNumberWithCommas( totalTime, ac ) );
+                printf( "RISC-V cycles:         %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
                 if ( 0 != totalTime )
-                    printf( "effective clock rate:  %15s\n", RenderNumberWithCommas( cycles / totalTime, ac ) );
+                    printf( "effective clock rate:  %15s\n", CDJLTrace::RenderNumberWithCommas( cycles / totalTime, ac ) );
                 printf( "app exit code:         %15d\n", g_exit_code );
             }
     
-            tracer.Trace( "highwater brk heap:  %15s\n", RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
+            tracer.Trace( "highwater brk heap:  %15s\n", CDJLTrace::RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
             g_mmap.trace_allocations();
-            tracer.Trace( "highwater mmap heap: %15s\n", RenderNumberWithCommas( g_mmap.peak_usage(), ac ) );
+            tracer.Trace( "highwater mmap heap: %15s\n", CDJLTrace::RenderNumberWithCommas( g_mmap.peak_usage(), ac ) );
             tracer.Trace( "app exit code: %d\n", g_exit_code );
         }
     }
