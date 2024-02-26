@@ -384,13 +384,6 @@ struct ElfSectionHeader64
 
 #pragma pack(pop)
 
-char printable( uint8_t x )
-{
-    if ( x < ' ' || x >= 127 )
-        return ' ';
-    return x;
-} //printable
-
 void usage( char const * perror = 0 )
 {
     g_consoleConfig.RestoreConsole( false );
