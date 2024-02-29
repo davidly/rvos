@@ -535,7 +535,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
         }
         default:
         {
-            assert( "opcode does not appear to be compressed\n" );
+            assert( !"opcode does not appear to be compressed\n" );
             break;
         }
     }
