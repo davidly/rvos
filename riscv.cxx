@@ -287,7 +287,6 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                 }
                 case 3: // c.ld
                 {
-                    //tracer.Trace( "composing ld %d, %d(%d)\n", p_rdrs2, p_imm, p_rs1 );
                     op32 = compose_I( 3, p_rdrs2, p_rs1, p_imm, 0 );
                     break;
                 }
@@ -316,7 +315,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
         }
         case 1:
         {
-            uint32_t p_imm = sign_extend( ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f ), 5 );
+            uint32_t p_imm = (uint32_t) sign_extend( ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f ), 5 );
             uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
 
             switch( p_funct3 )
@@ -342,15 +341,13 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     {
                         uint32_t amount = ( ( x >> 3 ) & 0x200 ) | ( ( x >> 2 ) & 0x10 ) | ( ( x << 1 ) & 0x40 ) |
                                           ( ( x << 4 ) & 0x180 ) | ( ( x << 3 ) & 0x20 );
-                        //tracer.Trace( "addi16sp amount %d\n", amount );
-                        amount = sign_extend( amount, 9 );
-                        //tracer.Trace( "addi16sp extended amount %d\n", amount );
+                        amount = (uint32_t) sign_extend( amount, 9 );
                         op32 = compose_I( 0, sp, sp, amount, 0x4 );
                     }
                     else // c.lui
                     {
                         uint32_t amount = ( ( x << 5 ) & 0x20000 ) | ( ( x << 10 ) & 0x1f000 );
-                        amount = sign_extend( amount, 17 );
+                        amount = (uint32_t) sign_extend( amount, 17 );
                         amount >>= 12;
                         op32 = compose_U( p_rs1rd, amount, 0xd );
                     }
@@ -359,7 +356,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                 case 4: // many
                 {
                     uint16_t funct11_10 = ( x >> 10 ) & 0x3;
-                    uint32_t p_rs1rd = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
+                    p_rs1rd = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
                     uint32_t p_rs2 = ( ( x >> 2 ) & 0x7 ) + rprime_offset;
 
                     switch ( funct11_10 )
@@ -367,14 +364,12 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                         case 0: // c.srli + c.srli64
                         {
                             uint32_t amount = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f );
-                            //tracer.Trace( "srli shift amount: %d\n", amount );
                             op32 = compose_I( 5, p_rs1rd, p_rs1rd, amount, 4 );
                             break;
                         }
                         case 1: // c.srai + c.srai64
                         {
                             uint32_t amount = ( ( x >> 7 ) & 0x20 ) | ( ( x >> 2 ) & 0x1f );
-                            //tracer.Trace( "srai shift amount: %d\n", amount );
                             amount |= 0x400; // set this bit so it's srai, not srli
                             op32 = compose_I( 5, p_rs1rd, p_rs1rd, amount, 4 );
                             break;
@@ -418,9 +413,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
 
                     uint32_t offset = ( ( x >> 1 ) & 0x800 ) | ( ( x >> 7 ) & 0x10 ) | ( ( x >> 1 ) & 0x300 ) | ( ( x << 2 ) & 0x400 ) |
                                       ( ( x >> 1 ) & 0x40 )  | ( ( x << 1 ) & 0x80 ) | ( ( x >> 2 ) & 0xe )   | ( ( x << 3 ) & 0x20 );
-                    //tracer.Trace( "j offset decoded as %x = %d\n", offset, offset );
-                    offset = sign_extend( offset, 11 );
-                    //tracer.Trace( "j offset extended as %x = %d\n", offset, offset );
+                    offset = (uint32_t) sign_extend( offset, 11 );
                     op32 = compose_J( offset, 0x1b );
                     break;
                 }
@@ -429,7 +422,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
                     uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
                                       ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
-                    offset = sign_extend( offset, 8 );
+                    offset = (uint32_t) sign_extend( offset, 8 );
                     op32 = compose_B( 0, p_rs1, zero, offset, 0x18 );
                     break;
                 }
@@ -438,7 +431,7 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                     uint32_t p_rs1 = ( ( x >> 7 ) & 0x7 ) + rprime_offset;
                     uint32_t offset = ( ( x >> 4 ) & 0x100 ) | ( ( x >> 7 ) & 0x18 ) | ( ( x << 1 ) & 0xc0 ) |
                                       ( ( x >> 2 ) & 0x6 )   | ( ( x << 3 ) & 0x20 );
-                    offset = sign_extend( offset, 8 );
+                    offset = (uint32_t) sign_extend( offset, 8 );
                     op32 = compose_B( 1, p_rs1, zero, offset, 0x18 );
                     break;
                 }
@@ -485,9 +478,6 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                 }
                 case 4: // several
                 {
-                    uint32_t p_rs1rd = ( ( x >> 7 ) & 0x1f );
-                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
-
                     if ( 0 == bit12 )
                     {
                         if ( 0 == p_rs2 ) // c.jr
@@ -512,21 +502,18 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
                 case 5: // c.fsdsp
                 {
                     uint32_t p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x >> 1 ) & 0x1c0 );
-                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
                     op32 = compose_S( 3, sp, p_rs2, p_imm, 9 );
                     break;
                 }
                 case 6: // c.swsp
                 {
                     uint32_t p_imm = ( ( x >> 7 ) & 0x3c ) | ( ( x >> 1 ) & 0xc0 );
-                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
                     op32 = compose_S( 2, sp, p_rs2, p_imm, 8 );
                     break;
                 }
                 case 7: // c.sdsp
                 {
                     uint32_t p_imm = ( ( x >> 7 ) & 0x38 ) | ( ( x >> 1 ) & 0x1c0 );
-                    uint32_t p_rs2 = ( ( x >> 2 ) & 0x1f );
                     op32 = compose_S( 3, sp, p_rs2, p_imm, 8 );
                     break;
                 }
