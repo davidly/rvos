@@ -1115,7 +1115,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
             time_t time_now = system_clock::to_time_t( now );
             struct tm * plocal = localtime( & time_now );
-            sprintf( pdatetime, "%02u:%02u:%02u.%03u", (uint32_t) plocal->tm_hour, (uint32_t) plocal->tm_min, (uint32_t) plocal->tm_sec, (uint32_t) ms );
+            snprintf( pdatetime, 80, "%02u:%02u:%02u.%03u", (uint32_t) plocal->tm_hour, (uint32_t) plocal->tm_min, (uint32_t) plocal->tm_sec, (uint32_t) ms );
             tracer.Trace( "  got datetime: '%s', pc: %llx\n", pdatetime, cpu.pc );
             update_a0_errno( cpu, 0 );
             break;
@@ -3245,6 +3245,5 @@ int main( int argc, char * argv[] )
 
     g_consoleConfig.RestoreConsole( false );
     tracer.Shutdown();
-
     return g_exit_code;
 } //main

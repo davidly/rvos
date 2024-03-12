@@ -576,6 +576,10 @@ static const char * cmp_type( uint64_t t )
     return comparison_types[ t ];
 } //cmp_type
 
+#if defined( __GNUC__ ) && !defined( __APPLE__ )     // bogus warning in g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+#pragma GCC diagnostic ignored "-Wformat="
+#endif
+
 void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
@@ -584,7 +588,7 @@ void RiscV::trace_state()
 
     static char acExtra[ 1024 ];
     acExtra[ 0 ] = 0;
-    sprintf( acExtra, "t0 %llx t1 %llx s0 %llx s1 %llx, s7 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s7 ] );
+    snprintf( acExtra, _countof( acExtra ), "t0 %llx t1 %llx s0 %llx s1 %llx, s7 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s7 ] );
 
     static const char * previous_symbol = 0;
     uint64_t offset;
@@ -600,7 +604,7 @@ void RiscV::trace_state()
     if ( 0 != symbol_name[ 0 ] )
     {
         if ( 0 != offset )
-            sprintf( symbol_offset, " + %llx", offset );
+            snprintf( symbol_offset, _countof( symbol_offset ), " + %llx", offset );
         strcat( symbol_offset, "\n            " );
     }
 
