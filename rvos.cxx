@@ -459,49 +459,45 @@ void slash_to_backslash( char * p )
 
 int windows_translate_flags( int flags )
 {
+    // Translate open() flags from Linux to Windows
     // Microsoft C uses different constants for flags than linux:
-    // O_CREAT == 0x100 msft,        0x200 linux
-    // O_TRUNC == 0x200 msft,        0x400 linux
-    // O_ASYNC == (undefined)  msft, 0x40 on linux
-    // 0x40 ==    O_TEMPORARY  msft, O_ASYNC linux // send SIGIO when data is ready
-    // 0x80 ==    O_NOINHERIT  msft, O_FSYNC // synchronous writes
-    // 0x20 ==    O_SEQUENTIAL msft, _FDEFER / O_EXLOCK / _FEXLOCK on others
-    // 0x10 ==    O_RANDOM     msft, _FMARK / O_SHLOCK / _FSHLOCK / O_SYNC on others
+    //             msft (win+dos)     linux
+    //             --------------     -----
+    // 0           O_RDONLY           O_RDONLY
+    // 1           O_WRONLY           O_WRONLY
+    // 2           O_RDRW             O_RDWR
+    // 0x8         O_APPEND           n/a
+    // 0x10        O_RANDOM           _FMARK / O_SHLOCK / _FSHLOCK / O_SYNC
+    // 0x20        O_SEQUENTIAL       _FDEFER / O_EXLOCK / _FEXLOCK
+    // 0x40        O_TEMPORARY        O_CREAT
+    // 0x80        O_NOINHERIT        O_EXCL
+    // 0x100       O_CREAT            n/a
+    // 0x200       O_TRUNC            O_TRUNC
+    // 0x400       O_EXCL             O_APPEND
+    // 0x2000      O_OBTAINDIR        O_ASYNC
+    // 0x4000      O_TEXT             n/a
+    // 0x8000      O_BINARY           n/a
+    // 0x10100     n/a                O_FSYNC, O_SYNC
 
-    // don't create a temporary file when the caller asked for async
+    int f = flags & 3; // copy rd/wr/rdrw
 
-    flags &= ~ 0x40;
+    f |= O_BINARY; // this is assumed on Linux systems
 
-    // don't create a non-inherited file when the caller asked for fsync
+    if ( 0x40 & flags )
+        f |= O_CREAT;
 
-    flags &= ~ 0x80;
+    if ( 0x80 & flags )
+        f |= O_EXCL;
 
-    // translate O_CREAT
+    if ( 0x200 & flags )
+        f |= O_TRUNC;
 
-    if ( flags & 0x200 )
-    {
-        flags |= 0x100;
-        flags &= ~ 0x200;
-    }
+    if ( 0x400 & flags )
+        f |= O_APPEND;
 
-    // translate O_TRUNC
-
-    if ( flags & 0x400 )
-    {
-        flags |= 0x200;
-        flags &= ~ 0x400;
-    }
-
-    // turn off 0x10 and 0x20 because they aren't critical and don't translate
-
-    flags &= ~ 0x30;
-
-    flags |= O_BINARY; // this is assumed on Linux systems
-
-    tracer.Trace( "  flags translated for Microsoft: %x\n", flags );
-    return flags;
+    tracer.Trace( "  flags translated from linux %x to Microsoft %x\n", flags, f );
+    return f;
 } //windows_translate_flags
-
 
 uint32_t epoch_days( uint16_t y, uint16_t m, uint16_t d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
 {
