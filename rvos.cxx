@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <vector>
 #include <chrono>
+#include <locale.h>
 
 #include <djl_os.hxx>
 
@@ -3081,6 +3082,9 @@ int main( int argc, char * argv[] )
         static char acAppArgs[1024] = {0};
         static char acApp[1024] = {0};
     
+        setlocale( LC_CTYPE, "en_US.UTF-8" );            // these are needed for printf of utf-8 to work
+        setlocale( LC_COLLATE, "en_US.UTF-8" );
+
         for ( int i = 1; i < argc; i++ )
         {
             char *parg = argv[i];
