@@ -19,7 +19,7 @@ fi
 
 echo $(date) >$_outputfile
 
-for arg in t glob tenv ts tf tm tap ttt sieve e tpi tp tins td tphi ttime terrno fileops t_setjmp tex trw empty;
+for arg in t glob tenv ts tf tm tap ttt sieve e tpi tp tins td tphi ttime terrno fileops t_setjmp tex trw empty tmuldiv;
 do
     echo running C test app $arg using brk heap >>$_outputfile
     $_rvoscmd -h:10 -m:0 $_testfolder/$arg >>$_outputfile

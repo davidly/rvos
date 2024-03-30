@@ -1,4 +1,4 @@
-Tue Feb 13 07:24:31 PST 2024
+Fri Mar 29 20:41:23 PDT 2024
 running C test app t using brk heap
 a: 0 4000000000000000
 a: 4 0
@@ -222,11 +222,11 @@ done
 running C test app ttt using brk heap
 starting...
 64930 moves
-20.741001 milliseconds
+16.297001 milliseconds
 running C test app ttt using mmap heap
 starting...
 64930 moves
-20.786001 milliseconds
+17.478001 milliseconds
 running C test app sieve using brk heap
 1899 primes.
 running C test app sieve using mmap heap
@@ -242,14 +242,14 @@ running C test app tpi using brk heap
 running C test app tpi using mmap heap
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 running C test app tp using brk heap
-start time: 07:24:31.737
-8252 microseconds for 1 iterations
-end time: 07:24:31.746
+start time: 20:41:23.732
+7167 microseconds for 1 iterations
+end time: 20:41:23.739
 final move count 6493
 running C test app tp using mmap heap
-start time: 07:24:31.748
-8289 microseconds for 1 iterations
-end time: 07:24:31.756
+start time: 20:41:23.741
+8806 microseconds for 1 iterations
+end time: 20:41:23.750
 final move count 6493
 running C test app tins using brk heap
 hello
@@ -324,15 +324,15 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 running C test app ttime using brk heap
-before TZ is set: tz: '(null)', year: 2024, month 2, day 13, hour 7, min 24, sec 31
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 10, min 24, sec 31
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 7, min 24, sec 31
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 15, min 24, sec 31
+before TZ is set: tz: '(null)', year: 2024, month 3, day 29, hour 20, min 41, sec 23
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 29, hour 22, min 41, sec 23
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 29, hour 19, min 41, sec 23
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 3, min 41, sec 23
 running C test app ttime using mmap heap
-before TZ is set: tz: '(null)', year: 2024, month 2, day 13, hour 7, min 24, sec 31
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 13, hour 10, min 24, sec 31
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 13, hour 7, min 24, sec 31
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 13, hour 15, min 24, sec 31
+before TZ is set: tz: '(null)', year: 2024, month 3, day 29, hour 20, min 41, sec 23
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 29, hour 22, min 41, sec 23
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 29, hour 19, min 41, sec 23
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 3, min 41, sec 23
 running C test app terrno using brk heap
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -485,6 +485,228 @@ running C test app empty using brk heap
 yo
 running C test app empty using mmap heap
 yo
+running C test app tmuldiv using brk heap
+app start
+i8 3 * 14: 42
+i8 3 % 14: 3
+i8 3 / 14: 0
+i8 17 * 14: -18
+i8 17 % 14: 3
+i8 17 / 14: 1
+i8 -3 * 14: -42
+i8 -3 % 14: -3
+i8 -3 / 14: 0
+i8 -17 * 14: 18
+i8 -17 % 14: -3
+i8 -17 / 14: -1
+i8 -3 * -14: 42
+i8 -3 % -14: -3
+i8 -3 / -14: 0
+i8 -17 * -14: -18
+i8 -17 % -14: -3
+i8 -17 / -14: 1
+ui8 3 * 14: 42
+ui8 3 % 14: 3
+ui8 3 / 14: 0
+ui8 17 * 14: 238
+ui8 17 % 14: 3
+ui8 17 / 14: 1
+ui8 253 * 14: 214
+ui8 253 % 14: 1
+ui8 253 / 14: 18
+ui8 239 * 14: 18
+ui8 239 % 14: 1
+ui8 239 / 14: 17
+ui8 253 * 242: 42
+ui8 253 % 242: 11
+ui8 253 / 242: 1
+ui8 239 * 242: 238
+ui8 239 % 242: 239
+ui8 239 / 242: 0
+i16 3 * 14: 42
+i16 3 % 14: 3
+i16 3 / 14: 0
+i16 3700 * 14: -13736
+i16 3700 % 14: 4
+i16 3700 / 14: 264
+i16 -3 * 14: -42
+i16 -3 % 14: -3
+i16 -3 / 14: 0
+i16 -3700 * 14: 13736
+i16 -3700 % 14: -4
+i16 -3700 / 14: -264
+i16 -3 * -14: 42
+i16 -3 % -14: -3
+i16 -3 / -14: 0
+i16 -3700 * -14: -13736
+i16 -3700 % -14: -4
+i16 -3700 / -14: 264
+ui16 3 * 14: 42
+ui16 3 % 14: 3
+ui16 3 / 14: 0
+ui16 3700 * 14: 51800
+ui16 3700 % 14: 4
+ui16 3700 / 14: 264
+ui16 65533 * 14: 65494
+ui16 65533 % 14: 13
+ui16 65533 / 14: 4680
+ui16 61836 * 14: 13736
+ui16 61836 % 14: 12
+ui16 61836 / 14: 4416
+ui16 65533 * 65522: 42
+ui16 65533 % 65522: 11
+ui16 65533 / 65522: 1
+ui16 61836 * 65522: 51800
+ui16 61836 % 65522: 61836
+ui16 61836 / 65522: 0
+i32 3 * 14: 42
+i32 3 % 14: 3
+i32 3 / 14: 0
+i32 37000 * 14: 518000
+i32 37000 % 14: 12
+i32 37000 / 14: 2642
+i32 -3 * 14: -42
+i32 -3 % 14: -3
+i32 -3 / 14: 0
+i32 -37000 * 14: -518000
+i32 -37000 % 14: -12
+i32 -37000 / 14: -2642
+i32 -3 * -14: 42
+i32 -3 % -14: -3
+i32 -3 / -14: 0
+i32 -37000 * -14: 518000
+i32 -37000 % -14: -12
+i32 -37000 / -14: 2642
+ui32 3 * 14: 42
+ui32 3 % 14: 3
+ui32 3 / 14: 0
+ui32 37000 * 14: 518000
+ui32 37000 % 14: 12
+ui32 37000 / 14: 2642
+ui32 4294967293 * 14: 4294967254
+ui32 4294967293 % 14: 1
+ui32 4294967293 / 14: 306783378
+ui32 4294930296 * 14: 4294449296
+ui32 4294930296 % 14: 6
+ui32 4294930296 / 14: 306780735
+ui32 4294967293 * 4294967282: 42
+ui32 4294967293 % 4294967282: 11
+ui32 4294967293 / 4294967282: 1
+ui32 4294930296 * 4294967282: 518000
+ui32 4294930296 % 4294967282: 4294930296
+ui32 4294930296 / 4294967282: 0
+tmuldiv ended with great success
+running C test app tmuldiv using mmap heap
+app start
+i8 3 * 14: 42
+i8 3 % 14: 3
+i8 3 / 14: 0
+i8 17 * 14: -18
+i8 17 % 14: 3
+i8 17 / 14: 1
+i8 -3 * 14: -42
+i8 -3 % 14: -3
+i8 -3 / 14: 0
+i8 -17 * 14: 18
+i8 -17 % 14: -3
+i8 -17 / 14: -1
+i8 -3 * -14: 42
+i8 -3 % -14: -3
+i8 -3 / -14: 0
+i8 -17 * -14: -18
+i8 -17 % -14: -3
+i8 -17 / -14: 1
+ui8 3 * 14: 42
+ui8 3 % 14: 3
+ui8 3 / 14: 0
+ui8 17 * 14: 238
+ui8 17 % 14: 3
+ui8 17 / 14: 1
+ui8 253 * 14: 214
+ui8 253 % 14: 1
+ui8 253 / 14: 18
+ui8 239 * 14: 18
+ui8 239 % 14: 1
+ui8 239 / 14: 17
+ui8 253 * 242: 42
+ui8 253 % 242: 11
+ui8 253 / 242: 1
+ui8 239 * 242: 238
+ui8 239 % 242: 239
+ui8 239 / 242: 0
+i16 3 * 14: 42
+i16 3 % 14: 3
+i16 3 / 14: 0
+i16 3700 * 14: -13736
+i16 3700 % 14: 4
+i16 3700 / 14: 264
+i16 -3 * 14: -42
+i16 -3 % 14: -3
+i16 -3 / 14: 0
+i16 -3700 * 14: 13736
+i16 -3700 % 14: -4
+i16 -3700 / 14: -264
+i16 -3 * -14: 42
+i16 -3 % -14: -3
+i16 -3 / -14: 0
+i16 -3700 * -14: -13736
+i16 -3700 % -14: -4
+i16 -3700 / -14: 264
+ui16 3 * 14: 42
+ui16 3 % 14: 3
+ui16 3 / 14: 0
+ui16 3700 * 14: 51800
+ui16 3700 % 14: 4
+ui16 3700 / 14: 264
+ui16 65533 * 14: 65494
+ui16 65533 % 14: 13
+ui16 65533 / 14: 4680
+ui16 61836 * 14: 13736
+ui16 61836 % 14: 12
+ui16 61836 / 14: 4416
+ui16 65533 * 65522: 42
+ui16 65533 % 65522: 11
+ui16 65533 / 65522: 1
+ui16 61836 * 65522: 51800
+ui16 61836 % 65522: 61836
+ui16 61836 / 65522: 0
+i32 3 * 14: 42
+i32 3 % 14: 3
+i32 3 / 14: 0
+i32 37000 * 14: 518000
+i32 37000 % 14: 12
+i32 37000 / 14: 2642
+i32 -3 * 14: -42
+i32 -3 % 14: -3
+i32 -3 / 14: 0
+i32 -37000 * 14: -518000
+i32 -37000 % 14: -12
+i32 -37000 / 14: -2642
+i32 -3 * -14: 42
+i32 -3 % -14: -3
+i32 -3 / -14: 0
+i32 -37000 * -14: 518000
+i32 -37000 % -14: -12
+i32 -37000 / -14: 2642
+ui32 3 * 14: 42
+ui32 3 % 14: 3
+ui32 3 / 14: 0
+ui32 37000 * 14: 518000
+ui32 37000 % 14: 12
+ui32 37000 / 14: 2642
+ui32 4294967293 * 14: 4294967254
+ui32 4294967293 % 14: 1
+ui32 4294967293 / 14: 306783378
+ui32 4294930296 * 14: 4294449296
+ui32 4294930296 % 14: 6
+ui32 4294930296 / 14: 306780735
+ui32 4294967293 * 4294967282: 42
+ui32 4294967293 % 4294967282: 11
+ui32 4294967293 / 4294967282: 1
+ui32 4294930296 * 4294967282: 518000
+ui32 4294930296 % 4294967282: 4294930296
+ui32 4294930296 / 4294967282: 0
+tmuldiv ended with great success
 running rust test app ato using brk heap
 testing atomic operations
 exiting atomic testing with great success
@@ -526,11 +748,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running rust test app ttt using brk heap
-serial runtime:   3.991883ms
+serial runtime:   2.866804ms
 moves:            6493
 iterations:       1
 running rust test app ttt using mmap heap
-serial runtime:   3.935197ms
+serial runtime:   2.85921ms
 moves:            6493
 iterations:       1
 running rust test app e using brk heap
@@ -617,7 +839,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash mh
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -631,7 +853,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash pcl
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -645,7 +867,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash pch
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -659,7 +881,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash spl
 rvos (amd64) fatal error: stack pointer is below stack memory: a746b0
@@ -673,7 +895,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash sph
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
@@ -687,7 +909,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tcrash spm
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94812
@@ -701,7 +923,7 @@ address space 10000 to 1495000
     s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 12 Feb 24 15:12:25 by g++ on linux
+Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
 
 tmmap test
 MAP_PRIVATE: 0x2
@@ -711,10 +933,10 @@ mmap test completed with great success
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 4.855102 ms
-start time: 07:24:34.509
-210 ms for 1 iterations
-end time: 07:24:34.720
+Time to parse tests/tp.bas: 3.648822 ms
+start time: 20:41:25.704
+146 ms for 1 iterations
+end time: 20:41:25.851
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -726,4 +948,4 @@ is stdin tty:  yes
 is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
-Tue Feb 13 07:24:35 PST 2024
+Fri Mar 29 20:41:26 PDT 2024
