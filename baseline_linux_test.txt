@@ -1,4 +1,4 @@
-Fri Mar 29 20:41:23 PDT 2024
+Sat Mar 30 09:04:44 PDT 2024
 running C test app t using brk heap
 a: 0 4000000000000000
 a: 4 0
@@ -222,11 +222,11 @@ done
 running C test app ttt using brk heap
 starting...
 64930 moves
-16.297001 milliseconds
+15.813001 milliseconds
 running C test app ttt using mmap heap
 starting...
 64930 moves
-17.478001 milliseconds
+15.765000 milliseconds
 running C test app sieve using brk heap
 1899 primes.
 running C test app sieve using mmap heap
@@ -242,14 +242,14 @@ running C test app tpi using brk heap
 running C test app tpi using mmap heap
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 running C test app tp using brk heap
-start time: 20:41:23.732
-7167 microseconds for 1 iterations
-end time: 20:41:23.739
+start time: 09:04:45.214
+6952 microseconds for 1 iterations
+end time: 09:04:45.221
 final move count 6493
 running C test app tp using mmap heap
-start time: 20:41:23.741
-8806 microseconds for 1 iterations
-end time: 20:41:23.750
+start time: 09:04:45.223
+6937 microseconds for 1 iterations
+end time: 09:04:45.230
 final move count 6493
 running C test app tins using brk heap
 hello
@@ -324,15 +324,15 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 running C test app ttime using brk heap
-before TZ is set: tz: '(null)', year: 2024, month 3, day 29, hour 20, min 41, sec 23
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 29, hour 22, min 41, sec 23
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 29, hour 19, min 41, sec 23
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 3, min 41, sec 23
+before TZ is set: tz: '(null)', year: 2024, month 3, day 30, hour 9, min 4, sec 45
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 45
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 45
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 45
 running C test app ttime using mmap heap
-before TZ is set: tz: '(null)', year: 2024, month 3, day 29, hour 20, min 41, sec 23
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 29, hour 22, min 41, sec 23
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 29, hour 19, min 41, sec 23
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 3, min 41, sec 23
+before TZ is set: tz: '(null)', year: 2024, month 3, day 30, hour 9, min 4, sec 45
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 45
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 45
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 45
 running C test app terrno using brk heap
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -595,6 +595,42 @@ ui32 4294967293 / 4294967282: 1
 ui32 4294930296 * 4294967282: 518000
 ui32 4294930296 % 4294967282: 4294930296
 ui32 4294930296 / 4294967282: 0
+i64 3 * 14: 42
+i64 3 % 14: 3
+i64 3 / 14: 0
+i64 370000000 * 14: 5180000000
+i64 370000000 % 14: 6
+i64 370000000 / 14: 26428571
+i64 -3 * 14: -42
+i64 -3 % 14: -3
+i64 -3 / 14: 0
+i64 -370000000 * 14: -5180000000
+i64 -370000000 % 14: -6
+i64 -370000000 / 14: -26428571
+i64 -3 * -14: 42
+i64 -3 % -14: -3
+i64 -3 / -14: 0
+i64 -370000000 * -14: 5180000000
+i64 -370000000 % -14: -6
+i64 -370000000 / -14: 26428571
+ui64 3 * 14: 42
+ui64 3 % 14: 3
+ui64 3 / 14: 0
+ui64 370000000 * 14: 5180000000
+ui64 370000000 % 14: 6
+ui64 370000000 / 14: 26428571
+ui64 18446744073709551613 * 14: 18446744073709551574
+ui64 18446744073709551613 % 14: 13
+ui64 18446744073709551613 / 14: 1317624576693539400
+ui64 18446744073339551616 * 14: 18446744068529551616
+ui64 18446744073339551616 % 14: 10
+ui64 18446744073339551616 / 14: 1317624576667110829
+ui64 18446744073709551613 * 18446744073709551602: 42
+ui64 18446744073709551613 % 18446744073709551602: 11
+ui64 18446744073709551613 / 18446744073709551602: 1
+ui64 18446744073339551616 * 18446744073709551602: 5180000000
+ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
+ui64 18446744073339551616 / 18446744073709551602: 0
 tmuldiv ended with great success
 running C test app tmuldiv using mmap heap
 app start
@@ -706,6 +742,42 @@ ui32 4294967293 / 4294967282: 1
 ui32 4294930296 * 4294967282: 518000
 ui32 4294930296 % 4294967282: 4294930296
 ui32 4294930296 / 4294967282: 0
+i64 3 * 14: 42
+i64 3 % 14: 3
+i64 3 / 14: 0
+i64 370000000 * 14: 5180000000
+i64 370000000 % 14: 6
+i64 370000000 / 14: 26428571
+i64 -3 * 14: -42
+i64 -3 % 14: -3
+i64 -3 / 14: 0
+i64 -370000000 * 14: -5180000000
+i64 -370000000 % 14: -6
+i64 -370000000 / 14: -26428571
+i64 -3 * -14: 42
+i64 -3 % -14: -3
+i64 -3 / -14: 0
+i64 -370000000 * -14: 5180000000
+i64 -370000000 % -14: -6
+i64 -370000000 / -14: 26428571
+ui64 3 * 14: 42
+ui64 3 % 14: 3
+ui64 3 / 14: 0
+ui64 370000000 * 14: 5180000000
+ui64 370000000 % 14: 6
+ui64 370000000 / 14: 26428571
+ui64 18446744073709551613 * 14: 18446744073709551574
+ui64 18446744073709551613 % 14: 13
+ui64 18446744073709551613 / 14: 1317624576693539400
+ui64 18446744073339551616 * 14: 18446744068529551616
+ui64 18446744073339551616 % 14: 10
+ui64 18446744073339551616 / 14: 1317624576667110829
+ui64 18446744073709551613 * 18446744073709551602: 42
+ui64 18446744073709551613 % 18446744073709551602: 11
+ui64 18446744073709551613 / 18446744073709551602: 1
+ui64 18446744073339551616 * 18446744073709551602: 5180000000
+ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
+ui64 18446744073339551616 / 18446744073709551602: 0
 tmuldiv ended with great success
 running rust test app ato using brk heap
 testing atomic operations
@@ -748,11 +820,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running rust test app ttt using brk heap
-serial runtime:   2.866804ms
+serial runtime:   2.864394ms
 moves:            6493
 iterations:       1
 running rust test app ttt using mmap heap
-serial runtime:   2.85921ms
+serial runtime:   2.744957ms
 moves:            6493
 iterations:       1
 running rust test app e using brk heap
@@ -933,10 +1005,10 @@ mmap test completed with great success
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 3.648822 ms
-start time: 20:41:25.704
-146 ms for 1 iterations
-end time: 20:41:25.851
+Time to parse tests/tp.bas: 3.773317 ms
+start time: 09:04:47.179
+152 ms for 1 iterations
+end time: 09:04:47.331
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -948,4 +1020,4 @@ is stdin tty:  yes
 is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
-Fri Mar 29 20:41:26 PDT 2024
+Sat Mar 30 09:04:47 PDT 2024

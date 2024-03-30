@@ -1,12 +1,12 @@
-Thu 02/15/2024 16:54:07.02 
+Fri 03/15/2024 13:13:35.37 
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Thursday, February 15, 2024 4:54:07 PM
+  Started : Friday, March 15, 2024 1:13:35 PM
    Source : \\lee-server\documents\scratch\debianrv\
-     Dest : c:\Users\david\OneDrive\rvos\debianrv\
+     Dest : C:\Users\david\OneDrive\rvos\debianrv\
 
     Files : *
 	    
@@ -28,9 +28,9 @@ Thu 02/15/2024 16:54:07.02
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :         2         0         2         0         0         0
    Files :        72         0        72         0         0         6
-   Bytes :  131.98 m         0  131.98 m         0         0    1.72 m
+   Bytes :  132.68 m         0  132.68 m         0         0    1.72 m
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Thursday, February 15, 2024 4:54:08 PM
+   Ended : Friday, March 15, 2024 1:13:36 PM
 
 running C test app t using brk heap 
 a: 0 4000000000000000
@@ -239,23 +239,23 @@ test instructions is complete
 running C test app terrno using brk heap 
 running C test app terrno using mmap heap 
 running C test app tp using brk heap 
-start time: 16:54:11.740
-13383 microseconds for 1 iterations
-end time: 16:54:11.754
+start time: 13:13:39.813
+7324 microseconds for 1 iterations
+end time: 13:13:39.820
 final move count 6493
 running C test app tp using mmap heap 
-start time: 16:54:11.765
-13401 microseconds for 1 iterations
-end time: 16:54:11.778
+start time: 13:13:39.832
+7211 microseconds for 1 iterations
+end time: 13:13:39.840
 final move count 6493
 running C test app ttt using brk heap 
 starting...
 64930 moves
-32.929001 milliseconds
+21.036001 milliseconds
 running C test app ttt using mmap heap 
 starting...
 64930 moves
-33.029003 milliseconds
+21.268002 milliseconds
 running C test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -299,15 +299,15 @@ success
 running C test app tm using mmap heap 
 success
 running C test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 15, hour 16, min 54, sec 12
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 15, hour 19, min 54, sec 12
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 15, hour 16, min 54, sec 12
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 16, hour 0, min 54, sec 12
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2024, month 3, day 15, hour 12, min 13, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 15, hour 15, min 13, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 15, hour 12, min 13, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 15, hour 20, min 13, sec 39
 running C test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 15, hour 16, min 54, sec 12
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 15, hour 19, min 54, sec 12
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 15, hour 16, min 54, sec 12
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 16, hour 0, min 54, sec 12
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2024, month 3, day 15, hour 12, min 13, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 15, hour 15, min 13, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 15, hour 12, min 13, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 15, hour 20, min 13, sec 40
 running C test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -535,11 +535,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running rust test app ttt using brk heap 
-serial runtime:   5.5221ms
+serial runtime:   3.551ms
 moves:            6493
 iterations:       1
 running rust test app ttt using mmap 
-serial runtime:   5.5635ms
+serial runtime:   3.5421ms
 moves:            6493
 iterations:       1
 running rust test app e using brk heap 
@@ -626,7 +626,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app mh 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -640,7 +640,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app pcl 
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -654,7 +654,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app pch 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -668,7 +668,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app spl 
 rvos (amd64) fatal error: stack pointer is below stack memory: a86ce0
@@ -682,7 +682,7 @@ address space 10000 to 14a7000
     s4:            5ba60,   s5:           a873f0,   s6:            7ddc0,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3:                0,   t4:               79,   t5:            7a9b4,   t6:                a, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app sph 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b60
@@ -696,7 +696,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tcrash app spm 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: aa6b62
@@ -710,7 +710,7 @@ address space 10000 to 14a7000
     s4:           aa6d80,   s5:                1,   s6:            10a10,   s7:            10420, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on 15 Feb 24 16:53:47 by msft C++ ver 1939 on windows
+Built for amd64 debug on 12 Mar 24 09:09:42 by msft C++ ver 1939 on windows
 
 running tmmap 
 MAP_PRIVATE: 0x2
@@ -723,9 +723,9 @@ is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
 parsing input file debianrv\tp.bas
-start time: 16:54:16.516
-270 ms for 1 iterations
-end time: 16:54:16.785
+start time: 12:13:43.050
+164 ms for 1 iterations
+end time: 12:13:43.214
 final move count 6493
 exiting the basic interpreter
 sorting debianrv\words.txt ==> debianrv\sorted.txt
@@ -775,39 +775,35 @@ id leaved
 idea veld
 lade vied
 lead vied
-start time: 16:54:17.811
-1215424 microseconds for 1 iterations
-end time: 16:54:19.027
+start time: 12:13:43.892
+542084 microseconds for 1 iterations
+end time: 12:13:44.435
 final move count 6493
-
-195D 0001$
-moves: 6493
-iterations: 1
-0.3 seconds
-moves: 6493
-iterations: 1
+elapsed milliseconds:              555
+RISC-V cycles:               1,948,051
+effective clock rate:            3,510
+app exit code:                       0
 running ntvao, ntvcm, and ntvdm 
 
 195D 0001$
-elapsed milliseconds:              188
+elapsed milliseconds:              122
 6502 cycles:                 1,660,247
 clock rate:                  unbounded
 ms at 1.022727 Mhz:              1,623 == 0 days, 0 hours, 0 minutes, 1 seconds, 623 milliseconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:              188
-Z80  cycles:                 5,242,794
+elapsed milliseconds:              117
+Z80  cycles:                 5,243,044
 clock rate:                  unbounded
 approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds, 310 milliseconds
-0.3 seconds
+0.1 seconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:              437
-8086 cycles:                 4,773,794
+elapsed milliseconds:              157
+8086 cycles:                 4,757,966
 clock rate:                  unbounded
-approx ms at 4.77Mhz:            1,000  == 0 days, 0 hours, 0 minutes, 1 seconds, 0 milliseconds
-unique first opcodes:               63
+approx ms at 4.77Mhz:              997  == 0 days, 0 hours, 0 minutes, 0 seconds, 997 milliseconds
 app exit code:                       0
-Thu 02/15/2024 16:54:20.89 
+Fri 03/15/2024 13:13:44.93 

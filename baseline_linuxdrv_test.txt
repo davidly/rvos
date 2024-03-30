@@ -1,4 +1,4 @@
-Fri Feb  9 05:13:15 PST 2024
+Mon Mar  4 07:13:04 PST 2024
 t
 a: 0 4000000000000000
 a: 4 0
@@ -112,7 +112,7 @@ done
 ttt
 starting...
 64930 moves
-21.321001 milliseconds
+18.441000 milliseconds
 sieve
 1899 primes.
 e
@@ -121,9 +121,9 @@ done
 tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 tp1k
-start time: 05:13:15.915
-8518315 microseconds for 1000 iterations
-end time: 05:13:24.434
+start time: 07:13:04.644
+7301461 microseconds for 1000 iterations
+end time: 07:13:11.945
 final move count 6493
 tins
 hello
@@ -162,10 +162,10 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 ttime
-before TZ is set: tz: '(null)', year: 2024, month 2, day 9, hour 5, min 13, sec 24
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 9, hour 8, min 13, sec 24
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 9, hour 5, min 13, sec 24
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 9, hour 13, min 13, sec 24
+before TZ is set: tz: '(null)', year: 2024, month 3, day 4, hour 7, min 13, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 4, hour 10, min 13, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 4, hour 7, min 13, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 4, hour 15, min 13, sec 11
 terrno
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 9. (13 permission denied expected)
@@ -244,52 +244,6 @@ trw
 exiting trw
 empty
 yo
-tmmap test
-MAP_PRIVATE: 0x2
-MAP_ANONYMOUS: 0x20
-MREMAP_MAYMOVE: 0x1
-mmap test completed with great success
-an nap
-pan
-ba -p -q tp.bas
-Time to parse tests/tp.bas: 5.134925 ms
-start time: 05:13:24.964
-177 ms for 1 iterations
-end time: 05:13:25.141
-final move count 6493
-mysort /r words.txt sorted.txt
-sorting tests/words.txt ==> tests/sorted.txt
-sorting
-writing...
-done
-tcrash sph
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b70
-pc: 10d7c rvos_sp_add + 4
-address space 10000 to 14a7000
-  zero:                0,   ra:            10c48,   sp:           ba6b70,   gp:            81c80, 
-    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           aa6bd0,   s1:                2,   a0:           100000,   a1:            5ba9c, 
-    a2:           aa6d90,   a3:                0,   a4:                0,   a5:                1, 
-    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
-    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:11:56 by g++ on linux
-
-tcrash mh
-rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
-pc: 10bc8 main + 1b8
-address space 10000 to 14a7000
-  zero:                0,   ra:            10aa8,   sp:           aa6b70,   gp:            81c80, 
-    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           aa6bd0,   s1:                2,   a0:                0,   a1:            5ba7b, 
-    a2:           aa6d90,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
-    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
-Built for amd64 debug on  9 Feb 24 05:11:56 by g++ on linux
-
 ato
 testing atomic operations
 exiting atomic testing with great success
@@ -331,7 +285,7 @@ second implementation...
   1.1989688867573887     at 100000 iterations
 exiting finding ap with great success
 ttt
-serial runtime:   4.033671ms
+serial runtime:   3.16708ms
 moves:            6493
 iterations:       1
 mysort
@@ -339,3 +293,125 @@ element count in vector: 58174
 element count after dedup: 58174
 fileops
 exiting fileops with great success
+tmmap test
+MAP_PRIVATE: 0x2
+MAP_ANONYMOUS: 0x20
+MREMAP_MAYMOVE: 0x1
+mmap test completed with great success
+an nap
+pan
+ba -p -q tp.bas
+Time to parse tests/tp.bas: 3.876015 ms
+start time: 07:13:13.157
+129 ms for 1 iterations
+end time: 07:13:13.286
+final move count 6493
+mysort /r words.txt sorted.txt
+sorting tests/words.txt ==> tests/sorted.txt
+sorting
+writing...
+done
+tcrash ml
+rvos (amd64) fatal error: memory reference prior to address space: 200
+pc: 10c78 main + 268
+address space 10000 to 14a7000
+  zero:                0,   ra:            10a78,   sp:           aa6b70,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:                0,   a1:            5ba73, 
+    a2:           aa6d90,   a3:                0,   a4:                a,   a5:              200, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash mh
+rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
+pc: 10bc8 main + 1b8
+address space 10000 to 14a7000
+  zero:                0,   ra:            10aa8,   sp:           aa6b70,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:                0,   a1:            5ba7b, 
+    a2:           aa6d90,   a3:                0,   a4:                a,   a5: 2000000000000000, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash pcl
+rvos (amd64) fatal error: pc is lower than memory: 200
+pc: 200  + 0
+address space 10000 to 14a7000
+  zero:                0,   ra:            10be8,   sp:           aa6b70,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:                0,   a1:            5ba84, 
+    a2:           aa6d90,   a3:                0,   a4:                0,   a5:              200, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash pch
+rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
+pc: 2000000000000000  + 0
+address space 10000 to 14a7000
+  zero:                0,   ra:            10c10,   sp:           aa6b70,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:                0,   a1:            5ba8c, 
+    a2:           aa6d90,   a3:                0,   a4:                0,   a5: 2000000000000000, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash spl
+rvos (amd64) fatal error: stack pointer is below stack memory: a86cf0
+pc: 255a8 __vfprintf_internal + c
+address space 10000 to 14a7000
+  zero:                0,   ra:            11fa0,   sp:           a86cf0,   gp:            81c80, 
+    tp:            87540,   t0:                0,   t1:           a87400,   t2:                0, 
+    s0:                0,   s1: ffffffffffffffff,   a0:           a872a8,   a1:            5ba60, 
+    a2:           a87400,   a3:                0,   a4:               18,   a5:           a87440, 
+    a6:                0,   a7: fffffffffbad0000,   s2:           a87440,   s3:           a872a8, 
+    s4:            5ba60,   s5:           a87400,   s6:            7ddc0,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3:                0,   t4:               79,   t5:            7a9b4,   t6:                a, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash sph
+rvos (amd64) fatal error: stack pointer is above the top of its starting point: ba6b70
+pc: 10d7c rvos_sp_add + 4
+address space 10000 to 14a7000
+  zero:                0,   ra:            10c48,   sp:           ba6b70,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:           100000,   a1:            5ba9c, 
+    a2:           aa6d90,   a3:                0,   a4:                0,   a5:                1, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+tcrash spm
+rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: aa6b72
+pc: 10d7c rvos_sp_add + 4
+address space 10000 to 14a7000
+  zero:                0,   ra:            10c5c,   sp:           aa6b72,   gp:            81c80, 
+    tp:            87540,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
+    s0:           aa6bd0,   s1:                2,   a0:                2,   a1:            5baa4, 
+    a2:           aa6d90,   a3:                0,   a4:                0,   a5:                1, 
+    a6:                1,   a7:            5afd6,   s2:           aa6d78,   s3:                1, 
+    s4:           aa6d90,   s5:                1,   s6:            10a10,   s7:            10420, 
+    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
+    t3: ffffffffffffffff,   t4:            7ff68,   t5:            7a9b4,   t6:            10000, 
+Built for amd64 debug on  4 Mar 24 07:03:52 by g++ on linux
+
+running ttty tests
+is stdin tty:  yes
+is stdout tty: no
+is stdin tty:  no
+is stdout tty: no
+Mon Mar  4 07:13:04 PST 2024

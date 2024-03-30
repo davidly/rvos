@@ -1,4 +1,4 @@
-Wed 02/14/2024  6:55:33.83 
+Sat 03/30/2024  9:04:35.39 
 running C test app t using brk heap 
 a: 0 4000000000000000
 a: 4 0
@@ -214,23 +214,23 @@ errno doing write to stdin file descriptor: 13. (13 permission denied expected)
 errno opening a file for read with invalid open flags: 22 (22 invalid argument expected)
 success
 running C test app tp using brk heap 
-start time: 06:55:34.796
-13871 microseconds for 1 iterations
-end time: 06:55:34.810
+start time: 09:04:36.228
+7944 microseconds for 1 iterations
+end time: 09:04:36.236
 final move count 6493
 running C test app tp using mmap heap 
-start time: 06:55:34.823
-13122 microseconds for 1 iterations
-end time: 06:55:34.836
+start time: 09:04:36.255
+7986 microseconds for 1 iterations
+end time: 09:04:36.263
 final move count 6493
 running C test app ttt using brk heap 
 starting...
 64930 moves
-34.361000 milliseconds
+21.502001 milliseconds
 running C test app ttt using mmap heap 
 starting...
 64930 moves
-34.486000 milliseconds
+21.752001 milliseconds
 running C test app tf using brk heap 
 hello from printf
 float from printf: 45.678000
@@ -274,15 +274,15 @@ success
 running C test app tm using mmap heap 
 success
 running C test app ttime using brk heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 14, hour 6, min 55, sec 35
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 14, hour 9, min 55, sec 35
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 14, hour 6, min 55, sec 35
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 14, hour 14, min 55, sec 35
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2024, month 3, day 30, hour 8, min 4, sec 36
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 36
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 36
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 36
 running C test app ttime using mmap heap 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 2, day 14, hour 6, min 55, sec 35
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 2, day 14, hour 9, min 55, sec 35
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 2, day 14, hour 6, min 55, sec 35
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 2, day 14, hour 14, min 55, sec 35
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2024, month 3, day 30, hour 8, min 4, sec 36
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 36
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 36
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 36
 running C test app td using brk heap 
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -469,12 +469,306 @@ running C test app empty using brk heap
 yo
 running C test app empty using mmap heap 
 yo
+running C test app tmuldiv using brk heap 
+app start
+i8 3 * 14: 42
+i8 3 % 14: 3
+i8 3 / 14: 0
+i8 17 * 14: -18
+i8 17 % 14: 3
+i8 17 / 14: 1
+i8 -3 * 14: -42
+i8 -3 % 14: -3
+i8 -3 / 14: 0
+i8 -17 * 14: 18
+i8 -17 % 14: -3
+i8 -17 / 14: -1
+i8 -3 * -14: 42
+i8 -3 % -14: -3
+i8 -3 / -14: 0
+i8 -17 * -14: -18
+i8 -17 % -14: -3
+i8 -17 / -14: 1
+ui8 3 * 14: 42
+ui8 3 % 14: 3
+ui8 3 / 14: 0
+ui8 17 * 14: 238
+ui8 17 % 14: 3
+ui8 17 / 14: 1
+ui8 253 * 14: 214
+ui8 253 % 14: 1
+ui8 253 / 14: 18
+ui8 239 * 14: 18
+ui8 239 % 14: 1
+ui8 239 / 14: 17
+ui8 253 * 242: 42
+ui8 253 % 242: 11
+ui8 253 / 242: 1
+ui8 239 * 242: 238
+ui8 239 % 242: 239
+ui8 239 / 242: 0
+i16 3 * 14: 42
+i16 3 % 14: 3
+i16 3 / 14: 0
+i16 3700 * 14: -13736
+i16 3700 % 14: 4
+i16 3700 / 14: 264
+i16 -3 * 14: -42
+i16 -3 % 14: -3
+i16 -3 / 14: 0
+i16 -3700 * 14: 13736
+i16 -3700 % 14: -4
+i16 -3700 / 14: -264
+i16 -3 * -14: 42
+i16 -3 % -14: -3
+i16 -3 / -14: 0
+i16 -3700 * -14: -13736
+i16 -3700 % -14: -4
+i16 -3700 / -14: 264
+ui16 3 * 14: 42
+ui16 3 % 14: 3
+ui16 3 / 14: 0
+ui16 3700 * 14: 51800
+ui16 3700 % 14: 4
+ui16 3700 / 14: 264
+ui16 65533 * 14: 65494
+ui16 65533 % 14: 13
+ui16 65533 / 14: 4680
+ui16 61836 * 14: 13736
+ui16 61836 % 14: 12
+ui16 61836 / 14: 4416
+ui16 65533 * 65522: 42
+ui16 65533 % 65522: 11
+ui16 65533 / 65522: 1
+ui16 61836 * 65522: 51800
+ui16 61836 % 65522: 61836
+ui16 61836 / 65522: 0
+i32 3 * 14: 42
+i32 3 % 14: 3
+i32 3 / 14: 0
+i32 37000 * 14: 518000
+i32 37000 % 14: 12
+i32 37000 / 14: 2642
+i32 -3 * 14: -42
+i32 -3 % 14: -3
+i32 -3 / 14: 0
+i32 -37000 * 14: -518000
+i32 -37000 % 14: -12
+i32 -37000 / 14: -2642
+i32 -3 * -14: 42
+i32 -3 % -14: -3
+i32 -3 / -14: 0
+i32 -37000 * -14: 518000
+i32 -37000 % -14: -12
+i32 -37000 / -14: 2642
+ui32 3 * 14: 42
+ui32 3 % 14: 3
+ui32 3 / 14: 0
+ui32 37000 * 14: 518000
+ui32 37000 % 14: 12
+ui32 37000 / 14: 2642
+ui32 4294967293 * 14: 4294967254
+ui32 4294967293 % 14: 1
+ui32 4294967293 / 14: 306783378
+ui32 4294930296 * 14: 4294449296
+ui32 4294930296 % 14: 6
+ui32 4294930296 / 14: 306780735
+ui32 4294967293 * 4294967282: 42
+ui32 4294967293 % 4294967282: 11
+ui32 4294967293 / 4294967282: 1
+ui32 4294930296 * 4294967282: 518000
+ui32 4294930296 % 4294967282: 4294930296
+ui32 4294930296 / 4294967282: 0
+i64 3 * 14: 42
+i64 3 % 14: 3
+i64 3 / 14: 0
+i64 370000000 * 14: 5180000000
+i64 370000000 % 14: 6
+i64 370000000 / 14: 26428571
+i64 -3 * 14: -42
+i64 -3 % 14: -3
+i64 -3 / 14: 0
+i64 -370000000 * 14: -5180000000
+i64 -370000000 % 14: -6
+i64 -370000000 / 14: -26428571
+i64 -3 * -14: 42
+i64 -3 % -14: -3
+i64 -3 / -14: 0
+i64 -370000000 * -14: 5180000000
+i64 -370000000 % -14: -6
+i64 -370000000 / -14: 26428571
+ui64 3 * 14: 42
+ui64 3 % 14: 3
+ui64 3 / 14: 0
+ui64 370000000 * 14: 5180000000
+ui64 370000000 % 14: 6
+ui64 370000000 / 14: 26428571
+ui64 18446744073709551613 * 14: 18446744073709551574
+ui64 18446744073709551613 % 14: 13
+ui64 18446744073709551613 / 14: 1317624576693539400
+ui64 18446744073339551616 * 14: 18446744068529551616
+ui64 18446744073339551616 % 14: 10
+ui64 18446744073339551616 / 14: 1317624576667110829
+ui64 18446744073709551613 * 18446744073709551602: 42
+ui64 18446744073709551613 % 18446744073709551602: 11
+ui64 18446744073709551613 / 18446744073709551602: 1
+ui64 18446744073339551616 * 18446744073709551602: 5180000000
+ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
+ui64 18446744073339551616 / 18446744073709551602: 0
+tmuldiv ended with great success
+running C test app tmuldiv using mmap heap 
+app start
+i8 3 * 14: 42
+i8 3 % 14: 3
+i8 3 / 14: 0
+i8 17 * 14: -18
+i8 17 % 14: 3
+i8 17 / 14: 1
+i8 -3 * 14: -42
+i8 -3 % 14: -3
+i8 -3 / 14: 0
+i8 -17 * 14: 18
+i8 -17 % 14: -3
+i8 -17 / 14: -1
+i8 -3 * -14: 42
+i8 -3 % -14: -3
+i8 -3 / -14: 0
+i8 -17 * -14: -18
+i8 -17 % -14: -3
+i8 -17 / -14: 1
+ui8 3 * 14: 42
+ui8 3 % 14: 3
+ui8 3 / 14: 0
+ui8 17 * 14: 238
+ui8 17 % 14: 3
+ui8 17 / 14: 1
+ui8 253 * 14: 214
+ui8 253 % 14: 1
+ui8 253 / 14: 18
+ui8 239 * 14: 18
+ui8 239 % 14: 1
+ui8 239 / 14: 17
+ui8 253 * 242: 42
+ui8 253 % 242: 11
+ui8 253 / 242: 1
+ui8 239 * 242: 238
+ui8 239 % 242: 239
+ui8 239 / 242: 0
+i16 3 * 14: 42
+i16 3 % 14: 3
+i16 3 / 14: 0
+i16 3700 * 14: -13736
+i16 3700 % 14: 4
+i16 3700 / 14: 264
+i16 -3 * 14: -42
+i16 -3 % 14: -3
+i16 -3 / 14: 0
+i16 -3700 * 14: 13736
+i16 -3700 % 14: -4
+i16 -3700 / 14: -264
+i16 -3 * -14: 42
+i16 -3 % -14: -3
+i16 -3 / -14: 0
+i16 -3700 * -14: -13736
+i16 -3700 % -14: -4
+i16 -3700 / -14: 264
+ui16 3 * 14: 42
+ui16 3 % 14: 3
+ui16 3 / 14: 0
+ui16 3700 * 14: 51800
+ui16 3700 % 14: 4
+ui16 3700 / 14: 264
+ui16 65533 * 14: 65494
+ui16 65533 % 14: 13
+ui16 65533 / 14: 4680
+ui16 61836 * 14: 13736
+ui16 61836 % 14: 12
+ui16 61836 / 14: 4416
+ui16 65533 * 65522: 42
+ui16 65533 % 65522: 11
+ui16 65533 / 65522: 1
+ui16 61836 * 65522: 51800
+ui16 61836 % 65522: 61836
+ui16 61836 / 65522: 0
+i32 3 * 14: 42
+i32 3 % 14: 3
+i32 3 / 14: 0
+i32 37000 * 14: 518000
+i32 37000 % 14: 12
+i32 37000 / 14: 2642
+i32 -3 * 14: -42
+i32 -3 % 14: -3
+i32 -3 / 14: 0
+i32 -37000 * 14: -518000
+i32 -37000 % 14: -12
+i32 -37000 / 14: -2642
+i32 -3 * -14: 42
+i32 -3 % -14: -3
+i32 -3 / -14: 0
+i32 -37000 * -14: 518000
+i32 -37000 % -14: -12
+i32 -37000 / -14: 2642
+ui32 3 * 14: 42
+ui32 3 % 14: 3
+ui32 3 / 14: 0
+ui32 37000 * 14: 518000
+ui32 37000 % 14: 12
+ui32 37000 / 14: 2642
+ui32 4294967293 * 14: 4294967254
+ui32 4294967293 % 14: 1
+ui32 4294967293 / 14: 306783378
+ui32 4294930296 * 14: 4294449296
+ui32 4294930296 % 14: 6
+ui32 4294930296 / 14: 306780735
+ui32 4294967293 * 4294967282: 42
+ui32 4294967293 % 4294967282: 11
+ui32 4294967293 / 4294967282: 1
+ui32 4294930296 * 4294967282: 518000
+ui32 4294930296 % 4294967282: 4294930296
+ui32 4294930296 / 4294967282: 0
+i64 3 * 14: 42
+i64 3 % 14: 3
+i64 3 / 14: 0
+i64 370000000 * 14: 5180000000
+i64 370000000 % 14: 6
+i64 370000000 / 14: 26428571
+i64 -3 * 14: -42
+i64 -3 % 14: -3
+i64 -3 / 14: 0
+i64 -370000000 * 14: -5180000000
+i64 -370000000 % 14: -6
+i64 -370000000 / 14: -26428571
+i64 -3 * -14: 42
+i64 -3 % -14: -3
+i64 -3 / -14: 0
+i64 -370000000 * -14: 5180000000
+i64 -370000000 % -14: -6
+i64 -370000000 / -14: 26428571
+ui64 3 * 14: 42
+ui64 3 % 14: 3
+ui64 3 / 14: 0
+ui64 370000000 * 14: 5180000000
+ui64 370000000 % 14: 6
+ui64 370000000 / 14: 26428571
+ui64 18446744073709551613 * 14: 18446744073709551574
+ui64 18446744073709551613 % 14: 13
+ui64 18446744073709551613 / 14: 1317624576693539400
+ui64 18446744073339551616 * 14: 18446744068529551616
+ui64 18446744073339551616 % 14: 10
+ui64 18446744073339551616 / 14: 1317624576667110829
+ui64 18446744073709551613 * 18446744073709551602: 42
+ui64 18446744073709551613 % 18446744073709551602: 11
+ui64 18446744073709551613 / 18446744073709551602: 1
+ui64 18446744073339551616 * 18446744073709551602: 5180000000
+ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
+ui64 18446744073339551616 / 18446744073709551602: 0
+tmuldiv ended with great success
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Wednesday, February 14, 2024 6:55:35 AM
+  Started : Saturday, March 30, 2024 9:04:36 AM
    Source : \\lee-server\documents\scratch\debianrv\rust\
      Dest : C:\Users\david\OneDrive\rvos\debianrv\rust\
 
@@ -493,7 +787,7 @@ yo
    Files :        33         0        33         0         0         0
    Bytes :   87.70 m         0   87.70 m         0         0         0
    Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-   Ended : Wednesday, February 14, 2024 6:55:36 AM
+   Ended : Saturday, March 30, 2024 9:04:37 AM
 
 running rust test app ato using brk heap 
 testing atomic operations
@@ -536,11 +830,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running rust test app ttt using brk heap 
-serial runtime:   5.6396ms
+serial runtime:   3.7698ms
 moves:            6493
 iterations:       1
 running rust test app ttt using mmap 
-serial runtime:   5.6284ms
+serial runtime:   3.8199ms
 moves:            6493
 iterations:       1
 running rust test app e using brk heap 
@@ -627,7 +921,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app mh 
 rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
@@ -641,7 +935,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app pcl 
 rvos (amd64) fatal error: pc is lower than memory: 200
@@ -655,7 +949,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app pch 
 rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
@@ -669,7 +963,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app spl 
 rvos (amd64) fatal error: stack pointer is below stack memory: a746a0
@@ -683,7 +977,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app sph 
 rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94800
@@ -697,7 +991,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running tcrash app spm 
 rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94802
@@ -711,7 +1005,7 @@ address space 10000 to 1495000
     s4:           a94a20,   s5:                1,   s6:            1066c,   s7:            103e0, 
     s8:                0,   s9:                0,  s10:                0,  s11:                0, 
     t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 13 Feb 24 15:57:02 by msft C++ ver 1939 on windows
+Built for amd64 debug on 28 Mar 24 16:32:09 by msft C++ ver 1939 on windows
 
 running mid 
 starting at line 2000 for 10 lines
@@ -729,20 +1023,20 @@ starting at line 2000 for 10 lines
 running ttt_riscv 
 starting...
 6493 moves
-2 milliseconds
+1 milliseconds
 1 iterations
-elapsed milliseconds:                2
+elapsed milliseconds:                1
 RISC-V cycles:                 396,095
-effective clock rate:          198,047
+effective clock rate:          396,095
 app exit code:                       0
 running ttt_rvu 
 starting...
 6493 moves
-2 milliseconds
+1 milliseconds
 1 iterations
-elapsed milliseconds:                2
+elapsed milliseconds:                1
 RISC-V cycles:                 309,728
-effective clock rate:          154,864
+effective clock rate:          309,728
 app exit code:                       0
 running tmmap 
 MAP_PRIVATE: 0x2
@@ -751,9 +1045,9 @@ MREMAP_MAYMOVE: 0x1
 mmap test completed with great success
 running ba tp.bas 
 parsing input file linux\tp.bas
-start time: 06:55:40.509
-325 ms for 1 iterations
-end time: 06:55:40.834
+start time: 08:04:41.374
+191 ms for 1 iterations
+end time: 08:04:41.565
 final move count 6493
 exiting the basic interpreter
 running ttty tests 
@@ -1306,25 +1600,24 @@ rig robbed sheep
 running ntvao, ntvcm, and ntvdm 
 
 195D 0001$
-elapsed milliseconds:              596
+elapsed milliseconds:              124
 6502 cycles:                 1,660,247
 clock rate:                  unbounded
 ms at 1.022727 Mhz:              1,623 == 0 days, 0 hours, 0 minutes, 1 seconds, 623 milliseconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:            1,025
-Z80  cycles:                 5,242,794
+elapsed milliseconds:              118
+Z80  cycles:                 5,243,044
 clock rate:                  unbounded
 approx ms at 4Mhz:               1,310 == 0 days, 0 hours, 0 minutes, 1 seconds, 310 milliseconds
-1.4 seconds
+0.1 seconds
 moves: 6493
 iterations: 1
 
-elapsed milliseconds:            1,460
-8086 cycles:                 4,774,149
+elapsed milliseconds:              169
+8086 cycles:                 4,773,794
 clock rate:                  unbounded
 approx ms at 4.77Mhz:            1,000  == 0 days, 0 hours, 0 minutes, 1 seconds, 0 milliseconds
-unique first opcodes:               64
 app exit code:                       0
-Wed 02/14/2024  6:55:46.28 
+Sat 03/30/2024  9:04:43.65 

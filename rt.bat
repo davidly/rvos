@@ -8,7 +8,7 @@ set outputfile=test_rvos.txt
 echo %date% %time% >"%outputfile%"
 
 set _testlist=t glob ts sieve e tap tpi tphi tins terrno tp ttt^
-              tf tm ttime td fileops t_setjmp tex trw empty
+              tf tm ttime td fileops t_setjmp tex trw empty tmuldiv
 
 ( for %%t in (%_testlist%) do ( call :testRun %%t ) )
 
