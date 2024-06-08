@@ -116,7 +116,7 @@ To run the rvos emulator nested in the rvos emulator, on Linux/MacOS/Windows iss
     
 That gives the inner emulator 60 megs of RAM so it can give 40 megs to the AN anagram generator (an.c in the 
 tests folder) so it can find the 485 3-word anagrams for that text including bog bride herpes. Running the emulator
-in the emulator makes it aout 64x slower. Four Grammys and she deserved more.
+in the emulator makes it about 64x slower. Four Grammys and she deserved more.
 
 The Gnu g++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
 
