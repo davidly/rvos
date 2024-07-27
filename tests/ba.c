@@ -13,6 +13,11 @@
 //    -- keywords supported: (see "Operators" below).
 //    -- Not supported: DEF, PLAY, OPEN, INKEY$, DATA, READ, and a very long list of others.
 //    -- only arrays of 1 or 2 dimensions are supported
+// Notes about 8086/DOS WATCOM builds
+//    -- The watcom compiler generates code when it sees "if (false) something;". A bunch of
+//       the tracing and range checking code assumes this is optimized away like other compilers do.
+//    -- No codegen on DOS because the binary gets too big.
+//    -- no execution time tracking on DOS
 //
 //  The expression grammar for assigment and IF statements: (parens are literal and square brackets are to show options)
 //
@@ -55,6 +60,7 @@ bool g_Quiet = false;
 bool g_GenerateAppleDollar = false;
 int g_pc = 0;
 
+// this does not work with WATCOM / 8086 builds
 //#define BA_ENABLE_INTERPRETER_EXECUTION_TIME
 
 #ifdef DEBUG
@@ -555,8 +561,10 @@ static void Usage()
     printf( "                                  x -- Generate 64-bit Windows x64 'ml64' compatible assembler code to filename.asm\n" );
     printf( "                 -d               Generate a dollar sign $ at the end of execution for Apple 1 apps\n" );
 #endif
-    printf( "                 -e               Show execution count and time for each line\n" );
-    printf( "                 -l               Show 'pcode' listing\n" );
+#ifdef BA_ENABLE_INTERPRETER_EXECUTION_TIME
+    printf( "                 -e               Show interpreter execution count and time for each line\n" );
+#endif
+    printf( "                 -l               Show tokenized listing\n" );
 #ifdef BA_ENABLE_COMPILER
     printf( "                 -o               Don't do expression optimization for assembly code\n" );
 #endif
@@ -588,7 +596,7 @@ long portable_filelen( FILE * fp )
 } //portable_filelen
 
 bool isDigit( char c ) { return c >= '0' && c <= '9'; }
-bool isAlpha( char c ) { return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c < 'Z' ); }
+bool isAlpha( char c ) { return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ); }
 bool isWhite( char c ) { return ' ' == c || 9 /* tab */ == c; }
 bool isToken( char c ) { return isAlpha( c ) || ( '%' == c ); }
 bool isOperator( char c ) { return '<' == c || '>' == c || '=' == c; }
@@ -1289,7 +1297,6 @@ __makeinline int GetSimpleValue( TokenValue const & val )
         return val.value;
 
     assert( 0 != val.pVariable );
-
     return val.pVariable->value;
 } //GetSimpleValue
 
@@ -1421,7 +1428,6 @@ int EvaluateTerm( int & iToken, int beyond, vector<TokenValue> const & vals )
 
     if ( EnableTracing && g_Tracing )
         printf( "Evaluate term returning %d\n", value );
-
     return value;
 } //EvaluateTerm
 
@@ -1447,6 +1453,9 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
         {
             iToken++;
             value = EvaluateExpression( iToken, beyond, vals );
+            if ( EnableTracing && g_Tracing )
+                printf( " after evaluateexpression, iToken: %d\n", iToken );
+
             assert( Token_CLOSEPAREN == vals[ iToken ].token );
             iToken++;
         }
@@ -1489,7 +1498,6 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
                     RuntimeFail( "accessed 1-dimensional array with 2 dimensions", g_lineno );
 
                 value = pvar->array[ offset ];
-
                 iToken++; // closing paren
             }
             else if ( 2 == pvar->dimensions )
@@ -1556,7 +1564,6 @@ int EvaluateFactor( int & iToken, int beyond, vector<TokenValue> const & vals )
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateFactor, value %d\n", value );
-
     return value;
 } //EvaluateFactor
 
@@ -1580,7 +1587,7 @@ int EvaluateExpression( int & iToken, int beyond, vector<TokenValue> const & val
 
     if ( EnableTracing && g_Tracing )
     {
-        printf( "Evaluate expression for line %d token # %d %s\n", g_lineno, iToken, TokenStr( vals[ iToken ].token ) );
+        printf( "Evaluate expression for line %d token # %d %s, beyond %d\n", g_lineno, iToken, TokenStr( vals[ iToken ].token ), beyond );
 
         for ( int i = iToken; i < vals.size(); i++ )
             printf( "    %d:    %s\n", i, TokenStr( vals[ i ].token ) );
@@ -1618,7 +1625,6 @@ int EvaluateExpression( int & iToken, int beyond, vector<TokenValue> const & val
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateExpression, value %d\n", value );
-
     return value;
 } //EvaluateExpression
 
@@ -1639,7 +1645,6 @@ __makeinline int EvaluateRelational( int & iToken, int beyond, vector<TokenValue
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateRelational, value %d\n", value );
-
     return value;
 } //EvaluateRelational
 
@@ -1681,7 +1686,6 @@ __makeinline int EvaluateRelationalExpression( int & iToken, int beyond, vector<
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateRelationalExpression, value %d\n", value );
-
     return value;
 } //EvaluateRelationalExpression
 
@@ -1704,7 +1708,6 @@ __makeinline int EvaluateLogical( int & iToken, int beyond, vector<TokenValue> c
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateLogical, value %d\n", value );
-
     return value;
 } //EvaluateLogical
 
@@ -1745,7 +1748,6 @@ __makeinline int EvaluateLogicalExpression( int & iToken, vector<TokenValue> con
 
     if ( EnableTracing && g_Tracing )
         printf( " leaving EvaluateLogicalExpression, value %d\n", value );
-
     return value;
 } //EvaluateLogicalExpression
 
@@ -3011,7 +3013,7 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                 else if ( i8086DOS == g_AssemblyTarget )
                 {
                     fprintf( fp, "    shl      ax, 1\n" );
-                    fprintf( fp, "    lea      si, [ offset %s ]\n", GenVariableName( varname ) );
+                    fprintf( fp, "    lea      si, %s\n", GenVariableName( varname ) );
                     fprintf( fp, "    add      si, ax\n" );
                     fprintf( fp, "    mov      ax, [ si ]\n" );
                 }
@@ -3171,7 +3173,7 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                     fprintf( fp, "    imul     bx\n" );
                     fprintf( fp, "    add      ax, cx\n" );
                     fprintf( fp, "    shl      ax, 1\n" );
-                    fprintf( fp, "    lea      si, [ offset %s ]\n", GenVariableName( varname ) );
+                    fprintf( fp, "    lea      si, %s\n", GenVariableName( varname ) );
                     fprintf( fp, "    add      si, ax\n" );
                     fprintf( fp, "    mov      ax, [ si ]\n" );
                 }
@@ -4578,26 +4580,22 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
     }
     else if ( i8086DOS == g_AssemblyTarget )
     {
-        fprintf( fp, "; build using 32-bit versions of ml/masm/link16 on modern Windows like this:\n" );
-        fprintf( fp, ";    ml /AT /omf /c ttt.asm\n" );
-        fprintf( fp, ";    link16 /tiny ttt, ttt.com, ttt.map,,,\n" );
-        fprintf( fp, ";    chop ttt.com\n" );
-        fprintf( fp, "; The first two tools create a com file with addresses as if it loads at address 0x100,\n" );
-        fprintf( fp, "; but includes 0x100 bytes of 0s at the start, which isn't what DOS wants. chop chops off\n" );
-        fprintf( fp, "; the first 0x100 bytes of a file. I don't know how to make the tools do the right thing\n" );
+        fprintf( fp, "; build ttt.asm using masm v5 like this:\n" );
+        fprintf( fp, ";    ntvdm -h masm5\\bin\\masm /Zi /Zd /z /l ttt,,,;\n" );
+        fprintf( fp, ";    ntvdm -h masm5\\bin\\link /CP:1 ttt,,ttt,,nul.def\n" );
         fprintf( fp, ";\n" );
         fprintf( fp, "; BA flags: use registers: %s, expression optimization: %s\n", YesNo( useRegistersInASM ), YesNo( g_ExpressionOptimization ) );
-        fprintf( fp, "        .model tiny\n" );
-        fprintf( fp, "        .stack\n" );
         fprintf( fp, "\n" );
+        fprintf( fp, ".model small\n" );
+        fprintf( fp, ".stack 100h\n" );
         fprintf( fp, "; DOS constants\n" );
         fprintf( fp, "\n" );
         fprintf( fp, "dos_write_char     equ   2h\n" );
         fprintf( fp, "dos_get_systemtime equ   1ah\n" );
         fprintf( fp, "dos_exit           equ   4ch\n" );
-        fprintf( fp, "CODE SEGMENT PUBLIC 'CODE'\n" );
-        fprintf( fp, "ORG 100h\n" );
-        fprintf( fp, "     jmp      startup\n" );
+        fprintf( fp, "\n" );
+        fprintf( fp, "the_dataseg segment para public 'data'\n" );
+        fprintf( fp, "    assume ds: the_dataseg\n" );
     }
     else if ( x86Win == g_AssemblyTarget )
     {
@@ -5277,22 +5275,32 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "starttime      dd      0\n" );
         fprintf( fp, "scratchpad     dd      0\n" );
         fprintf( fp, "result         dd      0\n" );
+        fprintf( fp, "the_dataseg ends\n" );
         fprintf( fp, "\n" );
 
-        fprintf( fp, "startup PROC NEAR\n" );
+        fprintf( fp, ".code\n" );
+        fprintf( fp, "start:\n" );
+        fprintf( fp, "    mov      ax, the_dataseg\n" );
+        fprintf( fp, "    mov      ds, ax\n" );
 
         // set BASIC variable av% to the integer value of the first app argument (if any)
 
         if ( FindVariable( varmap, "av%" ) )
         {
+            fprintf( fp, "    push     ds\n" );
+            fprintf( fp, "    mov      ax, es\n" );
+            fprintf( fp, "    mov      ds, ax\n" );
             fprintf( fp, "    mov      di, 0\n" );
             fprintf( fp, "    xor      ax, ax\n" );
             fprintf( fp, "    cmp      al, byte ptr [ di + 128 ]\n" );
             fprintf( fp, "    jz       no_arguments\n" );
             fprintf( fp, "    mov      cx, 129\n" );
             fprintf( fp, "    call     atou\n" );
+            fprintf( fp, "    pop      ds\n" );
+            fprintf( fp, "    push     ds\n" );
             fprintf( fp, "    mov      WORD PTR ds: [%s], ax\n", GenVariableName( "av%" ) );
             fprintf( fp, "no_arguments:\n" );
+            fprintf( fp, "    pop      ds\n" );
         }
 
         if ( elapReferenced )
@@ -5557,10 +5565,11 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
     
                     assert( Token_EXPRESSION == vals[ t ].token );
 
-                    if ( i8080CPM == g_AssemblyTarget || !g_ExpressionOptimization )
+                    if ( !g_ExpressionOptimization )
                         goto label_no_eq_optimization;
 
-                    if ( Token_CONSTANT == vals[ t + 1 ].token &&
+                    if ( i8080CPM != g_AssemblyTarget &&
+                         Token_CONSTANT == vals[ t + 1 ].token &&
                          2 == vals[ t ].value  )
                     {
                         // e.g.: x% = 3
@@ -5814,6 +5823,31 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         }
 
                         t += vals[ t ].value;
+                    }
+                    else if ( i8080CPM == g_AssemblyTarget &&
+                              8 == vals.size() &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_PLUS == vals[ t + 2 ].token &&
+                              Token_VARIABLE == vals[ t + 3 ].token &&
+                              !stcmp( vals[ t + 1 ].strValue, vals[ t + 3 ].strValue ) &&
+                              Token_PLUS == vals[ t + 4 ].token &&
+                              Token_CONSTANT == vals[ t + 5 ].token )
+                    {
+                        // line 105 has 8 tokens  ====>> 105 PR% = I% + I% + 3
+                        //   token   0 VARIABLE, value 0, strValue 'pr%'
+                        //   token   1 EQ, value 0, strValue ''
+                        //   token   2 EXPRESSION, value 6, strValue ''
+                        //   token   3 VARIABLE, value 0, strValue 'i%'
+                        //   token   4 PLUS, value 0, strValue ''
+                        //   token   5 VARIABLE, value 0, strValue 'i%'
+                        //   token   6 PLUS, value 0, strValue ''
+                        //   token   7 CONSTANT, value 3, strValue ''
+
+                        fprintf( fp, "    lhld     %s\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                        fprintf( fp, "    dad      h\n" );
+                        fprintf( fp, "    lxi      d, %d\n", vals[ t + 5 ].value );
+                        fprintf( fp, "    dad      d\n" );
+                        fprintf( fp, "    shld     %s\n", GenVariableName( vals[ variableToken ].strValue ) );
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
                               6 == vals[ t ].value &&
@@ -6390,7 +6424,7 @@ label_no_array_eq_optimization:
                         else if ( i8086DOS == g_AssemblyTarget )
                         {
                             fprintf( fp, "    shl      ax, 1\n" );
-                            fprintf( fp, "    lea      si, [ offset %s ]\n", GenVariableName( varname ) );
+                            fprintf( fp, "    lea      si, %s\n", GenVariableName( varname ) );
                         }
                         else if ( x86Win == g_AssemblyTarget )
                         {
@@ -6682,22 +6716,25 @@ label_no_array_eq_optimization:
                 }
                 else if ( i8080CPM == g_AssemblyTarget )
                 {
+                    fprintf( fp, "    inx      h\n" );
                     fprintf( fp, "    xchg\n" );
                     fprintf( fp, "    lhld     %s\n", GenVariableName( varname ) );
-                    Generate8080Relation( fp, Token_GE, "fc$", (int) l );
+                    Generate8080Relation( fp, Token_NE, "fc$", (int) l );
                     fprintf( fp, "    jmp      af$%zd\n", l ); // af == after for
                     fprintf( fp, "  fc$%zd:\n", l );  // fc == for code
                 }
                 else if ( mos6502Apple1 == g_AssemblyTarget )
                 {
-                    Generate6502Relation( fp, GenVariableName( varname ), "curOperand", Token_LE, "_for_continue_", (int) l );
+                    Generate6502Relation( fp, GenVariableName( varname ), "curOperand", Token_LE, "_for_continue_", (int) l  );
                     fprintf( fp, "    jmp      after_for_loop_%zd\n", l );
                     fprintf( fp, "_for_continue_%zd:\n", l );
                 }
                 else if ( i8086DOS == g_AssemblyTarget )
                 {
                     fprintf( fp, "    cmp      WORD PTR ds: [%s], ax\n", GenVariableName( varname ) );
-                    fprintf( fp, "    jg       after_for_loop_%zd\n", l );
+                    fprintf( fp, "    jle      _for_continue_%zd\n", l );
+                    fprintf( fp, "    jmp      after_for_loop_%zd\n", l );
+                    fprintf( fp, "_for_continue_%zd:\n", l );
                 }
                 else if ( riscv64 == g_AssemblyTarget )
                 {
@@ -7507,7 +7544,10 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    jne      line_number_%zd\n", l + 1 );
 
                     fprintf( fp, "    cmp      ax, ds: [ %s + %d ]\n", GenVariableName( vals[ t + 3 ].strValue ), 2 * vals[ t + 14 ].value );
-                    fprintf( fp, "    je       label_gosub_return\n" );
+                    fprintf( fp, "    jne      _uniq%d\n", s_uniqueLabel );
+                    fprintf( fp, "    jmp      label_gosub_return\n" );
+                    fprintf( fp, "  _uniq%d:\n", s_uniqueLabel );
+                    s_uniqueLabel++;
 
                     break;
                 }
@@ -8420,6 +8460,85 @@ label_no_array_eq_optimization:
 
                     break;
                 }
+                else if ( i8080CPM == g_AssemblyTarget &&
+                          11 == vals.size() &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_OPENPAREN == vals[ t + 2 ].token &&
+                          Token_VARIABLE == vals[ t + 4 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          Token_CONSTANT == vals[ t + 7 ].token &&
+                          0 == vals[ t + 7 ].value &&
+                          Token_THEN == vals[ t + 8 ].token &&
+                          Token_GOTO == vals[ t + 9 ].token )
+                {
+                    // line 100 has 11 tokens  ====>> 100 IF FL%(I%) = 0 THEN goto 180
+                    //   token   0 IF, value 0, strValue ''
+                    //   token   1 EXPRESSION, value 8, strValue ''
+                    //   token   2 VARIABLE, value 0, strValue 'fl%'
+                    //   token   3 OPENPAREN, value 0, strValue ''
+                    //   token   4 EXPRESSION, value 2, strValue ''
+                    //   token   5 VARIABLE, value 0, strValue 'i%'
+                    //   token   6 CLOSEPAREN, value 0, strValue ''
+                    //   token   7 EQ, value 0, strValue ''
+                    //   token   8 CONSTANT, value 0, strValue ''
+                    //   token   9 THEN, value 0, strValue ''
+                    //   token  10 GOTO, value 180, strValue ''
+
+                    fprintf( fp, "    lhld     %s\n", GenVariableName( vals[ t + 4 ].strValue ) );
+                    fprintf( fp, "    dad      h\n" ); // 2 byte integers
+                    fprintf( fp, "    lxi      d, %s\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                    fprintf( fp, "    dad      d\n" );
+                    fprintf( fp, "    mov      a, m\n" );
+                    fprintf( fp, "    inx      h\n" );
+                    fprintf( fp, "    ora      m\n" );
+                    fprintf( fp, "    jz       ln$%d\n", vals[ t + 9 ].value );
+
+                    break;
+                }
+                else if ( i8080CPM == g_AssemblyTarget &&
+                          7 == vals.size() &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_GT == vals[ t + 2 ].token &&
+                          Token_VARIABLE == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_GOTO == vals[ t + 5 ].token )
+                {
+                    // line 130 has 7 tokens  ====>> 130 IF K% > SI% THEN goto 170
+                    //   token   0 IF, value 0, strValue ''
+                    //   token   1 EXPRESSION, value 4, strValue ''
+                    //   token   2 VARIABLE, value 0, strValue 'k%'
+                    //   token   3 GT, value 0, strValue ''
+                    //   token   4 VARIABLE, value 0, strValue 'si%'
+                    //   token   5 THEN, value 0, strValue ''
+                    //   token   6 GOTO, value 170, strValue ''
+
+                    fprintf( fp, "    lhld     %s\n", GenVariableName( vals[ t + 3 ].strValue ) );
+                    fprintf( fp, "    xchg\n" );
+                    fprintf( fp, "    lhld     %s\n", GenVariableName( vals[ t + 1 ].strValue ) );
+
+                    // are the high bits the same and so the same signs?
+            
+                    fprintf( fp, "    mov      a, d\n" );
+                    fprintf( fp, "    xra      h\n" );
+                    fprintf( fp, "    jp       ss%d\n", s_uniqueLabel );
+            
+                    fprintf( fp, "    xra      d\n" );
+                    fprintf( fp, "    jm       nogoto%d\n", s_uniqueLabel );
+                    fprintf( fp, "    jmp      ln$%d\n", vals[ t + 5 ].value );
+            
+                    fprintf( fp, "  ss%d:\n", s_uniqueLabel ); // same sign
+            
+                    fprintf( fp, "    mov      a, e\n" );
+                    fprintf( fp, "    sub      l\n" );
+                    fprintf( fp, "    mov      a, d\n" );
+                    fprintf( fp, "    sbb      h\n" );
+                    fprintf( fp, "    jc       ln$%d\n", vals[ t + 5 ].value );
+
+                    fprintf( fp, "  nogoto%d:\n", s_uniqueLabel );
+                    s_uniqueLabel++;
+
+                    break;
+                }
                 else if ( mos6502Apple1 == g_AssemblyTarget &&
                           6 == vals.size() &&
                           3 == vals[ t ].value &&
@@ -8515,7 +8634,6 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    bne      _uniq_%d\n", s_uniqueLabel );
                     fprintf( fp, "    jmp      label_gosub_return\n" );
                     fprintf( fp, "_uniq_%d:\n", s_uniqueLabel );
-
                     s_uniqueLabel++;
                     break;
                 }
@@ -8537,7 +8655,10 @@ label_no_array_eq_optimization:
                     //  5 GOTO, value 33, strValue ''
 
                     fprintf( fp, "    cmp      WORD PTR ds: [ %s ], 0\n", GenVariableName( vals[ t + 2 ].strValue ) );
-                    fprintf( fp, "    je       label_gosub_return\n" );
+                    fprintf( fp, "    jne      _uniq_%d\n", s_uniqueLabel );
+                    fprintf( fp, "    jmp      label_gosub_return\n" );
+                    fprintf( fp, "_uniq_%d:\n", s_uniqueLabel );
+                    s_uniqueLabel++;
                     break;
                 }
                 else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
@@ -8883,7 +9004,10 @@ label_no_array_eq_optimization:
                     else
                         fprintf( fp, "    cmp      WORD PTR ds: [ %s ], %d\n", GenVariableName( lhs ), vals[ t + 3 ].value );
 
-                    fprintf( fp, "    %-6s   line_number_%d\n", RelationalInstructionX64[ op ], vals[ t + 5 ].value );
+                    fprintf( fp, "    %-6s   _uniq%d\n", RelationalNotInstructionX64[ op ], s_uniqueLabel );
+                    fprintf( fp, "    jmp       line_number_%d\n", vals[ t + 5 ].value );
+                    fprintf( fp, "  _uniq%d:\n", s_uniqueLabel );
+                    s_uniqueLabel++;
                     break;
                 }
                 else if ( i8080CPM != g_AssemblyTarget &&
@@ -9022,7 +9146,10 @@ label_no_if_optimization:
                             fprintf( fp, "    jmp      line_number_%d\n", vals[ t ].value );
                         }
                         else if ( i8086DOS == g_AssemblyTarget )
-                            fprintf( fp, "    jne      line_number_%d\n", vals[ t ].value );
+                        {
+                            fprintf( fp, "    je       line_number_%zd\n", l + 1 ); // jump may be too far for jne
+                            fprintf( fp, "    jmp      line_number_%d\n", vals[ t ].value );
+                        }
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    bne      a0, zero, line_number_%d\n", vals[ t ].value );
 
@@ -9045,7 +9172,11 @@ label_no_if_optimization:
                             fprintf( fp, "_continue_if_%zd\n", l );
                         }
                         else if ( i8086DOS == g_AssemblyTarget )
-                            fprintf( fp, "    jne      label_gosub_return\n" );
+                        {
+                            fprintf( fp, "    je       _continue_if_%zd\n", l );
+                            fprintf( fp, "    jmp      label_gosub_return\n" );
+                            fprintf( fp, "_continue_if_%zd:\n", l );
+                        }
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    bne      a0, zero, label_gosub_return\n" );
 
@@ -9609,10 +9740,7 @@ label_no_if_optimization:
 
         fprintf( fp, "imul:\n" );
         fprintf( fp, "    mov      a, l\n" );
-        fprintf( fp, "    cpi      0\n" );
-        fprintf( fp, "    jnz      mul$notzero\n" );
-        fprintf( fp, "    mov      a, h\n" );
-        fprintf( fp, "    cpi      0\n" );
+        fprintf( fp, "    ora      h\n" );
         fprintf( fp, "    jnz      mul$notzero\n" );
         fprintf( fp, "    ret\n" );
         fprintf( fp, "  mul$notzero:\n" );
@@ -9623,18 +9751,12 @@ label_no_if_optimization:
         fprintf( fp, "    call     neg$hl\n" );
         fprintf( fp, "    call     neg$de\n" );
         fprintf( fp, "  mul$notneg:\n" );
-        fprintf( fp, "    push     h\n" );
-        fprintf( fp, "    pop      b\n" );
+        fprintf( fp, "    mov      b, h\n" );
+        fprintf( fp, "    mov      c, l\n" );
         fprintf( fp, "    lxi      h, 0\n" );
-        fprintf( fp, "    shld     mulTmp\n" );
         fprintf( fp, "  mul$loop:\n" );
         fprintf( fp, "    dad      d\n" );
         fprintf( fp, "    jnc      mul$done\n" );
-        fprintf( fp, "    push     h\n" );
-        fprintf( fp, "    lhld     mulTmp\n" );
-        fprintf( fp, "    inx      h\n" );
-        fprintf( fp, "    shld     mulTmp\n" );
-        fprintf( fp, "    pop      h\n" );
         fprintf( fp, "  mul$done:\n" );
         fprintf( fp, "    dcx      b\n" );
         fprintf( fp, "    mov      a, b\n" );
@@ -10135,8 +10257,6 @@ label_no_if_optimization:
         fprintf( fp, "     mov      ah, dos_exit\n" );
         fprintf( fp, "     int      21h\n" );
 
-        fprintf( fp, "startup ENDP\n" );
-
         //////////////////
 
         if ( FindVariable( varmap, "av%" ) )
@@ -10380,8 +10500,6 @@ label_no_if_optimization:
         fprintf( fp, "     call     printstring\n" );
         fprintf( fp, "     ret\n" );
         fprintf( fp, "printcrlf ENDP\n" );
-        fprintf( fp, "\n" );
-        fprintf( fp, "CODE ENDS\n" );
         fprintf( fp, "\n" );
         fprintf( fp, "END\n" );
     }
@@ -11040,7 +11158,7 @@ void ParseInputFile( const char * inputfile )
     }
 } //ParseInputFile
 
-void InterpretCode( map<string, Variable> & varmap )
+void InterpretCode( map<string, Variable> & varmap, bool showExecutionTime )
 {
     // The cost of this level of indirection is 15% in NDEBUG interpreter performance.
     // So it's not worth it to control the behavior at runtime except for testing / debug
@@ -11690,6 +11808,6 @@ extern int main( int argc, char *argv[] )
 #endif
 
     if ( executeCode )
-        InterpretCode( varmap );
+        InterpretCode( varmap, showExecutionTime );
 } //main
 
