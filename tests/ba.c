@@ -153,7 +153,7 @@ int stcmp( const string & a, const string & b )
     return strcmp( a.c_str(), b.c_str() );
 } //stcmp
 
-enum AssemblyTarget { x86Win, x64Win, arm64Mac, arm64Win, i8080CPM, arm32Linux, mos6502Apple1, i8086DOS, riscv64 };
+enum AssemblyTarget { x86Win, x64Win, arm64Mac, arm64Win, i8080CPM, arm32Linux, mos6502Apple1, i8086DOS, riscv64, oiOS };
 AssemblyTarget g_AssemblyTarget = x64Win;
 bool g_i386Target686 = true; // true for Pentium 686 cmovX instructions, false for generic 386
 
@@ -274,6 +274,8 @@ const char * MappedRegistersArm32[] = { /*"r3",*/ "r4", "r5", "r6", "r7", "r8", 
 // x86 registers are a sparse commodity. Make sure no generated code uses these aside from variables.
 
 const char * MappedRegistersX86[] = { "ecx", "esi", "edi" };
+
+const char * MappedRegistersOIOS[] = { "rframe", "rarg1", "rarg2" };
 
 const char * MappedRegistersRiscV64[] = { "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11" };
 
@@ -557,6 +559,7 @@ static void Usage()
     printf( "                                  i -- Generate 32-bit i386 (686) Windows x86 'ml' compatible assembler code to filename.asm\n" );
     printf( "                                  I -- Generate 32-bit i386 (386) Windows 98 'ml' compatible assembler code to filename.asm\n" );
     printf( "                                  m -- Generate 64-bit MacOS 'as -arch arm64' compatible assembler code to filename.s\n" );
+    printf( "                                  o -- Generate OneImage 'oia' compatible assembler code to filename.s\n" );
     printf( "                                  r -- Generate 64-bit RISC-V 64-bit GNU 'as' compatible assembler code to filename.s\n" );
     printf( "                                  x -- Generate 64-bit Windows x64 'ml64' compatible assembler code to filename.asm\n" );
     printf( "                 -d               Generate a dollar sign $ at the end of execution for Apple 1 apps\n" );
@@ -1094,7 +1097,7 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
         token = readToken( pline, tokenLen ); // redundant read to get length
 
         if ( EnableTracing && g_Tracing )
-            printf( "ParseStatements loop read top-level token %s\n", TokenStr( token ) );
+            printf( "  ParseStatements loop read top-level token %s\n", TokenStr( token ) );
 
         if ( Token_VARIABLE == token )
         {
@@ -1211,6 +1214,8 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
         else if ( Token_PRINT == token )
         {
             lineTokens.push_back( tokenValue );
+            size_t iPrintToken = lineTokens.size() - 1;
+
             pline = pastWhite( pline + tokenLen );
 
             do
@@ -1219,9 +1224,17 @@ const char * ParseStatements( Token token, vector<TokenValue> & lineTokens, cons
                 pline = pastWhite( pline );
                 token = readToken( pline, tokenLen );
 
+                if ( EnableTracing && g_Tracing )
+                    printf( "  in Token_PRINT processing read token %s\n", TokenStr( token ) );
+
                 if ( Token_SEMICOLON == token )
                 {
                     pline = pastWhite( pline + tokenLen );
+                    if ( 0 == *pline )
+                    {
+                        lineTokens[ iPrintToken ].extra = 1; // indicate that no CR/LF should be printed since PRINT ended in semicolon
+                        break;
+                    }
                     continue;
                 }
                 else if ( Token_ELSE == token )
@@ -1922,6 +1935,8 @@ void ShowLocListing( LineOfCode & loc )
             for ( int d = 0; d < tv.dimensions; d++ )
                 printf( " %d", tv.dims[ d ] );
         }
+        else if ( Token_FOR == tv.token && 1 == loc.tokenValues[ t ].extra )
+            printf( " simple for loop" );
     
         printf( "\n" );
     }
@@ -2055,6 +2070,49 @@ void OptimizeWithRewrites( bool showListing )
         if ( 0 == vals.size() )
             continue;
 
+        // line 150 has 5 tokens  ====>> 150 for x% = 2 to n%
+        //   token   0 FOR, value 0, strValue 'x%'
+        //   token   1 EXPRESSION, value 2, strValue ''
+        //   token   2 CONSTANT, value 2, strValue ''
+        //   token   3 EXPRESSION, value 2, strValue ''
+        //   token   4 VARIABLE, value 0, strValue 'n%'
+        // line 160 has 8 tokens  ====>> 160 a%( x% ) = 1
+        //   token   0 VARIABLE, value 0, strValue 'a%'
+        //   token   1 OPENPAREN, value 0, strValue ''
+        //   token   2 EXPRESSION, value 2, strValue ''
+        //   token   3 VARIABLE, value 0, strValue 'x%'
+        //   token   4 CLOSEPAREN, value 0, strValue ''
+        //   token   5 EQ, value 0, strValue ''
+        //   token   6 EXPRESSION, value 2, strValue ''
+        //   token   7 CONSTANT, value 1, strValue ''
+        // line 170 has 1 tokens  ====>> 170 next x%
+        //   token   0 NEXT, value 0, strValue 'x%'
+
+        if ( Token_FOR == vals[ 0 ].token &&
+             5 == vals.size() &&
+             Token_CONSTANT == vals[ 2 ].token &&
+             ( Token_VARIABLE == vals[ 4 ].token || Token_CONSTANT == vals[ 4 ].token ) )
+        {
+            LineOfCode & loc1 = g_linesOfCode[ l + 1 ];
+            vector<TokenValue> & vals1 = loc1.tokenValues;
+
+            if ( 8 == vals1.size() &&
+                 Token_VARIABLE == vals1[ 0 ].token &&
+                 Token_OPENPAREN == vals1[ 1 ].token &&
+                 Token_EQ == vals1[ 5 ].token &&
+                 Token_CONSTANT == vals1[ 7 ].token )
+            {
+                LineOfCode & loc2 = g_linesOfCode[ l + 2 ];
+                vector<TokenValue> & vals2 = loc2.tokenValues;
+
+                if ( Token_NEXT == vals2[ 0 ].token )
+                {
+                    rewritten = true;
+                    vals[ 0 ].extra = 1;  // indicate that the for loop can optionally optimally be a memfill
+                }
+            }
+        }
+
         // if 0 <> EXPRESSION   ========>>>>>>>>  if EXPRESSION
         // 4180 has 11 tokens
         //   token   0 IF, value 0, strValue ''
@@ -2092,13 +2150,13 @@ void OptimizeWithRewrites( bool showListing )
         //   token   5 CONSTANT, value 1, strValue ''
 
         else if ( 6 == vals.size() &&
-            Token_VARIABLE == vals[ 0 ].token &&
-            Token_EQ == vals[ 1 ].token &&
-            Token_VARIABLE == vals[ 3 ].token &&
-            !stcmp( vals[ 0 ], vals[ 3 ] ) &&
-            Token_PLUS == vals[ 4 ].token &&
-            Token_CONSTANT == vals[ 5 ].token &&
-            1 == vals[ 5 ].value )
+                  Token_VARIABLE == vals[ 0 ].token &&
+                  Token_EQ == vals[ 1 ].token &&
+                  Token_VARIABLE == vals[ 3 ].token &&
+                  !stcmp( vals[ 0 ], vals[ 3 ] ) &&
+                  Token_PLUS == vals[ 4 ].token &&
+                  Token_CONSTANT == vals[ 5 ].token &&
+                  1 == vals[ 5 ].value )
         {
             string varname = vals[ 3 ].strValue;
             vals.clear();
@@ -2123,13 +2181,13 @@ void OptimizeWithRewrites( bool showListing )
         //   token   5 CONSTANT, value 1, strValue ''
 
         else if ( 6 == vals.size() &&
-            Token_VARIABLE == vals[ 0 ].token &&
-            Token_EQ == vals[ 1 ].token &&
-            Token_VARIABLE == vals[ 3 ].token &&
-            !stcmp( vals[ 0 ], vals[ 3 ] ) &&
-            Token_MINUS == vals[ 4 ].token &&
-            Token_CONSTANT == vals[ 5 ].token &&
-            1 == vals[ 5 ].value )
+                  Token_VARIABLE == vals[ 0 ].token &&
+                  Token_EQ == vals[ 1 ].token &&
+                  Token_VARIABLE == vals[ 3 ].token &&
+                  !stcmp( vals[ 0 ], vals[ 3 ] ) &&
+                  Token_MINUS == vals[ 4 ].token &&
+                  Token_CONSTANT == vals[ 5 ].token &&
+                  1 == vals[ 5 ].value )
         {
             string varname = vals[ 3 ].strValue;
             vals.clear();
@@ -2733,6 +2791,8 @@ void GenerateMultiply( FILE * fp, map<string, Variable> const & varmap, int & iT
         RiscVPop( fp, "t0" );
         fprintf( fp, "    mul      a0, a0, t0\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    imulst\n" );
 } //GenerateMultiply
 
 void GenerateDivide( FILE * fp, map<string, Variable> const & varmap, int & iToken, int beyond, vector<TokenValue> const & vals )
@@ -2795,6 +2855,8 @@ void GenerateDivide( FILE * fp, map<string, Variable> const & varmap, int & iTok
         RiscVPop( fp, "a0" );
         fprintf( fp, "    div      a0, a0, t0\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    idivst\n" );
 } //GenerateDivide
 
 void PushAccumulator( FILE * fp )
@@ -2820,6 +2882,8 @@ void PushAccumulator( FILE * fp )
         fprintf( fp, "    push     eax\n" );
     else if ( riscv64 == g_AssemblyTarget )
         RiscVPush( fp, "a0" );
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    push     rres\n" );
 } //PushAccumulator
 
 void GenerateTerm( FILE * fp, map<string, Variable> const & varmap, int & iToken, int beyond, vector<TokenValue> const & vals )
@@ -2943,6 +3007,13 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                         fprintf( fp, "    lw       a0, (t0)\n" );
                     }
                 }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    if ( IsVariableInReg( varmap, varname ) )
+                        fprintf( fp, "    mov      rres, %s\n", GenVariableReg( varmap, varname ) );
+                    else
+                        fprintf( fp, "    ld       rres, [ %s ]\n", GenVariableName( varname ) );
+                }
             }
             else if ( 1 == vals[ iToken ].dimensions )
             {
@@ -3031,6 +3102,8 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                     fprintf( fp, "    add      t0, t0, a0\n" );
                     fprintf( fp, "    lw       a0, (t0)\n" );
                 }
+                else if ( oiOS == g_AssemblyTarget )
+                    fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( varname )  );
             }
             else if ( 2 == vals[ iToken ].dimensions )
             {
@@ -3043,7 +3116,6 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
 
                 assert( Token_EXPRESSION == vals[ iToken ].token );
                 GenerateExpression( fp, varmap, iToken, iToken + vals[ iToken ].value, vals );
-
                 PushAccumulator( fp );
 
                 if ( Token_COMMA != vals[ iToken ].token )
@@ -3198,6 +3270,13 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                     fprintf( fp, "    add      t0, t0, a0\n" );
                     fprintf( fp, "    lw       a0, (t0)\n" );
                 }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    fprintf( fp, "    ldi      rtmp, %u\n", pvar->dims[ 1 ] );
+                    fprintf( fp, "    mathst   rtmp, rtmp, imul\n" );
+                    fprintf( fp, "    add      rres, rtmp\n" );
+                    fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( varname )  );
+                }
             }
 
             iToken++;
@@ -3225,6 +3304,13 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                 fprintf( fp, "    mov      eax, %d\n", vals[ iToken ].value );
             else if ( riscv64 == g_AssemblyTarget )
                 fprintf( fp, "    li       a0, %d\n", vals[ iToken ].value ); // will this work for large constants?
+            else if ( oiOS == g_AssemblyTarget )
+            {
+                if ( 0 == vals[ iToken ].value )
+                    fprintf( fp, "    zero     rres\n" );
+                else
+                    fprintf( fp, "    ldi      rres, %d\n", vals[ iToken ].value );
+            }
 
             iToken++;
         }
@@ -3347,6 +3433,16 @@ void GenerateFactor( FILE * fp, map<string, Variable> const & varmap, int & iTok
                     fprintf( fp, "    sltiu    a0, a0, 1\n" );
                 }
             }
+            else if ( oiOS == g_AssemblyTarget )
+            {
+                if ( IsVariableInReg( varmap, varname ) )
+                    fprintf( fp, "    cmp     rres, %s, rzero, eq\n", GenVariableReg( varmap, varname ) );
+                else
+                {
+                    fprintf( fp, "    ld      rres, [%s]\n", GenVariableName( varname ) );
+                    fprintf( fp, "    inv     rres\n" );
+                }
+            }
 
             iToken++;
         }
@@ -3415,6 +3511,8 @@ void GenerateAdd( FILE * fp, map<string, Variable> const & varmap, int & iToken,
         RiscVPop( fp, "t0" );
         fprintf( fp, "    add      a0, a0, t0\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    addst\n" );
 } //GenerateAdd
 
 void GenerateSubtract( FILE * fp, map<string, Variable> const & varmap, int & iToken, int beyond, vector<TokenValue> const & vals )
@@ -3482,6 +3580,8 @@ void GenerateSubtract( FILE * fp, map<string, Variable> const & varmap, int & iT
         RiscVPop( fp, "a0" );
         fprintf( fp, "    sub      a0, a0, t0\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    subst\n" );
 } //GenerateSubtract
 
 void GenerateExpression( FILE * fp, map<string, Variable> const & varmap, int & iToken, int beyond, vector<TokenValue> const & vals )
@@ -3528,6 +3628,8 @@ void GenerateExpression( FILE * fp, map<string, Variable> const & varmap, int & 
             fprintf( fp, "    xor      eax, eax\n" );
         else if ( riscv64 == g_AssemblyTarget )
             fprintf( fp, "    mv       a0, zero\n" );
+        else if ( oiOS == g_AssemblyTarget )
+            fprintf( fp, "    zero     rres\n" );
     }
     else
     {
@@ -3851,6 +3953,8 @@ void GenerateRelational( FILE * fp, map<string, Variable> const & varmap, int & 
             fprintf( fp, "    or       a0, a0, t1\n" ); // either == or the L/G
         }
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    cmpst    rres, rres, %s\n", ConditionsArm[ op ] ); // rres = ( top_of_stack OP rrres )
 } //GenerateRelational
 
 void GenerateRelationalExpression( FILE * fp, map<string, Variable> const & varmap, int & iToken, int beyond, vector<TokenValue> const & vals )
@@ -3958,6 +4062,8 @@ void GenerateLogical( FILE * fp, map<string, Variable> const & varmap, int & iTo
         RiscVPop( fp, "t0" );
         fprintf( fp, "    %-6s   a0, a0, t0\n", OperatorInstructionRiscV64[ op ] );
     }
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    mathst   rres, rres, %-6s\n", OperatorInstructionX64[ op ] ); // same as x64 instructions
 } //GenerateLogical
 
 void GenerateLogicalExpression( FILE * fp, map<string, Variable> const & varmap, int & iToken, vector<TokenValue> const & vals )
@@ -4008,6 +4114,7 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
     // On i8086, result is in ax
     // On i386, result is in eax
     // On riscv64, result is in a0
+    // On oiOS, result is in rres
 
     assert( Token_EXPRESSION == vals[ iToken ].token );
     int tokenCount = vals[ iToken ].value;
@@ -4022,7 +4129,8 @@ void GenerateOptimizedExpression( FILE * fp, map<string, Variable> const & varma
 
     if ( i8080CPM == g_AssemblyTarget || arm32Linux == g_AssemblyTarget ||
          i8086DOS == g_AssemblyTarget || x86Win == g_AssemblyTarget ||
-         riscv64 == g_AssemblyTarget || !g_ExpressionOptimization )
+         riscv64 == g_AssemblyTarget || oiOS == g_AssemblyTarget ||
+         !g_ExpressionOptimization )
         goto label_no_expression_optimization;
 
     if ( 2 == tokenCount )
@@ -4676,6 +4784,12 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "  .align 3\n" );
         fprintf( fp, "  print_buffer:\n    .zero 256\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+    {
+        fprintf( fp, "; Build using oia like this: oia <filename.s>\n" );
+        fprintf( fp, "; Then run the binary like this: oios <filename.oi>\n" );
+        fprintf( fp, ".data\n" );
+    }
 
     bool elapReferenced = false;
     bool timeReferenced = false;
@@ -4717,9 +4831,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                     fprintf( fp, "%s space %d\n", GenVariableName( vals[ 0 ].strValue ), cdwords * 4 );
                 }
                 else if ( i8080CPM == g_AssemblyTarget )
-                {
                     fprintf( fp, "    %8s: DS %d\n", GenVariableName( vals[ 0 ].strValue ), cdwords * 2 ); 
-                }
                 else if ( mos6502Apple1 == g_AssemblyTarget )
                 {
                     // n.b. don't generate 6502 arrays here; put them at the end so they can be deleted
@@ -4729,13 +4841,17 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                     //fprintf( fp, "    .rf %d\n", cdwords * 2 ); 
                 }
                 else if ( i8086DOS == g_AssemblyTarget )
-                {
                     fprintf( fp, "    %8s dw %d DUP (0)\n", GenVariableName( vals[ 0 ].strValue ), cdwords );
-                }
                 else if ( riscv64 == g_AssemblyTarget )
                 {
                     fprintf( fp, "  .align 3\n" );
                     fprintf( fp, "  %8s:\n    .zero %d\n", GenVariableName( vals[ 0 ].strValue ), cdwords * 4 );
+                }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    // don't generate iois arrays here -- do it after scalar variables to improve relative references
+                    //fprintf( fp, "    align\n" );
+                    //fprintf( fp, "    image_t %8s[%d]\n", GenVariableName( vals[ 0 ].strValue ), cdwords );
                 }
             }
         }
@@ -4766,11 +4882,13 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         fprintf( fp, "str_%zd_%d .az '%s'\n", l, t, str6502Escaped.c_str() );
                     }
                     else if ( i8086DOS == g_AssemblyTarget )
-                        fprintf( fp, "    str_%zd_%d   db  '%s', 0\n", l, t , strEscaped.c_str() );
+                        fprintf( fp, "    str_%zd_%d   db  '%s', 0\n", l, t, strEscaped.c_str() );
                     else if ( riscv64 == g_AssemblyTarget )
                     {
                         // risc-v strings get declared below in the non-writeable section
                     }
+                    else if ( oiOS == g_AssemblyTarget )
+                        fprintf( fp, "    string str_%zd_%d \"%s\"\n", l, t, vals[ t ].strValue.c_str() );
                 }
                 else if ( Token_ELAP == vals[ t ].token )
                     elapReferenced = true;
@@ -4806,6 +4924,7 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                              ( arm32Linux == g_AssemblyTarget ) ? _countof( MappedRegistersArm32 ) :
                              ( x86Win == g_AssemblyTarget ) ? _countof( MappedRegistersX86 ) :
                              ( riscv64 == g_AssemblyTarget ) ? _countof( MappedRegistersRiscV64 ) :
+                             ( oiOS == g_AssemblyTarget ) ? _countof( MappedRegistersOIOS ) :
                              0;
 
     for ( size_t i = 0; i < varscount.size() && 0 != availableRegisters; i++ )
@@ -4827,6 +4946,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
             pvar->reg = MappedRegistersX86[ availableRegisters ];
         else if ( riscv64 == g_AssemblyTarget )
             pvar->reg = MappedRegistersRiscV64[ availableRegisters ];
+        else if ( oiOS == g_AssemblyTarget )
+            pvar->reg = MappedRegistersOIOS[ availableRegisters ];
 
         if ( EnableTracing && g_Tracing )
             printf( "variable %s has %d references and is mapped to register %s\n",
@@ -4851,6 +4972,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "  .p2align 4\n" );
     else if ( riscv64 == g_AssemblyTarget )
         fprintf( fp, "  .align 3\n" );
+    else if ( oiOS == g_AssemblyTarget )
+        fprintf( fp, "    align\n" );
 
     int num6502ZeroPageVariables = 0;
 
@@ -4887,6 +5010,8 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                 fprintf( fp, "    %8s dw   0\n", GenVariableName( it->first ) );
             else if ( riscv64 == g_AssemblyTarget )
                 fprintf( fp, "    %8s:\n    .zero   8\n", GenVariableName( it->first ) );
+            else if ( oiOS == g_AssemblyTarget )
+                fprintf( fp, "    image_t  %s\n", GenVariableName( it->first ) );
         }
     }
 
@@ -5480,6 +5605,50 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         fprintf( fp, "    lla      t0, startTicks\n" );
         fprintf( fp, "    sd       a0, (t0)\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+    {
+        if ( elapReferenced )
+            fprintf( fp, "    string elapString \" seconds\"\n" );
+        if ( !g_Quiet )
+        {
+            fprintf( fp, "    string startString \"running basic\\n\"\n" );
+            fprintf( fp, "    string stopString \"done running basic\\n\"\n" );
+        }
+        fprintf( fp, "    string errorString \"internal error\\n\"\n" );
+        fprintf( fp, "    string newlineString \"\\n\"\n" );
+
+        for ( size_t l = 0; l < g_linesOfCode.size(); l++ )
+        {
+            LineOfCode & loc = g_linesOfCode[ l ];
+            vector<TokenValue> & vals = loc.tokenValues;
+    
+            if ( Token_DIM == vals[ 0 ].token )
+            {
+                int cdwords = vals[ 0 ].dims[ 0 ];
+                if ( 2 == vals[ 0 ].dimensions )
+                    cdwords *= vals[ 0 ].dims[ 1 ];
+    
+                Variable * pvar = FindVariable( varmap, vals[ 0 ].strValue );
+    
+                if ( 0 != pvar )
+                {
+                    fprintf( fp, "    align\n" );
+                    fprintf( fp, "    image_t %8s[%d]\n", GenVariableName( vals[ 0 ].strValue ), cdwords );
+                }
+            }
+        }
+
+        fprintf( fp, ".dataend\n" );
+        fprintf( fp, "\n" );
+
+        fprintf( fp, ".code\n" );
+        fprintf( fp, "start:\n" );
+        if ( !g_Quiet )
+        {
+            fprintf( fp, "    ldi      rarg1, startString\n" );
+            fprintf( fp, "    syscall  1\n" );
+        }
+    }
 
     if ( useRegistersInASM )
     {
@@ -5498,6 +5667,9 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
         else if ( riscv64 == g_AssemblyTarget )
             for ( size_t i = 0; i < _countof( MappedRegistersRiscV64 ); i++ )
                 fprintf( fp, "    mv       %s, zero\n", MappedRegistersRiscV64[ i ] );
+        else if ( oiOS == g_AssemblyTarget )
+            for ( size_t i = 0; i < _countof( MappedRegistersOIOS ); i++ )
+                fprintf( fp, "    zero     %s\n", MappedRegistersOIOS[ i ] );
 
         for ( std::map<string, Variable>::iterator it = varmap.begin(); it != varmap.end(); it++ )
         {
@@ -5627,6 +5799,31 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                                 fprintf( fp, "    sw       t0, (t1)\n" );
                             }
                         }
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            if ( IsVariableInReg( varmap, varname ) )
+                            {
+                                if ( 0 == val )
+                                    fprintf( fp, "    zero     %s\n", GenVariableReg( varmap, varname ) );
+                                else
+                                    fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, varname ), val );
+                            }
+                            else
+                            {
+                                if ( 0 == val )
+                                    fprintf( fp, "    st       [%s], rzero\n", GenVariableName( varname ) );
+                                else
+                                {
+                                    if ( val < -32 || val > 31 )
+                                    {
+                                        fprintf( fp, "    ldi      rres, %d\n", val );
+                                        fprintf( fp, "    st       [%s], rres\n", GenVariableName( varname ) );
+                                    }
+                                    else
+                                        fprintf( fp, "    sti      [%s], %d\n", GenVariableName( varname ), val );
+                                }
+                            }
+                        }
 
                         t += vals[ t ].value;
                     }
@@ -5637,12 +5834,32 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         // e.g.: x% = y%
 
                         if ( x64Win == g_AssemblyTarget || arm64Mac == g_AssemblyTarget || x86Win == g_AssemblyTarget ||
-                             arm32Linux == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
+                             arm32Linux == g_AssemblyTarget || arm64Win == g_AssemblyTarget || oiOS == g_AssemblyTarget )
                             fprintf( fp, "    mov      %s, %s\n", GenVariableReg( varmap, vals[ variableToken ].strValue ),
                                                                   GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    mv       %s, %s\n", GenVariableReg( varmap, vals[ variableToken ].strValue ),
                                                                   GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+
+                        t += vals[ t ].value;
+                    }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              Token_VARIABLE == vals[ t + 1 ].token && 2 == vals[ t ].value )
+                    {
+                        // e.g.: x% = y%
+                        // note: the above case handles inreg = inreg.
+                        string & varTo = vals[ variableToken ].strValue;
+                        string & varFrom = vals[ t + 1 ].strValue;
+
+                        if ( IsVariableInReg( varmap, varTo ) )
+                            fprintf( fp, "    ld       %s, [ %s ]\n", GenVariableReg( varmap, varTo ), GenVariableName( varFrom ) );
+                        else if ( IsVariableInReg( varmap, varFrom ) )
+                            fprintf( fp, "    st       [%s], %s\n", GenVariableName( varTo ), GenVariableReg( varmap, varFrom ) );
+                        else
+                        {
+                            fprintf( fp, "    ld       rres, [ %s ]\n", GenVariableName( varFrom ) );
+                            fprintf( fp, "    st       [%s], rres\n", GenVariableName( varTo ) );
+                        }
 
                         t += vals[ t ].value;
                     }
@@ -5659,7 +5876,75 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
 
                         t += vals[ t ].value;
                     }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              6 == vals.size() &&
+                              isTokenSimpleValue( vals[ t + 1 ].token ) &&
+                              isTokenOperator( vals[ t + 2 ].token ) &&
+                              isTokenSimpleValue( vals[ t + 3 ].token ) )
+                    {
+                        // line 120 has 6 tokens  ====>> 120 K% = I% + PR%
+                        //   0 VARIABLE, value 0, strValue 'k%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 4, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'i%'
+                        //   4 PLUS, value 0, strValue ''
+                        //   5 VARIABLE, value 0, strValue 'pr%'
+
+                        if ( Token_VARIABLE == vals[ t + 1 ].token &&
+                             Token_VARIABLE == vals[ t + 3 ].token &&
+                             IsVariableInReg( varmap, vals[ variableToken ].strValue ) &&
+                             IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                             IsVariableInReg( varmap, vals[ t + 3 ].strValue ) &&
+                             !stcmp( vals[ variableToken ].strValue, vals[ t + 1 ].strValue ) )
+                        {
+                            // K% = K% + PR%
+                            fprintf( fp, "    add      %s, %s\n",
+                                     GenVariableReg( varmap, vals[ variableToken ].strValue ),
+                                     GenVariableReg( varmap, vals[ t + 3 ].strValue ) );
+                        }
+                        else
+                        {
+                            const char * pregtouse = "rres";
+    
+                            if ( Token_CONSTANT == vals[ t + 1 ].token )
+                                fprintf( fp, "    ldi      rres, %d\n", vals[ t + 1 ].value );
+                            else
+                            {
+                                if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                                    pregtouse = GenVariableReg( varmap, vals[ t + 1 ].strValue );
+                                else
+                                    fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                            }
+    
+                            const char * psecondreg = "rtmp";
+    
+                            if ( Token_CONSTANT == vals[ t + 3 ].token )
+                                fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 3 ].value );
+                            else
+                            {
+                                if ( IsVariableInReg( varmap, vals[ t + 3 ].strValue ) )
+                                    psecondreg = GenVariableReg( varmap, vals[ t + 3 ].strValue );
+                                else
+                                    fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( vals[ t + 3 ].strValue ) );
+                            }
+    
+                            const char * presultreg = "rres";
+                            if ( IsVariableInReg( varmap, vals[ variableToken ].strValue ) )
+                                presultreg = GenVariableReg( varmap, vals[ variableToken ].strValue ) ;
+    
+                            if ( isOperatorRelational( vals[ t + 2 ].token )  )
+                                fprintf( fp, "    cmp      %s, %s, %s, %s\n", presultreg, pregtouse, psecondreg, ConditionsArm[ vals[ t + 2 ].token ] );
+                            else
+                                fprintf( fp, "    math     %s, %s, %s, %s\n", presultreg, pregtouse, psecondreg, OperatorInstructionX64[ vals[ t + 2 ].token ] );
+    
+                            if ( !IsVariableInReg( varmap, vals[ variableToken ].strValue ) )
+                                fprintf( fp, "    st       [%s], rres\n", GenVariableName( vals[ variableToken ].strValue ) );
+                        }
+
+                        t += vals[ t ].value;
+                    }
                     else if ( 6 == vals[ t ].value &&
+                              oiOS != g_AssemblyTarget &&
                               Token_VARIABLE == vals[ t + 1 ].token &&
                               IsVariableInReg( varmap, vals[ variableToken ].strValue ) &&
                               Token_OPENPAREN == vals[ t + 2 ].token &&
@@ -5834,20 +6119,74 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                               Token_CONSTANT == vals[ t + 5 ].token )
                     {
                         // line 105 has 8 tokens  ====>> 105 PR% = I% + I% + 3
-                        //   token   0 VARIABLE, value 0, strValue 'pr%'
-                        //   token   1 EQ, value 0, strValue ''
-                        //   token   2 EXPRESSION, value 6, strValue ''
-                        //   token   3 VARIABLE, value 0, strValue 'i%'
-                        //   token   4 PLUS, value 0, strValue ''
-                        //   token   5 VARIABLE, value 0, strValue 'i%'
-                        //   token   6 PLUS, value 0, strValue ''
-                        //   token   7 CONSTANT, value 3, strValue ''
+                        //   0 VARIABLE, value 0, strValue 'pr%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 6, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'i%'
+                        //   4 PLUS, value 0, strValue ''
+                        //   5 VARIABLE, value 0, strValue 'i%'
+                        //   6 PLUS, value 0, strValue ''
+                        //   7 CONSTANT, value 3, strValue ''
 
                         fprintf( fp, "    lhld     %s\n", GenVariableName( vals[ t + 1 ].strValue ) );
                         fprintf( fp, "    dad      h\n" );
                         fprintf( fp, "    lxi      d, %d\n", vals[ t + 5 ].value );
                         fprintf( fp, "    dad      d\n" );
                         fprintf( fp, "    shld     %s\n", GenVariableName( vals[ variableToken ].strValue ) );
+                    }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              8 == vals.size() &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_PLUS == vals[ t + 2 ].token &&
+                              Token_VARIABLE == vals[ t + 3 ].token &&
+                              !stcmp( vals[ t + 1 ].strValue, vals[ t + 3 ].strValue ) &&
+                              Token_PLUS == vals[ t + 4 ].token &&
+                              Token_CONSTANT == vals[ t + 5 ].token )
+                    {
+                        // line 105 has 8 tokens  ====>> 105 PR% = I% + I% + 3
+                        //   0 VARIABLE, value 0, strValue 'pr%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 6, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'i%'
+                        //   4 PLUS, value 0, strValue ''
+                        //   5 VARIABLE, value 0, strValue 'i%'
+                        //   6 PLUS, value 0, strValue ''
+                        //   7 CONSTANT, value 3, strValue ''
+
+                        if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                             IsVariableInReg( varmap, vals[ variableToken ].strValue ) )
+                        {
+                            fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, vals[ variableToken ].strValue ), vals[ t + 5 ].value );
+                            fprintf( fp, "    add      %s, %s\n",
+                                     GenVariableReg( varmap, vals[ variableToken ].strValue ),
+                                     GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+                            fprintf( fp, "    add      %s, %s\n",
+                                     GenVariableReg( varmap, vals[ variableToken ].strValue ),
+                                     GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+                        }
+                        else
+                        {
+                            if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                            {
+                                const char * pvarval =GenVariableReg( varmap, vals[ t + 1 ].strValue );
+                                fprintf( fp, "    math     rres, %s, %s, add\n", pvarval, pvarval );
+                            }
+                            else
+                            {
+                                fprintf( fp, "    ld      rres, [%s]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                                fprintf( fp, "    add     rres, rres\n" );
+                            }
+    
+                            fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 5 ].value );
+    
+                            if ( IsVariableInReg( varmap, vals[ variableToken ].strValue ) )
+                                fprintf( fp, "    math     %s, rtmp, rres, add\n", GenVariableReg( varmap, vals[ variableToken ].strValue ) );
+                            else
+                            {
+                                fprintf( fp, "    add      rres, rtmp\n" );
+                                fprintf( fp, "    st       [%s], rres\n", GenVariableName( vals[ variableToken ].strValue ) );
+                            }
+                        }
                     }
                     else if ( mos6502Apple1 == g_AssemblyTarget &&
                               6 == vals[ t ].value &&
@@ -5859,14 +6198,14 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         //       p% = sp%( 4 )
 
                         // line 4290 has 8 tokens  ====>> 4290 p% = sp%(st%)
-                        // token   0 VARIABLE, value 0, strValue 'p%'
-                        // token   1 EQ, value 0, strValue ''
-                        // token   2 EXPRESSION, value 6, strValue ''
-                        // token   3 VARIABLE, value 0, strValue 'sp%'
-                        // token   4 OPENPAREN, value 0, strValue ''
-                        // token   5 EXPRESSION, value 2, strValue ''
-                        // token   6 VARIABLE, value 0, strValue 'st%'
-                        // token   7 CLOSEPAREN, value 0, strValue ''
+                        //   0 VARIABLE, value 0, strValue 'p%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 6, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'sp%'
+                        //   4 OPENPAREN, value 0, strValue ''
+                        //   5 EXPRESSION, value 2, strValue ''
+                        //   6 VARIABLE, value 0, strValue 'st%'
+                        //   7 CLOSEPAREN, value 0, strValue ''
 
                         string & vararray = vals[ t + 1 ].strValue;
                         string & varname = vals[ variableToken ].strValue;
@@ -5925,14 +6264,14 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         //       p% = sp%( 4 )
 
                         // line 4290 has 8 tokens  ====>> 4290 p% = sp%(st%)
-                        // token   0 VARIABLE, value 0, strValue 'p%'
-                        // token   1 EQ, value 0, strValue ''
-                        // token   2 EXPRESSION, value 6, strValue ''
-                        // token   3 VARIABLE, value 0, strValue 'sp%'
-                        // token   4 OPENPAREN, value 0, strValue ''
-                        // token   5 EXPRESSION, value 2, strValue ''
-                        // token   6 VARIABLE, value 0, strValue 'st%'
-                        // token   7 CLOSEPAREN, value 0, strValue ''
+                        //   0 VARIABLE, value 0, strValue 'p%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 6, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'sp%'
+                        //   4 OPENPAREN, value 0, strValue ''
+                        //   5 EXPRESSION, value 2, strValue ''
+                        //   6 VARIABLE, value 0, strValue 'st%'
+                        //   7 CLOSEPAREN, value 0, strValue ''
 
                         string & vararray = vals[ t + 1 ].strValue;
                         string & varname = vals[ variableToken ].strValue;
@@ -5949,6 +6288,112 @@ void GenerateASM( const char * outputfile, map<string, Variable> & varmap, bool 
                         }
 
                         fprintf( fp, "    mov      WORD PTR ds: [ %s ], ax\n", GenVariableName( varname ) );
+
+                        t += vals[ t ].value;
+                    }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              6 == vals[ t ].value &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_OPENPAREN == vals[ t + 2 ].token &&
+                              isTokenSimpleValue( vals[ t + 4 ].token ) )
+                    {
+                        // e.g.: p% = sp%( st% ) 
+                        //       p% = sp%( 4 )
+
+                        // line 4290 has 8 tokens  ====>> 4290 p% = sp%(st%)
+                        //   0 VARIABLE, value 0, strValue 'p%'
+                        //   1 EQ, value 0, strValue ''
+                        //   2 EXPRESSION, value 6, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'sp%'
+                        //   4 OPENPAREN, value 0, strValue ''
+                        //   5 EXPRESSION, value 2, strValue ''
+                        //   6 VARIABLE, value 0, strValue 'st%'
+                        //   7 CLOSEPAREN, value 0, strValue ''
+
+                        string & vararray = vals[ t + 1 ].strValue;
+                        string & varname = vals[ variableToken ].strValue;
+
+                        if ( IsVariableInReg( varmap, varname ) )
+                        {
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
+                            {
+                                fprintf( fp, "    ldi      rres, %d\n", vals[ t + 4 ].value );
+                                fprintf( fp, "    ldo      %s, %s[ rres ]\n", GenVariableReg( varmap, varname ), GenVariableName( vararray ) );
+                            }
+                            else
+                            {
+                                if ( IsVariableInReg( varmap, vals[ t + 4 ].strValue ) )
+                                    fprintf( fp, "    ldo      %s, %s[ %s ]\n", GenVariableReg( varmap, varname ),
+                                             GenVariableName( vararray ), GenVariableReg( varmap, vals[ t + 4 ].strValue ) );
+                                else
+                                {
+                                    fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( vals[ t + 4 ].strValue ) );
+                                    fprintf( fp, "    ldo      %s, %s[ rres ]\n",  GenVariableReg( varmap, varname ), GenVariableName( vararray ) );
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if ( Token_CONSTANT == vals[ t + 4 ].token )
+                            {
+                                fprintf( fp, "    ldi      rres, %d\n", vals[ t + 4 ].value );
+                                fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( vararray ) );
+                            }
+                            else
+                            {
+                                if ( IsVariableInReg( varmap, vals[ t + 4 ].strValue ) )
+                                    fprintf( fp, "    ldae     %s[ %s ]\n", GenVariableName( vararray ), GenVariableReg( varmap, vals[ t + 4 ].strValue ) );
+                                else
+                                {
+                                    fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( vals[ t + 4 ].strValue ) );
+                                    fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( vararray ) );
+                                }
+                            }
+    
+                            fprintf( fp, "    st       [ %s ], rres\n", GenVariableName( varname ) );
+                        }
+
+                        t += vals[ t ].value;
+                    }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              12 == vals[ t ].value &&
+                              IsVariableInReg( varmap, vals[ variableToken ].strValue ) &&
+                              Token_OPENPAREN == vals[ t + 1 ].token &&
+                              Token_OPENPAREN == vals[ t + 3 ].token &&
+                              Token_CLOSEPAREN == vals[ t + 6 ].token &&
+                              Token_CONSTANT == vals[ t + 8 ].token &&
+                              Token_CLOSEPAREN == vals[ t + 9 ].token &&
+                              Token_VARIABLE == vals[ t + 2 ].token &&
+                              Token_VARIABLE == vals[ t + 5 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
+                              Token_VARIABLE == vals[ t + 11 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 11 ].strValue ) &&
+                              isTokenOperator( vals[ t + 7 ].token ) &&
+                              isTokenOperator( vals[ t + 10 ].token ) )
+                    {
+                        // line 260 has 14 tokens  ====>> 260 x% = ( a%( n% ) * 10 ) + qu%
+                        //    0 VARIABLE, value 0, strValue 'x%'
+                        //    1 EQ, value 0, strValue ''
+                        //    2 EXPRESSION, value 12, strValue ''
+                        //    3 OPENPAREN, value 0, strValue ''
+                        //    4 VARIABLE, value 0, strValue 'a%'
+                        //    5 OPENPAREN, value 0, strValue ''
+                        //    6 EXPRESSION, value 2, strValue ''
+                        //    7 VARIABLE, value 0, strValue 'n%'
+                        //    8 CLOSEPAREN, value 0, strValue ''
+                        //    9 MULT, value 0, strValue ''
+                        //   10 CONSTANT, value 10, strValue ''
+                        //   11 CLOSEPAREN, value 0, strValue ''
+                        //   12 PLUS, value 0, strValue ''
+                        //   13 VARIABLE, value 0, strValue 'qu%'
+
+                        fprintf( fp, "    ldo      rres, %s[%s]\n", GenVariableName( vals[ t + 2 ].strValue ), GenVariableReg( varmap, vals[ t + 5 ].strValue ) );
+                        fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 8 ].value );
+                        fprintf( fp, "    %-4s     rres, rtmp\n", OperatorInstructionX64[ vals[ t + 7 ].token ] );
+                        fprintf( fp, "    math     %s, rres, %s, %s\n",
+                                 GenVariableReg( varmap, vals[ variableToken ].strValue ),
+                                 GenVariableReg( varmap, vals[ t + 11 ].strValue ),
+                                 OperatorInstructionX64[ vals[ t + 10 ].token ] );
 
                         t += vals[ t ].value;
                     }
@@ -6007,6 +6452,13 @@ label_no_eq_optimization:
                                 fprintf( fp, "    lla      t0, %s\n", GenVariableName( varname ) );
                                 fprintf( fp, "    sw       a0, (t0)\n" );
                             }
+                        }
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            if ( IsVariableInReg( varmap, varname ) )
+                                fprintf( fp, "    mov      %s, rres\n", GenVariableReg( varmap, varname ) );
+                            else
+                                fprintf( fp, "    st       [%s], rres\n", GenVariableName( varname ) );
                         }
                     }
                 }
@@ -6148,6 +6600,47 @@ label_no_eq_optimization:
                         }
                         break;
                     }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              8 == vals.size() &&
+                              Token_VARIABLE == vals[ t + 1 ].token && 
+                              Token_CONSTANT == vals[ t + 5 ].token )
+                    {
+                        // line 140 has 8 tokens  ====>> 140 FL%(K%) = 0
+                        //   0 VARIABLE, value 0, strValue 'fl%'
+                        //   1 OPENPAREN, value 0, strValue ''
+                        //   2 EXPRESSION, value 2, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'k%'
+                        //   4 CLOSEPAREN, value 0, strValue ''
+                        //   5 EQ, value 0, strValue ''
+                        //   6 EXPRESSION, value 2, strValue ''
+                        //   7 CONSTANT, value 0, strValue ''
+
+                        if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                        {
+                            if ( 0 == vals[ t + 5 ].value )
+                                fprintf( fp, "    sto       %s[ %s ], rzero\n", GenVariableName( vals[ variableToken ].strValue ),
+                                                                                GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+                            else
+                            {
+                                fprintf( fp, "    ldi       rtmp, %d\n", vals[ t + 5 ].value );
+                                fprintf( fp, "    sto       %s[ %s ], rtmp\n", GenVariableName( vals[ variableToken ].strValue ),
+                                                                               GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+                            }
+                        }
+                        else
+                        {
+                            fprintf( fp, "    ld        rres, [%s]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                            if ( 0 == vals[ t + 5 ].value )
+                                fprintf( fp, "    sto       %s[ rres ], rzero\n", GenVariableName( vals[ variableToken ].strValue ) );
+                            else
+                            {
+                                fprintf( fp, "    ldi       rtmp, %d\n", vals[ t + 5 ].value );
+                                fprintf( fp, "    sto       %s[ rres ], rtmp\n", GenVariableName( vals[ variableToken ].strValue ) );
+                            }
+                        }
+
+                        break;
+                    }
                     else if ( ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget ) &&
                               8 == vals.size() &&
                               Token_VARIABLE == vals[ t + 1 ].token &&
@@ -6247,6 +6740,39 @@ label_no_eq_optimization:
 
                         break;
                     }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              8 == vals.size() &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              Token_VARIABLE == vals[ t + 5 ].token )
+                    {
+                        // line 4230 has 8 tokens  ====>> 4230 sv%(st%) = v%
+                        //   0 VARIABLE, value 0, strValue 'sv%'
+                        //   1 OPENPAREN, value 0, strValue ''
+                        //   2 EXPRESSION, value 2, strValue ''
+                        //   3 VARIABLE, value 0, strValue 'st%'
+                        //   4 CLOSEPAREN, value 0, strValue ''
+                        //   5 EQ, value 0, strValue ''
+                        //   6 EXPRESSION, value 2, strValue ''
+                        //   7 VARIABLE, value 0, strValue 'v%'
+
+                        string & vararray = vals[ variableToken ].strValue;
+                        const char * presultreg = "rres";
+
+                        if ( IsVariableInReg( varmap, vals[ t + 5 ].strValue ) )
+                            presultreg = GenVariableReg( varmap, vals[ t + 5 ].strValue );
+                        else
+                            fprintf( fp, "    ld       rres, [ %s ]\n", GenVariableName( vals[ t + 5 ].strValue ) );
+
+                        if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                            fprintf( fp, "    sto      %s[ %s ], %s\n", GenVariableName( vararray ), GenVariableReg( varmap, vals[ t + 1 ].strValue ), presultreg );
+                        else
+                        {
+                            fprintf( fp, "    ld       rtmp, [ %s ]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                            fprintf( fp, "    sto      %s[ rtmp ], %s\n", GenVariableName( vararray ), presultreg );
+                        }
+
+                        break;
+                    }
                     else if ( x86Win == g_AssemblyTarget &&
                               8 == vals.size() &&
                               Token_VARIABLE == vals[ t + 1 ].token &&
@@ -6281,6 +6807,51 @@ label_no_eq_optimization:
                         }
                         break;
                     }
+                    else if ( oiOS == g_AssemblyTarget &&
+                              14 == vals.size() &&
+                              Token_VARIABLE == vals[ t + 1 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                              Token_VARIABLE == vals[ t + 5 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
+                              Token_VARIABLE == vals[ t + 8 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 8 ].strValue ) &&
+                              Token_VARIABLE == vals[ t + 10 ].token &&
+                              IsVariableInReg( varmap, vals[ t + 10 ].strValue ) &&
+                              Token_OPENPAREN == vals[ t + 7 ].token &&
+                              isTokenOperator( vals[ t + 6 ].token ) &&
+                              isTokenOperator( vals[ t + 9 ].token ) )
+                    {
+                        // line 246 has 14 tokens  ====>> 246 a%( n% ) = x% - ( n% * qu% )
+                        //    0 VARIABLE, value 0, strValue 'a%'
+                        //    1 OPENPAREN, value 0, strValue ''
+                        //    2 EXPRESSION, value 2, strValue ''
+                        //    3 VARIABLE, value 0, strValue 'n%'
+                        //    4 CLOSEPAREN, value 0, strValue ''
+                        //    5 EQ, value 0, strValue ''
+                        //    6 EXPRESSION, value 8, strValue ''
+                        //    7 VARIABLE, value 0, strValue 'x%'
+                        //    8 MINUS, value 0, strValue ''
+                        //    9 OPENPAREN, value 0, strValue ''
+                        //   10 VARIABLE, value 0, strValue 'n%'
+                        //   11 MULT, value 0, strValue ''
+                        //   12 VARIABLE, value 0, strValue 'qu%'
+                        //   13 CLOSEPAREN, value 0, strValue ''
+
+                        string & vararray = vals[ variableToken ].strValue;
+
+                        fprintf( fp, "    math     rres, %s, %s, %s\n",
+                                 GenVariableReg( varmap, vals[ t + 8 ].strValue ),
+                                 GenVariableReg( varmap, vals[ t + 10 ].strValue ),
+                                 OperatorInstructionX64[ vals[ t + 9 ].token ] );
+                        fprintf( fp, "    math     rres, %s, rres, %s\n",
+                                 GenVariableReg( varmap, vals[ t + 5 ].strValue ),
+                                 OperatorInstructionX64[ vals[ t + 6 ].token ] );
+                        fprintf( fp, "    sto      %s[%s], rres\n",
+                                 GenVariableName( vararray ),
+                                 GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+
+                        t += vals[ t ].value;
+                    }
                     else
                     {
 label_no_array_eq_optimization:
@@ -6297,7 +6868,6 @@ label_no_array_eq_optimization:
                             t++; // comma
 
                             PushAccumulator( fp );
-
                             GenerateOptimizedExpression( fp, varmap, t, vals );
 
                             if ( x64Win == g_AssemblyTarget )
@@ -6381,6 +6951,12 @@ label_no_array_eq_optimization:
                                 fprintf( fp, "    mul      t1, t1, t2\n" );
                                 fprintf( fp, "    add      a0, a0, t1\n" );
                             }
+                            else if ( oiOS == g_AssemblyTarget )
+                            {
+                                fprintf( fp, "    ldi      rtmp, %u\n", pvar->dims[ 1 ] );
+                                fprintf( fp, "    mathst   rtmp, rtmp, imul\n" );
+                                fprintf( fp, "    add      rres, rtmp\n" );
+                            }
                         }
         
                         t += 2; // ) =
@@ -6437,6 +7013,12 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    slli     a0, a0, 2\n" );
                             fprintf( fp, "    add      t0, t0, a0\n" );
                         }
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            fprintf( fp, "    shlimg   ; rres implied\n" );
+                            fprintf( fp, "    ldi      rtmp, %s\n", GenVariableName( varname ) );
+                            fprintf( fp, "    add      rres, rtmp\n" );
+                        }
 
                         assert( Token_EXPRESSION == vals[ t ].token );
     
@@ -6484,6 +7066,17 @@ label_no_array_eq_optimization:
                                 fprintf( fp, "    li       t1, %d\n", vals[ t + 1 ].value );
                                 fprintf( fp, "    sw       t1, (t0)\n" );
                             }
+                            else if ( oiOS == g_AssemblyTarget )
+                            {
+                                int val = vals[ t + 1 ].value;
+                                if ( 0 == val )
+                                    fprintf( fp, "    st       [ rres ], rzero\n" );
+                                else
+                                {
+                                    fprintf( fp, "    ldi      rtmp, %d\n", val );
+                                    fprintf( fp, "    st       [ rres ], rtmp\n" );
+                                }
+                            }
 
                             t += 2;
                         }
@@ -6501,7 +7094,9 @@ label_no_array_eq_optimization:
                             else if ( x86Win == g_AssemblyTarget )
                                 fprintf( fp, "    mov      DWORD PTR [ebx + eax], %s\n", GenVariableReg( varmap, varone ) );
                             else if ( riscv64 == g_AssemblyTarget )
-                                fprintf( fp, "    sw       %s, (t0)\n", GenVariableReg(varmap, varone ) );
+                                fprintf( fp, "    sw       %s, (t0)\n", GenVariableReg( varmap, varone ) );
+                            else if ( oiOS == g_AssemblyTarget )
+                                fprintf( fp, "    st       [rres], %s\n", GenVariableReg( varmap, varone ) );
 
                             t += 2;
                         }
@@ -6530,6 +7125,8 @@ label_no_array_eq_optimization:
                             }
                             else if ( riscv64 == g_AssemblyTarget )
                                 RiscVPush( fp, "t0" );
+                            else if ( oiOS == g_AssemblyTarget )
+                                fprintf( fp, "    push     rres\n" );
                             
                             GenerateOptimizedExpression( fp, varmap, t, vals );
                             
@@ -6581,6 +7178,8 @@ label_no_array_eq_optimization:
                                 RiscVPop( fp, "t0" );
                                 fprintf( fp, "    sw       a0, (t0)\n" );
                             }
+                            else if ( oiOS == g_AssemblyTarget )
+                                fprintf( fp, "    stst     rres\n" );
                         }
                     }
                 }
@@ -6591,7 +7190,7 @@ label_no_array_eq_optimization:
             else if ( Token_END == token )
             {
                 if ( x64Win == g_AssemblyTarget || mos6502Apple1 == g_AssemblyTarget || i8086DOS == g_AssemblyTarget ||
-                     x86Win == g_AssemblyTarget )
+                     x86Win == g_AssemblyTarget || oiOS == g_AssemblyTarget )
                     fprintf( fp, "    jmp      end_execution\n" );
                 else if ( arm64Mac == g_AssemblyTarget || arm32Linux == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                     fprintf( fp, "    b        end_execution\n" );
@@ -6604,6 +7203,46 @@ label_no_array_eq_optimization:
             else if ( Token_FOR == token )
             {
                 string const & varname = vals[ t ].strValue;
+
+                if ( 1 == vals[ t ].extra &&  // memfill optimization
+                     oiOS == g_AssemblyTarget )
+                {
+                    int teval = t + 1;
+
+                    fprintf( fp, "    push     rarg1\n" );
+                    fprintf( fp, "    push     rarg2\n" );
+
+                    if ( Token_VARIABLE == vals[ t + 4 ].token )
+                    {
+                        if ( IsVariableInReg( varmap, vals[ t + 4 ].strValue ) )
+                            fprintf( fp, "    mov      rarg2, %s\n", GenVariableReg( varmap, vals[ t + 4 ].strValue ) ); // ending index
+                        else
+                            fprintf( fp, "    ld       rarg2, [%s]\n", GenVariableName( vals[ t + 4 ].strValue ) ); // ending index
+                        fprintf( fp, "    inc      rarg2\n" );
+                    }
+                    else
+                        fprintf( fp, "    ldi      rarg2, %u\n", 1 + vals[ t + 4 ].value ); // ending index
+
+                    if ( 0 != vals[ t + 2 ].value ) // if the starting index isn't 0
+                    {
+                        fprintf( fp, "    ldi      rres, %d\n", vals[ t + 2 ].value ); // starting index
+                        fprintf( fp, "    sub      rarg2, rres\n" );
+                    }
+                    else
+                        fprintf( fp, "    zero     rres\n" );
+
+                    LineOfCode & loc1 = g_linesOfCode[ l + 1 ];
+                    vector<TokenValue> & vals1 = loc1.tokenValues;
+                    fprintf( fp, "    ldi      rarg1, %s\n", GenVariableName( vals1[ 0 ].strValue ) );
+                    fprintf( fp, "    ldi      rtmp, %d\n", vals1[ 7 ].value ); // fillValue
+                    fprintf( fp, "    memf\n" );
+
+                    fprintf( fp, "    pop      rarg2\n" );
+                    fprintf( fp, "    pop      rarg1\n" );
+
+                    l += 2; // point at next
+                    break;
+                }
 
                 if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                 {
@@ -6659,6 +7298,29 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    lla      t0, %s\n", GenVariableName( varname) );
                         fprintf( fp, "    li       t1, %d\n", vals[ t + 2 ].value );
                         fprintf( fp, "    sw       t1, (t0)\n" );
+                    }
+                }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    int val = vals[ t + 2 ].value;
+                    if ( IsVariableInReg( varmap, varname ) )
+                    {
+                        if ( 0 == val )
+                            fprintf( fp, "    zero     %s\n", GenVariableReg( varmap, varname ) );
+                        else if ( val >= -32 && val <= 31 )
+                            fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, varname ), val );
+                    }
+                    else
+                    {
+                        if ( 0 == val )
+                            fprintf( fp, "    st       [%s], rzero\n", GenVariableName( varname ) );
+                        else if ( val >= -32 && val <= 31 )
+                            fprintf( fp, "    sti      [%s], %d\n", GenVariableName( varname ), val );
+                        else
+                        {
+                            fprintf( fp, "    ldi      rtmp, %d\n", val );
+                            fprintf( fp, "    st       [%s], rtmp\n", GenVariableName( varname ) );
+                        }
                     }
                 }
 
@@ -6747,6 +7409,16 @@ label_no_array_eq_optimization:
                     }
                     fprintf( fp, "    bgt      t0, a0, after_for_loop_%zd\n", l );
                 }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    if ( IsVariableInReg( varmap, varname ) )
+                        fprintf( fp, "    j        %s, rres, gt, after_for_loop_%zd\n", GenVariableReg( varmap, varname ), l );
+                    else
+                    {
+                        fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( varname ) );
+                        fprintf( fp, "    j        rtmp, rres, gt, after_for_loop_%zd\n", l );
+                    }
+                }
 
                 break;
             }
@@ -6825,7 +7497,6 @@ label_no_array_eq_optimization:
                 else if ( i8086DOS == g_AssemblyTarget )
                 {
                     fprintf( fp, "    inc      WORD PTR ds: [%s]\n", GenVariableName( loopVal ) );
-
                     fprintf( fp, "    jmp      for_loop_%d\n", item.pcReturn );
                 }
                 else if ( riscv64 == g_AssemblyTarget )
@@ -6843,6 +7514,14 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    sw       t1, (t0)\n" );
                     }
                     fprintf( fp, "    j        for_loop_%d\n", item.pcReturn );
+                }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    if ( IsVariableInReg( varmap, loopVal ) )
+                        fprintf( fp, "    inc      %s\n", GenVariableReg( varmap, loopVal ) );
+                    else
+                        fprintf( fp, "    inc      [%s]\n", GenVariableName( loopVal ) );
+                    fprintf( fp, "    jmp      for_loop_%d\n", item.pcReturn );
                 }
 
                 if ( i8080CPM == g_AssemblyTarget )
@@ -6892,6 +7571,8 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    lla      a0, line_number_%d\n", vals[ t ].value );
                     fprintf( fp, "    jal      label_gosub\n" );
                 }
+                else if ( oiOS == g_AssemblyTarget)
+                    fprintf( fp, "    callnf   line_number_%d\n", vals[ t ].value );
 
                 break;
             }
@@ -6911,6 +7592,8 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    jmp      line_number_%d\n", vals[ t ].value );
                 else if ( riscv64 == g_AssemblyTarget)
                     fprintf( fp, "    j        line_number_%d\n", vals[ t ].value );
+                else if ( oiOS == g_AssemblyTarget)
+                    fprintf( fp, "    jmp      line_number_%d\n", vals[ t ].value );
 
                 break;
             }
@@ -6930,11 +7613,14 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    jmp      label_gosub_return\n" );
                 else if ( riscv64 == g_AssemblyTarget)
                     fprintf( fp, "    j        label_gosub_return\n" );
+                else if ( oiOS == g_AssemblyTarget )
+                    fprintf( fp, "    retnf\n" );
 
                 break;
             }
             else if ( Token_PRINT == token )
             {
+                bool withholdCRLF = ( 1 == vals[ t ].extra );
                 t++;
     
                 while ( t < vals.size() )
@@ -7005,6 +7691,13 @@ label_no_array_eq_optimization:
                         {
                             fprintf( fp, "    lla      a0, str_%zd_%d\n", l, t + 1 );
                             fprintf( fp, "    jal      rvos_print_text\n" );
+                        }
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            fprintf( fp, "    push     rarg1\n" );
+                            fprintf( fp, "    ldi      rarg1, str_%zd_%d\n", l, t + 1 );
+                            fprintf( fp, "    syscall  1\n" );
+                            fprintf( fp, "    pop      rarg1\n" );
                         }
 
                         t += vals[ t ].value;
@@ -7149,37 +7842,54 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    call     printInt\n" );
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    jal      print_int\n" );
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            fprintf( fp, "    push     rarg1\n" );
+                            fprintf( fp, "    mov      rarg1, rres\n" );
+                            fprintf( fp, "    syscall  2\n" );
+                            fprintf( fp, "    pop      rarg1\n" );
+                        }
                     }
                 }
-    
-                if ( x64Win == g_AssemblyTarget )
+
+                if ( !withholdCRLF )
                 {
-                    fprintf( fp, "    lea      rcx, [newlineString]\n" );
-                    fprintf( fp, "    call     call_printf\n" );
+                    if ( x64Win == g_AssemblyTarget )
+                    {
+                        fprintf( fp, "    lea      rcx, [newlineString]\n" );
+                        fprintf( fp, "    call     call_printf\n" );
+                    }
+                    else if ( arm32Linux == g_AssemblyTarget )
+                    {
+                        LoadArm32Label( fp, "r0", "newlineString" );
+                        fprintf( fp, "    bl       call_printf\n" );
+                    }
+                    else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
+                    {
+                        LoadArm64Label( fp, "x0", "newlineString" );
+                        fprintf( fp, "    bl       call_printf\n" );
+                    }
+                    else if ( i8080CPM == g_AssemblyTarget )
+                    {
+                        fprintf( fp, "    lxi      h, newlineString\n" );
+                        fprintf( fp, "    call     DISPLAY\n" );
+                    }
+                    else if ( mos6502Apple1 == g_AssemblyTarget )
+                        fprintf( fp, "    jsr      prcrlf\n" ); 
+                    else if ( i8086DOS == g_AssemblyTarget )
+                        fprintf( fp, "    call     printcrlf\n" );
+                    else if ( x86Win == g_AssemblyTarget )
+                        fprintf( fp, "    call     printcrlf\n" );
+                    else if ( riscv64 == g_AssemblyTarget )
+                        fprintf( fp, "    jal      print_crlf\n" );
+                    else if ( oiOS == g_AssemblyTarget )
+                    {
+                        fprintf( fp, "    push     rarg1\n" );
+                        fprintf( fp, "    ldi      rarg1, newlineString\n" );
+                        fprintf( fp, "    syscall  1\n" );
+                        fprintf( fp, "    pop      rarg1\n" );
+                    }
                 }
-                else if ( arm32Linux == g_AssemblyTarget )
-                {
-                    LoadArm32Label( fp, "r0", "newlineString" );
-                    fprintf( fp, "    bl       call_printf\n" );
-                }
-                else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
-                {
-                    LoadArm64Label( fp, "x0", "newlineString" );
-                    fprintf( fp, "    bl       call_printf\n" );
-                }
-                else if ( i8080CPM == g_AssemblyTarget )
-                {
-                    fprintf( fp, "    lxi      h, newlineString\n" );
-                    fprintf( fp, "    call     DISPLAY\n" );
-                }
-                else if ( mos6502Apple1 == g_AssemblyTarget )
-                    fprintf( fp, "    jsr      prcrlf\n" ); 
-                else if ( i8086DOS == g_AssemblyTarget )
-                    fprintf( fp, "    call     printcrlf\n" );
-                else if ( x86Win == g_AssemblyTarget )
-                    fprintf( fp, "    call     printcrlf\n" );
-                else if ( riscv64 == g_AssemblyTarget )
-                    fprintf( fp, "    jal      print_crlf\n" );
 
                 if ( t == vals.size() )
                     break;
@@ -7302,6 +8012,23 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    lw       a0, (t0)\n" );
                         fprintf( fp, "    addi     a0, a0, %d\n", ( Token_INC == vals[ t + 1 ].token ) ? 1 : -1 );
                         fprintf( fp, "    sw       a0, (t0)\n" );
+                    }
+                }
+                else if ( oiOS == g_AssemblyTarget )
+                {
+                    if ( IsVariableInReg( varmap, varname ) )
+                    {
+                        if ( Token_INC == vals[ t + 1 ].token )
+                            fprintf( fp, "    inc      %s\n", GenVariableReg( varmap, varname ) );
+                        else
+                            fprintf( fp, "    dec      %s\n", GenVariableReg( varmap, varname ) );
+                    }
+                    else
+                    {
+                        if ( Token_INC == vals[ t + 1 ].token )
+                            fprintf( fp, "    inc      [%s]\n", GenVariableName( varname ) );
+                        else
+                            fprintf( fp, "    dec      [%s]\n", GenVariableName( varname ) );
                     }
                 }
 
@@ -7551,10 +8278,63 @@ label_no_array_eq_optimization:
 
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                     19 == vals.size() &&
+                     16 == vals[ t ].value &&
+                     Token_VARIABLE == vals[ t + 1 ].token &&
+                     Token_EQ ==  vals[ t + 2 ].token &&
+                     Token_OPENPAREN == vals[ t + 4 ].token &&
+                     Token_CONSTANT == vals[ t + 6 ].token &&
+                     Token_AND == vals[ t + 8 ].token &&
+                     Token_VARIABLE == vals[ t + 9 ].token &&
+                     Token_EQ == vals[ t + 10 ].token &&
+                     Token_OPENPAREN == vals[ t + 12 ].token &&
+                     Token_CONSTANT == vals[ t + 14 ].token &&
+                     Token_THEN == vals[ t + 16 ].token &&
+                     0 == vals[ t + 16 ].value &&
+                     !stcmp( vals[ t + 3 ], vals[ t + 11 ] ) &&
+                     Token_RETURN == vals[ t + 17 ].token )
+                {
+                    // line 2020 has 19 tokens  ====>> 2020 if wi% = b%( 1 ) and wi% = b%( 2 ) then return
+                    //    0 IF, value 0, strValue ''
+                    //    1 EXPRESSION, value 16, strValue ''
+                    //    2 VARIABLE, value 0, strValue 'wi%'
+                    //    3 EQ, value 0, strValue ''
+                    //    4 VARIABLE, value 0, strValue 'b%'
+                    //    5 OPENPAREN, value 0, strValue ''
+                    //    6 EXPRESSION, value 2, strValue ''
+                    //    7 CONSTANT, value 1, strValue ''
+                    //    8 CLOSEPAREN, value 0, strValue ''
+                    //    9 AND, value 0, strValue ''
+                    //   10 VARIABLE, value 0, strValue 'wi%'
+                    //   11 EQ, value 0, strValue ''
+                    //   12 VARIABLE, value 0, strValue 'b%'
+                    //   13 OPENPAREN, value 0, strValue ''
+                    //   14 EXPRESSION, value 2, strValue ''
+                    //   15 CONSTANT, value 2, strValue ''
+                    //   16 CLOSEPAREN, value 0, strValue ''
+                    //   17 THEN, value 0, strValue ''
+                    //   18 RETURN, value 0, strValue ''
+
+                    if ( !IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                        fprintf( fp, "    ld       rtmp, [ %s ]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+
+                    fprintf( fp, "    ldi      rres, %d\n", vals[ t + 6 ].value );
+                    fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( vals[ t + 3 ].strValue ) );
+                    fprintf( fp, "    j        %s, rres, ne, line_number_%zd\n",
+                             IsVariableInReg( varmap, vals[ t + 1 ].strValue ) ? GenVariableReg( varmap, vals[ t + 1 ].strValue ) : "rtmp", l + 1 );
+
+                    fprintf( fp, "    ldi      rres, %d\n", vals[ t + 14 ].value );
+                    fprintf( fp, "    ldae     %s[ rres ]\n", GenVariableName( vals[ t + 3 ].strValue ) );
+                    fprintf( fp, "    j        %s, rres, eq, retnf\n",
+                             IsVariableInReg( varmap, vals[ t + 1 ].strValue ) ? GenVariableReg( varmap, vals[ t + 1 ].strValue ) : "rtmp" );
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           ( !( ( x86Win == g_AssemblyTarget ) && !g_i386Target686 ) ) &&
                           10 == vals.size() &&
                           4 == vals[ t ].value &&
@@ -7694,10 +8474,71 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    mov      WORD PTR ds: [ %s ], ax\n", GenVariableName( vals[ t + 5 ].strValue ) );
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                          10 == vals.size() &&
+                          4 == vals[ t ].value &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          isOperatorRelational( vals[ t + 2 ].token ) &&
+                          Token_VARIABLE == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          0 == vals[ t + 4 ].value &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          Token_EXPRESSION == vals[ t + 7 ].token &&
+                          2 == vals[ t + 7 ].value &&
+                          Token_VARIABLE == vals[ t + 8 ].token )
+                {
+                    // line 4342 has 10 tokens  ====>> 4342 if v% > al% then al% = v%
+                    //   0 IF, value 0, strValue ''
+                    //   1 EXPRESSION, value 4, strValue ''
+                    //   2 VARIABLE, value 0, strValue 'v%'
+                    //   3 GT, value 0, strValue ''
+                    //   4 VARIABLE, value 0, strValue 'al%'
+                    //   5 THEN, value 0, strValue ''
+                    //   6 VARIABLE, value 0, strValue 'al%'
+                    //   7 EQ, value 0, strValue ''
+                    //   8 EXPRESSION, value 2, strValue ''
+                    //   9 VARIABLE, value 0, strValue 'v%'
+
+                    Token op = vals[ t + 2 ].token;
+                    string & lhs = vals[ t + 1 ].strValue;
+                    string & rhs = vals[ t + 3 ].strValue;
+
+                    const char * pleft = "rtmp";
+                    const char * pright = "rres";
+
+                    if ( IsVariableInReg( varmap, lhs ) )
+                        pleft = GenVariableReg( varmap, lhs );
+                    else
+                        fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( lhs ) );
+
+                    if ( IsVariableInReg( varmap, rhs ) )
+                        pright = GenVariableReg( varmap, rhs );
+                    else
+                        fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( rhs ) );
+
+                    fprintf( fp, "    j        %s, %s, %s, line_number_%zd\n", pleft, pright, ConditionsNotArm[ op ], l + 1 );
+
+                    const char * presult = "rtmp";
+                    if ( IsVariableInReg( varmap, vals[ t + 8 ].strValue ) )
+                        presult = GenVariableReg( varmap, vals[ t + 8 ].strValue );
+                    else
+                    {
+                        if ( stcmp( lhs, vals[ t + 8 ].strValue ) )
+                            fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( vals[ t + 8 ].strValue ) );
+                    }
+
+                    if ( IsVariableInReg( varmap, vals[ t + 5 ].strValue ) )
+                        fprintf( fp, "    mov      %s, %s\n", GenVariableReg( varmap, vals[ t + 5 ].strValue ), presult );
+                    else
+                        fprintf( fp, "    st       [%s], %s\n", GenVariableName( vals[ t + 5 ].strValue ), presult );
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           19 == vals.size() &&
                           16 == vals[ t ].value &&
                           Token_VARIABLE == vals[ t + 1 ].token &&
@@ -7848,6 +8689,7 @@ label_no_array_eq_optimization:
                           i8086DOS != g_AssemblyTarget &&
                           arm32Linux != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           15 == vals.size() &&
                           4 == vals[ t ].value &&
                           Token_VARIABLE == vals[ t + 1 ].token &&
@@ -8073,12 +8915,67 @@ label_no_array_eq_optimization:
 
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                          15 == vals.size() &&
+                          4 == vals[ t ].value &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          IsVariableInReg( varmap, vals[ t + 5 ].strValue ) &&
+                          Token_EQ == vals[ t + 6 ].token &&
+                          2 == vals[ t + 7 ].value &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_ELSE == vals[ t + 9 ].token &&
+                          Token_VARIABLE == vals[ t + 10 ].token &&
+                          Token_EQ == vals[ t + 11 ].token &&
+                          2 == vals[ t + 12 ].value &&
+                          !stcmp( vals[ t + 5 ], vals[ t + 10 ] ) &&
+                          Token_CONSTANT == vals[ t + 13 ].token )
+                {
+                    // line 4150 has 15 tokens  ====>> 4150 if st% and 1 then v% = 2 else v% = 9
+                    // token   0 IF, value 0, strValue ''
+                    // token   1 EXPRESSION, value 4, strValue ''
+                    // token   2 VARIABLE, value 0, strValue 'st%'
+                    // token   3 AND, value 0, strValue ''
+                    // token   4 CONSTANT, value 1, strValue ''
+                    // token   5 THEN, value 5, strValue ''
+                    // token   6 VARIABLE, value 0, strValue 'v%'
+                    // token   7 EQ, value 0, strValue ''
+                    // token   8 EXPRESSION, value 2, strValue ''
+                    // token   9 CONSTANT, value 2, strValue ''
+                    // token  10 ELSE, value 0, strValue ''
+                    // token  11 VARIABLE, value 0, strValue 'v%'
+                    // token  12 EQ, value 0, strValue ''
+                    // token  13 EXPRESSION, value 2, strValue ''
+                    // token  14 CONSTANT, value 9, strValue ''
+
+                    int val = vals[ t + 3 ].value;
+                    if ( 1 == val )
+                        fprintf( fp, "    j        %s, rzero, even, _uniq_%d\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), s_uniqueLabel );
+                    else
+                    {
+                        fprintf( fp, "    ldi      rres, %d\n", vals[ t + 3 ].value );
+                        fprintf( fp, "    and      rres, %s\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ) );
+                        fprintf( fp, "    j        rres, rzero, eq, _uniq_%d\n", s_uniqueLabel );
+                    }
+                    fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, vals[ t + 5 ].strValue ), vals[ t + 8 ].value );
+                    fprintf( fp, "    j        rzero, rzero, eq, line_number_%zd\n", l + 1 );
+                    fprintf( fp, "  _uniq_%d:\n", s_uniqueLabel );
+                    fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, vals[ t + 5 ].strValue ), vals[ t + 13 ].value );
+                    s_uniqueLabel++;
+
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           x86Win != g_AssemblyTarget &&
                           arm32Linux != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           23 == vals.size() &&
                           4 == vals[ t ].value &&
                           Token_VARIABLE == vals[ t + 1 ].token &&
@@ -8152,12 +9049,69 @@ label_no_array_eq_optimization:
 
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                          23 == vals.size() &&
+                          4 == vals[ t ].value &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                          Token_AND == vals[ t + 2 ].token  &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          1 == vals[ t + 3 ].value &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          Token_OPENPAREN == vals[ t + 6 ].token &&
+                          Token_CONSTANT == vals[ t + 12 ].token &&
+                          Token_OPENPAREN == vals[ t + 15 ].token &&
+                          Token_CONSTANT == vals[ t + 21 ].token &&
+                          Token_VARIABLE == vals[ t + 8 ].token &&
+                          Token_VARIABLE == vals[ t + 17 ].token &&
+                          !IsVariableInReg( varmap, vals[ t + 17 ].strValue ) &&
+                          !stcmp( vals[ t + 5 ], vals[ t + 14 ] ) &&
+                          !stcmp( vals[ t + 8 ], vals[ t + 17 ] ) )
+                {
+                    // line 4200 has 23 tokens  ====>> 4200 if st% and 1 then b%(p%) = 1 else b%(p%) = 2
+                    //     0 IF, value 0, strValue ''
+                    //     1 EXPRESSION, value 4, strValue ''
+                    //     2 VARIABLE, value 0, strValue 'st%'
+                    //     3 AND, value 0, strValue ''
+                    //     4 CONSTANT, value 1, strValue ''
+                    //     5 THEN, value 9, strValue ''
+                    //     6 VARIABLE, value 0, strValue 'b%'
+                    //     7 OPENPAREN, value 0, strValue ''
+                    //     8 EXPRESSION, value 2, strValue ''
+                    //     9 VARIABLE, value 0, strValue 'p%'
+                    //    10 CLOSEPAREN, value 0, strValue ''
+                    //    11 EQ, value 0, strValue ''
+                    //    12 EXPRESSION, value 2, strValue ''
+                    //    13 CONSTANT, value 1, strValue ''
+                    //    14 ELSE, value 0, strValue ''
+                    //    15 VARIABLE, value 0, strValue 'b%'
+                    //    16 OPENPAREN, value 0, strValue ''
+                    //    17 EXPRESSION, value 2, strValue ''
+                    //    18 VARIABLE, value 0, strValue 'p%'
+                    //    19 CLOSEPAREN, value 0, strValue ''
+                    //    20 EQ, value 0, strValue ''
+                    //    21 EXPRESSION, value 2, strValue ''
+                    //    22 CONSTANT, value 2, strValue ''
+
+                    fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( vals[ t + 8 ].strValue ) );
+                    fprintf( fp, "    j        %s, rzero, even, _uniq_%d\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), s_uniqueLabel );
+                    fprintf( fp, "    ldi      rres, %d\n", vals[ t + 12 ].value );
+                    fprintf( fp, "    sto      %s[ rtmp ], rres\n", GenVariableName( vals[ t + 5 ].strValue ) );
+                    fprintf( fp, "    j        rzero, rzero, eq, line_number_%zd\n", l + 1 );
+                    fprintf( fp, "  _uniq_%d:\n", s_uniqueLabel );
+                    fprintf( fp, "    ldi      rres, %d\n", vals[ t + 21 ].value );
+                    fprintf( fp, "    sto      %s[ rtmp ], rres\n", GenVariableName( vals[ t + 14 ].strValue ) );
+                    s_uniqueLabel++;
+
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           arm32Linux != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
                           ( !( ( x86Win == g_AssemblyTarget ) && !g_i386Target686 ) ) &&
+                          oiOS != g_AssemblyTarget &&
                           11 == vals.size() &&
                           4 == vals[ t ].value &&
                           Token_VARIABLE == vals[ t + 1 ].token &&
@@ -8239,6 +9193,113 @@ label_no_array_eq_optimization:
                     fprintf( fp, "    jmp      line_number_%d\n", vals[ t + 9 ].value );
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                          11 == vals.size() &&
+                          4 == vals[ t ].value &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          isOperatorRelational( vals[ t + 2 ].token ) &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          0 == vals[ t + 4 ].value &&
+                          Token_VARIABLE == vals[ t + 5 ].token &&
+                          Token_CONSTANT == vals[ t + 8 ].token &&
+                          Token_GOTO == vals[ t + 9 ].token )
+                {
+                    // line 4110 has 11 tokens  ====>> 4110 if wi% = 1 then re% = 6: goto 4280
+                    //    0 IF, value 0, strValue ''
+                    //    1 EXPRESSION, value 4, strValue ''
+                    //    2 VARIABLE, value 0, strValue 'wi%'
+                    //    3 EQ, value 0, strValue ''
+                    //    4 CONSTANT, value 1, strValue ''
+                    //    5 THEN, value 0, strValue ''
+                    //    6 VARIABLE, value 0, strValue 're%'
+                    //    7 EQ, value 0, strValue ''
+                    //    8 EXPRESSION, value 2, strValue ''
+                    //    9 CONSTANT, value 6, strValue ''
+                    //   10 GOTO, value 4280, strValue ''
+
+                    Token op = vals[ t + 2 ].token;
+
+                    fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 3 ].value );
+                    if ( IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                        fprintf( fp, "    j        rtmp, %s, %s, line_number_%zd\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), ConditionsNotArm[ op ], l + 1 );
+                    else
+                    {
+                        fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+                        fprintf( fp, "    j        rtmp, rres, %s, line_number_%zd\n", ConditionsNotArm[ op ], l + 1 );
+                    }
+
+                    if ( IsVariableInReg( varmap, vals[ t + 5 ].strValue ) )
+                        fprintf( fp, "    ldi      %s, %d\n", GenVariableReg( varmap, vals[ t + 5 ].strValue ), vals[ t + 8 ].value );
+                    else
+                    {
+                        int val = vals[ t + 8 ].value;
+
+                        if ( 0 == val )
+                            fprintf( fp, "    st       [%s], rzero\n", GenVariableName( vals[ t + 5 ].strValue ) );
+                        else if ( val >= -32 && val <= 31 )
+                            fprintf( fp, "    sti      [%s], %d\n", GenVariableName( vals[ t + 5 ].strValue ), val );
+                        else
+                        {
+                            fprintf( fp, "    ldi      rres, %d\n", val );
+                            fprintf( fp, "    st       [%s], rres\n", GenVariableName( vals[ t + 5 ].strValue ) );
+                        }
+                    }
+
+                    fprintf( fp, "    jmp      line_number_%d\n", vals[ t + 9 ].value );
+                    break;
+                }
+                else if ( oiOS == g_AssemblyTarget &&
+                          11 == vals.size() &&
+                          Token_CONSTANT == vals[ t + 1 ].token &&
+                          Token_EQ == vals[ t + 2 ].token &&
+                          Token_VARIABLE == vals[ t + 6 ].token &&
+                          IsVariableInReg( varmap, vals[ t + 6 ].strValue ) &&
+                          Token_OPENPAREN == vals[ t + 4 ].token &&
+                          Token_GOTO == vals[ t + 9 ].token )
+                {
+                    //  line 100 has 11 tokens  ====>> 100 IF 0 = FL%(I%) goto 180
+                    //     0 IF, value 0, strValue ''
+                    //     1 EXPRESSION, value 8, strValue ''
+                    //     2 CONSTANT, value 0, strValue ''
+                    //     3 EQ, value 0, strValue ''
+                    //     4 VARIABLE, value 0, strValue 'fl%'
+                    //     5 OPENPAREN, value 0, strValue ''
+                    //     6 EXPRESSION, value 2, strValue ''
+                    //     7 VARIABLE, value 0, strValue 'i%'
+                    //     8 CLOSEPAREN, value 0, strValue ''
+                    //     9 THEN, value 0, strValue ''
+                    //    10 GOTO, value 180, strValue ''
+
+                    fprintf( fp, "    ldo      rres, %s[%s]\n", GenVariableName( vals[ t + 3 ].strValue ), GenVariableReg( varmap, vals[ t + 6 ].strValue ) );
+
+                    if ( 0 == vals[ t + 1 ].value )
+                        fprintf( fp, "    j        rres, rzero, eq, line_number_%d\n", vals[ t + 9 ].value ); 
+                    else
+                    {
+                        fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 1 ].value );
+                        fprintf( fp, "    j        rres, rtmp, eq, line_number_%d\n", vals[ t + 9 ].value ); 
+                    }
+
+                    break;
+                }
+                else if ( oiOS == g_AssemblyTarget &&
+                          5 == vals.size() &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
+                          Token_GOTO == vals[ t + 3 ].token )
+                {
+                    // line 280 has 5 tokens  ====>> 280 if 0 <> n% then goto 245
+                    //   0 IF, value 0, strValue ''
+                    //   1 EXPRESSION, value 2, strValue ''
+                    //   2 VARIABLE, value 0, strValue 'n%'
+                    //   3 THEN, value 0, strValue ''
+                    //   4 GOTO, value 12, strValue ''
+
+                    fprintf( fp, "    j        %s, rzero, ne, line_number_%d\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), vals[ t + 3 ].value );
+
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
@@ -8255,15 +9316,15 @@ label_no_array_eq_optimization:
                           Token_GOTO == vals[ t + 7 ].token )
                 {
                     // line 4180 has 9 tokens  ====>> 4180 if 0 <> b%(p%) then goto 4500
-                    //   token   0 IF, value 0, strValue ''
-                    //   token   1 EXPRESSION, value 6, strValue ''
-                    //   token   2 VARIABLE, value 0, strValue 'b%'
-                    //   token   3 OPENPAREN, value 0, strValue ''
-                    //   token   4 EXPRESSION, value 2, strValue ''
-                    //   token   5 VARIABLE, value 0, strValue 'p%'
-                    //   token   6 CLOSEPAREN, value 0, strValue ''
-                    //   token   7 THEN, value 0, strValue ''
-                    //   token   8 GOTO, value 85, strValue ''
+                    //   0 IF, value 0, strValue ''
+                    //   1 EXPRESSION, value 6, strValue ''
+                    //   2 VARIABLE, value 0, strValue 'b%'
+                    //   3 OPENPAREN, value 0, strValue ''
+                    //   4 EXPRESSION, value 2, strValue ''
+                    //   5 VARIABLE, value 0, strValue 'p%'
+                    //   6 CLOSEPAREN, value 0, strValue ''
+                    //   7 THEN, value 0, strValue ''
+                    //   8 GOTO, value 85, strValue ''
 
                     if ( x64Win == g_AssemblyTarget )
                     {
@@ -8296,12 +9357,18 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    test     eax, eax\n" );
                         fprintf( fp, "    jnz      line_number_%d\n", vals[ t + 7 ].value );
                     }
+                    else if ( oiOS == g_AssemblyTarget )
+                    {
+                        fprintf( fp, "    ldo      rres, %s[ %s ]\n", GenVariableName( vals[ t + 1 ].strValue ), GenVariableReg( varmap, vals[ t + 4 ].strValue ) );
+                        fprintf( fp, "    j        rres, rzero, ne, line_number_%d\n", vals[ t + 7 ].value );
+                    }
                     break;
                 }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           7 == vals.size() &&
                           Token_VARIABLE == vals[ t + 1 ].token &&
                           IsVariableInReg( varmap, vals[ t + 1 ].strValue ) &&
@@ -8337,6 +9404,8 @@ label_no_array_eq_optimization:
                         fprintf( fp, "    tst      %s, %d\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), vals[ t + 3 ].value );
                         fprintf( fp, "    b.ne     line_number_%d\n", vals[ t + 5 ].value );
                     }
+
+                    break;
                 }
                 else if ( i8080CPM == g_AssemblyTarget &&
                           7 == vals.size() &&
@@ -8394,8 +9463,6 @@ label_no_array_eq_optimization:
                           Token_VARIABLE == vals[ t + 1 ].token &&
                           Token_AND == vals[ t + 2 ].token &&
                           Token_CONSTANT == vals[ t + 3 ].token &&
-                          vals[ t + 3 ].value < 256 &&  // arm64 requires small values 
-                          vals[ t + 3 ].value >= 0 &&
                           Token_THEN == vals[ t + 4 ].token &&
                           0 == vals[ t + 4 ].value &&
                           Token_GOTO == vals[ t + 5 ].token )
@@ -8411,6 +9478,41 @@ label_no_array_eq_optimization:
 
                     fprintf( fp, "    test     ds: [ %s ], %d\n", GenVariableName( vals[ t + 1 ].strValue ), vals[ t + 3 ].value );
                     fprintf( fp, "    jnz      line_number_%d\n", vals[ t + 5 ].value );
+
+                    break;
+                }
+                else if ( oiOS == g_AssemblyTarget &&
+                          7 == vals.size() &&
+                          Token_VARIABLE == vals[ t + 1 ].token &&
+                          Token_AND == vals[ t + 2 ].token &&
+                          Token_CONSTANT == vals[ t + 3 ].token &&
+                          Token_THEN == vals[ t + 4 ].token &&
+                          0 == vals[ t + 4 ].value &&
+                          Token_GOTO == vals[ t + 5 ].token )
+                {
+                    // line 4330 has 7 tokens  ====>> 4330 if st% and 1 goto 4340
+                    //    0 IF, value 0, strValue ''
+                    //    1 EXPRESSION, value 4, strValue ''
+                    //    2 VARIABLE, value 0, strValue 'st%'
+                    //    3 AND, value 0, strValue ''
+                    //    4 CONSTANT, value 1, strValue ''
+                    //    5 THEN, value 0, strValue ''
+                    //    6 GOTO, value 4340, strValue ''
+
+                    if ( 1 == vals[ t + 3 ].value &&
+                         IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                        fprintf( fp, "    j        %s, rzero, odd, line_number_%d\n", GenVariableReg( varmap, vals[ t + 1 ].strValue ), vals[ t + 5 ].value );
+                    else
+                    {
+                        if ( !IsVariableInReg( varmap, vals[ t + 1 ].strValue ) )
+                            fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( vals[ t + 1 ].strValue ) );
+    
+                        fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 3 ].value );
+                        fprintf( fp, "    math     rres, %s, rtmp, and\n",
+                                 IsVariableInReg( varmap, vals[ t + 1 ].strValue ) ? GenVariableReg( varmap, vals[ t + 1 ]. strValue ) : "rres" );
+                        fprintf( fp, "    j        rres, rzero, eq, line_number_%zd\n", l + 1 );
+                        fprintf( fp, "    jmp      line_number_%d\n", vals[ t + 5 ].value );
+                    }
 
                     break;
                 }
@@ -8686,6 +9788,7 @@ label_no_array_eq_optimization:
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
                           riscv64 != g_AssemblyTarget &&
+                          oiOS != g_AssemblyTarget &&
                           4 == vals[ t ].value && 
                           isOperatorRelational( vals[ t + 2 ].token ) )
                 {
@@ -9010,6 +10113,58 @@ label_no_array_eq_optimization:
                     s_uniqueLabel++;
                     break;
                 }
+                else if ( oiOS == g_AssemblyTarget &&
+                          4 == vals[ t ].value &&
+                          0 == vals[ t + 4 ].value &&
+                          isTokenSimpleValue( vals[ t + 1 ].token ) &&
+                          isTokenSimpleValue( vals[ t + 3 ].token ) &&
+                          isOperatorRelational( vals[ t + 2 ].token ) &&
+                          Token_GOTO == vals[ t + 5 ].token )
+
+                {
+                    // line 4505 has 7 tokens  ====>> 4505 if p% < 9 then goto 4180
+                    //    0 IF, value 0, strValue ''
+                    //    1 EXPRESSION, value 4, strValue ''
+                    //    2 VARIABLE, value 0, strValue 'p%'
+                    //    3 LT, value 0, strValue ''
+                    //    4 CONSTANT, value 9, strValue ''
+                    //    5 THEN, value 0, strValue ''
+                    //    6 GOTO, value 4180, strValue ''
+
+                    Token op = vals[ t + 2 ].token;
+                    string & lhs = vals[ t + 1 ].strValue;
+                    const char * pleft = "rres";
+
+                    if ( Token_VARIABLE == vals[ t + 1 ].token )
+                    {
+                        if ( IsVariableInReg( varmap, lhs ) )
+                            pleft = GenVariableReg( varmap, lhs );
+                        else
+                            fprintf( fp, "    ld       rres, [ %s ]\n", GenVariableName( lhs ) );
+                    }
+                    else
+                        fprintf( fp, "    ldi      rres, %d\n", vals[ t + 1 ].value );
+
+                    const char * pright = "rtmp";
+
+                    if ( Token_VARIABLE == vals[ t + 3 ].token )
+                    {
+                        if ( IsVariableInReg( varmap, vals[ t + 3 ].strValue ) )
+                            pright = GenVariableReg( varmap, vals[ t + 3 ].strValue );
+                        else
+                            fprintf( fp, "    ld       rtmp, [%s]\n", GenVariableName( vals[ t + 3 ].strValue ) );
+                    }
+                    else
+                        fprintf( fp, "    ldi      rtmp, %d\n", vals[ t + 3 ].value );
+
+#if 1 // jump target likely += 32k away
+                    fprintf( fp, "    j        %s, %s, %s, line_number_%d\n", pleft, pright, ConditionsArm[ op ], vals[ t + 5 ].value );
+#else
+                    fprintf( fp, "    j        %s, %s, %s, line_number_%zd\n", pleft, pright, ConditionsNotArm[ op ], l + 1 );
+                    fprintf( fp, "    jmp      line_number_%d\n", vals[ t + 5 ].value );
+#endif
+                    break;
+                }
                 else if ( i8080CPM != g_AssemblyTarget &&
                           mos6502Apple1 != g_AssemblyTarget &&
                           i8086DOS != g_AssemblyTarget &&
@@ -9027,12 +10182,15 @@ label_no_array_eq_optimization:
                     // token   5 RETURN, value 0, strValue ''
 
                     string & varname = vals[ t + 2 ].strValue;
+                    const char * pOIOSReg = "rres";
                     if ( IsVariableInReg( varmap, varname ) )
                     {
                         if ( x64Win == g_AssemblyTarget || x86Win == g_AssemblyTarget )
                             fprintf( fp, "    test     %s, %s\n", GenVariableReg( varmap, varname ), GenVariableReg( varmap, varname ) );
                         else if ( arm64Mac == g_AssemblyTarget || arm32Linux == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                             fprintf( fp, "    cmp      %s, #0\n", GenVariableReg( varmap, varname ) );
+                        else if ( oiOS == g_AssemblyTarget )
+                            pOIOSReg = GenVariableReg( varmap, varname );
                     }
                     else
                     {
@@ -9050,6 +10208,8 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    ldr      w0, [x1]\n" );
                             fprintf( fp, "    cmp      w0, 0\n" );
                         }
+                        else if ( oiOS == g_AssemblyTarget )
+                            fprintf( fp, "    ld       rres, [%s]\n", GenVariableName( varname ) );
                     }
 
                     t += vals[ t ].value;
@@ -9064,6 +10224,8 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    beq      line_number_%d\n", vals[ t ].value );
                         else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                             fprintf( fp, "    b.eq     line_number_%d\n", vals[ t ].value );
+                        else if ( oiOS == g_AssemblyTarget )
+                            fprintf( fp, "    j        %s, rzero, eq, line_number_%d\n", pOIOSReg, vals[ t ].value );
                         break;
                     }
                     else if ( Token_RETURN == vals[ t ].token )
@@ -9074,6 +10236,8 @@ label_no_array_eq_optimization:
                             fprintf( fp, "    beq      label_gosub_return\n" );
                         else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                             fprintf( fp, "    b.eq     label_gosub_return\n" );
+                        else if ( oiOS == g_AssemblyTarget )
+                            fprintf( fp, "    j        %s, rzero, eq, retnf\n", pOIOSReg );
                         break;
                     }
                     else
@@ -9086,6 +10250,8 @@ label_no_array_eq_optimization:
                                 fprintf( fp, "    bne      label_else_%zd\n", l );
                             else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                                 fprintf( fp, "    b.ne     label_else_%zd\n", l );
+                            else if ( oiOS == g_AssemblyTarget )
+                                fprintf( fp, "    j        %s, rzero, ne, label_else_%zd\n", pOIOSReg, l );
                         }
                         else
                         {
@@ -9095,6 +10261,8 @@ label_no_array_eq_optimization:
                                 fprintf( fp, "    bne      line_number_%zd\n", l + 1 );
                             else if ( arm64Mac == g_AssemblyTarget || arm64Win == g_AssemblyTarget )
                                 fprintf( fp, "    b.ne     line_number_%zd\n", l + 1 );
+                            else if ( oiOS == g_AssemblyTarget )
+                                fprintf( fp, "    j        %s, rzero, ne, line_number_%zd\n", pOIOSReg, l + 1 );
                         }
                     }
                 }
@@ -9128,7 +10296,7 @@ label_no_if_optimization:
                         fprintf( fp, "    cmp      ax, 0\n" );
                     else if ( x86Win == g_AssemblyTarget )                                                                                                            
                         fprintf( fp, "    cmp      eax, 0\n" );
-                    // no code here for riscv64
+                    // no code here for riscv64 or oiOS
 
                     if ( Token_GOTO == vals[ t ].token )
                     {
@@ -9152,6 +10320,8 @@ label_no_if_optimization:
                         }
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    bne      a0, zero, line_number_%d\n", vals[ t ].value );
+                        else if ( oiOS == g_AssemblyTarget )
+                            fprintf( fp, "    j        rres, rzero, ne, line_number_%d\n", vals[ t ].value );
 
                         break;
                     }
@@ -9179,6 +10349,8 @@ label_no_if_optimization:
                         }
                         else if ( riscv64 == g_AssemblyTarget )
                             fprintf( fp, "    bne      a0, zero, label_gosub_return\n" );
+                        else if ( oiOS == g_AssemblyTarget )
+                            fprintf( fp, "    j        rres, rzero, ne, label_gosub_return\n" );
 
                         break;
                     }
@@ -9233,6 +10405,13 @@ label_no_if_optimization:
                             else
                                 fprintf( fp, "    beq      a0, zero, line_number_%zd\n", l + 1 );
                         }
+                        else if ( oiOS == g_AssemblyTarget )
+                        {
+                            if ( vals[ t - 1 ].value )
+                                fprintf( fp, "    j        rres, rzero, eq, label_else_%zd\n", l );
+                            else
+                                fprintf( fp, "    j        rres, rzero, eq, line_number_%zd\n", l + 1 );
+                        }
                     }
                 }
             }
@@ -9265,6 +10444,8 @@ label_no_if_optimization:
                     fprintf( fp, "    jmp      line_number_%zd\n", l + 1 );
                 else if ( riscv64 == g_AssemblyTarget )
                     fprintf( fp, "    j        line_number_%zd\n", l + 1 );
+                else if ( oiOS == g_AssemblyTarget )
+                    fprintf( fp, "    jmp      line_number_%zd\n", l + 1 );
 
                 if ( i8080CPM == g_AssemblyTarget )
                     fprintf( fp, "  els$%zd:\n", activeIf );
@@ -10917,6 +12098,34 @@ label_no_if_optimization:
         fprintf( fp, "    jr       ra\n" );
         fprintf( fp, "    .cfi_endproc\n" );
     }
+    else if ( oiOS == g_AssemblyTarget )
+    {
+        fprintf( fp, "    jmp      leave_execution\n" );
+
+        fprintf( fp, "label_gosub_return:\n" );
+        fprintf( fp, "    retnf\n" );
+
+        fprintf( fp, "error_exit:\n" );
+        fprintf( fp, "    ldi      rarg1, errorString\n" );
+        fprintf( fp, "    syscall  1\n" );
+        fprintf( fp, "    jmp      leave_execution\n" );
+
+        fprintf( fp, "end_execution:\n" );
+        if ( !g_Quiet )
+        {
+            fprintf( fp, "    ldi      rarg1, stopString\n" );
+            fprintf( fp, "    syscall  1\n" );
+        }
+
+        fprintf( fp, "leave_execution:\n" );
+        fprintf( fp, "    ldi      rarg1, 0\n" );
+        fprintf( fp, "    syscall  0\n" );
+
+        //////////////////
+
+        fprintf( fp, "\n" );
+        fprintf( fp, ".codeend\n" );
+    }
 
     if ( !g_Quiet )
         printf( "created assembler file: %s, use registers: %s, expression optimization: %s\n",
@@ -11372,54 +12581,79 @@ void InterpretCode( map<string, Variable> & varmap, bool showExecutionTime )
             {
                 bool continuation = false;
 
-                if  ( forGosubStack.size() >  0 )
-                {
-                    ForGosubItem & item = forGosubStack.top();
-                    if ( item.isFor && item.pcReturn == g_pc )
-                        continuation = true;
-                }
-
-                Variable * pvar = vals[ 0 ].pVariable;
-
-                if ( continuation )
-                    pvar->value += 1;
-                else
+                if ( 1 == vals[ 0 ].extra )
                 {
                     int teval = t + 1;
-                    pvar->value = evalProc( teval, vals );
+                    int startValue = evalProc( teval, vals );
+
+                    int tokens = vals[ t + 1 ].value;
+                    int tokenStart = t + 1 + tokens;
+                    int endValue = evalProc( tokenStart, vals );
+                    Variable * pvar = vals[ 0 ].pVariable;
+                    pvar->value = endValue;
+
+                    vector<TokenValue> const & vals1 = g_linesOfCode[ g_pc + 1 ].tokenValues;
+                    int fillValue = vals1[ 7 ].value;
+
+                    if ( EnableTracing && g_Tracing )
+                        printf( "optimizing for loop with memset start %d end %d fill %d\n", startValue, endValue, fillValue );
+
+                    for ( int x = startValue; x <= endValue; x++ )
+                        vals1[ 0 ].pVariable->array[ x ] = fillValue;
+
+                    g_pc += 2; // point at next
                 }
-
-                int tokens = vals[ t + 1 ].value;
-                int tokenStart = t + 1 + tokens;
-                int endValue = evalProc( tokenStart, vals );
-
-                if ( EnableTracing && g_Tracing )
-                    printf( "for loop for variable %s current %d, end value %d\n", vals[ 0 ].strValue.c_str(), pvar->value, endValue );
-
-                if ( !continuation )
+                else
                 {
-                    ForGosubItem item( true, g_pc );
-                    forGosubStack.push( item );
-                }
-
-                if ( pvar->value > endValue )
-                {
-                    // find NEXT and set g_pc to one beyond it.
-
-                    forGosubStack.pop();
-
-                    do
+                    if  ( forGosubStack.size() >  0 )
                     {
-                        g_pc++;
-
-                        if ( g_pc >= g_linesOfCode.size() )
-                            RuntimeFail( "no matching NEXT found for FOR", g_lineno );
-
-                        if ( g_linesOfCode[ g_pc ].tokenValues.size() > 0 &&
-                             Token_NEXT == g_linesOfCode[ g_pc ].tokenValues[ 0 ].token &&
-                             ! stcmp( g_linesOfCode[ g_pc ].tokenValues[ 0 ], vals[ 0 ] ) )
-                            break;
-                    } while ( true );
+                        ForGosubItem & item = forGosubStack.top();
+                        if ( item.isFor && item.pcReturn == g_pc )
+                            continuation = true;
+                    }
+    
+                    Variable * pvar = vals[ 0 ].pVariable;
+    
+                    if ( continuation )
+                        pvar->value += 1;
+                    else
+                    {
+                        int teval = t + 1;
+                        pvar->value = evalProc( teval, vals );
+                    }
+    
+                    int tokens = vals[ t + 1 ].value;
+                    int tokenStart = t + 1 + tokens;
+                    int endValue = evalProc( tokenStart, vals );
+    
+                    if ( EnableTracing && g_Tracing )
+                        printf( "for loop for variable %s current %d, end value %d\n", vals[ 0 ].strValue.c_str(), pvar->value, endValue );
+    
+                    if ( !continuation )
+                    {
+                        ForGosubItem item( true, g_pc );
+                        forGosubStack.push( item );
+                    }
+    
+                    if ( pvar->value > endValue )
+                    {
+                        // find NEXT and set g_pc to one beyond it.
+    
+                        forGosubStack.pop();
+    
+                        do
+                        {
+                            g_pc++;
+    
+                            if ( g_pc >= g_linesOfCode.size() )
+                                RuntimeFail( "no matching NEXT found for FOR", g_lineno );
+    
+                            if ( g_linesOfCode[ g_pc ].tokenValues.size() > 0 &&
+                                 Token_NEXT == g_linesOfCode[ g_pc ].tokenValues[ 0 ].token &&
+                                 ! stcmp( g_linesOfCode[ g_pc ].tokenValues[ 0 ], vals[ 0 ] ) )
+                                break;
+                        } while ( true );
+                    }
                 }
 
                 g_pc++;
@@ -11444,6 +12678,7 @@ void InterpretCode( map<string, Variable> & varmap, bool showExecutionTime )
             }
             else if ( Token_PRINT == token )
             {
+                int printToken = t;
                 g_pc++;
                 t++;
 
@@ -11501,7 +12736,8 @@ void InterpretCode( map<string, Variable> & varmap, bool showExecutionTime )
                     }
                 }
 
-                printf( "\n" );
+                if ( 0 == vals[ printToken ].extra )
+                    printf( "\n" );
                 goto label_next_pc;
             }
             else if ( Token_ELSE == token )
@@ -11685,6 +12921,8 @@ extern int main( int argc, char *argv[] )
                     g_AssemblyTarget = i8086DOS;
                 else if ( 'a' == a )
                     g_AssemblyTarget = arm64Win;
+                else if ( 'o' == a )
+                    g_AssemblyTarget = oiOS;
                 else if ( 'r' == a )
                     g_AssemblyTarget = riscv64;
                 else if ( 'i' == a )
@@ -11797,7 +13035,8 @@ extern int main( int argc, char *argv[] )
         if ( !dot )
             dot = asmfile + strlen( asmfile );
 
-        if ( arm64Mac == g_AssemblyTarget || arm32Linux == g_AssemblyTarget || mos6502Apple1 == g_AssemblyTarget || riscv64 == g_AssemblyTarget)
+        if ( arm64Mac == g_AssemblyTarget || arm32Linux == g_AssemblyTarget || mos6502Apple1 == g_AssemblyTarget ||
+             riscv64 == g_AssemblyTarget || oiOS == g_AssemblyTarget )
             strcpy_s( dot, _countof( asmfile) - ( dot - asmfile ), ".s" );
         else
             strcpy_s( dot, _countof( asmfile) - ( dot - asmfile ), ".asm" );
