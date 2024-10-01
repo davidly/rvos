@@ -109,6 +109,10 @@ int main()
     test_i8( (int8_t) -17, (int8_t) 14 );
     test_i8( (int8_t) -3, (int8_t) -14 );
     test_i8( (int8_t) -17, (int8_t) -14 );
+    test_i8( (int8_t) 28, (int8_t) 4 );
+    test_i8( (int8_t) 28, (int8_t) -4 );
+    test_i8( (int8_t) -28, (int8_t) 4 );
+    test_i8( (int8_t) -28, (int8_t) -4 );
 
     test_ui8( (uint8_t) 3, (uint8_t) 14 );
     test_ui8( (uint8_t) 17, (uint8_t) 14 );
@@ -116,6 +120,10 @@ int main()
     test_ui8( (uint8_t) -17, (uint8_t) 14 );
     test_ui8( (uint8_t) -3, (uint8_t) -14 );
     test_ui8( (uint8_t) -17, (uint8_t) -14 );
+    test_ui8( (uint8_t) 28, (uint8_t) 4 );
+    test_ui8( (uint8_t) 28, (uint8_t) -4 );
+    test_ui8( (uint8_t) -28, (uint8_t) 4 );
+    test_ui8( (uint8_t) -28, (uint8_t) -4 );
 
     test_i16( (int16_t) 3, (int16_t) 14 );
     test_i16( (int16_t) 3700, (int16_t) 14 );
@@ -123,6 +131,10 @@ int main()
     test_i16( (int16_t) -3700, (int16_t) 14 );
     test_i16( (int16_t) -3, (int16_t) -14 );
     test_i16( (int16_t) -3700, (int16_t) -14 );
+    test_i16( (int16_t) 2800, (int16_t) 4 );
+    test_i16( (int16_t) 2800, (int16_t) -4 );
+    test_i16( (int16_t) -2800, (int16_t) 4 );
+    test_i16( (int16_t) -2800, (int16_t) -4 );
 
     test_ui16( (uint16_t) 3, (uint16_t) 14 );
     test_ui16( (uint16_t) 3700, (uint16_t) 14 );
@@ -130,6 +142,10 @@ int main()
     test_ui16( (uint16_t) -3700, (uint16_t) 14 );
     test_ui16( (uint16_t) -3, (uint16_t) -14 );
     test_ui16( (uint16_t) -3700, (uint16_t) -14 );
+    test_ui16( (uint16_t) 2800, (uint16_t) 4 );
+    test_ui16( (uint16_t) 2800, (uint16_t) -4 );
+    test_ui16( (uint16_t) -2800, (uint16_t) 4 );
+    test_ui16( (uint16_t) -2800, (uint16_t) -4 );
 
     test_i32( (int32_t) 3, (int32_t) 14 );
     test_i32( (int32_t) 37000, (int32_t) 14 );
@@ -137,6 +153,10 @@ int main()
     test_i32( (int32_t) -37000, (int32_t) 14 );
     test_i32( (int32_t) -3, (int32_t) -14 );
     test_i32( (int32_t) -37000, (int32_t) -14 );
+    test_i32( (int32_t) 280000, (int32_t) 4 );
+    test_i32( (int32_t) 280000, (int32_t) -4 );
+    test_i32( (int32_t) -280000, (int32_t) 4 );
+    test_i32( (int32_t) -280000, (int32_t) -4 );
 
     test_ui32( (uint32_t) 3, (uint32_t) 14 );
     test_ui32( (uint32_t) 37000, (uint32_t) 14 );
@@ -144,6 +164,10 @@ int main()
     test_ui32( (uint32_t) -37000, (uint32_t) 14 );
     test_ui32( (uint32_t) -3, (uint32_t) -14 );
     test_ui32( (uint32_t) -37000, (uint32_t) -14 );
+    test_ui32( (uint32_t) 280000, (uint32_t) 4 );
+    test_ui32( (uint32_t) 280000, (uint32_t) -4 );
+    test_ui32( (uint32_t) -280000, (uint32_t) 4 );
+    test_ui32( (uint32_t) -280000, (uint32_t) -4 );
 
     test_i64( (int64_t) 3, (int64_t) 14 );
     test_i64( (int64_t) 370000000, (int64_t) 14 );
@@ -151,6 +175,10 @@ int main()
     test_i64( (int64_t) -370000000, (int64_t) 14 );
     test_i64( (int64_t) -3, (int64_t) -14 );
     test_i64( (int64_t) -370000000, (int64_t) -14 );
+    test_i64( (int64_t) 28000000000, (int64_t) 4 );
+    test_i64( (int64_t) 28000000000, (int64_t) -4 );
+    test_i64( (int64_t) -28000000000, (int64_t) 4 );
+    test_i64( (int64_t) -28000000000, (int64_t) -4 );
 
     test_ui64( (uint64_t) 3, (uint64_t) 14 );
     test_ui64( (uint64_t) 370000000, (uint64_t) 14 );
@@ -158,6 +186,10 @@ int main()
     test_ui64( (uint64_t) -370000000, (uint64_t) 14 );
     test_ui64( (uint64_t) -3, (uint64_t) -14 );
     test_ui64( (uint64_t) -370000000, (uint64_t) -14 );
+    test_ui64( (uint64_t) 28000000000, (uint64_t) 4 );
+    test_ui64( (uint64_t) 28000000000, (uint64_t) -4 );
+    test_ui64( (uint64_t) -28000000000, (uint64_t) 4 );
+    test_ui64( (uint64_t) -28000000000, (uint64_t) -4 );
 
     printf( "tmuldiv ended with great success\n" );
     fflush( stdout );

@@ -1,4 +1,4 @@
-Sat Mar 30 09:04:44 PDT 2024
+Tue Oct 1 09:56:33 PDT 2024
 running C test app t using brk heap
 a: 0 4000000000000000
 a: 4 0
@@ -222,11 +222,11 @@ done
 running C test app ttt using brk heap
 starting...
 64930 moves
-15.813001 milliseconds
+15.116001 milliseconds
 running C test app ttt using mmap heap
 starting...
 64930 moves
-15.765000 milliseconds
+15.342001 milliseconds
 running C test app sieve using brk heap
 1899 primes.
 running C test app sieve using mmap heap
@@ -242,14 +242,14 @@ running C test app tpi using brk heap
 running C test app tpi using mmap heap
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 running C test app tp using brk heap
-start time: 09:04:45.214
-6952 microseconds for 1 iterations
-end time: 09:04:45.221
+start time: 09:56:33.503
+39745 microseconds for 10 iterations
+end time: 09:56:33.543
 final move count 6493
 running C test app tp using mmap heap
-start time: 09:04:45.223
-6937 microseconds for 1 iterations
-end time: 09:04:45.230
+start time: 09:56:33.545
+39273 microseconds for 10 iterations
+end time: 09:56:33.584
 final move count 6493
 running C test app tins using brk heap
 hello
@@ -324,15 +324,15 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 running C test app ttime using brk heap
-before TZ is set: tz: '(null)', year: 2024, month 3, day 30, hour 9, min 4, sec 45
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 45
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 45
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 45
+before TZ is set: tz: '(null)', year: 2024, month 10, day 1, hour 9, min 56, sec 33
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 10, day 1, hour 11, min 56, sec 33
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 10, day 1, hour 8, min 56, sec 33
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 10, day 1, hour 16, min 56, sec 33
 running C test app ttime using mmap heap
-before TZ is set: tz: '(null)', year: 2024, month 3, day 30, hour 9, min 4, sec 45
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 3, day 30, hour 11, min 4, sec 45
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 3, day 30, hour 8, min 4, sec 45
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 3, day 30, hour 16, min 4, sec 45
+before TZ is set: tz: '(null)', year: 2024, month 10, day 1, hour 9, min 56, sec 33
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 10, day 1, hour 11, min 56, sec 33
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 10, day 1, hour 8, min 56, sec 33
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 10, day 1, hour 16, min 56, sec 33
 running C test app terrno using brk heap
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -505,6 +505,18 @@ i8 -3 / -14: 0
 i8 -17 * -14: -18
 i8 -17 % -14: -3
 i8 -17 / -14: 1
+i8 28 * 4: 112
+i8 28 % 4: 0
+i8 28 / 4: 7
+i8 28 * -4: -112
+i8 28 % -4: 0
+i8 28 / -4: -7
+i8 -28 * 4: -112
+i8 -28 % 4: 0
+i8 -28 / 4: -7
+i8 -28 * -4: 112
+i8 -28 % -4: 0
+i8 -28 / -4: 7
 ui8 3 * 14: 42
 ui8 3 % 14: 3
 ui8 3 / 14: 0
@@ -523,6 +535,18 @@ ui8 253 / 242: 1
 ui8 239 * 242: 238
 ui8 239 % 242: 239
 ui8 239 / 242: 0
+ui8 28 * 4: 112
+ui8 28 % 4: 0
+ui8 28 / 4: 7
+ui8 28 * 252: 144
+ui8 28 % 252: 28
+ui8 28 / 252: 0
+ui8 228 * 4: 144
+ui8 228 % 4: 0
+ui8 228 / 4: 57
+ui8 228 * 252: 112
+ui8 228 % 252: 228
+ui8 228 / 252: 0
 i16 3 * 14: 42
 i16 3 % 14: 3
 i16 3 / 14: 0
@@ -541,6 +565,18 @@ i16 -3 / -14: 0
 i16 -3700 * -14: -13736
 i16 -3700 % -14: -4
 i16 -3700 / -14: 264
+i16 2800 * 4: 11200
+i16 2800 % 4: 0
+i16 2800 / 4: 700
+i16 2800 * -4: -11200
+i16 2800 % -4: 0
+i16 2800 / -4: -700
+i16 -2800 * 4: -11200
+i16 -2800 % 4: 0
+i16 -2800 / 4: -700
+i16 -2800 * -4: 11200
+i16 -2800 % -4: 0
+i16 -2800 / -4: 700
 ui16 3 * 14: 42
 ui16 3 % 14: 3
 ui16 3 / 14: 0
@@ -559,6 +595,18 @@ ui16 65533 / 65522: 1
 ui16 61836 * 65522: 51800
 ui16 61836 % 65522: 61836
 ui16 61836 / 65522: 0
+ui16 2800 * 4: 11200
+ui16 2800 % 4: 0
+ui16 2800 / 4: 700
+ui16 2800 * 65532: 54336
+ui16 2800 % 65532: 2800
+ui16 2800 / 65532: 0
+ui16 62736 * 4: 54336
+ui16 62736 % 4: 0
+ui16 62736 / 4: 15684
+ui16 62736 * 65532: 11200
+ui16 62736 % 65532: 62736
+ui16 62736 / 65532: 0
 i32 3 * 14: 42
 i32 3 % 14: 3
 i32 3 / 14: 0
@@ -577,6 +625,18 @@ i32 -3 / -14: 0
 i32 -37000 * -14: 518000
 i32 -37000 % -14: -12
 i32 -37000 / -14: 2642
+i32 280000 * 4: 1120000
+i32 280000 % 4: 0
+i32 280000 / 4: 70000
+i32 280000 * -4: -1120000
+i32 280000 % -4: 0
+i32 280000 / -4: -70000
+i32 -280000 * 4: -1120000
+i32 -280000 % 4: 0
+i32 -280000 / 4: -70000
+i32 -280000 * -4: 1120000
+i32 -280000 % -4: 0
+i32 -280000 / -4: 70000
 ui32 3 * 14: 42
 ui32 3 % 14: 3
 ui32 3 / 14: 0
@@ -595,6 +655,18 @@ ui32 4294967293 / 4294967282: 1
 ui32 4294930296 * 4294967282: 518000
 ui32 4294930296 % 4294967282: 4294930296
 ui32 4294930296 / 4294967282: 0
+ui32 280000 * 4: 1120000
+ui32 280000 % 4: 0
+ui32 280000 / 4: 70000
+ui32 280000 * 4294967292: 4293847296
+ui32 280000 % 4294967292: 280000
+ui32 280000 / 4294967292: 0
+ui32 4294687296 * 4: 4293847296
+ui32 4294687296 % 4: 0
+ui32 4294687296 / 4: 1073671824
+ui32 4294687296 * 4294967292: 1120000
+ui32 4294687296 % 4294967292: 4294687296
+ui32 4294687296 / 4294967292: 0
 i64 3 * 14: 42
 i64 3 % 14: 3
 i64 3 / 14: 0
@@ -613,6 +685,18 @@ i64 -3 / -14: 0
 i64 -370000000 * -14: 5180000000
 i64 -370000000 % -14: -6
 i64 -370000000 / -14: 26428571
+i64 28000000000 * 4: 112000000000
+i64 28000000000 % 4: 0
+i64 28000000000 / 4: 7000000000
+i64 28000000000 * -4: -112000000000
+i64 28000000000 % -4: 0
+i64 28000000000 / -4: -7000000000
+i64 -28000000000 * 4: -112000000000
+i64 -28000000000 % 4: 0
+i64 -28000000000 / 4: -7000000000
+i64 -28000000000 * -4: 112000000000
+i64 -28000000000 % -4: 0
+i64 -28000000000 / -4: 7000000000
 ui64 3 * 14: 42
 ui64 3 % 14: 3
 ui64 3 / 14: 0
@@ -631,6 +715,18 @@ ui64 18446744073709551613 / 18446744073709551602: 1
 ui64 18446744073339551616 * 18446744073709551602: 5180000000
 ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
 ui64 18446744073339551616 / 18446744073709551602: 0
+ui64 28000000000 * 4: 112000000000
+ui64 28000000000 % 4: 0
+ui64 28000000000 / 4: 7000000000
+ui64 28000000000 * 18446744073709551612: 18446743961709551616
+ui64 28000000000 % 18446744073709551612: 28000000000
+ui64 28000000000 / 18446744073709551612: 0
+ui64 18446744045709551616 * 4: 18446743961709551616
+ui64 18446744045709551616 % 4: 0
+ui64 18446744045709551616 / 4: 4611686011427387904
+ui64 18446744045709551616 * 18446744073709551612: 112000000000
+ui64 18446744045709551616 % 18446744073709551612: 18446744045709551616
+ui64 18446744045709551616 / 18446744073709551612: 0
 tmuldiv ended with great success
 running C test app tmuldiv using mmap heap
 app start
@@ -652,6 +748,18 @@ i8 -3 / -14: 0
 i8 -17 * -14: -18
 i8 -17 % -14: -3
 i8 -17 / -14: 1
+i8 28 * 4: 112
+i8 28 % 4: 0
+i8 28 / 4: 7
+i8 28 * -4: -112
+i8 28 % -4: 0
+i8 28 / -4: -7
+i8 -28 * 4: -112
+i8 -28 % 4: 0
+i8 -28 / 4: -7
+i8 -28 * -4: 112
+i8 -28 % -4: 0
+i8 -28 / -4: 7
 ui8 3 * 14: 42
 ui8 3 % 14: 3
 ui8 3 / 14: 0
@@ -670,6 +778,18 @@ ui8 253 / 242: 1
 ui8 239 * 242: 238
 ui8 239 % 242: 239
 ui8 239 / 242: 0
+ui8 28 * 4: 112
+ui8 28 % 4: 0
+ui8 28 / 4: 7
+ui8 28 * 252: 144
+ui8 28 % 252: 28
+ui8 28 / 252: 0
+ui8 228 * 4: 144
+ui8 228 % 4: 0
+ui8 228 / 4: 57
+ui8 228 * 252: 112
+ui8 228 % 252: 228
+ui8 228 / 252: 0
 i16 3 * 14: 42
 i16 3 % 14: 3
 i16 3 / 14: 0
@@ -688,6 +808,18 @@ i16 -3 / -14: 0
 i16 -3700 * -14: -13736
 i16 -3700 % -14: -4
 i16 -3700 / -14: 264
+i16 2800 * 4: 11200
+i16 2800 % 4: 0
+i16 2800 / 4: 700
+i16 2800 * -4: -11200
+i16 2800 % -4: 0
+i16 2800 / -4: -700
+i16 -2800 * 4: -11200
+i16 -2800 % 4: 0
+i16 -2800 / 4: -700
+i16 -2800 * -4: 11200
+i16 -2800 % -4: 0
+i16 -2800 / -4: 700
 ui16 3 * 14: 42
 ui16 3 % 14: 3
 ui16 3 / 14: 0
@@ -706,6 +838,18 @@ ui16 65533 / 65522: 1
 ui16 61836 * 65522: 51800
 ui16 61836 % 65522: 61836
 ui16 61836 / 65522: 0
+ui16 2800 * 4: 11200
+ui16 2800 % 4: 0
+ui16 2800 / 4: 700
+ui16 2800 * 65532: 54336
+ui16 2800 % 65532: 2800
+ui16 2800 / 65532: 0
+ui16 62736 * 4: 54336
+ui16 62736 % 4: 0
+ui16 62736 / 4: 15684
+ui16 62736 * 65532: 11200
+ui16 62736 % 65532: 62736
+ui16 62736 / 65532: 0
 i32 3 * 14: 42
 i32 3 % 14: 3
 i32 3 / 14: 0
@@ -724,6 +868,18 @@ i32 -3 / -14: 0
 i32 -37000 * -14: 518000
 i32 -37000 % -14: -12
 i32 -37000 / -14: 2642
+i32 280000 * 4: 1120000
+i32 280000 % 4: 0
+i32 280000 / 4: 70000
+i32 280000 * -4: -1120000
+i32 280000 % -4: 0
+i32 280000 / -4: -70000
+i32 -280000 * 4: -1120000
+i32 -280000 % 4: 0
+i32 -280000 / 4: -70000
+i32 -280000 * -4: 1120000
+i32 -280000 % -4: 0
+i32 -280000 / -4: 70000
 ui32 3 * 14: 42
 ui32 3 % 14: 3
 ui32 3 / 14: 0
@@ -742,6 +898,18 @@ ui32 4294967293 / 4294967282: 1
 ui32 4294930296 * 4294967282: 518000
 ui32 4294930296 % 4294967282: 4294930296
 ui32 4294930296 / 4294967282: 0
+ui32 280000 * 4: 1120000
+ui32 280000 % 4: 0
+ui32 280000 / 4: 70000
+ui32 280000 * 4294967292: 4293847296
+ui32 280000 % 4294967292: 280000
+ui32 280000 / 4294967292: 0
+ui32 4294687296 * 4: 4293847296
+ui32 4294687296 % 4: 0
+ui32 4294687296 / 4: 1073671824
+ui32 4294687296 * 4294967292: 1120000
+ui32 4294687296 % 4294967292: 4294687296
+ui32 4294687296 / 4294967292: 0
 i64 3 * 14: 42
 i64 3 % 14: 3
 i64 3 / 14: 0
@@ -760,6 +928,18 @@ i64 -3 / -14: 0
 i64 -370000000 * -14: 5180000000
 i64 -370000000 % -14: -6
 i64 -370000000 / -14: 26428571
+i64 28000000000 * 4: 112000000000
+i64 28000000000 % 4: 0
+i64 28000000000 / 4: 7000000000
+i64 28000000000 * -4: -112000000000
+i64 28000000000 % -4: 0
+i64 28000000000 / -4: -7000000000
+i64 -28000000000 * 4: -112000000000
+i64 -28000000000 % 4: 0
+i64 -28000000000 / 4: -7000000000
+i64 -28000000000 * -4: 112000000000
+i64 -28000000000 % -4: 0
+i64 -28000000000 / -4: 7000000000
 ui64 3 * 14: 42
 ui64 3 % 14: 3
 ui64 3 / 14: 0
@@ -778,6 +958,18 @@ ui64 18446744073709551613 / 18446744073709551602: 1
 ui64 18446744073339551616 * 18446744073709551602: 5180000000
 ui64 18446744073339551616 % 18446744073709551602: 18446744073339551616
 ui64 18446744073339551616 / 18446744073709551602: 0
+ui64 28000000000 * 4: 112000000000
+ui64 28000000000 % 4: 0
+ui64 28000000000 / 4: 7000000000
+ui64 28000000000 * 18446744073709551612: 18446743961709551616
+ui64 28000000000 % 18446744073709551612: 28000000000
+ui64 28000000000 / 18446744073709551612: 0
+ui64 18446744045709551616 * 4: 18446743961709551616
+ui64 18446744045709551616 % 4: 0
+ui64 18446744045709551616 / 4: 4611686011427387904
+ui64 18446744045709551616 * 18446744073709551612: 112000000000
+ui64 18446744045709551616 % 18446744073709551612: 18446744045709551616
+ui64 18446744045709551616 / 18446744073709551612: 0
 tmuldiv ended with great success
 running rust test app ato using brk heap
 testing atomic operations
@@ -820,11 +1012,11 @@ r32 atan: 0.3081693
 r64 atan: 0.3525136397354091
 exiting real number testing with great success
 running rust test app ttt using brk heap
-serial runtime:   2.864394ms
+serial runtime:   3.078511ms
 moves:            6493
 iterations:       1
 running rust test app ttt using mmap heap
-serial runtime:   2.744957ms
+serial runtime:   2.964671ms
 moves:            6493
 iterations:       1
 running rust test app e using brk heap
@@ -900,103 +1092,12 @@ exiting fileops with great success
 running rust test app fileops using mmap heap
 exiting fileops with great success
 tcrash ml
-rvos (amd64) fatal error: memory reference prior to address space: 200
-pc: 108d4 main + 268
-address space 10000 to 1495000
-  zero:                0,   ra:            106d4,   sp:           a94810,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae93, 
-    a2:           a94a30,   a3:                0,   a4:                a,   a5:              200, 
-    a6:            6fa80,   a7: 7d127c602f43422f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash mh
-rvos (amd64) fatal error: memory reference beyond address space: 2000000000000000
-pc: 10824 main + 1b8
-address space 10000 to 1495000
-  zero:                0,   ra:            10704,   sp:           a94810,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:                0,   a1:            4ae9b, 
-    a2:           a94a30,   a3:                0,   a4:                a,   a5: 2000000000000000, 
-    a6:            6fa80,   a7: 7d127c602f47422f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash pcl
-rvos (amd64) fatal error: pc is lower than memory: 200
-pc: 200  + 0
-address space 10000 to 1495000
-  zero:                0,   ra:            10844,   sp:           a94810,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aea4, 
-    a2:           a94a30,   a3:                0,   a4:                0,   a5:              200, 
-    a6:            6fa80,   a7: 127c602f434c5f2f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash pch
-rvos (amd64) fatal error: pc is higher than it should be: 2000000000000000
-pc: 2000000000000000  + 0
-address space 10000 to 1495000
-  zero:                0,   ra:            1086c,   sp:           a94810,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:                0,   a1:            4aeac, 
-    a2:           a94a30,   a3:                0,   a4:                0,   a5: 2000000000000000, 
-    a6:            6fa80,   a7: 127c602f474c5f2f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash spl
-rvos (amd64) fatal error: stack pointer is below stack memory: a746b0
-pc: 1d1b2 __printf_buffer + c
-address space 10000 to 1495000
-  zero:                0,   ra:            11588,   sp:           a746b0,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1:           a74c80,   t2:                0, 
-    s0:           a74c28,   s1:                2,   a0:           a74c28,   a1:            4ae80, 
-    a2:           a74c80,   a3:                0,   a4:                0,   a5:               18, 
-    a6:                0,   a7: 25252f5049490005,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash sph
-rvos (amd64) fatal error: stack pointer is above the top of its starting point: b94810
-pc: 109dc rvos_sp_add + 4
-address space 10000 to 1495000
-  zero:                0,   ra:            108a4,   sp:           b94810,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:           100000,   a1:            4aebc, 
-    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f475f5c2f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tcrash spm
-rvos (amd64) fatal error: the stack pointer isn't 16-byte aligned: a94812
-pc: 109dc rvos_sp_add + 4
-address space 10000 to 1495000
-  zero:                0,   ra:            108b8,   sp:           a94812,   gp:            6f9d0, 
-    tp:            751e0,   t0:                1,   t1: 2f2f2f2f2f2f2f2f,   t2:                0, 
-    s0:           a94870,   s1:                2,   a0:                2,   a1:            4aec4, 
-    a2:           a94a30,   a3:                0,   a4:                0,   a5:                1, 
-    a6:            6fa80,   a7: 127c602f425f5c2f,   s2:           a94a18,   s3:                1, 
-    s4:           a94a30,   s5:                1,   s6:            1066c,   s7:            103e0, 
-    s8:                0,   s9:                0,  s10:                0,  s11:                0, 
-    t3: ffffffffffffffff,   t4:            6df68,   t5:            693e6,   t6:            10000, 
-Built for amd64 debug on 29 Mar 24 20:41:19 by g++ on linux
-
 tmmap test
 MAP_PRIVATE: 0x2
 MAP_ANONYMOUS: 0x20
@@ -1005,10 +1106,10 @@ mmap test completed with great success
 an nap
 pan
 ba /p /q tp.bas
-Time to parse tests/tp.bas: 3.773317 ms
-start time: 09:04:47.179
-152 ms for 1 iterations
-end time: 09:04:47.331
+Time to parse tests/tp.bas: 3.452626 ms
+start time: 09:56:35.434
+1,518 ms for 10 iterations
+end time: 09:56:36.952
 final move count 6493
 mysort /r words.txt sorted.txt
 sorting tests/words.txt ==> tests/sorted.txt
@@ -1020,4 +1121,4 @@ is stdin tty:  yes
 is stdout tty: no
 is stdin tty:  no
 is stdout tty: no
-Sat Mar 30 09:04:47 PDT 2024
+Tue Oct 1 09:56:37 PDT 2024
