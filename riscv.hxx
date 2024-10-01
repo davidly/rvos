@@ -71,7 +71,7 @@ struct RiscV
         base = base_address;                       // lowest valid address in the app's address space, maps to offset 0 in mem
         mem = memory.data();                       // save the pointer, but don't take ownership
         mem_size = memory.size();
-        beyond = mem + memory.size();              // addresses at beyond and later are illegal
+        beyond = mem + memory.size();              // addresses beyond and later are illegal
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
         rvc = compressed_rvc;
     } //RiscV
@@ -136,9 +136,7 @@ struct RiscV
 
     uint64_t host_to_vm_address( void * p )
     {
-        uint8_t * p8 = (uint8_t *) p;
-
-        return (uint64_t) ( p8 - mem + base );
+        return (uint64_t) ( (uint8_t *) p - mem + base );
     } //host_to_vm_address
 
     uint8_t * getmem( uint64_t offset )

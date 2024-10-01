@@ -2591,7 +2591,7 @@ bool load_image( const char * pimage, const char * app_args )
     if ( to_erase > 0 )
         g_symbols.erase( g_symbols.begin(), g_symbols.begin() + to_erase );
 
-    // set the sized of each symbol if it's not already set
+    // set the size of each symbol if it's not already set
 
     for ( size_t se = 0; se < g_symbols.size(); se++ )
     {
