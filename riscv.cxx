@@ -1397,7 +1397,7 @@ void RiscV::unhandled()
 {
     printf( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     tracer.Trace( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
-    riscv_hard_termination( *this, "opcode not handed:", op );
+    riscv_hard_termination( *this, "opcode not handled:", op );
 } //unhandled
 
 uint64_t RiscV::run( uint64_t max_cycles )
@@ -1556,6 +1556,12 @@ uint64_t RiscV::run( uint64_t max_cycles )
 
                 if ( ( 0x02400000 == ( op & 0xfff00000 ) ) && ( 0 == ( op & 0x7ff0 ) ) ) // th.dcache.isw rs1
                     break;
+
+                // I can't figure out what these extension instructions are supposed to do, but g++ emits them,
+                // gdb shows them as injected data instead of instructions, and real risc-v CPUs execute them.
+
+                //if ( ( 0x3023318b == op ) || ( 0x0785310b ) == op )
+                //    break;
 
                 // crash on anything else so it can be debugged
 
