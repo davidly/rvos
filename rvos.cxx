@@ -1,12 +1,17 @@
 /*
+#ifdef ARMOS
+    This emulates an extemely simple ARM64 Linux-like OS.
+    It can load and execute ARM64 apps built with Gnu tools in .elf files targeting Linux.
+    Written by David Lee in October 2024
+#else // RVOS
     This emulates an extemely simple RISC-V OS.
     Per https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf
     It's an AEE (Application Execution Environment) that exposes an ABI (Application Binary Inferface) for an Application.
     It runs in RISC-V M mode, similar to embedded systems.
     It can load and execute 64-bit RISC-V apps built with Gnu tools in .elf files targeting Linux.
     Written by David Lee in February 2023
-
     Useful: https://github.com/jart/cosmopolitan/blob/1.0/libc/sysv/consts.sh
+#endif
 */
 
 #include <stdint.h>
@@ -32,6 +37,14 @@
        size_t iov_len; /* Length in bytes */
     };
 
+    struct tms
+    {
+        uint64_t tms_utime;
+        uint64_t tms_stime;
+        uint64_t tms_cutime;
+        uint64_t tms_cstime;
+    };
+
     typedef SSIZE_T ssize_t;
 
     #define local_KERNEL_NCCS 19
@@ -41,16 +54,18 @@
         uint32_t c_oflag;     /* output mode flags */
         uint32_t c_cflag;     /* control mode flags */
         uint32_t c_lflag;     /* local mode flags */
-        uint8_t c_line;          /* line discipline */
+        uint8_t c_line;       /* line discipline */
         uint8_t c_cc[local_KERNEL_NCCS]; /* control characters */
     };
 #else
     #include <unistd.h>
 
     #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
-    #include <termios.h>
+        #include <termios.h>
         #include <sys/random.h>
         #include <sys/uio.h>
+        #include <sys/times.h>
+        #include <sys/resource.h>
         #include <dirent.h>
         #ifndef __APPLE__
             #include <sys/sysinfo.h>
@@ -83,8 +98,44 @@
 using namespace std;
 using namespace std::chrono;
 
-#include "riscv.hxx"
-#include "rvos.h"
+#include "linuxem.h"
+
+#ifdef ARMOS
+
+    #include "arm64.hxx"
+
+    #define CPUClass Arm64
+    #define ELF_MACHINE_ISA 0xb7
+    #define APP_NAME "ARMOS"
+    #define LOGFILE_NAME L"armos.log"
+
+    #define REG_SYSCALL 8
+    #define REG_RESULT 0
+    #define REG_ARG0 0
+    #define REG_ARG1 1
+    #define REG_ARG2 2
+    #define REG_ARG3 3
+    #define REG_ARG4 4
+    #define REG_ARG5 5
+
+#else
+
+    #include "riscv.hxx"
+
+    #define CPUClass RiscV
+    #define ELF_MACHINE_ISA 0xf3
+    #define APP_NAME "RVOS"
+    #define LOGFILE_NAME L"rvos.log"
+
+    #define REG_SYSCALL RiscV::a7
+    #define REG_RESULT RiscV::a0
+    #define REG_ARG0 RiscV::a0
+    #define REG_ARG1 RiscV::a1
+    #define REG_ARG2 RiscV::a2
+    #define REG_ARG3 RiscV::a3
+    #define REG_ARG4 RiscV::a4
+    #define REG_ARG5 RiscV::a5
+#endif
 
 CDJLTrace tracer;
 ConsoleConfiguration g_consoleConfig;
@@ -104,7 +155,6 @@ uint64_t g_highwater_brk = 0;                  // highest brk seen during app; p
 uint64_t g_end_of_data = 0;                    // official end of the loaded app
 uint64_t g_bottom_of_stack = 0;                // just beyond where brk might move
 uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records sit above this
-bool * g_ptracenow = 0;                        // if this variable exists in the vm, it'll control instruction tracing
 CMMap g_mmap;                                  // for mmap and munmap system calls
 
 // fake descriptors.
@@ -112,6 +162,7 @@ CMMap g_mmap;                                  // for mmap and munmap system cal
 
 const uint64_t findFirstDescriptor = 3000;
 const uint64_t timebaseFrequencyDescriptor = 3001;
+const uint64_t osreleaseDescriptor = 3002;
 
 #pragma warning(disable: 4200) // 0-sized array
 struct linux_dirent64_syscall {
@@ -126,6 +177,39 @@ struct linux_dirent64_syscall {
     */
 };
 
+struct linux_timeval
+{
+    uint64_t tv_sec;       // time_t
+    uint64_t tv_usec;      // suseconds_t
+};
+
+struct linux_tms_syscall
+{
+    uint64_t tms_utime;
+    uint64_t tms_stime;
+    uint64_t tms_cutime;
+    uint64_t tms_cstime;
+};
+
+struct linux_rusage_syscall {
+    struct linux_timeval ru_utime; /* user CPU time used */
+    struct linux_timeval ru_stime; /* system CPU time used */
+    long   ru_maxrss;        /* maximum resident set size */
+    long   ru_ixrss;         /* integral shared memory size */
+    long   ru_idrss;         /* integral unshared data size */
+    long   ru_isrss;         /* integral unshared stack size */
+    long   ru_minflt;        /* page reclaims (soft page faults) */
+    long   ru_majflt;        /* page faults (hard page faults) */
+    long   ru_nswap;         /* swaps */
+    long   ru_inblock;       /* block input operations */
+    long   ru_oublock;       /* block output operations */
+    long   ru_msgsnd;        /* IPC messages sent */
+    long   ru_msgrcv;        /* IPC messages received */
+    long   ru_nsignals;      /* signals received */
+    long   ru_nvcsw;         /* voluntary context switches */
+    long   ru_nivcsw;        /* involuntary context switches */
+};
+
 struct pollfd_syscall {
     int fd;
     short events;
@@ -135,6 +219,30 @@ struct pollfd_syscall {
 struct timespec_syscall {
     uint64_t tv_sec;
     uint64_t tv_nsec;
+};
+
+#define SYS_NMLN 65 // appears to be true for Arm64.
+
+struct utsname_syscall {
+
+    /** The information returned by uname(). */
+    /** The OS name. "Linux" on Android. */
+    char sysname[SYS_NMLN];
+
+    /** The name on the network. Typically "localhost" on Android. */
+    char nodename[SYS_NMLN];
+
+    /** The OS release. Typically something like "4.4.115-g442ad7fba0d" on Android. */
+    char release[SYS_NMLN];
+
+    /** The OS version. Typically something like "#1 SMP PREEMPT" on Android. */
+    char version[SYS_NMLN];
+
+    /** The hardware architecture. Typically "aarch64" on Android. */
+    char machine[SYS_NMLN];
+
+    /** The domain name set by setdomainname(). Typically "localdomain" on Android. */
+    char domainname[SYS_NMLN];
 };
 
 struct stat_linux_syscall {
@@ -392,24 +500,20 @@ void usage( char const * perror = 0 )
     if ( 0 != perror )
         printf( "error: %s\n", perror );
 
-    printf( "usage: rvos <elf_executable>\n" );
+    printf( "usage: %s <%s arguments> <elf_executable> <app arguments>\n", APP_NAME, APP_NAME );
     printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
+#ifdef RVOS
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
+#endif
     printf( "                 -h:X   # of meg for the heap (brk space). 0..1024 are valid. default is 40\n" );
-    printf( "                 -i     if -t is set, also enables risc-v instruction tracing\n" );
+    printf( "                 -i     if -t is set, also enables instruction tracing\n" );
     printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 40\n" );
     printf( "                 -p     shows performance information at app exit\n" );
-    printf( "                 -t     enable debug tracing to rvos.log\n" );
+    printf( "                 -t     enable debug tracing to %ws\n", LOGFILE_NAME );
     printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
     printf( "  %s\n", build_string() );
     exit( 1 );
 } //usage
-
-struct linux_timeval
-{
-    uint64_t tv_sec;       // time_t
-    uint64_t tv_usec;      // suseconds_t
-};
 
 int gettimeofday( linux_timeval * tp )
 {
@@ -422,7 +526,6 @@ int gettimeofday( linux_timeval * tp )
     sc::seconds s = sc::duration_cast<sc::seconds>( d );
     tp->tv_sec = s.count();
     tp->tv_usec = sc::duration_cast<sc::microseconds>( d - s ).count();
-
     return 0;
 } //gettimeofday
 
@@ -558,6 +661,11 @@ int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const
         pstat->st_rdev = 4096; // this is st_blksize on linux
     }
     else if ( timebaseFrequencyDescriptor == descriptor )
+    {
+        pstat->st_mode = S_IFREG;
+        pstat->st_rdev = 4096; // this is st_blksize on linux
+    }
+    else if ( osreleaseDescriptor == descriptor )
     {
         pstat->st_mode = S_IFREG;
         pstat->st_rdev = 4096; // this is st_blksize on linux
@@ -941,9 +1049,12 @@ struct SysCall
 static const SysCall syscalls[] =
 {
     { "SYS_getcwd", SYS_getcwd },
+    { "SYS_fcntl", SYS_fcntl },
     { "SYS_ioctl", SYS_ioctl },
     { "SYS_mkdirat", SYS_mkdirat },
     { "SYS_unlinkat", SYS_unlinkat },
+    { "SYS_renameat", SYS_renameat },
+    { "SYS_faccessat", SYS_faccessat },
     { "SYS_chdir", SYS_chdir },
     { "SYS_openat", SYS_openat },
     { "SYS_close", SYS_close },
@@ -972,9 +1083,16 @@ static const SysCall syscalls[] =
     { "SYS_signalstack", SYS_signalstack },
     { "SYS_sigaction", SYS_sigaction },
     { "SYS_rt_sigprocmask", SYS_rt_sigprocmask },
+    { "SYS_times", SYS_times },
+    { "SYS_uname", SYS_uname },
+    { "SYS_getrusage", SYS_getrusage },
     { "SYS_prctl", SYS_prctl },
     { "SYS_gettimeofday", SYS_gettimeofday },
     { "SYS_getpid", SYS_getpid },
+    { "SYS_getuid", SYS_getuid },
+    { "SYS_geteuid", SYS_geteuid },
+    { "SYS_getgid", SYS_getgid },
+    { "SYS_getegid", SYS_getegid },
     { "SYS_gettid", SYS_gettid },
     { "SYS_sysinfo", SYS_sysinfo },
     { "SYS_brk", SYS_brk },
@@ -983,18 +1101,21 @@ static const SysCall syscalls[] =
     { "SYS_clone", SYS_clone },
     { "SYS_mmap", SYS_mmap },
     { "SYS_mprotect", SYS_mprotect },
+    { "SYS_madvise", SYS_madvise },
     { "SYS_riscv_flush_icache", SYS_riscv_flush_icache },
     { "SYS_prlimit64", SYS_prlimit64 },
     { "SYS_renameat2", SYS_renameat2 },
     { "SYS_getrandom", SYS_getrandom },
+    { "SYS_rseq", SYS_rseq },
     { "SYS_open", SYS_open }, // only called for older systems
     { "SYS_unlink", SYS_unlink }, // only called for older systems
-    { "rvos_sys_rand", rvos_sys_rand },
-    { "rvos_sys_print_double", rvos_sys_print_double },
-    { "rvos_sys_trace_instructions", rvos_sys_trace_instructions },
-    { "rvos_sys_exit", rvos_sys_exit },
-    { "rvos_sys_print_text", rvos_sys_print_text },
-    { "rvos_sys_get_datetime", rvos_sys_get_datetime },
+    { "emulator_sys_rand", emulator_sys_rand },
+    { "emulator_sys_print_double", emulator_sys_print_double },
+    { "emulator_sys_trace_instructions", emulator_sys_trace_instructions },
+    { "emulator_sys_exit", emulator_sys_exit },
+    { "emulator_sys_print_text", emulator_sys_print_text },
+    { "emulator_sys_get_datetime", emulator_sys_get_datetime },
+    { "emulator_sys_print_int64", emulator_sys_print_int64 },
 };
 
 int syscall_find_compare( const void * a, const void * b )
@@ -1028,36 +1149,27 @@ const char * lookup_syscall( uint64_t x )
     return "unknown";
 } //lookup_syscall
 
-bool g_TRACENOW = 0;
-
-void riscv_check_ptracenow( RiscV & cpu )
+void update_result_errno( CPUClass & cpu, int64_t result )
 {
-    if ( 0 != g_ptracenow && 0 != *g_ptracenow )
-        cpu.trace_instructions( true );
-    else
-        cpu.trace_instructions( false );
-} //riscv_check_ptracenow
 
-void update_a0_errno(  RiscV & cpu, int64_t result )
-{
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
         tracer.Trace( "  syscall success, returning %lld = %#llx\n", result, result );
-        cpu.regs[ RiscV::a0 ] = result;
+        cpu.regs[ REG_RESULT ] = result;
     }
     else
     {
         tracer.Trace( "  returning negative errno in a0: %d\n", -errno );
-        cpu.regs[ RiscV::a0 ] = -errno; // it looks like the g++ runtime copies the - of this value to errno
+        cpu.regs[ REG_RESULT ] = -errno; // it looks like the g++ runtime copies the - of this value to errno
     }
-} //update_a0_errno
+} //update_result_errno
 
-// this is called when the risc-v app has an ecall instruction
+// this is called when the arm64 app has an svc #0 instruction or a RISC-V 64 app has an ecall instruction
 // https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
 
 #pragma warning(disable: 4189) // unreferenced local variable
 
-void riscv_invoke_ecall( RiscV & cpu )
+void emulator_invoke_svc( CPUClass & cpu )
 {
 #ifdef _WIN32
     static HANDLE g_hFindFirst = INVALID_HANDLE_VALUE; // for enumerating directories. Only one can be active at once.
@@ -1073,58 +1185,65 @@ void riscv_invoke_ecall( RiscV & cpu )
     // Linux syscalls support up to 6 arguments
 
     if ( tracer.IsEnabled() )
-        tracer.Trace( "invoke_ecall %s a7 %llx = %lld, a0 %llx, a1 %llx, a2 %llx, a3 %llx, a4 %llx, a5 %llx\n", 
-                      lookup_syscall( cpu.regs[ RiscV::a7] ), cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ],
-                      cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ], cpu.regs[ RiscV::a3 ],
-                      cpu.regs[ RiscV::a4 ], cpu.regs[ RiscV::a5 ] );
+        tracer.Trace( "syscall %s %llx = %lld, arg0 %llx, arg1 %llx, arg2 %llx, arg3 %llx, arg4 %llx, arg5 %llx\n", 
+                      lookup_syscall( cpu.regs[ REG_SYSCALL ] ), cpu.regs[ REG_SYSCALL ], cpu.regs[ REG_SYSCALL ],
+                      cpu.regs[ REG_ARG0 ], cpu.regs[ REG_ARG1 ], cpu.regs[ REG_ARG2 ], cpu.regs[ REG_ARG3 ],
+                      cpu.regs[ REG_ARG4 ], cpu.regs[ REG_ARG5 ] );
 
-    switch ( cpu.regs[ RiscV::a7 ] )
+    switch ( cpu.regs[ REG_SYSCALL ] )
     {
-        case rvos_sys_exit: // exit
+        case emulator_sys_exit: // exit
         case SYS_exit:
         case SYS_exit_group:
         case SYS_tgkill:
         {
             g_terminate = true;
             cpu.end_emulation();
-            g_exit_code = (int) cpu.regs[ RiscV::a0 ];
-            tracer.Trace( "  rvos app exit code %d\n", g_exit_code );
-            update_a0_errno( cpu, 0 );
+            g_exit_code = (int) cpu.regs[ REG_ARG0 ];
+            tracer.Trace( "  emulated app exit code %d\n", g_exit_code );
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_signalstack:
         {
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
-        case rvos_sys_print_text: // print asciiz in a0
+        case emulator_sys_print_int64:
         {
-            tracer.Trace( "  rvos command 2: print string '%s'\n", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
-            printf( "%s", (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
+            printf( "%lld", cpu.regs[ REG_ARG0 ] );
             fflush( stdout );
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
-        case rvos_sys_get_datetime: // writes local date/time into string pointed to by a0
+        case emulator_sys_print_text: // print asciiz in a0
         {
-            char * pdatetime = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  syscall command print string '%s'\n", (char *) cpu.getmem( cpu.regs[ REG_ARG0 ] ) );
+            printf( "%s", (char *) cpu.getmem( cpu.regs[ REG_ARG0 ] ) );
+            fflush( stdout );
+            update_result_errno( cpu, 0 );
+            break;
+        }
+        case emulator_sys_get_datetime: // writes local date/time into string pointed to by a0
+        {
+            char * pdatetime = (char *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
             system_clock::time_point now = system_clock::now();
             uint64_t ms = duration_cast<milliseconds>( now.time_since_epoch() ).count() % 1000;
             time_t time_now = system_clock::to_time_t( now );
             struct tm * plocal = localtime( & time_now );
             snprintf( pdatetime, 80, "%02u:%02u:%02u.%03u", (uint32_t) plocal->tm_hour, (uint32_t) plocal->tm_min, (uint32_t) plocal->tm_sec, (uint32_t) ms );
             tracer.Trace( "  got datetime: '%s', pc: %llx\n", pdatetime, cpu.pc );
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_getcwd:
         {
             // the syscall version of getcwd never uses malloc to allocate a return value. Just C runtimes do that for POSIX compliance.
 
-            uint64_t original = cpu.regs[ RiscV::a0 ];
+            uint64_t original = cpu.regs[ REG_ARG0 ];
             tracer.Trace( "  address in vm space: %llx == %llu\n", original, original );
-            char * pin = (char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            size_t size = (size_t) cpu.regs[ RiscV::a1 ];
+            char * pin = (char *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            size_t size = (size_t) cpu.regs[ REG_ARG1 ];
             uint64_t pout = 0;
 #ifdef _WIN32
             char * poutwin32 = _getcwd( acPath, sizeof( acPath ) );
@@ -1145,51 +1264,62 @@ void riscv_invoke_ecall( RiscV & cpu )
     #endif
 #endif
             if ( pout )
-                update_a0_errno( cpu, original );
+                update_result_errno( cpu, original );
             else
-                update_a0_errno( cpu, errno );
+                update_result_errno( cpu, errno );
+            break;
+        }
+        case SYS_fcntl:
+        {
+            int fd = (int) cpu.regs[ REG_ARG0 ];
+            int op = (int) cpu.regs[ REG_ARG1 ];
+
+            if ( 1 == op ) // F_GETFD
+                cpu.regs[ REG_RESULT ] = 1; // FD_CLOEXEC
+            else
+                tracer.Trace( "unhandled SYS_fcntl operation %d\n", op );
             break;
         }
         case SYS_clock_nanosleep:
         {
-            clockid_t clockid = (clockid_t) cpu.regs[ RiscV::a0 ];
-            int flags = (int) cpu.regs[ RiscV::a1 ];
+            clockid_t clockid = (clockid_t) cpu.regs[ REG_ARG0 ];
+            int flags = (int) cpu.regs[ REG_ARG1 ];
             tracer.Trace( "  nanosleep id %d flags %x\n", clockid, flags );
 
-            const struct timespec * request = (const struct timespec *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+            const struct timespec * request = (const struct timespec *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
             struct timespec * remain = 0;
-            if ( 0 != cpu.regs[ RiscV::a3 ] )
-                remain = (struct timespec *) cpu.getmem( cpu.regs[ RiscV::a3 ] );
+            if ( 0 != cpu.regs[ REG_ARG3 ] )
+                remain = (struct timespec *) cpu.getmem( cpu.regs[ REG_ARG3 ] );
 
             uint64_t ms = request->tv_sec * 1000 + request->tv_nsec / 1000000;
             tracer.Trace( "  nanosleep sec %lld, nsec %lld == %lld ms\n", request->tv_sec, request->tv_nsec, ms );
             sleep_ms( ms );
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_sched_setaffinity:
         {
             tracer.Trace( "  setaffinity, EPERM %d\n", EPERM );
-            update_a0_errno( cpu, EPERM );
+            update_result_errno( cpu, EPERM );
             break;
         }
         case SYS_sched_getaffinity:
         {
             tracer.Trace( "  getaffinity, EPERM %d\n", EPERM );
-            update_a0_errno( cpu, EPERM );
+            update_result_errno( cpu, EPERM );
             break;
         }
         case SYS_sched_yield:
         {
             // always succeeds on Linux, even though nothing happens here.
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_newfstat:
         {
             // two arguments: descriptor and pointer to the stat buf
-            tracer.Trace( "  rvos command SYS_newfstat\n" );
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            tracer.Trace( "  syscall command SYS_newfstat\n" );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
             int result = 0;
 
 #ifdef _WIN32
@@ -1200,7 +1330,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 size_t cbStat = sizeof( struct stat_linux_syscall );
                 tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
                 assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
-                memcpy( cpu.getmem( cpu.regs[ RiscV::a1 ] ), & local_stat, cbStat );
+                memcpy( cpu.getmem( cpu.regs[ REG_ARG1 ] ), & local_stat, cbStat );
                 tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( struct stat_linux_syscall, st_size ) );
             }
             else
@@ -1217,7 +1347,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 // the syscall version of stat has similar fields but a different layout, so copy fields one by one
 
-                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
                 pout->st_dev = local_stat.st_dev;
                 pout->st_ino = local_stat.st_ino;
                 pout->st_mode = local_stat.st_mode;
@@ -1245,38 +1375,37 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  fstat failed, error %d\n", errno );
 #endif
 
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_gettimeofday:
         {
-            tracer.Trace( "  rvos command SYS_gettimeofday\n" );
-            linux_timeval * ptimeval = (linux_timeval *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  syscall command SYS_gettimeofday\n" );
+            linux_timeval * ptimeval = (linux_timeval *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
             int result = 0;
             if ( 0 != ptimeval )
                 result = gettimeofday( ptimeval );
 
-            cpu.regs[ RiscV::a0 ] = result;
+            cpu.regs[ REG_RESULT ] = result;
             break;
         }
         case SYS_lseek:
         {
-            tracer.Trace( "  rvos command SYS_lseek\n" );
-
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
-            int offset = (int) cpu.regs[ RiscV::a1 ];
-            int origin = (int) cpu.regs[ RiscV::a2 ];
+            tracer.Trace( "  syscall command SYS_lseek\n" );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
+            int offset = (int) cpu.regs[ REG_ARG1 ];
+            int origin = (int) cpu.regs[ REG_ARG2 ];
 
             long result = lseek( descriptor, offset, origin );
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_read:
         {
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
-            void * buffer = cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            unsigned buffer_size = (unsigned) cpu.regs[ RiscV::a2 ];
-            tracer.Trace( "  rvos command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ RiscV::a1 ], buffer_size );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
+            void * buffer = cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            unsigned buffer_size = (unsigned) cpu.regs[ REG_ARG2 ];
+            tracer.Trace( "  syscall command SYS_read. descriptor %d, buffer %llx, buffer_size %u\n", descriptor, cpu.regs[ REG_ARG1 ], buffer_size );
 
             if ( 0 == descriptor ) //&& 1 == buffer_size )
             {
@@ -1286,7 +1415,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 int r = g_consoleConfig.portable_getch();
 #endif
                 * (char *) buffer = (char) r;
-                cpu.regs[ RiscV::a0 ] = 1;
+                cpu.regs[ REG_RESULT ] = 1;
                 tracer.Trace( "  getch read character %u == '%c'\n", r, printable( (uint8_t) r ) );
                 break;
             }
@@ -1294,26 +1423,34 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 uint64_t freq = 1000000000000; // nanoseconds, but the LPi4a is off by 3 orders of magnitude, so I replicate that bug here
                 memcpy( buffer, &freq, 8 );
-                update_a0_errno( cpu, 8 );
+                update_result_errno( cpu, 8 );
+                break;
+            }
+            else if ( osreleaseDescriptor == descriptor && buffer_size >= 8 )
+            {
+                memcpy( buffer, "9.69", 5 );
+                update_result_errno( cpu, 5 );
                 break;
             }
 
             int result = read( descriptor, buffer, buffer_size );
-            update_a0_errno( cpu, result );
+            if ( result > 0 )
+                tracer.TraceBinaryData( (uint8_t *) buffer, (int) get_min( (int) 0x100, result ), 4 );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_write:
         {
-            tracer.Trace( "  rvos command SYS_write. fd %lld, buf %llx, count %lld\n", cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+            tracer.Trace( "  syscall command SYS_write. fd %lld, buf %llx, count %lld\n", cpu.regs[ REG_ARG0 ], cpu.regs[ REG_ARG1 ], cpu.regs[ REG_ARG2 ] );
 
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
-            uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            uint64_t count = cpu.regs[ RiscV::a2 ];
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
+            uint8_t * p = (uint8_t *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            uint64_t count = cpu.regs[ REG_ARG2 ];
 
             if ( 0 == descriptor ) // stdin
             {
                 errno = EACCES;
-                update_a0_errno( cpu, -1 );
+                update_result_errno( cpu, -1 );
             }
             else
             {
@@ -1322,19 +1459,19 @@ void riscv_invoke_ecall( RiscV & cpu )
 
                 tracer.TraceBinaryData( p, (uint32_t) count, 4 );
                 size_t written = write( descriptor, p, (int) count );
-                update_a0_errno( cpu, written );
+                update_result_errno( cpu, written );
             }
             break;
         }
         case SYS_open:
         {
-            tracer.Trace( "  rvos command SYS_open\n" );
+            tracer.Trace( "  syscall command SYS_open\n" );
 
             // a0: asciiz string of file to open. a1: flags. a2: mode
 
-            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            int flags = (int) cpu.regs[ RiscV::a1 ];
-            int mode = (int) cpu.regs[ RiscV::a2 ];
+            const char * pname = (const char *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            int flags = (int) cpu.regs[ REG_ARG1 ];
+            int mode = (int) cpu.regs[ REG_ARG2 ];
 
             tracer.Trace( "  open flags %x, mode %x, file %s\n", flags, mode, pname );
 
@@ -1344,18 +1481,18 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             int descriptor = open( pname, flags, mode );
             tracer.Trace( "  descriptor: %d\n", descriptor );
-            update_a0_errno( cpu, descriptor );
+            update_result_errno( cpu, descriptor );
             break;
         }
         case SYS_close:
         {
-            tracer.Trace( "  rvos command SYS_close\n" );
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            tracer.Trace( "  syscall command SYS_close\n" );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
 
             if ( descriptor >=0 && descriptor <= 3 )
             {
                 // built-in handle stdin, stdout, stderr -- ignore
-                cpu.regs[ RiscV::a0 ] = 0;
+                cpu.regs[ REG_RESULT ] = 0;
             }
             else
             {
@@ -1370,9 +1507,9 @@ void riscv_invoke_ecall( RiscV & cpu )
                         g_acFindFirstPattern[ 0 ] = 0;
                     }
                 }
-                else if ( timebaseFrequencyDescriptor == descriptor )
+                else if ( timebaseFrequencyDescriptor == descriptor || osreleaseDescriptor == descriptor )
                 {
-                    update_a0_errno( cpu, 0 );
+                    update_result_errno( cpu, 0 );
                     break;
                 }
                 else
@@ -1386,22 +1523,22 @@ void riscv_invoke_ecall( RiscV & cpu )
                         g_FindFirst = 0;
                     }
                     g_FindFirstDescriptor = -1;
-                    update_a0_errno( cpu, 0 );
+                    update_result_errno( cpu, 0 );
                     break;
                 }
     #endif
 #endif
                 result = close( descriptor );
-                update_a0_errno( cpu, result );
+                update_result_errno( cpu, result );
             }
             break;
         }
         case SYS_getdents64:
         {
             int64_t result = 0;
-            uint64_t descriptor = cpu.regs[ RiscV::a0 ];
-            uint8_t * pentries = (uint8_t *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            uint64_t count = cpu.regs[ RiscV::a2 ];
+            uint64_t descriptor = cpu.regs[ REG_ARG0 ];
+            uint8_t * pentries = (uint8_t *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            uint64_t count = cpu.regs[ REG_ARG2 ];
             tracer.Trace( "  pentries: %p, count %llu\n", pentries, count );
             struct linux_dirent64_syscall * pcur = (struct linux_dirent64_syscall *) pentries;
             memset( pentries, 0, count );
@@ -1411,7 +1548,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 tracer.Trace( "  getdents on unexpected descriptor or FindFirst (%p) not open\n", g_hFindFirst );
                 errno = EBADF;
-                update_a0_errno( cpu, -1 );
+                update_result_errno( cpu, -1 );
                 break;
             }
 
@@ -1505,7 +1642,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 errno = EBADF;
                 g_FindFirstDescriptor = -1;
-                update_a0_errno( cpu, -1 );
+                update_result_errno( cpu, -1 );
                 break;
             }
 
@@ -1548,15 +1685,15 @@ void riscv_invoke_ecall( RiscV & cpu )
             }
     #endif
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_brk:
         {
             uint64_t original = g_brk_offset;
-            uint64_t ask = cpu.regs[ RiscV::a0 ];
+            uint64_t ask = cpu.regs[ REG_ARG0 ];
             if ( 0 == ask )
-                cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_offset );
+                cpu.regs[ REG_RESULT ] = cpu.get_vm_address( g_brk_offset );
             else
             {
                 uint64_t ask_offset = ask - g_base_address;
@@ -1571,36 +1708,36 @@ void riscv_invoke_ecall( RiscV & cpu )
                 else
                 {
                     tracer.Trace( "  allocation request was too large, failing it by returning current brk\n" );
-                    cpu.regs[ RiscV::a0 ] = cpu.get_vm_address( g_brk_offset );
+                    cpu.regs[ REG_RESULT ] = cpu.get_vm_address( g_brk_offset );
                 }
             }
 
-            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_offset, cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  SYS_brk. ask %llx, current brk %llx, new brk %llx, result in a0 %llx\n", ask, original, g_brk_offset, cpu.regs[ REG_ARG0 ] );
             break;
         }
         case SYS_munmap:
         {
-            uint64_t address = cpu.regs[ RiscV::a0 ];
-            uint64_t length = cpu.regs[ RiscV::a1 ];
+            uint64_t address = cpu.regs[ REG_ARG0 ];
+            uint64_t length = cpu.regs[ REG_ARG1 ];
             length = round_up( length, (uint64_t) 4096 );
 
             bool ok = g_mmap.free( address, length );
             if ( ok )
-                update_a0_errno( cpu, 0 );
+                update_result_errno( cpu, 0 );
             else
             {
                 errno = EINVAL;
-                update_a0_errno( cpu, -1 );
+                update_result_errno( cpu, -1 );
             }
 
             break;
         }
         case SYS_mremap:
         {
-            uint64_t address = cpu.regs[ RiscV::a0 ];
-            uint64_t old_length = cpu.regs[ RiscV::a1 ];
-            uint64_t new_length = cpu.regs[ RiscV::a2 ];
-            int flags = (int) cpu.regs[ RiscV::a3 ];
+            uint64_t address = cpu.regs[ REG_ARG0 ];
+            uint64_t old_length = cpu.regs[ REG_ARG1 ];
+            uint64_t new_length = cpu.regs[ REG_ARG2 ];
+            int flags = (int) cpu.regs[ REG_ARG3 ];
 
             if ( 0 != ( new_length & 0xfff ) )
             {
@@ -1614,43 +1751,43 @@ void riscv_invoke_ecall( RiscV & cpu )
 
             uint64_t result = g_mmap.resize( address, old_length, new_length, ( 1 == flags ) );
             if ( 0 != result )
-                update_a0_errno( cpu, result );
+                update_result_errno( cpu, result );
             else
             {
                 errno = ENOMEM;
-                update_a0_errno( cpu, -1 );
+                update_result_errno( cpu, -1 );
             }
 
             break;
         }
         case SYS_clone:
         {
-            // can't create a new process or thread with rvos
+            // can't create a new process or thread with this emulator
 
             errno = EACCES;
-            update_a0_errno( cpu, -1 );
+            update_result_errno( cpu, -1 );
             break;
         }
-        case rvos_sys_rand: // rand64. returns an unsigned random number in a0
+        case emulator_sys_rand: // rand64. returns an unsigned random number in a0
         {
-            tracer.Trace( "  rvos command generate random number\n" );
-            cpu.regs[ RiscV::a0 ] = rand64();
+            tracer.Trace( "  syscall command generate random number\n" );
+            cpu.regs[ REG_RESULT ] = rand64();
             break;
         }
-        case rvos_sys_print_double: // print_double in a0
+        case emulator_sys_print_double: // print_double in a0
         {
-            tracer.Trace( "  rvos command print double in a0\n" );
+            tracer.Trace( "  syscall command print double in a0\n" );
             double d;
-            memcpy( &d, &cpu.regs[ RiscV::a0 ], sizeof d );
+            memcpy( &d, &cpu.regs[ REG_ARG0 ], sizeof d );
             printf( "%lf", d );
             fflush( stdout );
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
-        case rvos_sys_trace_instructions:
+        case emulator_sys_trace_instructions:
         {
-            tracer.Trace( "  rvos command trace_instructions %d\n", cpu.regs[ RiscV::a0 ] );
-            cpu.regs[ RiscV::a0 ] = cpu.trace_instructions( 0 != cpu.regs[ RiscV::a0 ] );
+            tracer.Trace( "  syscall command trace_instructions %d\n", cpu.regs[ REG_ARG0 ] );
+            cpu.regs[ REG_RESULT ] = cpu.trace_instructions( 0 != cpu.regs[ REG_ARG0 ] );
             break;
         }
         case SYS_mmap:
@@ -1659,12 +1796,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             // Same for the gnu runtime with Rust.
             // But golang actually needs this to succeed.
 
-            uint64_t addr = cpu.regs[ RiscV::a0 ];
-            size_t length = cpu.regs[ RiscV::a1 ];
-            int prot = (int) cpu.regs[ RiscV::a2 ];
-            int flags = (int) cpu.regs[ RiscV::a3 ];
-            int fd = (int) cpu.regs[ RiscV::a4 ];
-            size_t offset = (size_t) cpu.regs[ RiscV::a5 ];
+            uint64_t addr = cpu.regs[ REG_ARG0 ];
+            size_t length = cpu.regs[ REG_ARG1 ];
+            int prot = (int) cpu.regs[ REG_ARG2 ];
+            int flags = (int) cpu.regs[ REG_ARG3 ];
+            int fd = (int) cpu.regs[ REG_ARG4 ];
+            size_t offset = (size_t) cpu.regs[ REG_ARG5 ];
             tracer.Trace( "  SYS_mmap. addr %llx, length %zd, protection %#x, flags %#x, fd %d, offset %zd\n", addr, length, prot, flags, fd, offset );
 
             if ( 0 != ( length & 0xfff ) )
@@ -1685,7 +1822,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                         uint64_t result = g_mmap.allocate( length );
                         if ( 0 != result )
                         {
-                            update_a0_errno( cpu, result );
+                            update_result_errno( cpu, result );
                             break;
                         }
                     }
@@ -1700,27 +1837,27 @@ void riscv_invoke_ecall( RiscV & cpu )
     
             tracer.Trace( "  mmap failed\n" );
             errno = ENOMEM;
-            update_a0_errno( cpu, -1 );
+            update_result_errno( cpu, -1 );
             break;
         }
 #if !defined(OLDGCC) // the syscalls below aren't invoked from the old g++ compiler and runtime
         case SYS_openat:
         {
-            tracer.Trace( "  rvos command SYS_openat\n" );
+            tracer.Trace( "  syscall command SYS_openat\n" );
             // a0: directory. a1: asciiz string of file to open. a2: flags. a3: mode
 
             // G++ on RISC-V on a opendir() call will call this with 0x80000 set in flags. Ignored for now,
             // but this should call opendir() on non-Windows and on Windows would take substantial code to
             // implement since opendir() doesn't exist. For now it fails with errno 13.
 
-            int directory = (int) cpu.regs[ RiscV::a0 ];
+            int directory = (int) cpu.regs[ REG_ARG0 ];
 #ifdef __APPLE__
             if ( -100 == directory )
                 directory = -2; // Linux vs. MacOS
 #endif
-            const char * pname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            int flags = (int) cpu.regs[ RiscV::a2 ];
-            int mode = (int) cpu.regs[ RiscV::a3 ];
+            const char * pname = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            int flags = (int) cpu.regs[ REG_ARG2 ];
+            int mode = (int) cpu.regs[ REG_ARG3 ];
             int64_t descriptor = 0;
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file '%s'\n", directory, flags, mode, pname );
@@ -1728,7 +1865,14 @@ void riscv_invoke_ecall( RiscV & cpu )
             if ( !strcmp( pname, "/proc/device-tree/cpus/timebase-frequency" ) )
             {
                 descriptor = timebaseFrequencyDescriptor;
-                update_a0_errno( cpu, descriptor );
+                update_result_errno( cpu, descriptor );
+                break;
+            }
+
+            if ( !strcmp( pname, "/proc/sys/kernel/osrelease" ) )
+            {
+                descriptor = osreleaseDescriptor;
+                update_result_errno( cpu, descriptor );
                 break;
             }
 
@@ -1760,25 +1904,25 @@ void riscv_invoke_ecall( RiscV & cpu )
 #endif
             descriptor = openat( directory, pname, flags, mode );
 #endif
-            update_a0_errno( cpu, descriptor );
+            update_result_errno( cpu, descriptor );
             break;
         }
         case SYS_sysinfo:
         {
 #if defined(_WIN32) || defined(__APPLE__)
             errno = EACCES;
-            update_a0_errno( cpu, -1 );
+            update_result_errno( cpu, -1 );
 #else
-            int result = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ RiscV::a0 ] ) );
-            update_a0_errno( cpu, result );
+            int result = sysinfo( (struct sysinfo *) cpu.getmem( cpu.regs[ REG_ARG0 ] ) );
+            update_result_errno( cpu, result );
 #endif
             break;
         }
         case SYS_newfstatat:
         {
-            const char * path = (char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            tracer.Trace( "  rvos command SYS_newfstatat, id %lld, path '%s', flags %llx\n", cpu.regs[ RiscV::a0 ], path, cpu.regs[ RiscV::a3 ] );
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            const char * path = (char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            tracer.Trace( "  syscall command SYS_newfstatat, id %lld, path '%s', flags %llx\n", cpu.regs[ REG_ARG0 ], path, cpu.regs[ REG_ARG3 ] );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
             int result = 0;
 
 #ifdef _WIN32
@@ -1790,7 +1934,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                 size_t cbStat = sizeof( struct stat_linux_syscall );
                 tracer.Trace( "  sizeof stat_linux_syscall: %zd\n", cbStat );
                 assert( 128 == cbStat );  // 128 is the size of the stat struct this syscall on RISC-V Linux
-                memcpy( cpu.getmem( cpu.regs[ RiscV::a2 ] ), & local_stat, cbStat );
+                memcpy( cpu.getmem( cpu.regs[ REG_ARG2 ] ), & local_stat, cbStat );
                 tracer.Trace( "  file size in bytes: %zd, offsetof st_size: %zd\n", local_stat.st_size, offsetof( struct stat_linux_syscall, st_size ) );
             }
             else
@@ -1799,7 +1943,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  sizeof struct stat: %zd\n", sizeof( struct stat ) );
             struct stat local_stat = {0};
             struct stat_linux_syscall local_stat_syscall = {0};
-            int flags = (int) cpu.regs[ RiscV::a3 ];
+            int flags = (int) cpu.regs[ REG_ARG3 ];
             tracer.Trace( "  flag AT_SYMLINK_NOFOLLOW: %llx, flags %x", AT_SYMLINK_NOFOLLOW, flags );
 #ifdef __APPLE__
             if ( -100 == descriptor ) // current directory
@@ -1820,7 +1964,7 @@ void riscv_invoke_ecall( RiscV & cpu )
             {
                 // the syscall version of stat has similar fields but a different layout, so copy fields one by one
 
-                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+                struct stat_linux_syscall * pout = (struct stat_linux_syscall *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
                 pout->st_dev = local_stat.st_dev;
                 pout->st_ino = local_stat.st_ino;
                 pout->st_mode = local_stat.st_mode;
@@ -1843,46 +1987,46 @@ void riscv_invoke_ecall( RiscV & cpu )
                 tracer.Trace( "  file size %zd, isdir %s\n", local_stat.st_size, S_ISDIR( local_stat.st_mode ) ? "yes" : "no" );
             }
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_chdir:
         {
-            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            tracer.Trace( "  rvos command SYS_chdir path %s\n", path );
+            const char * path = (const char *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            tracer.Trace( "  syscall command SYS_chdir path %s\n", path );
 #ifdef _WIN32
             int result = _chdir( path );
 #else
             int result = chdir( path );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_mkdirat:
         {
-            int directory = (int) cpu.regs[ RiscV::a0 ];
-            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int directory = (int) cpu.regs[ REG_ARG0 ];
+            const char * path = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
 #ifdef _WIN32 // on windows ignore the directory and mode arguments
-            tracer.Trace( "  rvos command SYS_mkdirat path %s\n", path );
+            tracer.Trace( "  syscall command SYS_mkdirat path %s\n", path );
             int result = _mkdir( path );
 #else
 #ifdef __APPLE__
             if ( -100 == directory )
                 directory = -2;
 #endif     
-            mode_t mode = (mode_t) cpu.regs[ RiscV::a2 ];
-            tracer.Trace( "  rvos command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
+            mode_t mode = (mode_t) cpu.regs[ REG_ARG2 ];
+            tracer.Trace( "  syscall command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
             int result = mkdirat( directory, path, mode );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_unlinkat:
         {
-            int directory = (int) cpu.regs[ RiscV::a0 ];
-            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            int flags = (int) cpu.regs[ RiscV::a2 ];
-            tracer.Trace( "  rvos command SYS_unlinkat dir %d, path %s, flags %x\n", directory, path, flags );
+            int directory = (int) cpu.regs[ REG_ARG0 ];
+            const char * path = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            int flags = (int) cpu.regs[ REG_ARG2 ];
+            tracer.Trace( "  syscall command SYS_unlinkat dir %d, path %s, flags %x\n", directory, path, flags );
 #ifdef _WIN32 // on windows ignore the directory and flags arguments
             DWORD attr = GetFileAttributesA( path );
             int result = 0;
@@ -1900,13 +2044,13 @@ void riscv_invoke_ecall( RiscV & cpu )
 #endif     
             int result = unlinkat( directory, path, flags );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_unlink:
         {
-            const char * path = (const char *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            tracer.Trace( "  rvos command SYS_unlink path %s\n", path );
+            const char * path = (const char *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            tracer.Trace( "  syscall command SYS_unlink path %s\n", path );
 #ifdef _WIN32
             DWORD attr = GetFileAttributesA( path );
             int result = 0;
@@ -1920,34 +2064,102 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
             int result = unlink( path );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
+        }
+        case SYS_uname:
+        {
+            struct utsname_syscall * pname = (struct utsname_syscall *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            strcpy( pname->sysname, "syscall" );
+            strcpy( pname->nodename, "localhost" );
+            strcpy( pname->release, "19.69.420" );
+            strcpy( pname->version, "#1" );
+            strcpy( pname->machine, "aarch64" );
+            strcpy( pname->domainname, "localdomain" );
+            update_result_errno( cpu, 0 );
+            break;
+        }
+        case SYS_getrusage:
+        {
+            int who = (int) cpu.regs[ REG_ARG0 ];
+            struct linux_rusage_syscall *prusage = (struct linux_rusage_syscall *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            memset( prusage, 0, sizeof( struct linux_rusage_syscall ) );
+
+            if ( 0 == who ) // RUSAGE_SELF
+            {
+#ifdef _WIN32
+                FILETIME ftCreation, ftExit, ftKernel, ftUser;
+                if ( GetProcessTimes( GetCurrentProcess(), &ftCreation, &ftExit, &ftKernel, &ftUser ) )
+                {
+                    uint64_t utotal = ( ( (uint64_t) ftUser.dwHighDateTime << 32 ) + ftUser.dwLowDateTime ) / 10; // 100ns to microseconds
+                    prusage->ru_utime.tv_sec = utotal / 1000000;
+                    prusage->ru_utime.tv_usec = utotal % 1000000;
+                    uint64_t stotal = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 10; 
+                    prusage->ru_stime.tv_sec = stotal / 1000000;
+                    prusage->ru_stime.tv_usec = stotal % 1000000;
+                }
+                else
+                    tracer.Trace( "  unable to GetProcessTimes, error %d\n", GetLastError() );
+#else
+                struct rusage local_rusage;
+                getrusage( who, &local_rusage ); // on 32-bit systems fields are 32 bit
+                prusage->ru_utime.tv_sec = local_rusage.ru_utime.tv_sec;
+                prusage->ru_utime.tv_usec = local_rusage.ru_utime.tv_usec;
+                prusage->ru_stime.tv_sec = local_rusage.ru_stime.tv_sec;
+                prusage->ru_stime.tv_usec = local_rusage.ru_stime.tv_usec;
+                prusage->ru_maxrss = local_rusage.ru_maxrss;
+                prusage->ru_ixrss = local_rusage.ru_ixrss;
+                prusage->ru_idrss = local_rusage.ru_idrss;
+                prusage->ru_isrss = local_rusage.ru_isrss;
+                prusage->ru_minflt = local_rusage.ru_minflt;
+                prusage->ru_majflt = local_rusage.ru_majflt;
+                prusage->ru_nswap = local_rusage.ru_nswap;
+                prusage->ru_inblock = local_rusage.ru_inblock;
+                prusage->ru_oublock = local_rusage.ru_oublock;                
+                prusage->ru_msgsnd = local_rusage.ru_msgsnd;
+                prusage->ru_msgrcv = local_rusage.ru_msgrcv;                                                                                                
+                prusage->ru_nsignals = local_rusage.ru_nsignals;
+                prusage->ru_nvcsw = local_rusage.ru_nvcsw;
+                prusage->ru_nivcsw = local_rusage.ru_nivcsw;
+#endif
+            }
+            else
+                tracer.Trace( "  unsupported request for who %u\n", who );
+
+            update_result_errno( cpu, 0 );
         }
         case SYS_futex: 
         {
-            uint32_t * paddr = (uint32_t *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            int futex_op = (int) cpu.regs[ RiscV::a1 ] & (~128); // strip "private" flags
-            uint32_t value = (uint32_t) cpu.regs[ RiscV::a2 ];
+            if ( !cpu.is_address_valid( cpu.regs[ REG_ARG0 ] ) ) // sometimes it's malformed on arm64. not sure why yet.
+            {
+                tracer.Trace( "futex pointer in reg 0 is malformed\n" );
+                cpu.regs[ REG_RESULT ] = 0;
+                break;
+            }
 
-            //tracer.Trace( "  futex all paddr %p (%d), futex_op %d, val %d\n", paddr, ( 0 == paddr ) ? -666 : *paddr, futex_op, value );
+            uint32_t * paddr = (uint32_t *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            int futex_op = (int) cpu.regs[ REG_ARG1 ] & (~128); // strip "private" flags
+            uint32_t value = (uint32_t) cpu.regs[ REG_ARG2 ];
+
+            tracer.Trace( "  futex all paddr %p (%d), futex_op %d, val %d\n", paddr, ( 0 == paddr ) ? -666 : *paddr, futex_op, value );
 
             if ( 0 == futex_op ) // FUTEX_WAIT
             {
                 if ( *paddr != value )
-                    cpu.regs[ RiscV::a0 ] = 11; // EAGAIN
+                    cpu.regs[ REG_RESULT ] = 11; // EAGAIN
                 else
-                    cpu.regs[ RiscV::a0 ] = 0;
+                    cpu.regs[ REG_RESULT ] = 0;
             }    
             else if ( 1 == futex_op ) // FUTEX_WAKE
-                cpu.regs[ RiscV::a0 ] = 0;
+                cpu.regs[ REG_RESULT ] = 0;
             else    
-                cpu.regs[ RiscV::a0 ] = (uint64_t) -1; // fail this until/unless there is a real-world use
+                cpu.regs[ REG_RESULT ] = (uint64_t) -1; // fail this until/unless there is a real-world use
             break;
         }
         case SYS_writev:
         {
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
-            const struct iovec * pvec = (const struct iovec *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
+            const struct iovec * pvec = (const struct iovec *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
             if ( 1 == descriptor || 2 == descriptor )
                 tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (uint64_t) pvec->iov_base ) );
 
@@ -1958,15 +2170,15 @@ void riscv_invoke_ecall( RiscV & cpu )
             vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
             vec_local.iov_len = pvec->iov_len;
             tracer.Trace( "  write length: %u to descriptor %d at addr %p\n", pvec->iov_len, descriptor, vec_local.iov_base );
-            int64_t result = writev( descriptor, &vec_local, cpu.regs[ RiscV::a2 ] );
+            int64_t result = writev( descriptor, &vec_local, cpu.regs[ REG_ARG2 ] );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_clock_gettime:
         {
-            clockid_t cid = (clockid_t) cpu.regs[ RiscV::a0 ];
-            struct timespec_syscall * ptimespec = (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
+            clockid_t cid = (clockid_t) cpu.regs[ REG_ARG0 ];
+            struct timespec_syscall * ptimespec = (struct timespec_syscall *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
             #ifdef __APPLE__ // Linux vs MacOS
                 if ( 1 == cid )
                     cid = CLOCK_REALTIME;
@@ -1982,12 +2194,12 @@ void riscv_invoke_ecall( RiscV & cpu )
             ptimespec->tv_sec = local_ts.tv_sec;
             ptimespec->tv_nsec = local_ts.tv_nsec;
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_fdatasync:
         {
-            int descriptor = (int) cpu.regs[ RiscV::a0 ];
+            int descriptor = (int) cpu.regs[ REG_ARG0 ];
 
 #ifdef _WIN32
             int result = _commit( descriptor );
@@ -1996,44 +2208,85 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
             int result = fdatasync( descriptor );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_sigaction:
         {
             //errno = EACCES;
-            //update_a0_errno( cpu, -1 );
-            update_a0_errno( cpu, 0 );
+            //update_result_errno( cpu, -1 );
+            update_result_errno( cpu, 0 );
+            break;
+        }
+        case SYS_times:
+        {
+            // this function is long obsolete, but older apps call it and it's still supported on recent Linux builds
+
+            struct linux_tms_syscall * ptms = ( 0 != cpu.regs[ REG_ARG0 ] ) ? (struct linux_tms_syscall *) cpu.getmem( cpu.regs[ REG_ARG0 ] ) : 0;
+            if ( 0 != ptms ) // 0 is legal if callers just want the return value
+            {
+                memset( ptms, 0, sizeof ( struct linux_tms_syscall ) );
+#ifdef _WIN32
+                FILETIME ftCreation, ftExit, ftKernel, ftUser;
+                if ( GetProcessTimes( GetCurrentProcess(), &ftCreation, &ftExit, &ftKernel, &ftUser ) )
+                {
+                    ptms->tms_utime = ( ( (uint64_t) ftUser.dwHighDateTime << 32) + ftUser.dwLowDateTime ) / 100000; // 100ns to hundredths of a second
+                    ptms->tms_stime = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 100000; 
+                }
+                else
+                    tracer.Trace( "  unable to GetProcessTimes, error %d\n", GetLastError() );
+#else
+                struct tms local_tms; // on 32-bit systems the members are 32 bit.
+                times( &local_tms );
+                ptms->tms_utime = local_tms.tms_utime;
+                ptms->tms_stime = local_tms.tms_stime;
+                ptms->tms_cutime = local_tms.tms_cutime;
+                ptms->tms_cstime = local_tms.tms_cstime;
+#endif
+
+            }
+
+            struct linux_timeval tv;
+            gettimeofday( &tv );
+
+            // ticks is generally in hundredths of a second per sysconf( _SC_CLK_TCK )
+            uint64_t sc_clk_tck = 100ull;
+#ifndef _WIN32
+            sc_clk_tck = sysconf( _SC_CLK_TCK );
+#endif
+            uint64_t ticks = ( (uint64_t) tv.tv_sec * sc_clk_tck ) + ( ( (uint64_t) tv.tv_usec * sc_clk_tck ) / 1000000ull );
+            update_result_errno( cpu, ticks );
             break;
         }
         case SYS_rt_sigprocmask:
         {
-            errno = EACCES;
-            update_a0_errno( cpu, -1 );
+            errno = 0;
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_prctl:
         {
-            update_a0_errno( cpu, 0 );
+            update_result_errno( cpu, 0 );
             break;
         }
         case SYS_getpid:
         {
-            cpu.regs[ RiscV::a0 ] = getpid();
+            cpu.regs[ REG_RESULT ] = getpid();
             break;
         }
         case SYS_gettid:
         {
-            cpu.regs[ RiscV::a0 ] = 1;
+            cpu.regs[ REG_RESULT ] = 1;
             break;
         }
+        case SYS_renameat:
         case SYS_renameat2:
         {
-            int olddirfd = (int) cpu.regs[ RiscV::a0 ];
-            const char * oldpath = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            int newdirfd = (int) cpu.regs[ RiscV::a2 ];
-            const char * newpath = (const char *) cpu.getmem( cpu.regs[ RiscV::a3 ] );
-            unsigned int flags = (unsigned int) cpu.regs[ RiscV::a4 ];
+            int olddirfd = (int) cpu.regs[ REG_ARG0 ];
+            const char * oldpath = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            int newdirfd = (int) cpu.regs[ REG_ARG2 ];
+            const char * newpath = (const char *) cpu.getmem( cpu.regs[ REG_ARG3 ] );
+            unsigned int flags = ( SYS_renameat2 == cpu.regs[ 8 ] ) ? (unsigned int) cpu.regs[ REG_ARG4 ] : 0;
             tracer.Trace( "  renaming '%s' to '%s'\n", oldpath, newpath );
 #ifdef _WIN32
             int result = rename( oldpath, newpath );
@@ -2046,14 +2299,14 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
             int result = renameat2( olddirfd, oldpath, newdirfd, newpath, flags );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_getrandom:
         {
-            void * buf = cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            size_t buflen = cpu.regs[ RiscV::a1 ];
-            unsigned int flags = (unsigned int) cpu.regs[ RiscV::a2 ];
+            void * buf = cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            size_t buflen = cpu.regs[ REG_ARG1 ];
+            unsigned int flags = (unsigned int) cpu.regs[ REG_ARG2 ];
             int64_t result = 0;
 
 #if defined(_WIN32) || defined(__APPLE__)
@@ -2065,56 +2318,63 @@ void riscv_invoke_ecall( RiscV & cpu )
 #else
             result = getrandom( buf, buflen, flags );
 #endif
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
+            break;
+        }
+        case SYS_rseq :
+        {
+            errno = EPERM;
+            update_result_errno( cpu, -1 );
             break;
         }
         case SYS_riscv_flush_icache :
         {
-            cpu.regs[ RiscV::a0 ] = 0;
+            assert( false ); // no arm64 equivalent
+            cpu.regs[ REG_RESULT ] = 0;
             break;
         }
         case SYS_pselect6:
         {
-            int nfds = (int) cpu.regs[ RiscV::a0 ];
-            void * readfds = (void *) cpu.regs[ RiscV::a1 ];
+            int nfds = (int) cpu.regs[ REG_ARG0 ];
+            void * readfds = (void *) cpu.regs[ REG_ARG1 ];
 
             if ( 1 == nfds && 0 != readfds )
             {
                 // check to see if stdin has a keystroke available
 
-                cpu.regs[ RiscV::a0 ] = g_consoleConfig.portable_kbhit();
-                tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ RiscV::a0 ] );
+                cpu.regs[ REG_RESULT ] = g_consoleConfig.portable_kbhit();
+                tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ REG_ARG0 ] );
             }
             else
             {
                 // lie and say no I/O is ready
 
-                cpu.regs[ RiscV::a0 ] = 0;
+                cpu.regs[ REG_RESULT ] = 0;
             }
 
             break;
         }
         case SYS_ppoll_time32:
         {
-            struct pollfd_syscall * pfds = (struct pollfd_syscall *) cpu.getmem( cpu.regs[ RiscV::a0 ] );
-            int nfds = (int) cpu.regs[ RiscV::a1 ];
-            struct timespec_syscall * pts = (struct timespec_syscall *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
-            int * psigmask = (int *) ( ( 0 == cpu.regs[ RiscV::a3 ] ) ? 0 : cpu.getmem( cpu.regs[ RiscV::a3 ] ) );
+            struct pollfd_syscall * pfds = (struct pollfd_syscall *) cpu.getmem( cpu.regs[ REG_ARG0 ] );
+            int nfds = (int) cpu.regs[ REG_ARG1 ];
+            struct timespec_syscall * pts = (struct timespec_syscall *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
+            int * psigmask = (int *) ( ( 0 == cpu.regs[ REG_ARG3 ] ) ? 0 : cpu.getmem( cpu.regs[ REG_ARG3 ] ) );
 
             tracer.Trace( "  count of file descriptors: %d\n", nfds );
             for ( int i = 0; i < nfds; i++ )
                 tracer.Trace( "    fd %d: %d\n", i, pfds[ i ].fd );
 
             // lie and say no I/O is ready
-            cpu.regs[ RiscV::a0 ] = 0;
+            cpu.regs[ REG_RESULT ] = 0;
             break;
         }
         case SYS_readlinkat:
         {
-            int dirfd = (int) cpu.regs[ RiscV::a0 ];
-            const char * pathname = (const char *) cpu.getmem( cpu.regs[ RiscV::a1 ] );
-            char * buf = (char *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
-            size_t bufsiz = (size_t) cpu.regs[ RiscV::a3 ];
+            int dirfd = (int) cpu.regs[ REG_ARG0 ];
+            const char * pathname = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            char * buf = (char *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
+            size_t bufsiz = (size_t) cpu.regs[ REG_ARG3 ];
             tracer.Trace( "  readlinkat pathname %p == '%s', buf %p, bufsiz %zd, dirfd %d\n", pathname, pathname, buf, bufsiz, dirfd );
             int64_t result = -1;
 
@@ -2126,15 +2386,15 @@ void riscv_invoke_ecall( RiscV & cpu )
             tracer.Trace( "  result of readlinkat(): %d\n", result );
 #endif
 
-            update_a0_errno( cpu, result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_ioctl:
         {
-            int fd = (int) cpu.regs[ RiscV::a0 ];
-            unsigned long request = (unsigned long) cpu.regs[ RiscV::a1 ];
+            int fd = (int) cpu.regs[ REG_ARG0 ];
+            unsigned long request = (unsigned long) cpu.regs[ REG_ARG1 ];
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
-            struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ RiscV::a2 ] );
+            struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
 
             if ( 0 == fd || 1 == fd || 2 == fd ) // stdin, stdout, stderr
             {
@@ -2150,10 +2410,10 @@ void riscv_invoke_ecall( RiscV & cpu )
                         pt->c_oflag = 5;
                         pt->c_cflag = 0xbf;
                         pt->c_lflag = 0xa30;
-                        update_a0_errno( cpu, 0 );
+                        update_result_errno( cpu, 0 );
                     }
                     else
-                        update_a0_errno( cpu, -1 );
+                        update_result_errno( cpu, -1 );
 
                     break;
                 }
@@ -2170,7 +2430,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     int result = tcgetattr( fd, &val );
                     if ( -1 == result )
                     {
-                        update_a0_errno( cpu, -1 );
+                        update_result_errno( cpu, -1 );
                         break;
                     }
                     tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
@@ -2232,9 +2492,9 @@ void riscv_invoke_ecall( RiscV & cpu )
                 {
 #ifdef _WIN32
                     if ( isatty( fd ) )
-                        update_a0_errno( cpu, 0 );
+                        update_result_errno( cpu, 0 );
                     else
-                        update_a0_errno( cpu, -1 );
+                        update_result_errno( cpu, -1 );
 
                     break;
 #else
@@ -2243,7 +2503,7 @@ void riscv_invoke_ecall( RiscV & cpu )
                     tracer.Trace( "  result: %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
                     if ( -1 == result )
                     {
-                        update_a0_errno( cpu, -1 );
+                        update_result_errno( cpu, -1 );
                         break;
                     }
                     pt->c_iflag = val.c_iflag;
@@ -2267,12 +2527,17 @@ void riscv_invoke_ecall( RiscV & cpu )
                 
             }
 
-            cpu.regs[ RiscV::a0 ] = 0;
+            cpu.regs[ REG_RESULT ] = 0;
             break;
         }
         case SYS_set_tid_address:
         {
-            cpu.regs[ RiscV::a0 ] = 1;
+            cpu.regs[ REG_RESULT ] = 1;
+            break;
+        }
+        case SYS_madvise:
+        {
+            cpu.regs[ REG_RESULT ] = 0; // report success
             break;
         }
         case SYS_set_robust_list:
@@ -2282,35 +2547,54 @@ void riscv_invoke_ecall( RiscV & cpu )
             break;
 
 #endif // !defined(OLDGCC)
+        case SYS_faccessat:
+        {
+            const char * pathname = (const char *) cpu.getmem( cpu.regs[ REG_ARG1 ] );
+            tracer.Trace( "  faccessat failing for path %s\n", pathname );
+
+            errno = 2; // not found
+            update_result_errno( cpu, -1 );
+            break;
+        }
+        case SYS_getuid:
+        case SYS_geteuid:
+        case SYS_getgid:
+        case SYS_getegid:
+        {
+            update_result_errno( cpu, 0x5549 ); // IU
+            break;
+        }
         default:
         {
             printf( "error; ecall invoked with unknown command %llu = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
-                    cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+                    cpu.regs[ 8 ], cpu.regs[ 8 ], cpu.regs[ REG_ARG0 ], cpu.regs[ REG_ARG1 ], cpu.regs[ REG_ARG2 ] );
             tracer.Trace( "error; ecall invoked with unknown command %llu = %llx, a0 %#llx, a1 %#llx, a2 %#llx\n",
-                          cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a7 ], cpu.regs[ RiscV::a0 ], cpu.regs[ RiscV::a1 ], cpu.regs[ RiscV::a2 ] );
+                          cpu.regs[ 8 ], cpu.regs[ 8 ], cpu.regs[ REG_ARG0 ], cpu.regs[ REG_ARG1 ], cpu.regs[ REG_ARG2 ] );
             fflush( stdout );
-            //cpu.regs[ RiscV::a0 ] = -1;
+            //cpu.regs[ REG_RESULT ] = -1;
         }
     }
-} //riscv_invoke_ecall
+} //emulator_invoke_svc
 
-static const char * register_names[ 32 ] =
+#ifdef RVOS
+static const char * riscv_register_names[ 32 ] =
 {
     "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
     "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
     "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
     "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6",
 };
+#endif
 
-void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value )
+void emulator_hard_termination( CPUClass & cpu, const char *pcerr, uint64_t error_value )
 {
     g_consoleConfig.RestoreConsole( false );
 
-    tracer.Trace( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
-    printf( "rvos (%s) fatal error: %s %llx\n", target_platform(), pcerr, error_value );
+    tracer.Trace( "% (%s) fatal error: %s %0llx\n", APP_NAME, target_platform(), pcerr, error_value );
+    printf( "%s (%s) fatal error: %s %0llx\n", APP_NAME, target_platform(), pcerr, error_value );
 
     uint64_t offset = 0;
-    const char * psymbol = riscv_symbol_lookup( cpu.pc, offset );
+    const char * psymbol = emulator_symbol_lookup( cpu.pc, offset );
     tracer.Trace( "pc: %llx %s + %llx\n", cpu.pc, psymbol, offset );
     printf( "pc: %llx %s + %llx\n", cpu.pc, psymbol, offset );
 
@@ -2319,10 +2603,15 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
 
     tracer.Trace( "  " );
     printf( "  " );
-    for ( size_t i = 0; i < _countof( register_names ); i++ )
+    for ( size_t i = 0; i < 32; i++ )
     {
-        tracer.Trace( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
-        printf( "%4s: %16llx, ", register_names[ i ], cpu.regs[ i ] );
+#ifdef ARMOS
+        tracer.Trace( "%02zu: %16llx, ", i, cpu.regs[ i ] );
+        printf( "%02zu: %16llx, ", i, cpu.regs[ i ] );
+#else
+        tracer.Trace( "%4s: %16llx, ", riscv_register_names[ i ], cpu.regs[ i ] );
+        printf( "%4s: %16llx, ", riscv_register_names[ i ], cpu.regs[ i ] );
+#endif
 
         if ( 3 == ( i & 3 ) )
         {
@@ -2336,13 +2625,17 @@ void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_valu
         }
     }
 
+#ifdef ARMOS
+    cpu.trace_vregs();
+#endif
+
     tracer.Trace( "%s\n", build_string() );
     printf( "%s\n", build_string() );
 
     tracer.Flush();
     fflush( stdout );
     exit( 1 );
-} //riscv_hard_termination
+} //emulator_hard_termination
 
 int symbol_find_compare( const void * a, const void * b )
 {
@@ -2370,7 +2663,7 @@ vector<ElfSymbol64> g_symbols;    // symbols in the elf image
 
 // returns the best guess for a symbol name for the address
 
-const char * riscv_symbol_lookup( uint64_t address, uint64_t & offset )
+const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset )
 {
     if ( address < g_base_address || address > ( g_base_address + memory.size() ) )
         return "";
@@ -2388,7 +2681,7 @@ const char * riscv_symbol_lookup( uint64_t address, uint64_t & offset )
 
     offset = 0;
     return "";
-} //riscv_symbol_lookup
+} //emulator_symbol_lookup
 
 int symbol_compare( const void * a, const void * b )
 {
@@ -2454,8 +2747,8 @@ bool load_image( const char * pimage, const char * app_args )
         usage( "elf image isn't an executable file (2)" );
     }
 
-    if ( 0xf3 != ehead.machine )
-        usage( "elf image isn't for RISC-V" );
+    if ( ELF_MACHINE_ISA != ehead.machine )
+        usage( "elf image machine ISA doesn't match this emulator" );
 
     if ( 0 == ehead.entry_point )
         usage( "elf entry point is 0, which is invalid" );
@@ -2497,7 +2790,7 @@ bool load_image( const char * pimage, const char * app_args )
 
         if ( 2 == head.type )
         {
-            printf( "dynamic linking is not supported by rvos. link with -static\n" );
+            printf( "dynamic linking is not supported by this emulator. link your app with -static\n" );
             exit( 1 );
         }
 
@@ -2627,7 +2920,7 @@ bool load_image( const char * pimage, const char * app_args )
     //     code (read from the .elf file)
     //     g_base_address (offset read from the .elf file).
 
-    // stacks by convention on risc-v are 16-byte aligned. make sure to start aligned
+    // stacks by convention on arm64 and risc-v are 16-byte aligned. make sure to start aligned
 
     if ( memory_size & 0xf )
     {
@@ -2654,17 +2947,6 @@ bool load_image( const char * pimage, const char * app_args )
     memset( memory.data(), 0, memory_size );
 
     g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit, memory.data() - g_base_address );
-
-    // Find the "tracenow" variable in the app, which can be used to dynamically control instruction tracing
-
-    for ( size_t se = 0; se < g_symbols.size(); se++ )
-    {
-        if ( !strcmp( "g_TRACENOW", & g_string_table[ g_symbols[ se ].name ] ) )
-        {
-            g_ptracenow = (bool *) ( memory.data() + g_symbols[ se ].value - g_base_address );
-            break;
-        }
-    }
 
     // load the program into RAM
 
@@ -2734,7 +3016,8 @@ bool load_image( const char * pimage, const char * app_args )
 
     uint64_t env_offset = args_len + 1;
     char * penv_data = (char *) ( buffer_args + env_offset );
-    strcpy( penv_data, "OS=RVOS" );
+    strcpy( penv_data, "OS=" );
+    strcat( penv_data, APP_NAME );
     uint64_t env_os_address = ( penv_data - (char *) memory.data() ) + g_base_address;
     uint64_t env_count = 1;
     uint64_t env_tz_address = 0;
@@ -2812,12 +3095,24 @@ bool load_image( const char * pimage, const char * app_args )
 
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
 
-    pstack -= 4;
+    pstack -= 16; // for 8 aux records
     AuxProcessStart * paux = (AuxProcessStart *) pstack;    
     paux[0].a_type = 25; // AT_RANDOM
     paux[0].a_un.a_val = prandom;
     paux[1].a_type = 6; // AT_PAGESZ
     paux[1].a_un.a_val = 4096;
+    paux[2].a_type = 16; // AT_HWCAP
+    paux[2].a_un.a_val = 0xa01; // ARM64 bits for fp(0), atomics(8), cpuid(11)
+    paux[3].a_type = 26; // AT_HWCAP2
+    paux[3].a_un.a_val = 0;
+    paux[4].a_type = 11; // AT_UID
+    paux[4].a_un.a_val = 0x595a5449; // "ITZY" they are each my bias.
+    paux[5].a_type = 22; // AT_EUID;
+    paux[5].a_un.a_val = 0x595a5449;
+    paux[6].a_type = 13; // AT_GID
+    paux[6].a_un.a_val = 0x595a5449;
+    paux[7].a_type = 14; // AT_EGID
+    paux[7].a_un.a_val = 0x595a5449;
 
     pstack--; // end of environment data is 0
     pstack--; // move to where the OS environment variable is set OS=RVOS
@@ -2903,8 +3198,8 @@ void elf_info( const char * pimage, bool verbose )
         return;
     }
 
-    if ( 0xf3 != ehead.machine )
-        printf( "image isn't for RISC-V; continuing anyway. machine type is %x\n", ehead.machine );
+    if ( ELF_MACHINE_ISA != ehead.machine )
+        printf( "image machine ISA isn't a match for %s; continuing anyway. machine type is %x\n", APP_NAME, ehead.machine );
 
     if ( 2 != ehead.bit_width )
     {
@@ -3043,7 +3338,7 @@ void elf_info( const char * pimage, bool verbose )
     }
 
     if ( 0 == g_base_address )
-        printf( "base address of elf image is zero; physical address required for the rvos emulator\n" );
+        printf( "base address of elf image is zero; physical address required for the emulator\n" );
 
     printf( "flags: %#08x\n", ehead.flags );
     printf( "  contains 2-byte compressed RVC instructions: %s\n", g_compressed_rvc ? "yes" : "no" );
@@ -3102,8 +3397,10 @@ int main( int argc, char * argv[] )
                     trace = true;
                 else if ( 'i' == ca )
                     traceInstructions = true;
+#ifdef RVOS
                 else if ( 'g' == ca )
                     generateRVCTable = true;
+#endif
                 else if ( 'h' == ca )
                 {
                     if ( ':' != parg[2] )
@@ -3149,11 +3446,12 @@ int main( int argc, char * argv[] )
             }
         }
     
-        tracer.Enable( trace, L"rvos.log", true );
+        tracer.Enable( trace, LOGFILE_NAME, true );
         tracer.SetQuiet( true );
     
         g_consoleConfig.EstablishConsoleOutput( 0, 0 );
-    
+
+#ifdef RVOS
         if ( generateRVCTable )
         {
             bool ok = RiscV::generate_rvc_table( "rvctable.txt" );
@@ -3165,6 +3463,7 @@ int main( int argc, char * argv[] )
             g_consoleConfig.RestoreConsole( false );
             return 0;
         }
+#endif
     
         if ( 0 == pcApp )
         {
@@ -3196,7 +3495,7 @@ int main( int argc, char * argv[] )
         bool ok = load_image( acApp, acAppArgs );
         if ( ok )
         {
-            unique_ptr<RiscV> cpu( new RiscV( memory, g_base_address, g_execution_address, g_compressed_rvc, g_stack_commit, g_top_of_stack ) );
+            unique_ptr<CPUClass> cpu( new CPUClass( memory, g_base_address, g_execution_address, g_stack_commit, g_top_of_stack ) );
             cpu->trace_instructions( traceInstructions );
             uint64_t cycles = 0;
     
@@ -3218,7 +3517,7 @@ int main( int argc, char * argv[] )
                 int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
     
                 printf( "elapsed milliseconds:  %15s\n", CDJLTrace::RenderNumberWithCommas( totalTime, ac ) );
-                printf( "RISC-V cycles:         %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
+                printf( "ARM64 cycles:          %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
                 if ( 0 != totalTime )
                     printf( "effective clock rate:  %15s\n", CDJLTrace::RenderNumberWithCommas( cycles / totalTime, ac ) );
                 printf( "app exit code:         %15d\n", g_exit_code );
@@ -3232,7 +3531,7 @@ int main( int argc, char * argv[] )
     }
     catch ( bad_alloc & e )
     {
-        printf( "caught exception bad_alloc -- out of RAM. If in RVOS use -h or -m to add RAM. %s\n", e.what() );
+        printf( "caught exception bad_alloc -- out of RAM. If in RVOS/ARMOS use -h or -m to add RAM. %s\n", e.what() );
     }
     catch ( exception & e )
     {

@@ -582,7 +582,7 @@ void RiscV::trace_state()
 
     static const char * previous_symbol = 0;
     uint64_t offset;
-    const char * symbol_name = riscv_symbol_lookup( pc, offset );
+    const char * symbol_name = emulator_symbol_lookup( pc, offset );
     if ( symbol_name == previous_symbol )
         symbol_name = "";
     else
@@ -1397,7 +1397,7 @@ void RiscV::unhandled()
 {
     printf( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     tracer.Trace( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
-    riscv_hard_termination( *this, "opcode not handled:", op );
+    emulator_hard_termination( *this, "opcode not handled:", op );
 } //unhandled
 
 uint64_t RiscV::run( uint64_t max_cycles )
@@ -1409,22 +1409,22 @@ uint64_t RiscV::run( uint64_t max_cycles )
     {
         #ifndef NDEBUG
             if ( 0 != regs[ 0 ] )
-                riscv_hard_termination( *this, "zero register isn't 0:", regs[ zero ] );
+                emulator_hard_termination( *this, "zero register isn't 0:", regs[ zero ] );
 
             if ( regs[ sp ] <= ( stack_top - stack_size ) )
-                riscv_hard_termination( *this, "stack pointer is below stack memory:", regs[ sp ] );
+                emulator_hard_termination( *this, "stack pointer is below stack memory:", regs[ sp ] );
 
             if ( regs[ sp ] > stack_top )
-                riscv_hard_termination( *this, "stack pointer is above the top of its starting point:", regs[ sp ] );
+                emulator_hard_termination( *this, "stack pointer is above the top of its starting point:", regs[ sp ] );
 
             if ( pc < base )
-                riscv_hard_termination( *this, "pc is lower than memory:", pc );
+                emulator_hard_termination( *this, "pc is lower than memory:", pc );
 
             if ( pc >= ( base + mem_size - stack_size ) )
-                riscv_hard_termination( *this, "pc is higher than it should be:", pc );
+                emulator_hard_termination( *this, "pc is higher than it should be:", pc );
 
             if ( 0 != ( regs[ sp ] & 0xf ) ) // by convention, risc-v stacks are 16-byte aligned
-                riscv_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
+                emulator_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
         #endif
 
         uint64_t pcnext = decode();   // 18% of runtime
@@ -2652,7 +2652,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 if ( 0 == funct3 ) // system
                 {
                     if ( 0x73 == op )
-                        riscv_invoke_ecall( *this ); // ecall. don't route through mtvec as a simplification
+                        emulator_invoke_svc( *this ); // ecall. don't route through mtvec as a simplification
                     else if ( 0x100073 == op )
                     {
                         // ebreak.  Ignore for now

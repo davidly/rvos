@@ -1,21 +1,27 @@
 #pragma once
 
-#define rvos_sys_rand               0x2000
-#define rvos_sys_print_double       0x2001
-#define rvos_sys_trace_instructions 0x2002
-#define rvos_sys_exit               0x2003
-#define rvos_sys_print_text         0x2004
-#define rvos_sys_get_datetime       0x2005
+#define emulator_sys_rand               0x2000
+#define emulator_sys_print_double       0x2001
+#define emulator_sys_trace_instructions 0x2002
+#define emulator_sys_exit               0x2003
+#define emulator_sys_print_text         0x2004
+#define emulator_sys_get_datetime       0x2005
+#define emulator_sys_print_int64        0x2006
 
-// Linux syscall numbers differ by ISA. InSAne. These are RISC
+// Linux syscall numbers differ by ISA. InSAne. These are RISC and ARM64, which are the same!
 // Note that there are differences between these two sets. which is correct?
 // https://marcin.juszkiewicz.com.pl/download/tables/syscalls.html
 // https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/arch/s390/kernel/syscalls/syscall.tbl
+// https://blog.xhyeax.com/2022/04/28/arm64-syscall-table/
+// https://syscalls.mebeim.net/?table=arm64/64/aarch64/latest
 
 #define SYS_getcwd 17
+#define SYS_fcntl 25
 #define SYS_ioctl 29
 #define SYS_mkdirat 34
 #define SYS_unlinkat 35
+#define SYS_renameat 38
+#define SYS_faccessat 48
 #define SYS_chdir 49
 #define SYS_openat 56
 #define SYS_close 57
@@ -44,9 +50,16 @@
 #define SYS_signalstack 132
 #define SYS_sigaction 134
 #define SYS_rt_sigprocmask 135
+#define SYS_times 153
+#define SYS_uname 160
+#define SYS_getrusage 165
 #define SYS_prctl 167
 #define SYS_gettimeofday 169
 #define SYS_getpid 172
+#define SYS_getuid 174
+#define SYS_geteuid 175
+#define SYS_getgid 176
+#define SYS_getegid 177
 #define SYS_gettid 178
 #define SYS_sysinfo 179
 #define SYS_brk 214
@@ -55,12 +68,14 @@
 #define SYS_clone 220
 #define SYS_mmap 222
 #define SYS_mprotect 226
-#define SYS_riscv_flush_icache 259
+#define SYS_madvise 233
+#define SYS_riscv_flush_icache 259 // not in docs; may be riscv only
 #define SYS_prlimit64 261
 #define SYS_renameat2 276
 #define SYS_getrandom 278
+#define SYS_rseq 293
 
-// open apparently undefined for riscv? the old g++ compiler/runtime uses this value
+// open apparently undefined for riscv? the old RISC-V64 g++ compiler/runtime uses these syscalls
 
 #define SYS_open 1024
 #define SYS_link 1025
@@ -70,14 +85,4 @@
 #define SYS_lstat 1039
 #define SYS_time 1062
 
-extern "C" void rvos_printf( const char * fmt, ... );
-extern "C" int rvos_sprintf( char * pc, const char * fmt, ... );
-extern "C" void rvos_print_text( const char * pc );
-extern "C" uint64_t rvos_rand( void );
-extern "C" uint64_t rvos_exit( int code );
-extern "C" char * rvos_floattoa( char *buffer, float f, int precision );
-extern "C" void rvos_print_double( double d );
-extern "C" int rvos_gettimeofday( struct timeval * p, void * x );
-extern "C" bool rvos_trace_instructions( bool enable );
-extern "C" void rvos_sp_add( uint64_t val );
 

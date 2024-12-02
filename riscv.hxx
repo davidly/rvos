@@ -17,10 +17,9 @@ struct RiscV;
 
 // callbacks when instructions are executed
 
-extern void riscv_invoke_ecall( RiscV & cpu );                                             // called when the ecall instruction is executed
-extern const char * riscv_symbol_lookup( uint64_t address, uint64_t & offset );            // returns the best guess for a symbol name and offset for the address
-extern void riscv_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
-extern void riscv_check_ptracenow( RiscV & cpu );
+extern void emulator_invoke_svc( RiscV & cpu );                                             // called when the ecall instruction is executed
+extern const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset );            // returns the best guess for a symbol name and offset for the address
+extern void emulator_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
 
 struct RiscV
 {
@@ -61,7 +60,7 @@ struct RiscV
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
-    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, bool compressed_rvc, uint64_t stack_commit, uint64_t top_of_stack )
+    RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, uint64_t stack_commit, uint64_t top_of_stack )
     {
         memset( this, 0, sizeof( *this ) );
         pc = start;
@@ -73,7 +72,6 @@ struct RiscV
         mem_size = memory.size();
         beyond = mem + memory.size();              // addresses beyond and later are illegal
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
-        rvc = compressed_rvc;
     } //RiscV
 
     uint64_t run( uint64_t max_cycles );
@@ -122,7 +120,6 @@ struct RiscV
     uint64_t stack_size;
     uint64_t stack_top;
     uint64_t mem_size;
-    bool rvc;
 
     uint64_t getoffset( uint64_t address )
     {
@@ -150,15 +147,21 @@ struct RiscV
             uint8_t * r = membase + offset;
 
             if ( r >= beyond )
-                riscv_hard_termination( *this, "memory reference beyond address space:", offset );
+                emulator_hard_termination( *this, "memory reference beyond address space:", offset );
 
             if ( r < mem )
-                riscv_hard_termination( *this, "memory reference prior to address space:", offset );
+                emulator_hard_termination( *this, "memory reference prior to address space:", offset );
 
             return r;
 
         #endif
     } //getmem
+
+    bool is_address_valid( uint64_t offset )
+    {
+        uint8_t * r = membase + offset;
+        return ( ( r < beyond ) && ( r >= mem ) );  
+    } //is_address_valid
 
     uint64_t getui64( uint64_t o ) { return * (uint64_t *) getmem( o ); }
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }
@@ -208,7 +211,6 @@ struct RiscV
 
         if ( 3 != ( op & 0x3 ) )
         {
-            assert( rvc );
             op = uncompress_rvc( (uint16_t) ( op & 0xffff ) );
             pc_next -= 2;
         }
