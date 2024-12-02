@@ -509,7 +509,7 @@ void usage( char const * perror = 0 )
     printf( "                 -i     if -t is set, also enables instruction tracing\n" );
     printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 40\n" );
     printf( "                 -p     shows performance information at app exit\n" );
-    printf( "                 -t     enable debug tracing to %ws\n", LOGFILE_NAME );
+    printf( "                 -t     enable debug tracing to %ls\n", LOGFILE_NAME );
     printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
     printf( "  %s\n", build_string() );
     exit( 1 );
