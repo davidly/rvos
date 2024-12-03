@@ -2505,6 +2505,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                                 else
                                     result = 2;
                             }
+                            regs[ rd ] = result;
                         }
                         else
                             unhandled();
@@ -2554,6 +2555,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                                 else
                                     result = 2;
                             }
+                            regs[ rd ] = result;
                         }
                         else
                             unhandled();
