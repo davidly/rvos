@@ -1,4 +1,4 @@
-Tue 12/03/2024  8:34:24.82 
+Tue 12/03/2024  9:41:11.50 
 test c_tests\bin0\tcmp 
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -582,10 +582,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin0\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 8, min 34, sec 26
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 34, sec 26
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 34, sec 26
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 34, sec 26
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 9, min 41, sec 13
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 41, sec 13
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 41, sec 13
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 41, sec 13
 test c_tests\bin0\tm 
 tm has completed with great success
 test c_tests\bin0\glob 
@@ -919,14 +919,14 @@ final: 243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e63
 test c_tests\bin0\sleeptm 
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
-sleep duration 0xc8
-  sleep duration in milliseconds: 2000
+sleep duration 0xc9
+  sleep duration in milliseconds: 2010
   user time: 0, kernel time: 0
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 530, kernel time: 0
-getrusage user time in ms: 531, system time 0
+  user time in ms: 590, kernel time: 0
+getrusage user time in ms: 593, system time 0
 sleepy time ended with great success
 test c_tests\bin0\tatomic 
 test atomic completed with great success
@@ -976,9 +976,7 @@ lade vied
 lead vied
 test c_tests\bin0\ba 
 parsing input file tp.bas
-start time: 08:34:33.787
-706 ms for 1 iterations
-end time: 08:34:34.493
+683 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -1586,10 +1584,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin1\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 8, min 34, sec 36
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 34, sec 36
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 34, sec 36
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 34, sec 36
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 9, min 41, sec 23
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 41, sec 23
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 41, sec 23
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 41, sec 23
 test c_tests\bin1\tm 
 tm has completed with great success
 test c_tests\bin1\glob 
@@ -1923,14 +1921,14 @@ final: 243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e63
 test c_tests\bin1\sleeptm 
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
-sleep duration 0xc8
-  sleep duration in milliseconds: 2000
+sleep duration 0xc9
+  sleep duration in milliseconds: 2010
   user time: 0, kernel time: 0
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 890, kernel time: 0
-getrusage user time in ms: 890, system time 0
+  user time in ms: 780, kernel time: 0
+getrusage user time in ms: 781, system time 0
 sleepy time ended with great success
 test c_tests\bin1\tatomic 
 test atomic completed with great success
@@ -1980,9 +1978,7 @@ lade vied
 lead vied
 test c_tests\bin1\ba 
 parsing input file tp.bas
-start time: 08:34:42.088
-149 ms for 1 iterations
-end time: 08:34:42.237
+151 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -2590,10 +2586,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin2\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 8, min 34, sec 44
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 34, sec 44
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 34, sec 44
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 34, sec 44
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 9, min 41, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 41, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 41, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 41, sec 30
 test c_tests\bin2\tm 
 tm has completed with great success
 test c_tests\bin2\glob 
@@ -2927,14 +2923,14 @@ final: 243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e63
 test c_tests\bin2\sleeptm 
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
-sleep duration 0xc8
-  sleep duration in milliseconds: 2000
-  user time: 0, kernel time: 1
+sleep duration 0xca
+  sleep duration in milliseconds: 2020
+  user time: 1, kernel time: 0
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 820, kernel time: 10
-getrusage user time in ms: 828, system time 15
+  user time in ms: 700, kernel time: 0
+getrusage user time in ms: 703, system time 0
 sleepy time ended with great success
 test c_tests\bin2\tatomic 
 test atomic completed with great success
@@ -2984,9 +2980,7 @@ lade vied
 lead vied
 test c_tests\bin2\ba 
 parsing input file tp.bas
-start time: 08:34:49.136
-147 ms for 1 iterations
-end time: 08:34:49.283
+143 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -3594,10 +3588,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin3\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 8, min 34, sec 51
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 34, sec 51
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 34, sec 51
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 34, sec 51
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 9, min 41, sec 37
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 41, sec 37
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 41, sec 37
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 41, sec 37
 test c_tests\bin3\tm 
 tm has completed with great success
 test c_tests\bin3\glob 
@@ -3937,8 +3931,8 @@ sleep duration 0xc9
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 810, kernel time: 10
-getrusage user time in ms: 812, system time 15
+  user time in ms: 920, kernel time: 10
+getrusage user time in ms: 921, system time 15
 sleepy time ended with great success
 test c_tests\bin3\tatomic 
 test atomic completed with great success
@@ -3988,9 +3982,7 @@ lade vied
 lead vied
 test c_tests\bin3\ba 
 parsing input file tp.bas
-start time: 08:34:56.191
 152 ms for 1 iterations
-end time: 08:34:56.344
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -4598,10 +4590,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\binfast\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 8, min 34, sec 58
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 34, sec 58
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 34, sec 58
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 34, sec 58
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 3, hour 9, min 41, sec 44
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 41, sec 44
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 41, sec 44
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 41, sec 44
 test c_tests\binfast\tm 
 tm has completed with great success
 test c_tests\binfast\glob 
@@ -4937,12 +4929,12 @@ this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
 sleep duration 0xc9
   sleep duration in milliseconds: 2010
-  user time: 3, kernel time: 1
+  user time: 0, kernel time: 0
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 920, kernel time: 30
-getrusage user time in ms: 921, system time 31
+  user time in ms: 500, kernel time: 0
+getrusage user time in ms: 500, system time 0
 sleepy time ended with great success
 test c_tests\binfast\tatomic 
 test atomic completed with great success
@@ -4992,9 +4984,7 @@ lade vied
 lead vied
 test c_tests\binfast\ba 
 parsing input file tp.bas
-start time: 08:35:03.210
-152 ms for 1 iterations
-end time: 08:35:03.362
+155 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -5024,7 +5014,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin0\ttt 
-serial runtime:   16.3619ms
+serial runtime:   16.6903ms
 moves:            6493
 iterations:       1
 test rust_tests\bin0\fileops 
@@ -5097,7 +5087,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin1\ttt 
-serial runtime:   4.3652ms
+serial runtime:   4.3926ms
 moves:            6493
 iterations:       1
 test rust_tests\bin1\fileops 
@@ -5170,7 +5160,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin2\ttt 
-serial runtime:   3.1915ms
+serial runtime:   3.2525ms
 moves:            6493
 iterations:       1
 test rust_tests\bin2\fileops 
@@ -5243,7 +5233,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin3\ttt 
-serial runtime:   2.7305ms
+serial runtime:   2.7136ms
 moves:            6493
 iterations:       1
 test rust_tests\bin3\fileops 
@@ -5324,11 +5314,11 @@ iterations: 1
 test rvos 
 starting...
 6493 moves
-502 milliseconds
+491 milliseconds
 1 iterations
 test armos 
 starting
-122333 microseconds (-6)
+118088 microseconds (-6)
 1 iterations
 6493 moves
-Tue 12/03/2024  8:35:13.33 
+Tue 12/03/2024  9:42:00.02 
