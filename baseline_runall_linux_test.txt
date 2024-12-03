@@ -1,4 +1,4 @@
-Tue Dec  3 16:19:34 UTC 2024
+Tue Dec  3 17:05:39 UTC 2024
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -2885,30 +2885,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 16, min 20, sec 20
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 20, sec 20
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 20, sec 20
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 20, sec 20
+before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 17, min 6, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 6, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 6, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 6, sec 26
 c_tests/bin1/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 16, min 20, sec 20
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 20, sec 20
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 20, sec 20
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 20, sec 20
+before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 17, min 6, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 6, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 6, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 6, sec 26
 c_tests/bin2/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 16, min 20, sec 20
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 20, sec 20
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 20, sec 20
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 20, sec 20
+before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 17, min 6, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 6, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 6, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 6, sec 26
 c_tests/bin3/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 16, min 20, sec 21
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 20, sec 21
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 20, sec 21
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 20, sec 21
+before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 17, min 6, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 6, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 6, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 6, sec 26
 c_tests/binfast/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 16, min 20, sec 21
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 11, min 20, sec 21
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 8, min 20, sec 21
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 16, min 20, sec 21
+before TZ is set: tz: '(null)', year: 2024, month 12, day 3, hour 17, min 6, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 3, hour 12, min 6, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 3, hour 9, min 6, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 3, hour 17, min 6, sec 26
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -4639,36 +4639,36 @@ this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
 sleep duration 0xc8
   sleep duration in milliseconds: 2000
-  user time: 2, kernel time: 8
+  user time: 3, kernel time: 8
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
   user time in ms: 1010, kernel time: 80
-getrusage user time in ms: 1012, system time 87
+getrusage user time in ms: 1019, system time 82
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
 sleep duration 0xc8
   sleep duration in milliseconds: 2000
-  user time: 1, kernel time: 8
+  user time: 2, kernel time: 7
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 1000, kernel time: 80
-getrusage user time in ms: 1008, system time 83
+  user time in ms: 1010, kernel time: 70
+getrusage user time in ms: 1018, system time 76
 sleepy time ended with great success
 c_tests/bin2/sleeptm
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
-sleep duration 0xc8
-  sleep duration in milliseconds: 2000
-  user time: 1, kernel time: 8
+sleep duration 0xc9
+  sleep duration in milliseconds: 2010
+  user time: 2, kernel time: 7
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 1000, kernel time: 80
-getrusage user time in ms: 1004, system time 89
+  user time in ms: 1010, kernel time: 70
+getrusage user time in ms: 1020, system time 76
 sleepy time ended with great success
 c_tests/bin3/sleeptm
 this test should take about 3 seconds to complete
@@ -4680,19 +4680,19 @@ busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
   user time in ms: 1010, kernel time: 80
-getrusage user time in ms: 1010, system time 83
+getrusage user time in ms: 1011, system time 83
 sleepy time ended with great success
 c_tests/binfast/sleeptm
 this test should take about 3 seconds to complete
 clk_tck / number of linux ticks per second: 100
 sleep duration 0xc8
   sleep duration in milliseconds: 2000
-  user time: 1, kernel time: 9
+  user time: 2, kernel time: 7
 busy_work value (this will be somewhat random): 0x1d38e955cd20f8da
   busy duration 0x64
   busy duration in milliseconds: 1000
-  user time in ms: 1000, kernel time: 90
-getrusage user time in ms: 1001, system time 96
+  user time in ms: 1000, kernel time: 80
+getrusage user time in ms: 1009, system time 84
 sleepy time ended with great success
 c_tests/bin0/tatomic
 test atomic completed with great success
@@ -4926,9 +4926,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-start time: 16:22:03.214
-7,760 ms for 1 iterations
-end time: 16:22:10.960
+7,212 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4955,9 +4953,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-start time: 16:22:15.332
-1,642 ms for 1 iterations
-end time: 16:22:16.971
+1,626 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4984,9 +4980,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-start time: 16:22:19.618
-1,563 ms for 1 iterations
-end time: 16:22:21.180
+1,634 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5013,9 +5007,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-start time: 16:22:23.683
-1,590 ms for 1 iterations
-end time: 16:22:25.272
+1,594 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5042,9 +5034,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-start time: 16:22:27.861
-1,587 ms for 1 iterations
-end time: 16:22:29.447
+1,586 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5086,19 +5076,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   178.734694ms
+serial runtime:   186.887381ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   43.744815ms
+serial runtime:   45.758488ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   33.164538ms
+serial runtime:   35.036551ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   25.905681ms
+serial runtime:   25.722315ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -5361,4 +5351,4 @@ element count after dedup: 58175
 rust_tests/bin3/mysort
 element count in vector: 58175
 element count after dedup: 58175
-Tue Dec  3 16:23:30 UTC 2024
+Tue Dec  3 17:09:35 UTC 2024
