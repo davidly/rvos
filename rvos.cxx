@@ -118,7 +118,7 @@ using namespace std::chrono;
     #define REG_ARG4 4
     #define REG_ARG5 5
 
-#else
+#elif defined( RVOS )
 
     #include "riscv.hxx"
 
@@ -135,6 +135,10 @@ using namespace std::chrono;
     #define REG_ARG3 RiscV::a3
     #define REG_ARG4 RiscV::a4
     #define REG_ARG5 RiscV::a5
+#else
+
+    #error "One of ARMOS or RVOS must be defined for compilation"
+
 #endif
 
 CDJLTrace tracer;
@@ -158,7 +162,7 @@ uint64_t g_top_of_stack = 0;                   // argc, argv, penv, aux records 
 CMMap g_mmap;                                  // for mmap and munmap system calls
 
 // fake descriptors.
-// /etc/timezone is not implemented, so apps running in RVOS on Windows assume UTC
+// /etc/timezone is not implemented, so apps running in the emulator on Windows assume UTC
 
 const uint64_t findFirstDescriptor = 3000;
 const uint64_t timebaseFrequencyDescriptor = 3001;
@@ -2608,7 +2612,7 @@ void emulator_hard_termination( CPUClass & cpu, const char *pcerr, uint64_t erro
 #ifdef ARMOS
         tracer.Trace( "%02zu: %16llx, ", i, cpu.regs[ i ] );
         printf( "%02zu: %16llx, ", i, cpu.regs[ i ] );
-#else
+#elif defined( RVOS )
         tracer.Trace( "%4s: %16llx, ", riscv_register_names[ i ], cpu.regs[ i ] );
         printf( "%4s: %16llx, ", riscv_register_names[ i ], cpu.regs[ i ] );
 #endif
@@ -3115,7 +3119,7 @@ bool load_image( const char * pimage, const char * app_args )
     paux[7].a_un.a_val = 0x595a5449;
 
     pstack--; // end of environment data is 0
-    pstack--; // move to where the OS environment variable is set OS=RVOS
+    pstack--; // move to where the OS environment variable is set OS=RVOS or OS=ARMOS
     *pstack = env_os_address; // (uint64_t) ( env_offset + arg_data_offset + g_base_address + max_args * sizeof( uint64_t ) );
     tracer.Trace( "the OS environment argument is at VM address %llx\n", *pstack );
 
