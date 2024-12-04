@@ -135,6 +135,7 @@ using namespace std::chrono;
     #define REG_ARG3 RiscV::a3
     #define REG_ARG4 RiscV::a4
     #define REG_ARG5 RiscV::a5
+
 #else
 
     #error "One of ARMOS or RVOS must be defined for compilation"
@@ -1903,9 +1904,12 @@ void emulator_invoke_svc( CPUClass & cpu )
             else
                 descriptor = _open( pname, flags, mode );
 #else
+
+#ifdef RVOS
 #if defined(__ARM_32BIT_STATE) || defined(__ARM_64BIT_STATE)
             flags = linux_riscv64_to_arm_open_flags( flags );
-#endif
+#endif // ARM32 or ARM64
+#endif // RVOS
             descriptor = openat( directory, pname, flags, mode );
 #endif
             update_result_errno( cpu, descriptor );
