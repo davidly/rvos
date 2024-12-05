@@ -1291,10 +1291,10 @@ void emulator_invoke_svc( CPUClass & cpu )
             int flags = (int) cpu.regs[ REG_ARG1 ];
             tracer.Trace( "  nanosleep id %d flags %x\n", clockid, flags );
 
-            const struct timespec * request = (const struct timespec *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
-            struct timespec * remain = 0;
+            const struct timespec_syscall * request = (const struct timespec_syscall *) cpu.getmem( cpu.regs[ REG_ARG2 ] );
+            struct timespec_syscall * remain = 0;
             if ( 0 != cpu.regs[ REG_ARG3 ] )
-                remain = (struct timespec *) cpu.getmem( cpu.regs[ REG_ARG3 ] );
+                remain = (struct timespec_syscall *) cpu.getmem( cpu.regs[ REG_ARG3 ] );
 
             uint64_t ms = request->tv_sec * 1000 + request->tv_nsec / 1000000;
             tracer.Trace( "  nanosleep sec %lld, nsec %lld == %lld ms\n", request->tv_sec, request->tv_nsec, ms );
