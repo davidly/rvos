@@ -115,6 +115,49 @@ static const uint8_t riscv_types[ 32 ] =
     IllType, // 1f
 };
 
+#define rm_RNE 0 // Nearest, ties to Even                     round()
+#define rm_RTZ 1 // Round towards Zero                        trunc()
+#define rm_RDN 2 // Round Down (towards)                      floor()
+#define rm_RUP 3 // Round Up (towards)                        ceil()
+#define rm_RMM 4 // Round to Nearest, ties to Max Magnitude   round_ties_to_max_maagnitude()
+
+double round_ties_to_max_magnitude( double x )
+{
+    // If the number is exactly halfway between two integers, round towards the integer with the larger magnitude
+
+    double rounded = round( x );
+    if ( 0.5 == fabs( x - rounded ) )
+    {
+         if ( x > 0 )
+             rounded = ceil( x );
+         else
+             rounded = floor( x );
+    }
+    return rounded;
+} //round_ties_to_max_magnitide
+
+int64_t round_i64_from_double( double d, uint64_t rm )
+{
+    if ( rm_RNE == rm )
+        return round( d );
+    if ( rm_RTZ == rm )
+        return trunc( d );
+    if ( rm_RDN == rm )
+        return floor( d );
+    if ( rm_RUP == rm )
+        return ceil( d );
+    else
+        return (int64_t) round_ties_to_max_magnitude( d );
+} //round_i64_from_double
+
+uint64_t round_ui64_from_double( double d, uint64_t rm )
+{
+    if ( d < 0.0 )
+        return 0;
+
+    return round_i64_from_double( d, rm );
+} //round_ui64_from_double
+
 #pragma warning(disable: 4100)
 void RiscV::assert_type( uint8_t t ) { assert( t == riscv_types[ opcode_type ] ); }
 
@@ -1160,9 +1203,9 @@ void RiscV::trace_state()
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
 
-                        bool resultneg = ( ( fregs[ rs1 ].f < 0.0 ) ^ ( fregs[ rs2 ].f < 0.0 ) );
+                        bool result_negative = ( ( fregs[ rs1 ].f < 0.0 ) ^ ( fregs[ rs2 ].f < 0.0 ) );
                         float f = fabsf( fregs[ rs1 ].f );
-                        if ( resultneg )
+                        if ( result_negative )
                             f = -f;
                         tracer.Trace( "fsgnjnx.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
@@ -1191,9 +1234,9 @@ void RiscV::trace_state()
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
 
-                        bool resultneg = ( ( fregs[ rs1 ].d < 0.0 ) ^ ( fregs[ rs2 ].d < 0.0 ) );
+                        bool result_negative = ( ( fregs[ rs1 ].d < 0.0 ) ^ ( fregs[ rs2 ].d < 0.0 ) );
                         double d = fabs( fregs[ rs1 ].d );
-                        if ( resultneg )
+                        if ( result_negative )
                             d = -d;
                         tracer.Trace( "fsgnjnx.d %s, %s, %s  # %.2f\n", freg_name( rd ), freg_name( rs1 ) , freg_name( rs2 ), d );
                     }
@@ -2293,9 +2336,9 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
     
-                        bool resultneg = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
+                        bool result_negative = ( ( fregs[ rs1 ].f < 0.0) ^ ( fregs[ rs2 ].f < 0.0 ) );
                         float f = fabsf( fregs[ rs1 ].f );
-                        if ( resultneg )
+                        if ( result_negative )
                             f = -f;
                         fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
                     }
@@ -2325,10 +2368,10 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-    
-                        bool resultneg = ( ( fregs[ rs1 ].d < 0.0) ^ ( fregs[ rs2 ].d < 0.0 ) );
+
+                        bool result_negative = ( ( fregs[ rs1 ].d < 0.0) ^ ( fregs[ rs2 ].d < 0.0 ) );
                         double d = fabs( fregs[ rs1 ].d );
-                        if ( resultneg )
+                        if ( result_negative )
                             d = -d;
                         fregs[ rd ].d = d; // fsgnjnx.d rd, rs1, rs2
                     }
@@ -2402,26 +2445,26 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 else if ( 0x60 == funct7 )
                 {
                     if ( 0 == rs2 )
-                        regs[ rd ] = (int32_t) fregs[ rs1 ].f; // fcvt.w.s rd, frs1
+                        regs[ rd ] = (int32_t) round_i64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.w.s rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = (uint32_t) fregs[ rs1 ].f; // fcvt.wus rd, frs1
+                        regs[ rd ] = (uint32_t) round_ui64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.wus rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = (int64_t) fregs[ rs1 ].f; // fcvt.l.s rd, frs1
+                        regs[ rd ] = round_i64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
                     else if ( 3 == rs2 )
-                        regs[ rd ] = (uint64_t) fregs[ rs1 ].f; // fcvt.lu.s rd, frs1
+                        regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
                     else
                         unhandled();
                 }
                 else if ( 0x61 == funct7 )
                 {
                     if ( 0 == rs2 )
-                        regs[ rd ] = (int32_t) fregs[ rs1 ].d; // fcvt.w.d rd, frs1
+                        regs[ rd ] = (int32_t) round_i64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.w.d rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = (uint32_t) fregs[ rs1 ].d; // fcvt.wu.d rd, frs1
+                        regs[ rd ] = (uint32_t) round_ui64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.wu.d rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = (int64_t) fregs[ rs1 ].d; // fcvt.l.d rd, frs1
+                        regs[ rd ] = round_i64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
                     else if ( 3 == rs2 )
-                        regs[ rd ] = (uint64_t) fregs[ rs1 ].d; // fcvt.lu.d rd, frs1
+                        regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
                     else
                         unhandled();
                 }
