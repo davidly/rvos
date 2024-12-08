@@ -3534,7 +3534,7 @@ int main( int argc, char * argv[] )
                 int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
     
                 printf( "elapsed milliseconds:  %15s\n", CDJLTrace::RenderNumberWithCommas( totalTime, ac ) );
-                printf( "ARM64 cycles:          %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
+                printf( "cycles:                %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
                 if ( 0 != totalTime )
                     printf( "effective clock rate:  %15s\n", CDJLTrace::RenderNumberWithCommas( cycles / totalTime, ac ) );
                 printf( "app exit code:         %15d\n", g_exit_code );

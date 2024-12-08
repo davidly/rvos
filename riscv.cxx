@@ -139,13 +139,13 @@ double round_ties_to_max_magnitude( double x )
 int64_t round_i64_from_double( double d, uint64_t rm )
 {
     if ( rm_RNE == rm )
-        return round( d );
+        return (int64_t) round( d );
     if ( rm_RTZ == rm )
-        return trunc( d );
+        return (int64_t) trunc( d );
     if ( rm_RDN == rm )
-        return floor( d );
+        return (int64_t) floor( d );
     if ( rm_RUP == rm )
-        return ceil( d );
+        return (int64_t) ceil( d );
     else
         return (int64_t) round_ties_to_max_magnitude( d );
 } //round_i64_from_double
@@ -2409,7 +2409,7 @@ uint64_t RiscV::run( uint64_t max_cycles )
                 else if ( 0x2c == funct7 )
                 {
                     if ( 0 == rs2 )
-                        fregs[ rd ].f = (float) sqrt( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
+                        fregs[ rd ].f = sqrtf( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
                     else
                         unhandled();
                 }
