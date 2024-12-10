@@ -611,7 +611,7 @@ static const char * cmp_type( uint64_t t )
     return comparison_types[ t ];
 } //cmp_type
 
-#if defined( __GNUC__ ) && !defined( __APPLE__ )     // bogus warning in g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+#if defined( __GNUC__ ) && !defined( __APPLE__ ) && !defined( __clang__ )     // bogus warning in g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
 #pragma GCC diagnostic ignored "-Wformat="
 #endif
 
