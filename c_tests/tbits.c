@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-//#pragma GCC optimize("O0")
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 template <class T> void test_bits( T a, T b )
 {
     T r_and = ( a & b );
@@ -13,6 +8,7 @@ template <class T> void test_bits( T a, T b )
     T r_xor = ( a ^ b );
     T r_nota = ( ~a );
     T r_notb = ( ~b );
+
     printf( "  and %llx, or %llx, xor %llx, nota %llx, notb %llx\n",
             (uint64_t) r_and, (uint64_t) r_or, (uint64_t) r_xor, (uint64_t) r_nota, (uint64_t) r_notb );
 } //test_bits
@@ -31,7 +27,7 @@ int main( int argc, char * argv[] )
     test_bits( (uint8_t) -247, (uint8_t) -247 );
 
     printf( "int8_t:\n" );
-    test_bits( (int8_t) 7, (int8_t) 3 );
+    test_bits( (int8_t) 7, (int8_t) 3 );   
     test_bits( (int8_t) 7, (int8_t) -3 );
     test_bits( (int8_t) -7, (int8_t) 3 );
     test_bits( (int8_t) -7, (int8_t) -3 );
@@ -108,4 +104,3 @@ int main( int argc, char * argv[] )
     test_bits( (int64_t) -247, (int64_t) -247 );
 } //main
 
-#pragma GCC diagnostic pop

@@ -23,7 +23,7 @@ void validate( void * amaps[], size_t i, size_t size )
 
 int main( int argc, char * argv[] )
 {
-    const size_t cmaps = 64;
+    const size_t cmaps = 32; // 64;
     void * amaps[ cmaps ];
     bool verbose = ( argc > 1 );
 

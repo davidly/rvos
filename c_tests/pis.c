@@ -3,8 +3,7 @@
 #include <cstring>
 #include <cfloat>
 #include <assert.h>
-
-#pragma GCC diagnostic ignored "-Wformat="
+#include <new>
 
 using namespace std;
 
@@ -123,7 +122,7 @@ void Usage()
     printf( "Usage: pis [offset] [count]\n" );
     printf( "  PI source. Generates hexadecimal digits of PI.\n" );
     printf( "  arguments:  [offset]    Offset in 1k where generation starts. Default is 0.\n" );
-    printf( "              [count]     Count in 1k of digits to generate. Default is 1024.\n" );
+    printf( "              [count]     Count in 1k of digits to generate. Default is 1.\n" );
     exit( 1 );
 } //Usage
 

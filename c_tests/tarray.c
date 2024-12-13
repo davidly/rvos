@@ -3,9 +3,6 @@
 #include <cstring>
 #include <unistd.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 #ifndef _countof
 #define _countof( X ) ( sizeof( X ) / sizeof( X[0] ) )
 #endif
@@ -223,4 +220,3 @@ int main( int argc, char * argv[] )
     return 0;
 } //main
 
-#pragma GCC diagnostic pop

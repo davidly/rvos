@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include <math.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-#pragma GCC diagnostic ignored "-Wformat-security"
-
 extern "C" int main()
 {
     double pi = 3.14159265358979323846264338327952884197169399375105820974944592307;
@@ -97,4 +93,3 @@ extern "C" int main()
     return 0;
 } //main
 
-#pragma GCC diagnostic pop

@@ -7,12 +7,14 @@
 /* why so many matrix size and datatype variants? g++ produces different code to optimize for each case */
 
 #define LINT_ARGS
-#pragma GCC diagnostic ignored "-Wformat="
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+typedef unsigned __int128 uint128_t;
+typedef __int128 int128_t;
 
 #define matrix_test( ftype, dim ) \
     ftype A_##ftype##dim[ dim ][ dim ]; \
@@ -50,9 +52,26 @@
     { \
         /* this debugging line causes the compiler to optimize code differently (tbl/zip)! syscall( 0x2002, 1 ); */ \
         for ( int i = 0; i < dim; i++ ) \
+        { \
             for ( int j = 0; j < dim; j++ ) \
                 for ( int k = 0; k < dim; k++ ) \
                     C_##ftype##dim[ i ][ j ] += A_##ftype##dim[ i ][ k ] * B_##ftype##dim[ k ][ j ]; \
+        } \
+    } \
+    void div_nonsense_##ftype##dim() /* force more instructions to be generated with this nonsense */ \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+        { \
+            for ( int j = 0; j < dim; j++ ) \
+                for ( int k = 0; k < dim; k++ ) \
+                    if ( B_##ftype##dim[ k ][ j ] != 0 ) \
+                    { \
+                        C_##ftype##dim[ i ][ j ] += A_##ftype##dim[ i ][ k ] / B_##ftype##dim[ k ][ j ]; \
+                        C_##ftype##dim[ i ][ j ] -= A_##ftype##dim[ i ][ k ] * B_##ftype##dim[ k ][ j ]; \
+                        C_##ftype##dim[ i ][ j ] -= A_##ftype##dim[ i ][ k ] / B_##ftype##dim[ k ][ j ]; \
+                        C_##ftype##dim[ i ][ j ] += A_##ftype##dim[ i ][ k ] * B_##ftype##dim[ k ][ j ]; \
+                    } \
+        } \
     } \
     ftype sum_##ftype##dim() \
     { \
@@ -71,7 +90,14 @@
         /*print_array_##ftype##dim( A_##ftype##dim );*/ \
         /*print_array_##ftype##dim( B_##ftype##dim );*/ \
         /*print_array_##ftype##dim( C_##ftype##dim );*/ \
-        return sum_##ftype##dim(); \
+        if ( sizeof( ftype ) > 8 ) { \
+            return (uint64_t) sum_##ftype##dim(); } \
+        ftype sum = sum_##ftype##dim(); \
+        div_nonsense_##ftype##dim(); \
+        ftype nonsense_sum = sum_##ftype##dim(); \
+        if ( sum != nonsense_sum ) \
+            printf( "nonsense: %lf\n", (double) nonsense_sum ); \
+        return sum; \
     }
 
 #define declare_matrix_tests( type ) \
@@ -106,6 +132,30 @@ declare_matrix_tests( int32_t );
 declare_matrix_tests( uint32_t );
 declare_matrix_tests( int64_t );
 declare_matrix_tests( uint64_t );
+declare_matrix_tests( int128_t );
+declare_matrix_tests( uint128_t );
+
+#define silent_run_tests( type, format ) \
+    run_##type##1(); \
+    run_##type##2(); \
+    run_##type##3(); \
+    run_##type##4(); \
+    run_##type##5(); \
+    run_##type##6(); \
+    run_##type##7(); \
+    run_##type##8(); \
+    run_##type##9(); \
+    run_##type##10(); \
+    run_##type##11(); \
+    run_##type##12(); \
+    run_##type##13(); \
+    run_##type##14(); \
+    run_##type##15(); \
+    run_##type##16(); \
+    run_##type##17(); \
+    run_##type##18(); \
+    run_##type##19(); \
+    run_##type##20();
 
 #define run_tests( type, format ) \
     printf( "matrix %s 1: " format "\n", #type, run_##type##1() ); \
@@ -129,6 +179,10 @@ declare_matrix_tests( uint64_t );
     printf( "matrix %s 19: " format "\n", #type, run_##type##19() ); \
     printf( "matrix %s 20: " format "\n", #type, run_##type##20() );
 
+#define run_this_tests( type, format ) \
+    printf( "matrix %s 8: " format "\n", #type, run_##type##8() );
+
+
 int main( int argc, char * argv[] )
 {
     run_tests( float, "%f");
@@ -141,6 +195,11 @@ int main( int argc, char * argv[] )
     run_tests( uint32_t, "%u");
     run_tests( int64_t, "%lld");
     run_tests( uint64_t, "%llu");
+
+    // these two return incorrect results even on Arm64 hardware
+
+    //run_tests( int128_t, "%lld");
+    //run_tests( uint128_t, "%llu");
 
     printf( "matrix multiply test completed with great success\n" );
     return 0;

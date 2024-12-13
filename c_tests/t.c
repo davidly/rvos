@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 void swap( char & a, char & b )
 {
     char c = a;
@@ -67,6 +64,11 @@ template <class T> T myabs( T x )
     return x;
 } //myabs
 
+// g++ has an internal compiler error with optimization levels 2, 3, and fast for this template
+
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+
 template <class T> T test( T & min, T & max )
 {
     T a[ 340 ];
@@ -124,6 +126,8 @@ template <class T> T test( T & min, T & max )
 
     return a[ 10 ];
 } //template
+
+#pragma GCC pop_options
 
 void validate_128mul()
 {
@@ -231,4 +235,3 @@ extern "C" int main()
     return 0;
 } //main
 
-#pragma GCC diagnostic pop

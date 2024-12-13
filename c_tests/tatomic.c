@@ -4,8 +4,6 @@
 #include <cassert>
 #include <mutex>
 
-#pragma GCC diagnostic ignored "-Wformat="
-
 template <class T> void validate( std::atomic<T> & a )
 {
     a = 0x36;
@@ -52,21 +50,21 @@ template <class T> void validate( std::atomic<T> & a )
 
 int main( int argc, char * argv[] )
 {
-    std::atomic<int8_t> i8 = 0;
+    std::atomic<int8_t> i8( 0 );
     validate( i8 );
-    std::atomic<uint8_t> ui8 = 0;
+    std::atomic<uint8_t> ui8( 0 );
     validate( ui8 );
-    std::atomic<int16_t> i16 = 0;
+    std::atomic<int16_t> i16( 0 );
     validate( i16 );
-    std::atomic<uint16_t> ui16 = 0;
+    std::atomic<uint16_t> ui16( 0 );
     validate( ui16 );
-    std::atomic<int32_t> i32 = 0;
+    std::atomic<int32_t> i32( 0 );
     validate( i32 );
-    std::atomic<uint32_t> ui32 = 0;
+    std::atomic<uint32_t> ui32( 0 );
     validate( ui32 );
-    std::atomic<int64_t> i64 = 0;
+    std::atomic<int64_t> i64( 0 );
     validate( i64 );
-    std::atomic<uint64_t> ui64 = 0;
+    std::atomic<uint64_t> ui64( 0 );
     validate( ui64 );
 
     // armos only has one core and supports one thread. but code will uses mutexes so validate they don't fail

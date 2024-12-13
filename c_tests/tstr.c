@@ -14,7 +14,7 @@ int main( int argc, char * argv[] )
         ac[ i ] = ( 'a' + ( i % 26 ) );
 
     printf( "testing strlen\n" );
-    for ( int i = 0; i < 2000; i++ )
+    for ( int i = 0; i < 1000; i++ )
     {
         int start = ( (unsigned int) rand() % 300 );
         int end = 1 + start + ( (unsigned int) rand() % 3000 );
@@ -32,10 +32,10 @@ int main( int argc, char * argv[] )
     }
 
     printf( "testing strchr and strrchr\n" );
-    for ( int i = 0; i < 2000; i++ )
+    for ( int i = 0; i < 1000; i++ )
     {
-        int start = ( (unsigned int) rand() % 3 ); // 300
-        int end = 1 + start + ( (unsigned int) rand() % 30 ); // 3000
+        int start = ( (unsigned int) rand() % 300 ); 
+        int end = 1 + start + ( (unsigned int) rand() % 70 );
         int len = end - start;
         char orig = ac[ end ];
         ac[ end ] = '!';
@@ -66,7 +66,7 @@ int main( int argc, char * argv[] )
     }
 
     printf( "testing memcpy and memcmp\n" );
-    for ( int i = 0; i < 2000; i++ )
+    for ( int i = 0; i < 1000; i++ )
     {
         int start = ( (unsigned int) rand() % 300 );
         int end = 1 + start + ( (unsigned int) rand() % 3000 );

@@ -10,8 +10,6 @@
 
 using namespace std::chrono;
 
-#pragma GCC diagnostic ignored "-Wformat="
-
 int main( int argc, char * argv[] )
 {
     high_resolution_clock::time_point tStart = high_resolution_clock::now();

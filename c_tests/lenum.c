@@ -17,14 +17,17 @@ int main( int argc, char * argv[] )
 
     int count = 0;
     bool parent_found = false;
-    struct dirent * entry;
-    while ( entry = readdir( dir ) )
+
+    do
     {
+        struct dirent * entry = readdir( dir );
+        if ( !entry )
+            break;
         if ( !strcmp( "..", entry->d_name ) )
             parent_found = true;
 
         count++;
-    }
+    } while( true );
 
     if ( !parent_found )
     {

@@ -21,6 +21,7 @@ struct exceptional : std::exception
 // without this, the call to operator new is optimized out
 
 #pragma GCC optimize("O0")
+#pragma clang optimize off
 
 int main()
 {
@@ -44,7 +45,7 @@ int main()
         printf( "attempting large allocations\n" );
         for ( size_t i = 0; i < 1000; i++ )
         {
-            int * myarray = new int[ 1000000 ];
+            int volatile * myarray = new int[ 1000000 ];
             if ( myarray )
                 successful++;
             else

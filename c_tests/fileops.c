@@ -3,9 +3,6 @@
 #include <errno.h>
 #include <string.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 char acbuf[ 128 ];
 char acbuf512[ 512 ];
 
@@ -147,5 +144,3 @@ int main( int argc, char * argv[] )
     printf( "fileops has completed with great success\n" );
     return 0;
 } /*main*/
-
-#pragma GCC diagnostic pop

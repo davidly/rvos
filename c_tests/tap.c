@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 template <class T> T __max( T a, T b )
 {
     if ( a > b )
@@ -98,5 +95,3 @@ int main()
     exit( 1202 );
     return 1202;
 } //main
-
-#pragma GCC diagnostic pop

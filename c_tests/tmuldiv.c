@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat="
-
 #if 0
 typedef unsigned char uint8_t;
 typedef signed char int8_t;
@@ -168,4 +165,3 @@ int main()
     return 0;
 } 
 
-#pragma GCC diagnostic pop
