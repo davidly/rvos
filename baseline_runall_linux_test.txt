@@ -1,4 +1,4 @@
-Sat  7 Dec 11:25:13 PST 2024
+Fri Dec 13 20:04:52 UTC 2024
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -10,7 +10,7 @@ uint8_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -28,7 +28,7 @@ int8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -46,7 +46,7 @@ uint16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -64,7 +64,7 @@ int16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -82,7 +82,7 @@ uint32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -100,7 +100,7 @@ int32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -118,7 +118,7 @@ uint64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -136,7 +136,43 @@ int64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+uint128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+int128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -176,7 +212,7 @@ uint8_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -194,7 +230,7 @@ int8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -212,7 +248,7 @@ uint16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -230,7 +266,7 @@ int16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -248,7 +284,7 @@ uint32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -266,7 +302,7 @@ int32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -284,7 +320,7 @@ uint64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -302,7 +338,43 @@ int64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+uint128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+int128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -342,7 +414,7 @@ uint8_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -360,7 +432,7 @@ int8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -378,7 +450,7 @@ uint16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -396,7 +468,7 @@ int16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -414,7 +486,7 @@ uint32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -432,7 +504,7 @@ int32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -450,7 +522,7 @@ uint64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -468,7 +540,43 @@ int64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+uint128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+int128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -508,7 +616,7 @@ uint8_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -526,7 +634,7 @@ int8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -544,7 +652,7 @@ uint16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -562,7 +670,7 @@ int16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -580,7 +688,7 @@ uint32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -598,7 +706,7 @@ int32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -616,7 +724,7 @@ uint64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -634,7 +742,43 @@ int64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+uint128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+int128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -674,7 +818,7 @@ uint8_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -692,7 +836,7 @@ int8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -710,7 +854,7 @@ uint16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -728,7 +872,7 @@ int16_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -746,7 +890,7 @@ uint32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -764,7 +908,7 @@ int32_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -782,7 +926,7 @@ uint64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
-  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -800,7 +944,43 @@ int64_t:
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+uint128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+int128_t:
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -2494,130 +2674,130 @@ testing strlen
 testing strchr and strrchr
 testing memcpy and memcmp
 testing printf
-69 (69): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-29 (29): nopqrstuvwxyzabcdefghijklmnop
-34 (34): lmnopqrstuvwxyzabcdefghijklmnopqrs
-24 (24): uvwxyzabcdefghijklmnopqr
-14 (14): stuvwxyzabcdef
-31 (31): ijklmnopqrstuvwxyzabcdefghijklm
-67 (67): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-39 (39): wxyzabcdefghijklmnopqrstuvwxyzabcdefghi
-68 (68): klmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-46 (46): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-65 (65): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-65 (65): nopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-67 (67): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-26 (26): qrstuvwxyzabcdefghijklmnop
-18 (18): jklmnopqrstuvwxyza
-66 (66): zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklm
-59 (59): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
-27 (27): pqrstuvwxyzabcdefghijklmnop
- 9 ( 9): ijklmnopq
-45 (45): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+59 (59): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+31 (31): tuvwxyzabcdefghijklmnopqrstuvwx
+56 (56): tuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw
+27 (27): bcdefghijklmnopqrstuvwxyzab
+22 (22): mnopqrstuvwxyzabcdefgh
+68 (68): cdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+66 (66): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
+63 (63): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+61 (61): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop
+38 (38): qrstuvwxyzabcdefghijklmnopqrstuvwxyzab
+ 4 ( 4): rstu
+19 (19): wxyzabcdefghijklmno
+68 (68): rstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefg
+ 1 ( 1): t
+13 (13): mnopqrstuvwxy
+34 (34): zabcdefghijklmnopqrstuvwxyzabcdefg
+69 (69): opqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde
+17 (17): zabcdefghijklmnop
+63 (63): stuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabc
+11 (11): uvwxyzabcde
 tstr completed with great success
 c_tests/bin1/tstr
 testing strlen
 testing strchr and strrchr
 testing memcpy and memcmp
 testing printf
-69 (69): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-29 (29): nopqrstuvwxyzabcdefghijklmnop
-34 (34): lmnopqrstuvwxyzabcdefghijklmnopqrs
-24 (24): uvwxyzabcdefghijklmnopqr
-14 (14): stuvwxyzabcdef
-31 (31): ijklmnopqrstuvwxyzabcdefghijklm
-67 (67): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-39 (39): wxyzabcdefghijklmnopqrstuvwxyzabcdefghi
-68 (68): klmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-46 (46): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-65 (65): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-65 (65): nopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-67 (67): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-26 (26): qrstuvwxyzabcdefghijklmnop
-18 (18): jklmnopqrstuvwxyza
-66 (66): zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklm
-59 (59): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
-27 (27): pqrstuvwxyzabcdefghijklmnop
- 9 ( 9): ijklmnopq
-45 (45): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+59 (59): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+31 (31): tuvwxyzabcdefghijklmnopqrstuvwx
+56 (56): tuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw
+27 (27): bcdefghijklmnopqrstuvwxyzab
+22 (22): mnopqrstuvwxyzabcdefgh
+68 (68): cdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+66 (66): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
+63 (63): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+61 (61): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop
+38 (38): qrstuvwxyzabcdefghijklmnopqrstuvwxyzab
+ 4 ( 4): rstu
+19 (19): wxyzabcdefghijklmno
+68 (68): rstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefg
+ 1 ( 1): t
+13 (13): mnopqrstuvwxy
+34 (34): zabcdefghijklmnopqrstuvwxyzabcdefg
+69 (69): opqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde
+17 (17): zabcdefghijklmnop
+63 (63): stuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabc
+11 (11): uvwxyzabcde
 tstr completed with great success
 c_tests/bin2/tstr
 testing strlen
 testing strchr and strrchr
 testing memcpy and memcmp
 testing printf
-69 (69): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-29 (29): nopqrstuvwxyzabcdefghijklmnop
-34 (34): lmnopqrstuvwxyzabcdefghijklmnopqrs
-24 (24): uvwxyzabcdefghijklmnopqr
-14 (14): stuvwxyzabcdef
-31 (31): ijklmnopqrstuvwxyzabcdefghijklm
-67 (67): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-39 (39): wxyzabcdefghijklmnopqrstuvwxyzabcdefghi
-68 (68): klmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-46 (46): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-65 (65): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-65 (65): nopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-67 (67): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-26 (26): qrstuvwxyzabcdefghijklmnop
-18 (18): jklmnopqrstuvwxyza
-66 (66): zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklm
-59 (59): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
-27 (27): pqrstuvwxyzabcdefghijklmnop
- 9 ( 9): ijklmnopq
-45 (45): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+59 (59): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+31 (31): tuvwxyzabcdefghijklmnopqrstuvwx
+56 (56): tuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw
+27 (27): bcdefghijklmnopqrstuvwxyzab
+22 (22): mnopqrstuvwxyzabcdefgh
+68 (68): cdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+66 (66): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
+63 (63): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+61 (61): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop
+38 (38): qrstuvwxyzabcdefghijklmnopqrstuvwxyzab
+ 4 ( 4): rstu
+19 (19): wxyzabcdefghijklmno
+68 (68): rstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefg
+ 1 ( 1): t
+13 (13): mnopqrstuvwxy
+34 (34): zabcdefghijklmnopqrstuvwxyzabcdefg
+69 (69): opqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde
+17 (17): zabcdefghijklmnop
+63 (63): stuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabc
+11 (11): uvwxyzabcde
 tstr completed with great success
 c_tests/bin3/tstr
 testing strlen
 testing strchr and strrchr
 testing memcpy and memcmp
 testing printf
-69 (69): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-29 (29): nopqrstuvwxyzabcdefghijklmnop
-34 (34): lmnopqrstuvwxyzabcdefghijklmnopqrs
-24 (24): uvwxyzabcdefghijklmnopqr
-14 (14): stuvwxyzabcdef
-31 (31): ijklmnopqrstuvwxyzabcdefghijklm
-67 (67): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-39 (39): wxyzabcdefghijklmnopqrstuvwxyzabcdefghi
-68 (68): klmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-46 (46): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-65 (65): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-65 (65): nopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-67 (67): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-26 (26): qrstuvwxyzabcdefghijklmnop
-18 (18): jklmnopqrstuvwxyza
-66 (66): zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklm
-59 (59): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
-27 (27): pqrstuvwxyzabcdefghijklmnop
- 9 ( 9): ijklmnopq
-45 (45): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+59 (59): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+31 (31): tuvwxyzabcdefghijklmnopqrstuvwx
+56 (56): tuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw
+27 (27): bcdefghijklmnopqrstuvwxyzab
+22 (22): mnopqrstuvwxyzabcdefgh
+68 (68): cdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+66 (66): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
+63 (63): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+61 (61): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop
+38 (38): qrstuvwxyzabcdefghijklmnopqrstuvwxyzab
+ 4 ( 4): rstu
+19 (19): wxyzabcdefghijklmno
+68 (68): rstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefg
+ 1 ( 1): t
+13 (13): mnopqrstuvwxy
+34 (34): zabcdefghijklmnopqrstuvwxyzabcdefg
+69 (69): opqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde
+17 (17): zabcdefghijklmnop
+63 (63): stuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabc
+11 (11): uvwxyzabcde
 tstr completed with great success
 c_tests/binfast/tstr
 testing strlen
 testing strchr and strrchr
 testing memcpy and memcmp
 testing printf
-69 (69): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-29 (29): nopqrstuvwxyzabcdefghijklmnop
-34 (34): lmnopqrstuvwxyzabcdefghijklmnopqrs
-24 (24): uvwxyzabcdefghijklmnopqr
-14 (14): stuvwxyzabcdef
-31 (31): ijklmnopqrstuvwxyzabcdefghijklm
-67 (67): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-39 (39): wxyzabcdefghijklmnopqrstuvwxyzabcdefghi
-68 (68): klmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-46 (46): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-65 (65): jklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
-65 (65): nopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-67 (67): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-26 (26): qrstuvwxyzabcdefghijklmnop
-18 (18): jklmnopqrstuvwxyza
-66 (66): zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklm
-59 (59): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
-27 (27): pqrstuvwxyzabcdefghijklmnop
- 9 ( 9): ijklmnopq
-45 (45): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+59 (59): lmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+31 (31): tuvwxyzabcdefghijklmnopqrstuvwx
+56 (56): tuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw
+27 (27): bcdefghijklmnopqrstuvwxyzab
+22 (22): mnopqrstuvwxyzabcdefgh
+68 (68): cdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqr
+66 (66): ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
+63 (63): pqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+61 (61): hijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop
+38 (38): qrstuvwxyzabcdefghijklmnopqrstuvwxyzab
+ 4 ( 4): rstu
+19 (19): wxyzabcdefghijklmno
+68 (68): rstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefg
+ 1 ( 1): t
+13 (13): mnopqrstuvwxy
+34 (34): zabcdefghijklmnopqrstuvwxyzabcdefg
+69 (69): opqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde
+17 (17): zabcdefghijklmnop
+63 (63): stuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabc
+11 (11): uvwxyzabcde
 tstr completed with great success
 c_tests/bin0/fileops
 current offset: 0
@@ -2885,30 +3065,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 7, hour 14, min 25, sec 25
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 7, hour 19, min 25, sec 25
+before TZ is set: tz: '(null)', year: 2024, month 12, day 13, hour 20, min 5, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 13, hour 15, min 5, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 13, hour 12, min 5, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 13, hour 20, min 5, sec 11
 c_tests/bin1/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 7, hour 14, min 25, sec 25
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 7, hour 19, min 25, sec 25
+before TZ is set: tz: '(null)', year: 2024, month 12, day 13, hour 20, min 5, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 13, hour 15, min 5, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 13, hour 12, min 5, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 13, hour 20, min 5, sec 11
 c_tests/bin2/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 7, hour 14, min 25, sec 25
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 7, hour 19, min 25, sec 25
+before TZ is set: tz: '(null)', year: 2024, month 12, day 13, hour 20, min 5, sec 12
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 13, hour 15, min 5, sec 12
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 13, hour 12, min 5, sec 12
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 13, hour 20, min 5, sec 12
 c_tests/bin3/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 7, hour 14, min 25, sec 25
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 7, hour 19, min 25, sec 25
+before TZ is set: tz: '(null)', year: 2024, month 12, day 13, hour 20, min 5, sec 12
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 13, hour 15, min 5, sec 12
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 13, hour 12, min 5, sec 12
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 13, hour 20, min 5, sec 12
 c_tests/binfast/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 7, hour 14, min 25, sec 25
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 7, hour 11, min 25, sec 25
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 7, hour 19, min 25, sec 25
+before TZ is set: tz: '(null)', year: 2024, month 12, day 13, hour 20, min 5, sec 12
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 13, hour 15, min 5, sec 12
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 13, hour 12, min 5, sec 12
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 13, hour 20, min 5, sec 12
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -4891,7 +5071,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-1,257 ms for 1 iterations
+5,880 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4918,7 +5098,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-275 ms for 1 iterations
+1,358 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4945,7 +5125,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-262 ms for 1 iterations
+1,259 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4972,7 +5152,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-276 ms for 1 iterations
+1,342 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -4999,7 +5179,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-274 ms for 1 iterations
+1,331 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5041,19 +5221,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   30.776766ms
+serial runtime:   161.376281ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   8.075112ms
+serial runtime:   35.195528ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   6.102335ms
+serial runtime:   27.64101ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   4.631709ms
+serial runtime:   20.750174ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -5316,4 +5496,4 @@ element count after dedup: 58175
 rust_tests/bin3/mysort
 element count in vector: 58175
 element count after dedup: 58175
-Sat  7 Dec 11:26:16 PST 2024
+Fri Dec 13 20:08:04 UTC 2024
