@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for arg in tcmp e printint sieve simple tmuldiv tpi ts tarray tbits trw tmmap tstr \
+for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw tmmap tstr \
            fileops ttime tm glob tap tsimplef tphi tf ttt td terrno t_setjmp tex \
            pis mm sleeptm tatomic lenum an ba;
 do
