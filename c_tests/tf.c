@@ -2,33 +2,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#define _USE_MATH_DEFINES 
 #include <math.h>
+#include <float.h>
 #include <stdint.h>
 
-#if 0
-char *ftoa( char *buffer, double d, int precision )
+char *floattoa( char *buffer, double d, int precision )
 {
-    rvos_print_text( "top of ftoa, d: \n" );
-    rvos_print_double( d );
-    rvos_print_text( "\n" );
     char * pbuf = buffer;
 
     if ( d < 0 )
     {
-        rvos_print_text( "d is negative\n" );
         *pbuf++ = '-';
         *pbuf = 0;
         d *= -1;
     }
 
     uint32_t whole = (uint32_t) (float) d;
-    rvos_printf( "in ftoa, whole %u\n", whole );
-
-    itoa( whole, pbuf, 10 );
+    sprintf( pbuf, "%u", whole );
 
     if ( precision > 0 )
     {
-        rvos_printf( "precision is > 0\n" );
         pbuf = buffer + strlen( buffer );
         *pbuf++ = '.';
 
@@ -36,10 +30,6 @@ char *ftoa( char *buffer, double d, int precision )
 
         while ( precision > 0 )
         {
-            rvos_printf( "precision while loop, precision = %d, fraction: \n", precision );
-    rvos_print_double( fraction );
-    rvos_print_text( "\n" );
-
             fraction *= 10.0;
             whole = fraction;
             *pbuf++ = '0' + whole;
@@ -52,24 +42,105 @@ char *ftoa( char *buffer, double d, int precision )
     }
 
     return buffer;
-} //ftoa
-#endif
+} //floattoa
+
+#define TRIG_FLT_EPSILON 0.00002  // 0.00000011920928955078
+#define TRIG_DBL_EPSILON 0.00000002 // 0.00000000000000022204
+#define TRIG_LDBL_EPSILON 0.0000000000000002 // 0.0000000000000000000000000000000001925930
+
+void check_same_f( const char * operation, float a, float b )
+{
+    float diff = a - b;
+    float abs_diff = fabsf( diff );
+    bool eq = ( abs_diff <= ( TRIG_FLT_EPSILON ) );
+    if ( !eq )
+        printf( "operation %s: float %.20f is not the same as float %.20f\n", operation, a, b );
+} //check_same_f
+
+void check_same_d( const char * operation, double a, double b )
+{
+    double diff = a - b;
+    double abs_diff = fabs( diff );
+    bool eq = ( abs_diff <= ( TRIG_DBL_EPSILON ) );
+    if ( !eq )
+        printf( "operation %s: double %.20lf is not the same as double %.20lf\n", operation, a, b );
+} //check_same_d
+
+void check_same_ld( const char * operation, long double a, long double b )
+{
+    long double diff = a - b;
+    long double abs_diff = fabsl( diff );
+    bool eq = ( abs_diff <= ( TRIG_LDBL_EPSILON ) );
+    if ( !eq )
+    {
+        printf( "operation %s: long double %.20Lf is not the same as long double %.20Lf\n", operation, a, b );
+        exit( 0 );
+    }
+} //check_same_ld
+
+void many_trigonometrics()
+{
+    float f = ( -M_PI / 2 ) + 0x000001; // want to be >= negative half pi.
+
+    //printf( "float epsilon: %.40lf\n", (double) FLT_EPSILON );
+    //printf( "double epsilon: %.40lf\n", (double) DBL_EPSILON );
+    //printf( "long double epsilon: %.40lf\n", (double) LDBL_EPSILON );
+
+    while ( f < ( M_PI / 2 ) )
+    {
+        float fresult = tanf( f );
+        float fback = atanf( fresult );
+        check_same_f( "tan", f, fback );
+
+        double dresult = tan( (double) f );
+        double dback = atan( dresult );
+        check_same_d( "tan", (double) f, dback );
+
+        long double ldresult = tanl( (long double) f );
+        long double ldback = atanl( ldresult );
+        check_same_ld( "tan", (long double) f, ldback );
+
+        fresult = sinf( f );
+        fback = asinf( fresult );
+        check_same_f( "sin", f, fback );
+
+        dresult = sin( (double) f );
+        dback = asin( dresult );
+        check_same_d( "sin", (double) f, dback );
+
+        ldresult = sinl( (long double) f );
+        ldback = asinl( ldresult );
+        check_same_ld( "sin", (long double) f, ldback );
+
+        float f_cos = f + ( M_PI / 2 );
+        fresult = cosf( f_cos );
+        fback = acosf( fresult );
+        check_same_f( "cos", f_cos, fback );
+
+        dresult = cos( (double) f_cos );
+        dback = acos( dresult );
+        check_same_d( "cos", (double) f_cos, dback );
+
+        ldresult = cosl( f_cos );
+        ldback = acosl( ldresult );
+        check_same_ld( "cos", (long double) f_cos, ldback );
+
+        f += .01f;
+    }
+} //many_trignometrics
 
 #pragma GCC optimize ("O0")
+
 extern "C" int main()
 {
     char ac[ 100 ];
     
-    printf( "hello from printf\n" );
-
-#if false
-    rvos_floattoa( ac, -1.234567, 8 );
-    rvos_printf( "float converted by floattoa: %s\n", ac );
-    rvos_floattoa( ac, 1.234567, 8 );
-    rvos_printf( "float converted by floattoa: %s\n", ac );
-    rvos_floattoa( ac, 34.567, 8 );
-    rvos_printf( "float converted by floattoa: %s\n", ac );
-#endif    
+    floattoa( ac, -1.234567, 8 );
+    printf( "float converted by floattoa: %s\n", ac );
+    floattoa( ac, 1.234567, 8 );
+    printf( "float converted by floattoa: %s\n", ac );
+    floattoa( ac, 34.567, 8 );
+    printf( "float converted by floattoa: %s\n", ac );
 
     printf( "float from printf: %f\n", 45.678 );
 
@@ -82,11 +153,8 @@ extern "C" int main()
 
     printf( "division result: %f, square root %f\n", fd, fs );
 
-#if 0
-    rvos_print_text( "calling floattoa\n" );
-    rvos_floattoa( ac, fr, 6 );
-    rvos_printf( "float converted with rvos_floattoa: %s\n", ac );
-#endif    
+    floattoa( ac, fr, 6 );
+    printf( "float converted with floattoa: %s\n", ac );
 
     printf( "result of 20.2 * -1.342: %f\n", fr );
 
@@ -148,7 +216,9 @@ extern "C" int main()
     }
     printf( "\n" );
 
-    printf( "stop\n" );
+    many_trigonometrics();
+
+    printf( "test tf completed with great success\n" );
     exit( 0 );
 } //main
 

@@ -44,6 +44,18 @@ void cmp_double( double a, double b )
     printf( "  lt %d le %d eq %d ge %d gt %d\n", lt, le, eq, ge, gt );
 } //cmp_double
 
+void cmp_long_double( long double a, long double b )
+{
+    long double diff = a - b;
+    long double abs_diff = fabsl( diff );
+    bool gt = ( diff > 0.0 && abs_diff > LDBL_EPSILON );
+    bool lt = ( diff < 0.0 && abs_diff > LDBL_EPSILON );
+    bool eq = ( abs_diff < DBL_EPSILON );
+    bool le = ( diff <= 0.0 || abs_diff < LDBL_EPSILON );
+    bool ge = ( diff >= 0.0 || abs_diff < LDBL_EPSILON );
+    printf( "  lt %d le %d eq %d ge %d gt %d\n", lt, le, eq, ge, gt );
+} //cmp_long_double
+
 void cmp_float( float a, float b )
 {
     float diff = a - b;
@@ -356,11 +368,14 @@ int main( int argc, char * argv[] )
     printf( "floating point:\n" );
     float f = -0.5f;
     double d = -0.5;
+    long double ld = -0.5L;
     for ( int i = 0; i < 10; i++ )
     {
         cmp_float( f, 0.2f );
         cmp_double( d, 0.2 );
+        cmp_long_double( ld, 0.2L );
         f += 0.1f;
         d += 0.1;
+        ld += 0.1L;
     }
 } //main

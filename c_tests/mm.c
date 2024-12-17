@@ -15,24 +15,25 @@
 
 typedef unsigned __int128 uint128_t;
 typedef __int128 int128_t;
+typedef long double ldouble_t;
 
 #define matrix_test( ftype, dim ) \
     ftype A_##ftype##dim[ dim ][ dim ]; \
     ftype B_##ftype##dim[ dim ][ dim ]; \
     ftype C_##ftype##dim[ dim ][ dim ]; \
-    void fillA_##ftype##dim() \
+    __attribute__((noinline)) void fillA_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 A_##ftype##dim[ i ][ j ] = (ftype) ( i + j + 2 ); \
     } \
-    void fillB_##ftype##dim() \
+    __attribute__((noinline)) void fillB_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 B_##ftype##dim[ i ][ j ] = (ftype) ( ( i + j + 2 ) / ( j + 1 ) ); \
     } \
-    void fillC_##ftype##dim() \
+    __attribute__((noinline)) void fillC_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
@@ -44,11 +45,11 @@ typedef __int128 int128_t;
         for ( int i = 0; i < dim; i++ ) \
         { \
             for ( int j = 0; j < dim; j++ ) \
-                printf( " %lf", (double) a[ i ][ j ] ); \
+                printf( " %Lf", (long double) a[ i ][ j ] ); \
             printf( "\n" ); \
         } \
     } \
-    void matmult_##ftype##dim() \
+    __attribute__((noinline)) void matmult_##ftype##dim() \
     { \
         /* this debugging line causes the compiler to optimize code differently (tbl/zip)! syscall( 0x2002, 1 ); */ \
         for ( int i = 0; i < dim; i++ ) \
@@ -58,7 +59,7 @@ typedef __int128 int128_t;
                     C_##ftype##dim[ i ][ j ] += A_##ftype##dim[ i ][ k ] * B_##ftype##dim[ k ][ j ]; \
         } \
     } \
-    void div_nonsense_##ftype##dim() /* force more instructions to be generated with this nonsense */ \
+    __attribute__((noinline)) void div_nonsense_##ftype##dim() /* force more instructions to be generated with this nonsense */ \
     { \
         for ( int i = 0; i < dim; i++ ) \
         { \
@@ -73,12 +74,28 @@ typedef __int128 int128_t;
                     } \
         } \
     } \
-    ftype sum_##ftype##dim() \
+    __attribute__((noinline)) ftype sum_##ftype##dim() \
     { \
         ftype result = (ftype) 0; \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 result += C_##ftype##dim[ i ][ j ]; \
+        return result; \
+    } \
+     __attribute__((noinline)) ftype min_##ftype##dim() \
+    { \
+        ftype result = C_##ftype##dim[ 0 ][ 0 ]; \
+        for ( int i = 0; i < dim; i++ ) \
+            for ( int j = 0; j < dim; j++ ) \
+                result = C_##ftype##dim[ i ][ j ] < result ? C_##ftype##dim[ i ][ j ] : result; \
+        return result; \
+    } \
+     __attribute__((noinline)) ftype max_##ftype##dim() \
+    { \
+        ftype result = C_##ftype##dim[ 0 ][ 0 ]; \
+        for ( int i = 0; i < dim; i++ ) \
+            for ( int j = 0; j < dim; j++ ) \
+                result = C_##ftype##dim[ i ][ j ] > result ? C_##ftype##dim[ i ][ j ] : result; \
         return result; \
     } \
     ftype run_##ftype##dim() \
@@ -90,13 +107,12 @@ typedef __int128 int128_t;
         /*print_array_##ftype##dim( A_##ftype##dim );*/ \
         /*print_array_##ftype##dim( B_##ftype##dim );*/ \
         /*print_array_##ftype##dim( C_##ftype##dim );*/ \
-        if ( sizeof( ftype ) > 8 ) { \
-            return (uint64_t) sum_##ftype##dim(); } \
         ftype sum = sum_##ftype##dim(); \
         div_nonsense_##ftype##dim(); \
         ftype nonsense_sum = sum_##ftype##dim(); \
         if ( sum != nonsense_sum ) \
             printf( "nonsense: %lf\n", (double) nonsense_sum ); \
+        printf( "min %lf max %lf\n", (double) min_##ftype##dim(), (double) max_##ftype##dim() ); \
         return sum; \
     }
 
@@ -124,6 +140,7 @@ typedef __int128 int128_t;
 
 declare_matrix_tests( float );
 declare_matrix_tests( double );
+declare_matrix_tests( ldouble_t );
 declare_matrix_tests( int8_t );
 declare_matrix_tests( uint8_t );
 declare_matrix_tests( int16_t );
@@ -179,14 +196,15 @@ declare_matrix_tests( uint128_t );
     printf( "matrix %s 19: " format "\n", #type, run_##type##19() ); \
     printf( "matrix %s 20: " format "\n", #type, run_##type##20() );
 
-#define run_this_tests( type, format ) \
-    printf( "matrix %s 8: " format "\n", #type, run_##type##8() );
+#define run_this_test( type, format ) \
+    printf( "matrix %s 4: " format "\n", #type, run_##type##4() );
 
 
 int main( int argc, char * argv[] )
 {
     run_tests( float, "%f");
     run_tests( double, "%lf");
+    run_tests( ldouble_t, "%Lf");
     run_tests( int8_t, "%d");
     run_tests( uint8_t, "%u");
     run_tests( int16_t, "%d");
@@ -195,6 +213,8 @@ int main( int argc, char * argv[] )
     run_tests( uint32_t, "%u");
     run_tests( int64_t, "%lld");
     run_tests( uint64_t, "%llu");
+
+    //run_this_test( ldouble_t, "%Lf" );    
 
     // these two return incorrect results even on Arm64 hardware
 
