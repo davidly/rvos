@@ -1,4 +1,4 @@
-Sat Dec 14 15:04:28 UTC 2024
+Tue Dec 17 14:39:36 PST 2024
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -195,8 +195,18 @@ floating point:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
@@ -397,8 +407,18 @@ floating point:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
@@ -599,8 +619,18 @@ floating point:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
@@ -801,8 +831,18 @@ floating point:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
@@ -1003,8 +1043,18 @@ floating point:
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
   lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
+  lt 1 le 1 eq 0 ge 0 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
   lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 1 eq 1 ge 1 gt 0
+  lt 0 le 0 eq 0 ge 1 gt 1
+  lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
   lt 0 le 0 eq 0 ge 1 gt 1
@@ -3155,30 +3205,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 14, hour 15, min 4, sec 57
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 14, hour 10, min 4, sec 57
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 14, hour 7, min 4, sec 57
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 14, hour 15, min 4, sec 57
+before TZ is set: tz: '(null)', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 39, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 39, sec 38
 c_tests/bin1/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 14, hour 15, min 4, sec 57
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 14, hour 10, min 4, sec 57
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 14, hour 7, min 4, sec 57
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 14, hour 15, min 4, sec 57
+before TZ is set: tz: '(null)', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 39, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 39, sec 38
 c_tests/bin2/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 14, hour 15, min 4, sec 57
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 14, hour 10, min 4, sec 57
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 14, hour 7, min 4, sec 57
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 14, hour 15, min 4, sec 57
+before TZ is set: tz: '(null)', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 39, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 39, sec 38
 c_tests/bin3/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 14, hour 15, min 4, sec 58
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 14, hour 10, min 4, sec 58
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 14, hour 7, min 4, sec 58
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 14, hour 15, min 4, sec 58
+before TZ is set: tz: '(null)', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 39, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 39, sec 38
 c_tests/binfast/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 14, hour 15, min 4, sec 58
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 14, hour 10, min 4, sec 58
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 14, hour 7, min 4, sec 58
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 14, hour 15, min 4, sec 58
+before TZ is set: tz: '(null)', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 39, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 39, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 39, sec 38
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -3400,9 +3450,12 @@ should tend towards 1.61803398874989484820458683436563811772030
   at 40 iterations: 1.6180339887498949
 done
 c_tests/bin0/tf
-hello from printf
+float converted by floattoa: -1.23456699
+float converted by floattoa: 1.23456699
+float converted by floattoa: 34.56700000
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
+float converted with floattoa: -27.108400
 result of 20.2 * -1.342: -27.108400
 result of 20.2 * -1.342 as a double: -27.108400
 pi in radians: 0.523599
@@ -3418,11 +3471,14 @@ logf of 0.3: -1.203973
 log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
-stop
+test tf completed with great success
 c_tests/bin1/tf
-hello from printf
+float converted by floattoa: -1.23456699
+float converted by floattoa: 1.23456699
+float converted by floattoa: 34.56700000
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
+float converted with floattoa: -27.108400
 result of 20.2 * -1.342: -27.108400
 result of 20.2 * -1.342 as a double: -27.108400
 pi in radians: 0.523599
@@ -3438,11 +3494,14 @@ logf of 0.3: -1.203973
 log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
-stop
+test tf completed with great success
 c_tests/bin2/tf
-hello from printf
+float converted by floattoa: -1.23456699
+float converted by floattoa: 1.23456699
+float converted by floattoa: 34.56700000
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
+float converted with floattoa: -27.108400
 result of 20.2 * -1.342: -27.108400
 result of 20.2 * -1.342 as a double: -27.108400
 pi in radians: 0.523599
@@ -3458,11 +3517,14 @@ logf of 0.3: -1.203973
 log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
-stop
+test tf completed with great success
 c_tests/bin3/tf
-hello from printf
+float converted by floattoa: -1.23456699
+float converted by floattoa: 1.23456699
+float converted by floattoa: 34.56700000
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
+float converted with floattoa: -27.108400
 result of 20.2 * -1.342: -27.108400
 result of 20.2 * -1.342 as a double: -27.108400
 pi in radians: 0.523599
@@ -3478,11 +3540,14 @@ logf of 0.3: -1.203973
 log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
-stop
+test tf completed with great success
 c_tests/binfast/tf
-hello from printf
+float converted by floattoa: -1.23456699
+float converted by floattoa: 1.23456699
+float converted by floattoa: 34.56700000
 float from printf: 45.678000
 division result: 333.333344, square root 18.257420
+float converted with floattoa: -27.108400
 result of 20.2 * -1.342: -27.108400
 result of 20.2 * -1.342 as a double: -27.108400
 pi in radians: 0.523599
@@ -3498,7 +3563,7 @@ logf of 0.3: -1.203973
 log10f of 300: 2.477121
 pi has mantissa: 0.785398, exponent 2
 l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,g,ge,
-stop
+test tf completed with great success
 c_tests/bin0/ttt
 starting...
 done
@@ -3710,1013 +3775,2213 @@ attempting large allocations
 caught a standard execption: std::bad_alloc
 leaving main
 c_tests/bin0/mm
+min 4.000000 max 4.000000
 matrix float 1: 4.000000
+min 8.000000 max 18.000000
 matrix float 2: 50.000000
+min 13.000000 max 47.000000
 matrix float 3: 228.000000
+min 19.000000 max 96.000000
 matrix float 4: 706.000000
+min 26.000000 max 170.000000
 matrix float 5: 1675.000000
+min 34.000000 max 274.000000
 matrix float 6: 3501.000000
+min 43.000000 max 413.000000
 matrix float 7: 6440.000000
+min 53.000000 max 592.000000
 matrix float 8: 11060.000000
+min 64.000000 max 816.000000
 matrix float 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix float 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix float 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix float 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix float 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix float 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix float 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix float 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix float 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix float 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix float 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix float 20: 465880.000000
+min 4.000000 max 4.000000
 matrix double 1: 4.000000
+min 8.000000 max 18.000000
 matrix double 2: 50.000000
+min 13.000000 max 47.000000
 matrix double 3: 228.000000
+min 19.000000 max 96.000000
 matrix double 4: 706.000000
+min 26.000000 max 170.000000
 matrix double 5: 1675.000000
+min 34.000000 max 274.000000
 matrix double 6: 3501.000000
+min 43.000000 max 413.000000
 matrix double 7: 6440.000000
+min 53.000000 max 592.000000
 matrix double 8: 11060.000000
+min 64.000000 max 816.000000
 matrix double 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix double 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix double 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix double 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix double 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix double 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix double 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix double 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix double 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix double 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix double 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix double 20: 465880.000000
+min 4.000000 max 4.000000
+matrix ldouble_t 1: 4.000000
+min 8.000000 max 18.000000
+matrix ldouble_t 2: 50.000000
+min 13.000000 max 47.000000
+matrix ldouble_t 3: 228.000000
+min 19.000000 max 96.000000
+matrix ldouble_t 4: 706.000000
+min 26.000000 max 170.000000
+matrix ldouble_t 5: 1675.000000
+min 34.000000 max 274.000000
+matrix ldouble_t 6: 3501.000000
+min 43.000000 max 413.000000
+matrix ldouble_t 7: 6440.000000
+min 53.000000 max 592.000000
+matrix ldouble_t 8: 11060.000000
+min 64.000000 max 816.000000
+matrix ldouble_t 9: 17793.000000
+min 76.000000 max 1090.000000
+matrix ldouble_t 10: 27355.000000
+min 89.000000 max 1419.000000
+matrix ldouble_t 11: 40084.000000
+min 103.000000 max 1808.000000
+matrix ldouble_t 12: 57474.000000
+min 118.000000 max 2262.000000
+matrix ldouble_t 13: 79547.000000
+min 134.000000 max 2786.000000
+matrix ldouble_t 14: 107639.000000
+min 151.000000 max 3385.000000
+matrix ldouble_t 15: 142770.000000
+min 169.000000 max 4064.000000
+matrix ldouble_t 16: 186432.000000
+min 188.000000 max 4828.000000
+matrix ldouble_t 17: 238612.000000
+min 208.000000 max 5682.000000
+matrix ldouble_t 18: 302274.000000
+min 229.000000 max 6631.000000
+matrix ldouble_t 19: 376846.000000
+min 251.000000 max 7680.000000
+matrix ldouble_t 20: 465880.000000
+min 4.000000 max 4.000000
 matrix int8_t 1: 4
+min 8.000000 max 18.000000
 matrix int8_t 2: 50
+min 13.000000 max 47.000000
 matrix int8_t 3: -28
+min 19.000000 max 96.000000
 matrix int8_t 4: -62
+min -126.000000 max 110.000000
 matrix int8_t 5: -117
+min -119.000000 max 122.000000
 matrix int8_t 6: -83
+min -128.000000 max 127.000000
 matrix int8_t 7: 40
+min -126.000000 max 124.000000
 matrix int8_t 8: 52
+min -128.000000 max 127.000000
 matrix int8_t 9: -127
+min -125.000000 max 127.000000
 matrix int8_t 10: -37
+min -128.000000 max 127.000000
 matrix int8_t 11: -108
+min -127.000000 max 126.000000
 matrix int8_t 12: -126
+min -127.000000 max 126.000000
 matrix int8_t 13: -69
+min -125.000000 max 127.000000
 matrix int8_t 14: 119
+min -128.000000 max 127.000000
 matrix int8_t 15: -78
+min -128.000000 max 127.000000
 matrix int8_t 16: 64
+min -126.000000 max 127.000000
 matrix int8_t 17: 20
+min -128.000000 max 127.000000
 matrix int8_t 18: -62
+min -128.000000 max 127.000000
 matrix int8_t 19: 14
+min -128.000000 max 127.000000
 matrix int8_t 20: -40
+min 4.000000 max 4.000000
 matrix uint8_t 1: 4
+min 8.000000 max 18.000000
 matrix uint8_t 2: 50
+min 13.000000 max 47.000000
 matrix uint8_t 3: 228
+min 19.000000 max 96.000000
 matrix uint8_t 4: 194
+min 26.000000 max 170.000000
 matrix uint8_t 5: 139
+min 18.000000 max 247.000000
 matrix uint8_t 6: 173
+min 17.000000 max 238.000000
 matrix uint8_t 7: 40
+min 18.000000 max 250.000000
 matrix uint8_t 8: 52
+min 6.000000 max 254.000000
 matrix uint8_t 9: 129
+min 1.000000 max 253.000000
 matrix uint8_t 10: 219
+min 0.000000 max 255.000000
 matrix uint8_t 11: 148
+min 1.000000 max 255.000000
 matrix uint8_t 12: 130
+min 0.000000 max 255.000000
 matrix uint8_t 13: 187
+min 1.000000 max 254.000000
 matrix uint8_t 14: 119
+min 0.000000 max 255.000000
 matrix uint8_t 15: 178
+min 0.000000 max 254.000000
 matrix uint8_t 16: 64
+min 0.000000 max 255.000000
 matrix uint8_t 17: 20
+min 0.000000 max 251.000000
 matrix uint8_t 18: 194
+min 0.000000 max 254.000000
 matrix uint8_t 19: 14
+min 0.000000 max 255.000000
 matrix uint8_t 20: 216
+min 4.000000 max 4.000000
 matrix int16_t 1: 4
+min 8.000000 max 18.000000
 matrix int16_t 2: 50
+min 13.000000 max 47.000000
 matrix int16_t 3: 228
+min 19.000000 max 96.000000
 matrix int16_t 4: 706
+min 26.000000 max 170.000000
 matrix int16_t 5: 1675
+min 34.000000 max 274.000000
 matrix int16_t 6: 3501
+min 43.000000 max 413.000000
 matrix int16_t 7: 6440
+min 53.000000 max 592.000000
 matrix int16_t 8: 11060
+min 64.000000 max 816.000000
 matrix int16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int16_t 11: -25452
+min 103.000000 max 1808.000000
 matrix int16_t 12: -8062
+min 118.000000 max 2262.000000
 matrix int16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix int16_t 14: -23433
+min 151.000000 max 3385.000000
 matrix int16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix int16_t 16: -10176
+min 188.000000 max 4828.000000
 matrix int16_t 17: -23532
+min 208.000000 max 5682.000000
 matrix int16_t 18: -25406
+min 229.000000 max 6631.000000
 matrix int16_t 19: -16370
+min 251.000000 max 7680.000000
 matrix int16_t 20: 7128
+min 4.000000 max 4.000000
 matrix uint16_t 1: 4
+min 8.000000 max 18.000000
 matrix uint16_t 2: 50
+min 13.000000 max 47.000000
 matrix uint16_t 3: 228
+min 19.000000 max 96.000000
 matrix uint16_t 4: 706
+min 26.000000 max 170.000000
 matrix uint16_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint16_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint16_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint16_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint16_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint16_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix uint16_t 14: 42103
+min 151.000000 max 3385.000000
 matrix uint16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix uint16_t 16: 55360
+min 188.000000 max 4828.000000
 matrix uint16_t 17: 42004
+min 208.000000 max 5682.000000
 matrix uint16_t 18: 40130
+min 229.000000 max 6631.000000
 matrix uint16_t 19: 49166
+min 251.000000 max 7680.000000
 matrix uint16_t 20: 7128
+min 4.000000 max 4.000000
 matrix int32_t 1: 4
+min 8.000000 max 18.000000
 matrix int32_t 2: 50
+min 13.000000 max 47.000000
 matrix int32_t 3: 228
+min 19.000000 max 96.000000
 matrix int32_t 4: 706
+min 26.000000 max 170.000000
 matrix int32_t 5: 1675
+min 34.000000 max 274.000000
 matrix int32_t 6: 3501
+min 43.000000 max 413.000000
 matrix int32_t 7: 6440
+min 53.000000 max 592.000000
 matrix int32_t 8: 11060
+min 64.000000 max 816.000000
 matrix int32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int32_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint32_t 1: 4
+min 8.000000 max 18.000000
 matrix uint32_t 2: 50
+min 13.000000 max 47.000000
 matrix uint32_t 3: 228
+min 19.000000 max 96.000000
 matrix uint32_t 4: 706
+min 26.000000 max 170.000000
 matrix uint32_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint32_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint32_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint32_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint32_t 20: 465880
+min 4.000000 max 4.000000
 matrix int64_t 1: 4
+min 8.000000 max 18.000000
 matrix int64_t 2: 50
+min 13.000000 max 47.000000
 matrix int64_t 3: 228
+min 19.000000 max 96.000000
 matrix int64_t 4: 706
+min 26.000000 max 170.000000
 matrix int64_t 5: 1675
+min 34.000000 max 274.000000
 matrix int64_t 6: 3501
+min 43.000000 max 413.000000
 matrix int64_t 7: 6440
+min 53.000000 max 592.000000
 matrix int64_t 8: 11060
+min 64.000000 max 816.000000
 matrix int64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int64_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint64_t 1: 4
+min 8.000000 max 18.000000
 matrix uint64_t 2: 50
+min 13.000000 max 47.000000
 matrix uint64_t 3: 228
+min 19.000000 max 96.000000
 matrix uint64_t 4: 706
+min 26.000000 max 170.000000
 matrix uint64_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint64_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint64_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint64_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin1/mm
+min 4.000000 max 4.000000
 matrix float 1: 4.000000
+min 8.000000 max 18.000000
 matrix float 2: 50.000000
+min 13.000000 max 47.000000
 matrix float 3: 228.000000
+min 19.000000 max 96.000000
 matrix float 4: 706.000000
+min 26.000000 max 170.000000
 matrix float 5: 1675.000000
+min 34.000000 max 274.000000
 matrix float 6: 3501.000000
+min 43.000000 max 413.000000
 matrix float 7: 6440.000000
+min 53.000000 max 592.000000
 matrix float 8: 11060.000000
+min 64.000000 max 816.000000
 matrix float 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix float 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix float 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix float 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix float 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix float 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix float 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix float 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix float 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix float 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix float 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix float 20: 465880.000000
+min 4.000000 max 4.000000
 matrix double 1: 4.000000
+min 8.000000 max 18.000000
 matrix double 2: 50.000000
+min 13.000000 max 47.000000
 matrix double 3: 228.000000
+min 19.000000 max 96.000000
 matrix double 4: 706.000000
+min 26.000000 max 170.000000
 matrix double 5: 1675.000000
+min 34.000000 max 274.000000
 matrix double 6: 3501.000000
+min 43.000000 max 413.000000
 matrix double 7: 6440.000000
+min 53.000000 max 592.000000
 matrix double 8: 11060.000000
+min 64.000000 max 816.000000
 matrix double 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix double 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix double 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix double 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix double 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix double 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix double 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix double 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix double 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix double 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix double 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix double 20: 465880.000000
+min 4.000000 max 4.000000
+matrix ldouble_t 1: 4.000000
+min 8.000000 max 18.000000
+matrix ldouble_t 2: 50.000000
+min 13.000000 max 47.000000
+matrix ldouble_t 3: 228.000000
+min 19.000000 max 96.000000
+matrix ldouble_t 4: 706.000000
+min 26.000000 max 170.000000
+matrix ldouble_t 5: 1675.000000
+min 34.000000 max 274.000000
+matrix ldouble_t 6: 3501.000000
+min 43.000000 max 413.000000
+matrix ldouble_t 7: 6440.000000
+min 53.000000 max 592.000000
+matrix ldouble_t 8: 11060.000000
+min 64.000000 max 816.000000
+matrix ldouble_t 9: 17793.000000
+min 76.000000 max 1090.000000
+matrix ldouble_t 10: 27355.000000
+min 89.000000 max 1419.000000
+matrix ldouble_t 11: 40084.000000
+min 103.000000 max 1808.000000
+matrix ldouble_t 12: 57474.000000
+min 118.000000 max 2262.000000
+matrix ldouble_t 13: 79547.000000
+min 134.000000 max 2786.000000
+matrix ldouble_t 14: 107639.000000
+min 151.000000 max 3385.000000
+matrix ldouble_t 15: 142770.000000
+min 169.000000 max 4064.000000
+matrix ldouble_t 16: 186432.000000
+min 188.000000 max 4828.000000
+matrix ldouble_t 17: 238612.000000
+min 208.000000 max 5682.000000
+matrix ldouble_t 18: 302274.000000
+min 229.000000 max 6631.000000
+matrix ldouble_t 19: 376846.000000
+min 251.000000 max 7680.000000
+matrix ldouble_t 20: 465880.000000
+min 4.000000 max 4.000000
 matrix int8_t 1: 4
+min 8.000000 max 18.000000
 matrix int8_t 2: 50
+min 13.000000 max 47.000000
 matrix int8_t 3: -28
+min 19.000000 max 96.000000
 matrix int8_t 4: -62
+min -126.000000 max 110.000000
 matrix int8_t 5: -117
+min -119.000000 max 122.000000
 matrix int8_t 6: -83
+min -128.000000 max 127.000000
 matrix int8_t 7: 40
+min -126.000000 max 124.000000
 matrix int8_t 8: 52
+min -128.000000 max 127.000000
 matrix int8_t 9: -127
+min -125.000000 max 127.000000
 matrix int8_t 10: -37
+min -128.000000 max 127.000000
 matrix int8_t 11: -108
+min -127.000000 max 126.000000
 matrix int8_t 12: -126
+min -127.000000 max 126.000000
 matrix int8_t 13: -69
+min -125.000000 max 127.000000
 matrix int8_t 14: 119
+min -128.000000 max 127.000000
 matrix int8_t 15: -78
+min -128.000000 max 127.000000
 matrix int8_t 16: 64
+min -126.000000 max 127.000000
 matrix int8_t 17: 20
+min -128.000000 max 127.000000
 matrix int8_t 18: -62
+min -128.000000 max 127.000000
 matrix int8_t 19: 14
+min -128.000000 max 127.000000
 matrix int8_t 20: -40
+min 4.000000 max 4.000000
 matrix uint8_t 1: 4
+min 8.000000 max 18.000000
 matrix uint8_t 2: 50
+min 13.000000 max 47.000000
 matrix uint8_t 3: 228
+min 19.000000 max 96.000000
 matrix uint8_t 4: 194
+min 26.000000 max 170.000000
 matrix uint8_t 5: 139
+min 18.000000 max 247.000000
 matrix uint8_t 6: 173
+min 17.000000 max 238.000000
 matrix uint8_t 7: 40
+min 18.000000 max 250.000000
 matrix uint8_t 8: 52
+min 6.000000 max 254.000000
 matrix uint8_t 9: 129
+min 1.000000 max 253.000000
 matrix uint8_t 10: 219
+min 0.000000 max 255.000000
 matrix uint8_t 11: 148
+min 1.000000 max 255.000000
 matrix uint8_t 12: 130
+min 0.000000 max 255.000000
 matrix uint8_t 13: 187
+min 1.000000 max 254.000000
 matrix uint8_t 14: 119
+min 0.000000 max 255.000000
 matrix uint8_t 15: 178
+min 0.000000 max 254.000000
 matrix uint8_t 16: 64
+min 0.000000 max 255.000000
 matrix uint8_t 17: 20
+min 0.000000 max 251.000000
 matrix uint8_t 18: 194
+min 0.000000 max 254.000000
 matrix uint8_t 19: 14
+min 0.000000 max 255.000000
 matrix uint8_t 20: 216
+min 4.000000 max 4.000000
 matrix int16_t 1: 4
+min 8.000000 max 18.000000
 matrix int16_t 2: 50
+min 13.000000 max 47.000000
 matrix int16_t 3: 228
+min 19.000000 max 96.000000
 matrix int16_t 4: 706
+min 26.000000 max 170.000000
 matrix int16_t 5: 1675
+min 34.000000 max 274.000000
 matrix int16_t 6: 3501
+min 43.000000 max 413.000000
 matrix int16_t 7: 6440
+min 53.000000 max 592.000000
 matrix int16_t 8: 11060
+min 64.000000 max 816.000000
 matrix int16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int16_t 11: -25452
+min 103.000000 max 1808.000000
 matrix int16_t 12: -8062
+min 118.000000 max 2262.000000
 matrix int16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix int16_t 14: -23433
+min 151.000000 max 3385.000000
 matrix int16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix int16_t 16: -10176
+min 188.000000 max 4828.000000
 matrix int16_t 17: -23532
+min 208.000000 max 5682.000000
 matrix int16_t 18: -25406
+min 229.000000 max 6631.000000
 matrix int16_t 19: -16370
+min 251.000000 max 7680.000000
 matrix int16_t 20: 7128
+min 4.000000 max 4.000000
 matrix uint16_t 1: 4
+min 8.000000 max 18.000000
 matrix uint16_t 2: 50
+min 13.000000 max 47.000000
 matrix uint16_t 3: 228
+min 19.000000 max 96.000000
 matrix uint16_t 4: 706
+min 26.000000 max 170.000000
 matrix uint16_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint16_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint16_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint16_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint16_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint16_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix uint16_t 14: 42103
+min 151.000000 max 3385.000000
 matrix uint16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix uint16_t 16: 55360
+min 188.000000 max 4828.000000
 matrix uint16_t 17: 42004
+min 208.000000 max 5682.000000
 matrix uint16_t 18: 40130
+min 229.000000 max 6631.000000
 matrix uint16_t 19: 49166
+min 251.000000 max 7680.000000
 matrix uint16_t 20: 7128
+min 4.000000 max 4.000000
 matrix int32_t 1: 4
+min 8.000000 max 18.000000
 matrix int32_t 2: 50
+min 13.000000 max 47.000000
 matrix int32_t 3: 228
+min 19.000000 max 96.000000
 matrix int32_t 4: 706
+min 26.000000 max 170.000000
 matrix int32_t 5: 1675
+min 34.000000 max 274.000000
 matrix int32_t 6: 3501
+min 43.000000 max 413.000000
 matrix int32_t 7: 6440
+min 53.000000 max 592.000000
 matrix int32_t 8: 11060
+min 64.000000 max 816.000000
 matrix int32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int32_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint32_t 1: 4
+min 8.000000 max 18.000000
 matrix uint32_t 2: 50
+min 13.000000 max 47.000000
 matrix uint32_t 3: 228
+min 19.000000 max 96.000000
 matrix uint32_t 4: 706
+min 26.000000 max 170.000000
 matrix uint32_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint32_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint32_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint32_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint32_t 20: 465880
+min 4.000000 max 4.000000
 matrix int64_t 1: 4
+min 8.000000 max 18.000000
 matrix int64_t 2: 50
+min 13.000000 max 47.000000
 matrix int64_t 3: 228
+min 19.000000 max 96.000000
 matrix int64_t 4: 706
+min 26.000000 max 170.000000
 matrix int64_t 5: 1675
+min 34.000000 max 274.000000
 matrix int64_t 6: 3501
+min 43.000000 max 413.000000
 matrix int64_t 7: 6440
+min 53.000000 max 592.000000
 matrix int64_t 8: 11060
+min 64.000000 max 816.000000
 matrix int64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int64_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint64_t 1: 4
+min 8.000000 max 18.000000
 matrix uint64_t 2: 50
+min 13.000000 max 47.000000
 matrix uint64_t 3: 228
+min 19.000000 max 96.000000
 matrix uint64_t 4: 706
+min 26.000000 max 170.000000
 matrix uint64_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint64_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint64_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint64_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin2/mm
+min 4.000000 max 4.000000
 matrix float 1: 4.000000
+min 8.000000 max 18.000000
 matrix float 2: 50.000000
+min 13.000000 max 47.000000
 matrix float 3: 228.000000
+min 19.000000 max 96.000000
 matrix float 4: 706.000000
+min 26.000000 max 170.000000
 matrix float 5: 1675.000000
+min 34.000000 max 274.000000
 matrix float 6: 3501.000000
+min 43.000000 max 413.000000
 matrix float 7: 6440.000000
+min 53.000000 max 592.000000
 matrix float 8: 11060.000000
+min 64.000000 max 816.000000
 matrix float 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix float 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix float 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix float 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix float 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix float 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix float 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix float 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix float 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix float 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix float 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix float 20: 465880.000000
+min 4.000000 max 4.000000
 matrix double 1: 4.000000
+min 8.000000 max 18.000000
 matrix double 2: 50.000000
+min 13.000000 max 47.000000
 matrix double 3: 228.000000
+min 19.000000 max 96.000000
 matrix double 4: 706.000000
+min 26.000000 max 170.000000
 matrix double 5: 1675.000000
+min 34.000000 max 274.000000
 matrix double 6: 3501.000000
+min 43.000000 max 413.000000
 matrix double 7: 6440.000000
+min 53.000000 max 592.000000
 matrix double 8: 11060.000000
+min 64.000000 max 816.000000
 matrix double 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix double 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix double 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix double 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix double 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix double 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix double 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix double 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix double 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix double 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix double 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix double 20: 465880.000000
+min 4.000000 max 4.000000
+matrix ldouble_t 1: 4.000000
+min 8.000000 max 18.000000
+matrix ldouble_t 2: 50.000000
+min 13.000000 max 47.000000
+matrix ldouble_t 3: 228.000000
+min 19.000000 max 96.000000
+matrix ldouble_t 4: 706.000000
+min 26.000000 max 170.000000
+matrix ldouble_t 5: 1675.000000
+min 34.000000 max 274.000000
+matrix ldouble_t 6: 3501.000000
+min 43.000000 max 413.000000
+matrix ldouble_t 7: 6440.000000
+min 53.000000 max 592.000000
+matrix ldouble_t 8: 11060.000000
+min 64.000000 max 816.000000
+matrix ldouble_t 9: 17793.000000
+min 76.000000 max 1090.000000
+matrix ldouble_t 10: 27355.000000
+min 89.000000 max 1419.000000
+matrix ldouble_t 11: 40084.000000
+min 103.000000 max 1808.000000
+matrix ldouble_t 12: 57474.000000
+min 118.000000 max 2262.000000
+matrix ldouble_t 13: 79547.000000
+min 134.000000 max 2786.000000
+matrix ldouble_t 14: 107639.000000
+min 151.000000 max 3385.000000
+matrix ldouble_t 15: 142770.000000
+min 169.000000 max 4064.000000
+matrix ldouble_t 16: 186432.000000
+min 188.000000 max 4828.000000
+matrix ldouble_t 17: 238612.000000
+min 208.000000 max 5682.000000
+matrix ldouble_t 18: 302274.000000
+min 229.000000 max 6631.000000
+matrix ldouble_t 19: 376846.000000
+min 251.000000 max 7680.000000
+matrix ldouble_t 20: 465880.000000
+min 4.000000 max 4.000000
 matrix int8_t 1: 4
+min 8.000000 max 18.000000
 matrix int8_t 2: 50
+min 13.000000 max 47.000000
 matrix int8_t 3: -28
+min 19.000000 max 96.000000
 matrix int8_t 4: -62
+min -126.000000 max 110.000000
 matrix int8_t 5: -117
+min -119.000000 max 122.000000
 matrix int8_t 6: -83
+min -128.000000 max 127.000000
 matrix int8_t 7: 40
+min -126.000000 max 124.000000
 matrix int8_t 8: 52
+min -128.000000 max 127.000000
 matrix int8_t 9: -127
+min -125.000000 max 127.000000
 matrix int8_t 10: -37
+min -128.000000 max 127.000000
 matrix int8_t 11: -108
+min -127.000000 max 126.000000
 matrix int8_t 12: -126
+min -127.000000 max 126.000000
 matrix int8_t 13: -69
+min -125.000000 max 127.000000
 matrix int8_t 14: 119
+min -128.000000 max 127.000000
 matrix int8_t 15: -78
+min -128.000000 max 127.000000
 matrix int8_t 16: 64
+min -126.000000 max 127.000000
 matrix int8_t 17: 20
+min -128.000000 max 127.000000
 matrix int8_t 18: -62
+min -128.000000 max 127.000000
 matrix int8_t 19: 14
+min -128.000000 max 127.000000
 matrix int8_t 20: -40
+min 4.000000 max 4.000000
 matrix uint8_t 1: 4
+min 8.000000 max 18.000000
 matrix uint8_t 2: 50
+min 13.000000 max 47.000000
 matrix uint8_t 3: 228
+min 19.000000 max 96.000000
 matrix uint8_t 4: 194
+min 26.000000 max 170.000000
 matrix uint8_t 5: 139
+min 18.000000 max 247.000000
 matrix uint8_t 6: 173
+min 17.000000 max 238.000000
 matrix uint8_t 7: 40
+min 18.000000 max 250.000000
 matrix uint8_t 8: 52
+min 6.000000 max 254.000000
 matrix uint8_t 9: 129
+min 1.000000 max 253.000000
 matrix uint8_t 10: 219
+min 0.000000 max 255.000000
 matrix uint8_t 11: 148
+min 1.000000 max 255.000000
 matrix uint8_t 12: 130
+min 0.000000 max 255.000000
 matrix uint8_t 13: 187
+min 1.000000 max 254.000000
 matrix uint8_t 14: 119
+min 0.000000 max 255.000000
 matrix uint8_t 15: 178
+min 0.000000 max 254.000000
 matrix uint8_t 16: 64
+min 0.000000 max 255.000000
 matrix uint8_t 17: 20
+min 0.000000 max 251.000000
 matrix uint8_t 18: 194
+min 0.000000 max 254.000000
 matrix uint8_t 19: 14
+min 0.000000 max 255.000000
 matrix uint8_t 20: 216
+min 4.000000 max 4.000000
 matrix int16_t 1: 4
+min 8.000000 max 18.000000
 matrix int16_t 2: 50
+min 13.000000 max 47.000000
 matrix int16_t 3: 228
+min 19.000000 max 96.000000
 matrix int16_t 4: 706
+min 26.000000 max 170.000000
 matrix int16_t 5: 1675
+min 34.000000 max 274.000000
 matrix int16_t 6: 3501
+min 43.000000 max 413.000000
 matrix int16_t 7: 6440
+min 53.000000 max 592.000000
 matrix int16_t 8: 11060
+min 64.000000 max 816.000000
 matrix int16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int16_t 11: -25452
+min 103.000000 max 1808.000000
 matrix int16_t 12: -8062
+min 118.000000 max 2262.000000
 matrix int16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix int16_t 14: -23433
+min 151.000000 max 3385.000000
 matrix int16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix int16_t 16: -10176
+min 188.000000 max 4828.000000
 matrix int16_t 17: -23532
+min 208.000000 max 5682.000000
 matrix int16_t 18: -25406
+min 229.000000 max 6631.000000
 matrix int16_t 19: -16370
+min 251.000000 max 7680.000000
 matrix int16_t 20: 7128
+min 4.000000 max 4.000000
 matrix uint16_t 1: 4
+min 8.000000 max 18.000000
 matrix uint16_t 2: 50
+min 13.000000 max 47.000000
 matrix uint16_t 3: 228
+min 19.000000 max 96.000000
 matrix uint16_t 4: 706
+min 26.000000 max 170.000000
 matrix uint16_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint16_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint16_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint16_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint16_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint16_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix uint16_t 14: 42103
+min 151.000000 max 3385.000000
 matrix uint16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix uint16_t 16: 55360
+min 188.000000 max 4828.000000
 matrix uint16_t 17: 42004
+min 208.000000 max 5682.000000
 matrix uint16_t 18: 40130
+min 229.000000 max 6631.000000
 matrix uint16_t 19: 49166
+min 251.000000 max 7680.000000
 matrix uint16_t 20: 7128
+min 4.000000 max 4.000000
 matrix int32_t 1: 4
+min 8.000000 max 18.000000
 matrix int32_t 2: 50
+min 13.000000 max 47.000000
 matrix int32_t 3: 228
+min 19.000000 max 96.000000
 matrix int32_t 4: 706
+min 26.000000 max 170.000000
 matrix int32_t 5: 1675
+min 34.000000 max 274.000000
 matrix int32_t 6: 3501
+min 43.000000 max 413.000000
 matrix int32_t 7: 6440
+min 53.000000 max 592.000000
 matrix int32_t 8: 11060
+min 64.000000 max 816.000000
 matrix int32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int32_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint32_t 1: 4
+min 8.000000 max 18.000000
 matrix uint32_t 2: 50
+min 13.000000 max 47.000000
 matrix uint32_t 3: 228
+min 19.000000 max 96.000000
 matrix uint32_t 4: 706
+min 26.000000 max 170.000000
 matrix uint32_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint32_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint32_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint32_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint32_t 20: 465880
+min 4.000000 max 4.000000
 matrix int64_t 1: 4
+min 8.000000 max 18.000000
 matrix int64_t 2: 50
+min 13.000000 max 47.000000
 matrix int64_t 3: 228
+min 19.000000 max 96.000000
 matrix int64_t 4: 706
+min 26.000000 max 170.000000
 matrix int64_t 5: 1675
+min 34.000000 max 274.000000
 matrix int64_t 6: 3501
+min 43.000000 max 413.000000
 matrix int64_t 7: 6440
+min 53.000000 max 592.000000
 matrix int64_t 8: 11060
+min 64.000000 max 816.000000
 matrix int64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int64_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint64_t 1: 4
+min 8.000000 max 18.000000
 matrix uint64_t 2: 50
+min 13.000000 max 47.000000
 matrix uint64_t 3: 228
+min 19.000000 max 96.000000
 matrix uint64_t 4: 706
+min 26.000000 max 170.000000
 matrix uint64_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint64_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint64_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint64_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin3/mm
+min 4.000000 max 4.000000
 matrix float 1: 4.000000
+min 8.000000 max 18.000000
 matrix float 2: 50.000000
+min 13.000000 max 47.000000
 matrix float 3: 228.000000
+min 19.000000 max 96.000000
 matrix float 4: 706.000000
+min 26.000000 max 170.000000
 matrix float 5: 1675.000000
+min 34.000000 max 274.000000
 matrix float 6: 3501.000000
+min 43.000000 max 413.000000
 matrix float 7: 6440.000000
+min 53.000000 max 592.000000
 matrix float 8: 11060.000000
+min 64.000000 max 816.000000
 matrix float 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix float 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix float 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix float 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix float 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix float 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix float 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix float 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix float 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix float 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix float 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix float 20: 465880.000000
+min 4.000000 max 4.000000
 matrix double 1: 4.000000
+min 8.000000 max 18.000000
 matrix double 2: 50.000000
+min 13.000000 max 47.000000
 matrix double 3: 228.000000
+min 19.000000 max 96.000000
 matrix double 4: 706.000000
+min 26.000000 max 170.000000
 matrix double 5: 1675.000000
+min 34.000000 max 274.000000
 matrix double 6: 3501.000000
+min 43.000000 max 413.000000
 matrix double 7: 6440.000000
+min 53.000000 max 592.000000
 matrix double 8: 11060.000000
+min 64.000000 max 816.000000
 matrix double 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix double 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix double 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix double 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix double 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix double 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix double 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix double 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix double 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix double 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix double 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix double 20: 465880.000000
+min 4.000000 max 4.000000
+matrix ldouble_t 1: 4.000000
+min 8.000000 max 18.000000
+matrix ldouble_t 2: 50.000000
+min 13.000000 max 47.000000
+matrix ldouble_t 3: 228.000000
+min 19.000000 max 96.000000
+matrix ldouble_t 4: 706.000000
+min 26.000000 max 170.000000
+matrix ldouble_t 5: 1675.000000
+min 34.000000 max 274.000000
+matrix ldouble_t 6: 3501.000000
+min 43.000000 max 413.000000
+matrix ldouble_t 7: 6440.000000
+min 53.000000 max 592.000000
+matrix ldouble_t 8: 11060.000000
+min 64.000000 max 816.000000
+matrix ldouble_t 9: 17793.000000
+min 76.000000 max 1090.000000
+matrix ldouble_t 10: 27355.000000
+min 89.000000 max 1419.000000
+matrix ldouble_t 11: 40084.000000
+min 103.000000 max 1808.000000
+matrix ldouble_t 12: 57474.000000
+min 118.000000 max 2262.000000
+matrix ldouble_t 13: 79547.000000
+min 134.000000 max 2786.000000
+matrix ldouble_t 14: 107639.000000
+min 151.000000 max 3385.000000
+matrix ldouble_t 15: 142770.000000
+min 169.000000 max 4064.000000
+matrix ldouble_t 16: 186432.000000
+min 188.000000 max 4828.000000
+matrix ldouble_t 17: 238612.000000
+min 208.000000 max 5682.000000
+matrix ldouble_t 18: 302274.000000
+min 229.000000 max 6631.000000
+matrix ldouble_t 19: 376846.000000
+min 251.000000 max 7680.000000
+matrix ldouble_t 20: 465880.000000
+min 4.000000 max 4.000000
 matrix int8_t 1: 4
+min 8.000000 max 18.000000
 matrix int8_t 2: 50
+min 13.000000 max 47.000000
 matrix int8_t 3: -28
+min 19.000000 max 96.000000
 matrix int8_t 4: -62
+min -126.000000 max 110.000000
 matrix int8_t 5: -117
+min -119.000000 max 122.000000
 matrix int8_t 6: -83
+min -128.000000 max 127.000000
 matrix int8_t 7: 40
+min -126.000000 max 124.000000
 matrix int8_t 8: 52
+min -128.000000 max 127.000000
 matrix int8_t 9: -127
+min -125.000000 max 127.000000
 matrix int8_t 10: -37
+min -128.000000 max 127.000000
 matrix int8_t 11: -108
+min -127.000000 max 126.000000
 matrix int8_t 12: -126
+min -127.000000 max 126.000000
 matrix int8_t 13: -69
+min -125.000000 max 127.000000
 matrix int8_t 14: 119
+min -128.000000 max 127.000000
 matrix int8_t 15: -78
+min -128.000000 max 127.000000
 matrix int8_t 16: 64
+min -126.000000 max 127.000000
 matrix int8_t 17: 20
+min -128.000000 max 127.000000
 matrix int8_t 18: -62
+min -128.000000 max 127.000000
 matrix int8_t 19: 14
+min -128.000000 max 127.000000
 matrix int8_t 20: -40
+min 4.000000 max 4.000000
 matrix uint8_t 1: 4
+min 8.000000 max 18.000000
 matrix uint8_t 2: 50
+min 13.000000 max 47.000000
 matrix uint8_t 3: 228
+min 19.000000 max 96.000000
 matrix uint8_t 4: 194
+min 26.000000 max 170.000000
 matrix uint8_t 5: 139
+min 18.000000 max 247.000000
 matrix uint8_t 6: 173
+min 17.000000 max 238.000000
 matrix uint8_t 7: 40
+min 18.000000 max 250.000000
 matrix uint8_t 8: 52
+min 6.000000 max 254.000000
 matrix uint8_t 9: 129
+min 1.000000 max 253.000000
 matrix uint8_t 10: 219
+min 0.000000 max 255.000000
 matrix uint8_t 11: 148
+min 1.000000 max 255.000000
 matrix uint8_t 12: 130
+min 0.000000 max 255.000000
 matrix uint8_t 13: 187
+min 1.000000 max 254.000000
 matrix uint8_t 14: 119
+min 0.000000 max 255.000000
 matrix uint8_t 15: 178
+min 0.000000 max 254.000000
 matrix uint8_t 16: 64
+min 0.000000 max 255.000000
 matrix uint8_t 17: 20
+min 0.000000 max 251.000000
 matrix uint8_t 18: 194
+min 0.000000 max 254.000000
 matrix uint8_t 19: 14
+min 0.000000 max 255.000000
 matrix uint8_t 20: 216
+min 4.000000 max 4.000000
 matrix int16_t 1: 4
+min 8.000000 max 18.000000
 matrix int16_t 2: 50
+min 13.000000 max 47.000000
 matrix int16_t 3: 228
+min 19.000000 max 96.000000
 matrix int16_t 4: 706
+min 26.000000 max 170.000000
 matrix int16_t 5: 1675
+min 34.000000 max 274.000000
 matrix int16_t 6: 3501
+min 43.000000 max 413.000000
 matrix int16_t 7: 6440
+min 53.000000 max 592.000000
 matrix int16_t 8: 11060
+min 64.000000 max 816.000000
 matrix int16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int16_t 11: -25452
+min 103.000000 max 1808.000000
 matrix int16_t 12: -8062
+min 118.000000 max 2262.000000
 matrix int16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix int16_t 14: -23433
+min 151.000000 max 3385.000000
 matrix int16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix int16_t 16: -10176
+min 188.000000 max 4828.000000
 matrix int16_t 17: -23532
+min 208.000000 max 5682.000000
 matrix int16_t 18: -25406
+min 229.000000 max 6631.000000
 matrix int16_t 19: -16370
+min 251.000000 max 7680.000000
 matrix int16_t 20: 7128
+min 4.000000 max 4.000000
 matrix uint16_t 1: 4
+min 8.000000 max 18.000000
 matrix uint16_t 2: 50
+min 13.000000 max 47.000000
 matrix uint16_t 3: 228
+min 19.000000 max 96.000000
 matrix uint16_t 4: 706
+min 26.000000 max 170.000000
 matrix uint16_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint16_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint16_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint16_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint16_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint16_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix uint16_t 14: 42103
+min 151.000000 max 3385.000000
 matrix uint16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix uint16_t 16: 55360
+min 188.000000 max 4828.000000
 matrix uint16_t 17: 42004
+min 208.000000 max 5682.000000
 matrix uint16_t 18: 40130
+min 229.000000 max 6631.000000
 matrix uint16_t 19: 49166
+min 251.000000 max 7680.000000
 matrix uint16_t 20: 7128
+min 4.000000 max 4.000000
 matrix int32_t 1: 4
+min 8.000000 max 18.000000
 matrix int32_t 2: 50
+min 13.000000 max 47.000000
 matrix int32_t 3: 228
+min 19.000000 max 96.000000
 matrix int32_t 4: 706
+min 26.000000 max 170.000000
 matrix int32_t 5: 1675
+min 34.000000 max 274.000000
 matrix int32_t 6: 3501
+min 43.000000 max 413.000000
 matrix int32_t 7: 6440
+min 53.000000 max 592.000000
 matrix int32_t 8: 11060
+min 64.000000 max 816.000000
 matrix int32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int32_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint32_t 1: 4
+min 8.000000 max 18.000000
 matrix uint32_t 2: 50
+min 13.000000 max 47.000000
 matrix uint32_t 3: 228
+min 19.000000 max 96.000000
 matrix uint32_t 4: 706
+min 26.000000 max 170.000000
 matrix uint32_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint32_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint32_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint32_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint32_t 20: 465880
+min 4.000000 max 4.000000
 matrix int64_t 1: 4
+min 8.000000 max 18.000000
 matrix int64_t 2: 50
+min 13.000000 max 47.000000
 matrix int64_t 3: 228
+min 19.000000 max 96.000000
 matrix int64_t 4: 706
+min 26.000000 max 170.000000
 matrix int64_t 5: 1675
+min 34.000000 max 274.000000
 matrix int64_t 6: 3501
+min 43.000000 max 413.000000
 matrix int64_t 7: 6440
+min 53.000000 max 592.000000
 matrix int64_t 8: 11060
+min 64.000000 max 816.000000
 matrix int64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int64_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint64_t 1: 4
+min 8.000000 max 18.000000
 matrix uint64_t 2: 50
+min 13.000000 max 47.000000
 matrix uint64_t 3: 228
+min 19.000000 max 96.000000
 matrix uint64_t 4: 706
+min 26.000000 max 170.000000
 matrix uint64_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint64_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint64_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint64_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/binfast/mm
+min 4.000000 max 4.000000
 matrix float 1: 4.000000
+min 8.000000 max 18.000000
 matrix float 2: 50.000000
+min 13.000000 max 47.000000
 matrix float 3: 228.000000
+min 19.000000 max 96.000000
 matrix float 4: 706.000000
+min 26.000000 max 170.000000
 matrix float 5: 1675.000000
+min 34.000000 max 274.000000
 matrix float 6: 3501.000000
+min 43.000000 max 413.000000
 matrix float 7: 6440.000000
+min 53.000000 max 592.000000
 matrix float 8: 11060.000000
+min 64.000000 max 816.000000
 matrix float 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix float 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix float 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix float 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix float 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix float 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix float 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix float 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix float 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix float 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix float 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix float 20: 465880.000000
+min 4.000000 max 4.000000
 matrix double 1: 4.000000
+min 8.000000 max 18.000000
 matrix double 2: 50.000000
+min 13.000000 max 47.000000
 matrix double 3: 228.000000
+min 19.000000 max 96.000000
 matrix double 4: 706.000000
+min 26.000000 max 170.000000
 matrix double 5: 1675.000000
+min 34.000000 max 274.000000
 matrix double 6: 3501.000000
+min 43.000000 max 413.000000
 matrix double 7: 6440.000000
+min 53.000000 max 592.000000
 matrix double 8: 11060.000000
+min 64.000000 max 816.000000
 matrix double 9: 17793.000000
+min 76.000000 max 1090.000000
 matrix double 10: 27355.000000
+min 89.000000 max 1419.000000
 matrix double 11: 40084.000000
+min 103.000000 max 1808.000000
 matrix double 12: 57474.000000
+min 118.000000 max 2262.000000
 matrix double 13: 79547.000000
+min 134.000000 max 2786.000000
 matrix double 14: 107639.000000
+min 151.000000 max 3385.000000
 matrix double 15: 142770.000000
+min 169.000000 max 4064.000000
 matrix double 16: 186432.000000
+min 188.000000 max 4828.000000
 matrix double 17: 238612.000000
+min 208.000000 max 5682.000000
 matrix double 18: 302274.000000
+min 229.000000 max 6631.000000
 matrix double 19: 376846.000000
+min 251.000000 max 7680.000000
 matrix double 20: 465880.000000
+min 4.000000 max 4.000000
+matrix ldouble_t 1: 4.000000
+min 8.000000 max 18.000000
+matrix ldouble_t 2: 50.000000
+min 13.000000 max 47.000000
+matrix ldouble_t 3: 228.000000
+min 19.000000 max 96.000000
+matrix ldouble_t 4: 706.000000
+min 26.000000 max 170.000000
+matrix ldouble_t 5: 1675.000000
+min 34.000000 max 274.000000
+matrix ldouble_t 6: 3501.000000
+min 43.000000 max 413.000000
+matrix ldouble_t 7: 6440.000000
+min 53.000000 max 592.000000
+matrix ldouble_t 8: 11060.000000
+min 64.000000 max 816.000000
+matrix ldouble_t 9: 17793.000000
+min 76.000000 max 1090.000000
+matrix ldouble_t 10: 27355.000000
+min 89.000000 max 1419.000000
+matrix ldouble_t 11: 40084.000000
+min 103.000000 max 1808.000000
+matrix ldouble_t 12: 57474.000000
+min 118.000000 max 2262.000000
+matrix ldouble_t 13: 79547.000000
+min 134.000000 max 2786.000000
+matrix ldouble_t 14: 107639.000000
+min 151.000000 max 3385.000000
+matrix ldouble_t 15: 142770.000000
+min 169.000000 max 4064.000000
+matrix ldouble_t 16: 186432.000000
+min 188.000000 max 4828.000000
+matrix ldouble_t 17: 238612.000000
+min 208.000000 max 5682.000000
+matrix ldouble_t 18: 302274.000000
+min 229.000000 max 6631.000000
+matrix ldouble_t 19: 376846.000000
+min 251.000000 max 7680.000000
+matrix ldouble_t 20: 465880.000000
+min 4.000000 max 4.000000
 matrix int8_t 1: 4
+min 8.000000 max 18.000000
 matrix int8_t 2: 50
+min 13.000000 max 47.000000
 matrix int8_t 3: -28
+min 19.000000 max 96.000000
 matrix int8_t 4: -62
+min -126.000000 max 110.000000
 matrix int8_t 5: -117
+min -119.000000 max 122.000000
 matrix int8_t 6: -83
+min -128.000000 max 127.000000
 matrix int8_t 7: 40
+min -126.000000 max 124.000000
 matrix int8_t 8: 52
+min -128.000000 max 127.000000
 matrix int8_t 9: -127
+min -125.000000 max 127.000000
 matrix int8_t 10: -37
+min -128.000000 max 127.000000
 matrix int8_t 11: -108
+min -127.000000 max 126.000000
 matrix int8_t 12: -126
+min -127.000000 max 126.000000
 matrix int8_t 13: -69
+min -125.000000 max 127.000000
 matrix int8_t 14: 119
+min -128.000000 max 127.000000
 matrix int8_t 15: -78
+min -128.000000 max 127.000000
 matrix int8_t 16: 64
+min -126.000000 max 127.000000
 matrix int8_t 17: 20
+min -128.000000 max 127.000000
 matrix int8_t 18: -62
+min -128.000000 max 127.000000
 matrix int8_t 19: 14
+min -128.000000 max 127.000000
 matrix int8_t 20: -40
+min 4.000000 max 4.000000
 matrix uint8_t 1: 4
+min 8.000000 max 18.000000
 matrix uint8_t 2: 50
+min 13.000000 max 47.000000
 matrix uint8_t 3: 228
+min 19.000000 max 96.000000
 matrix uint8_t 4: 194
+min 26.000000 max 170.000000
 matrix uint8_t 5: 139
+min 18.000000 max 247.000000
 matrix uint8_t 6: 173
+min 17.000000 max 238.000000
 matrix uint8_t 7: 40
+min 18.000000 max 250.000000
 matrix uint8_t 8: 52
+min 6.000000 max 254.000000
 matrix uint8_t 9: 129
+min 1.000000 max 253.000000
 matrix uint8_t 10: 219
+min 0.000000 max 255.000000
 matrix uint8_t 11: 148
+min 1.000000 max 255.000000
 matrix uint8_t 12: 130
+min 0.000000 max 255.000000
 matrix uint8_t 13: 187
+min 1.000000 max 254.000000
 matrix uint8_t 14: 119
+min 0.000000 max 255.000000
 matrix uint8_t 15: 178
+min 0.000000 max 254.000000
 matrix uint8_t 16: 64
+min 0.000000 max 255.000000
 matrix uint8_t 17: 20
+min 0.000000 max 251.000000
 matrix uint8_t 18: 194
+min 0.000000 max 254.000000
 matrix uint8_t 19: 14
+min 0.000000 max 255.000000
 matrix uint8_t 20: 216
+min 4.000000 max 4.000000
 matrix int16_t 1: 4
+min 8.000000 max 18.000000
 matrix int16_t 2: 50
+min 13.000000 max 47.000000
 matrix int16_t 3: 228
+min 19.000000 max 96.000000
 matrix int16_t 4: 706
+min 26.000000 max 170.000000
 matrix int16_t 5: 1675
+min 34.000000 max 274.000000
 matrix int16_t 6: 3501
+min 43.000000 max 413.000000
 matrix int16_t 7: 6440
+min 53.000000 max 592.000000
 matrix int16_t 8: 11060
+min 64.000000 max 816.000000
 matrix int16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int16_t 11: -25452
+min 103.000000 max 1808.000000
 matrix int16_t 12: -8062
+min 118.000000 max 2262.000000
 matrix int16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix int16_t 14: -23433
+min 151.000000 max 3385.000000
 matrix int16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix int16_t 16: -10176
+min 188.000000 max 4828.000000
 matrix int16_t 17: -23532
+min 208.000000 max 5682.000000
 matrix int16_t 18: -25406
+min 229.000000 max 6631.000000
 matrix int16_t 19: -16370
+min 251.000000 max 7680.000000
 matrix int16_t 20: 7128
+min 4.000000 max 4.000000
 matrix uint16_t 1: 4
+min 8.000000 max 18.000000
 matrix uint16_t 2: 50
+min 13.000000 max 47.000000
 matrix uint16_t 3: 228
+min 19.000000 max 96.000000
 matrix uint16_t 4: 706
+min 26.000000 max 170.000000
 matrix uint16_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint16_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint16_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint16_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint16_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint16_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint16_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint16_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint16_t 13: 14011
+min 134.000000 max 2786.000000
 matrix uint16_t 14: 42103
+min 151.000000 max 3385.000000
 matrix uint16_t 15: 11698
+min 169.000000 max 4064.000000
 matrix uint16_t 16: 55360
+min 188.000000 max 4828.000000
 matrix uint16_t 17: 42004
+min 208.000000 max 5682.000000
 matrix uint16_t 18: 40130
+min 229.000000 max 6631.000000
 matrix uint16_t 19: 49166
+min 251.000000 max 7680.000000
 matrix uint16_t 20: 7128
+min 4.000000 max 4.000000
 matrix int32_t 1: 4
+min 8.000000 max 18.000000
 matrix int32_t 2: 50
+min 13.000000 max 47.000000
 matrix int32_t 3: 228
+min 19.000000 max 96.000000
 matrix int32_t 4: 706
+min 26.000000 max 170.000000
 matrix int32_t 5: 1675
+min 34.000000 max 274.000000
 matrix int32_t 6: 3501
+min 43.000000 max 413.000000
 matrix int32_t 7: 6440
+min 53.000000 max 592.000000
 matrix int32_t 8: 11060
+min 64.000000 max 816.000000
 matrix int32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int32_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint32_t 1: 4
+min 8.000000 max 18.000000
 matrix uint32_t 2: 50
+min 13.000000 max 47.000000
 matrix uint32_t 3: 228
+min 19.000000 max 96.000000
 matrix uint32_t 4: 706
+min 26.000000 max 170.000000
 matrix uint32_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint32_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint32_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint32_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint32_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint32_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint32_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint32_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint32_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint32_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint32_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint32_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint32_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint32_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint32_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint32_t 20: 465880
+min 4.000000 max 4.000000
 matrix int64_t 1: 4
+min 8.000000 max 18.000000
 matrix int64_t 2: 50
+min 13.000000 max 47.000000
 matrix int64_t 3: 228
+min 19.000000 max 96.000000
 matrix int64_t 4: 706
+min 26.000000 max 170.000000
 matrix int64_t 5: 1675
+min 34.000000 max 274.000000
 matrix int64_t 6: 3501
+min 43.000000 max 413.000000
 matrix int64_t 7: 6440
+min 53.000000 max 592.000000
 matrix int64_t 8: 11060
+min 64.000000 max 816.000000
 matrix int64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix int64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix int64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix int64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix int64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix int64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix int64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix int64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix int64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix int64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix int64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix int64_t 20: 465880
+min 4.000000 max 4.000000
 matrix uint64_t 1: 4
+min 8.000000 max 18.000000
 matrix uint64_t 2: 50
+min 13.000000 max 47.000000
 matrix uint64_t 3: 228
+min 19.000000 max 96.000000
 matrix uint64_t 4: 706
+min 26.000000 max 170.000000
 matrix uint64_t 5: 1675
+min 34.000000 max 274.000000
 matrix uint64_t 6: 3501
+min 43.000000 max 413.000000
 matrix uint64_t 7: 6440
+min 53.000000 max 592.000000
 matrix uint64_t 8: 11060
+min 64.000000 max 816.000000
 matrix uint64_t 9: 17793
+min 76.000000 max 1090.000000
 matrix uint64_t 10: 27355
+min 89.000000 max 1419.000000
 matrix uint64_t 11: 40084
+min 103.000000 max 1808.000000
 matrix uint64_t 12: 57474
+min 118.000000 max 2262.000000
 matrix uint64_t 13: 79547
+min 134.000000 max 2786.000000
 matrix uint64_t 14: 107639
+min 151.000000 max 3385.000000
 matrix uint64_t 15: 142770
+min 169.000000 max 4064.000000
 matrix uint64_t 16: 186432
+min 188.000000 max 4828.000000
 matrix uint64_t 17: 238612
+min 208.000000 max 5682.000000
 matrix uint64_t 18: 302274
+min 229.000000 max 6631.000000
 matrix uint64_t 19: 376846
+min 251.000000 max 7680.000000
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin0/pis
@@ -4909,15 +6174,19 @@ clk_tck / number of linux ticks per second: 100
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/bin2/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/bin3/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/binfast/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/bin0/tatomic
 test atomic completed with great success
@@ -5161,7 +6430,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-5,954 ms for 1 iterations
+513 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5188,7 +6457,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-1,376 ms for 1 iterations
+131 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5215,7 +6484,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-1,252 ms for 1 iterations
+120 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5242,7 +6511,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-1,440 ms for 1 iterations
+142 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5269,7 +6538,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-1,466 ms for 1 iterations
+138 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -5311,19 +6580,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   141.466536ms
+serial runtime:   16.569341ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   35.981233ms
+serial runtime:   3.166415ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   30.884438ms
+serial runtime:   2.568969ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   21.168196ms
+serial runtime:   2.056385ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -5586,4 +6855,4 @@ element count after dedup: 58175
 rust_tests/bin3/mysort
 element count in vector: 58175
 element count after dedup: 58175
-Sat Dec 14 15:07:51 UTC 2024
+Tue Dec 17 14:40:06 PST 2024
