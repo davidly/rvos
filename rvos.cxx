@@ -1262,7 +1262,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 tracer.Trace( "  acPath: '%s', poutwin32: '%s'\n", acPath, poutwin32 );
                 backslash_to_slash( poutwin32 );
                 pout = original;
-                strcpy( pin, poutwin32 + 2 ); // path C:
+                strcpy( pin, poutwin32 + 2 ); // get past C:
             }
             else
                 tracer.Trace( "  _getcwd failed on win32, error %d\n", errno );
@@ -1910,7 +1910,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 descriptor = _open( pname, flags, mode );
 #else
 
-// if it's rvos running on Arm or armos runnign on risc-v, swap O_DIRECT and O_DIRECTORY
+// if it's rvos running on Arm or armos running on risc-v, swap O_DIRECT and O_DIRECTORY
 
 #ifndef __APPLE__
 
@@ -2367,7 +2367,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 // check to see if stdin has a keystroke available
 
                 cpu.regs[ REG_RESULT ] = g_consoleConfig.portable_kbhit();
-                tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ REG_ARG0 ] );
+                tracer.Trace( "  pselect6 keystroke available on stdin: %llx\n", cpu.regs[ REG_RESULT ] );
             }
             else
             {
