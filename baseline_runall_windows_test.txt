@@ -1,4 +1,4 @@
-Tue 12/17/2024 14:31:46.92 
+Fri 12/20/2024 11:15:24.66 
 test c_tests\bin0\tcmp 
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -646,10 +646,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin0\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 17, hour 14, min 31, sec 48
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 31, sec 48
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 31, sec 48
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 31, sec 48
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 20, hour 11, min 15, sec 26
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 15, sec 26
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 15, sec 26
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 15, sec 26
 test c_tests\bin0\tm 
 tm has completed with great success
 test c_tests\bin0\glob 
@@ -1230,6 +1230,8 @@ test c_tests\bin0\tatomic
 test atomic completed with great success
 test c_tests\bin0\lenum 
 linux file system enumeration completed with great success
+test c_tests\bin0\tregex 
+regex test completed with great success
 test c_tests\bin0\an 
 a delve id
 a delved i
@@ -1276,7 +1278,7 @@ lade vied
 lead vied
 test c_tests\bin0\ba 
 parsing input file tp.bas
-399 ms for 1 iterations
+384 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -1948,10 +1950,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin1\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 17, hour 14, min 31, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 31, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 31, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 31, sec 56
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 20, hour 11, min 15, sec 34
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 15, sec 34
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 15, sec 34
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 15, sec 34
 test c_tests\bin1\tm 
 tm has completed with great success
 test c_tests\bin1\glob 
@@ -2532,6 +2534,8 @@ test c_tests\bin1\tatomic
 test atomic completed with great success
 test c_tests\bin1\lenum 
 linux file system enumeration completed with great success
+test c_tests\bin1\tregex 
+regex test completed with great success
 test c_tests\bin1\an 
 a delve id
 a delved i
@@ -2578,7 +2582,7 @@ lade vied
 lead vied
 test c_tests\bin1\ba 
 parsing input file tp.bas
-101 ms for 1 iterations
+99 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -3250,10 +3254,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin2\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 17, hour 14, min 32, sec 3
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 32, sec 3
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 32, sec 3
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 32, sec 3
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 20, hour 11, min 15, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 15, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 15, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 15, sec 40
 test c_tests\bin2\tm 
 tm has completed with great success
 test c_tests\bin2\glob 
@@ -3834,6 +3838,8 @@ test c_tests\bin2\tatomic
 test atomic completed with great success
 test c_tests\bin2\lenum 
 linux file system enumeration completed with great success
+test c_tests\bin2\tregex 
+regex test completed with great success
 test c_tests\bin2\an 
 a delve id
 a delved i
@@ -3880,7 +3886,7 @@ lade vied
 lead vied
 test c_tests\bin2\ba 
 parsing input file tp.bas
-99 ms for 1 iterations
+93 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -4552,10 +4558,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin3\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 17, hour 14, min 32, sec 9
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 32, sec 9
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 32, sec 9
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 32, sec 9
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 20, hour 11, min 15, sec 47
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 15, sec 47
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 15, sec 47
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 15, sec 47
 test c_tests\bin3\tm 
 tm has completed with great success
 test c_tests\bin3\glob 
@@ -5131,11 +5137,14 @@ results are valid
 final: 243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b54709179216d5d98979fb1bd1310ba698dfb5ac2ffd72dbd01adfb7b8e1afed6a267e96ba7c9045f12c7f9924a19947b3916cf70801f2e2858efc16636920d871574e69a458fea3f4933d7e0d95748f728eb658718bcd5882154aee7b54a41dc25a59b59c30d5392af26013c5d1b023286085f0ca417918b8db38ef8e79dcb0603a180e6c9e0e8bb01e8a3ed71577c1bd314b2778af2fda55605c60e65525f3aa55ab945748986263e8144055ca396a2aab10b6b4cc5c341141e8cea15486af7c72e993b3ee1411636fbc2a2ba9c55d741831f6ce5c3e169b87931eafd6ba336c24cf5c7a325381289586773b8f48986b4bb9afc4bfe81b6628219361d809ccfb21a991487cac605dec8032ef845d5de98575b1dc262302eb651b8823893e81d396acc50f6d6ff383f442392e0b4482a484200469c8f04a9e1f9b5e21c66842f6e96c9a670c9c61abd388f06a51a0d2d8542f68960fa728ab5133a36eef0b6c137a3be4ba3bf0507efb2a98a1f1651d39af017666ca593e82430e888cee8619456f9fb47d84a5c33b8b5ebee06f75d885c12073401a449f56c16aa64ed3aa62363f77061bfedf72429b023d37d0d724d00a1248db0fead349f1c09b075372c980991b7b
 test c_tests\bin3\sleeptm 
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1015, system time 0
 sleepy time ended with great success
 test c_tests\bin3\tatomic 
 test atomic completed with great success
 test c_tests\bin3\lenum 
 linux file system enumeration completed with great success
+test c_tests\bin3\tregex 
+regex test completed with great success
 test c_tests\bin3\an 
 a delve id
 a delved i
@@ -5854,10 +5863,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\binfast\ttime 
-before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 17, hour 14, min 32, sec 16
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 17, hour 17, min 32, sec 16
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 17, hour 14, min 32, sec 16
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 17, hour 22, min 32, sec 16
+before TZ is set: tz: 'PacificStandardTime+8', year: 2024, month 12, day 20, hour 11, min 15, sec 53
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 15, sec 53
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 15, sec 53
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 15, sec 53
 test c_tests\binfast\tm 
 tm has completed with great success
 test c_tests\binfast\glob 
@@ -6438,6 +6447,8 @@ test c_tests\binfast\tatomic
 test atomic completed with great success
 test c_tests\binfast\lenum 
 linux file system enumeration completed with great success
+test c_tests\binfast\tregex 
+regex test completed with great success
 test c_tests\binfast\an 
 a delve id
 a delved i
@@ -6484,7 +6495,7 @@ lade vied
 lead vied
 test c_tests\binfast\ba 
 parsing input file tp.bas
-114 ms for 1 iterations
+104 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -6514,7 +6525,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin0\ttt 
-serial runtime:   10.1457ms
+serial runtime:   10.2026ms
 moves:            6493
 iterations:       1
 test rust_tests\bin0\fileops 
@@ -6587,7 +6598,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin1\ttt 
-serial runtime:   2.8094ms
+serial runtime:   2.8344ms
 moves:            6493
 iterations:       1
 test rust_tests\bin1\fileops 
@@ -6660,7 +6671,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin2\ttt 
-serial runtime:   2.1255ms
+serial runtime:   1.9629ms
 moves:            6493
 iterations:       1
 test rust_tests\bin2\fileops 
@@ -6733,7 +6744,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin3\ttt 
-serial runtime:   1.7113ms
+serial runtime:   1.729ms
 moves:            6493
 iterations:       1
 test rust_tests\bin3\fileops 
@@ -6814,11 +6825,11 @@ iterations: 1
 test rvos 
 starting...
 6493 moves
-72 milliseconds
+61 milliseconds
 1 iterations
 test armos 
 starting
-76358 microseconds (-6)
+75810 microseconds (-6)
 1 iterations
 6493 moves
-Tue 12/17/2024 14:32:27.85 
+Fri 12/20/2024 11:16:05.24 
