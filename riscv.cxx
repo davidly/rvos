@@ -1443,12 +1443,11 @@ void RiscV::unhandled()
     emulator_hard_termination( *this, "opcode not handled:", op );
 } //unhandled
 
-uint64_t RiscV::run( uint64_t max_cycles )
+uint64_t RiscV::run()
 {
-    uint64_t start_cycles = cycles_so_far;
-    uint64_t target_cycles = cycles_so_far + max_cycles;
+    uint64_t cycles = 0;
 
-    do
+    for ( ;; )
     {
         #ifndef NDEBUG
             if ( 0 != regs[ 0 ] )
@@ -2732,18 +2731,18 @@ uint64_t RiscV::run( uint64_t max_cycles )
                     else if ( 0x2 == csr )
                         regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
                     else if ( 0xb00 == csr ) // csrrs rd, mcycle, rs1. rdmcycle
-                        regs[ rd ] = cycles_so_far;
+                        regs[ rd ] = cycles;
                     else if ( 0xb02 == csr ) // csrrs rd, minstret, rs1. rdminstret
-                        regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
+                        regs[ rd ] = cycles; // assumes one cycle per instruction
                     else if ( 0xc00 == csr ) // csrrs rd, cycle, rs1. rdcycle
-                        regs[ rd ] = cycles_so_far;
+                        regs[ rd ] = cycles;
                     else if ( 0xc01 == csr ) // csrrs rd, time, rs1. rdtime
                     {
                         system_clock::duration d = system_clock::now().time_since_epoch();
                         regs[ rd ] = duration_cast<nanoseconds>( d ).count();
                     }
                     else if ( 0xc02 == csr ) // csrrs rd, instret, rs1. rdinstret
-                        regs[ rd ] = cycles_so_far; // assumes one cycle per instruction
+                        regs[ rd ] = cycles; // assumes one cycle per instruction
                     else if ( 0xf11 == csr ) // mvendorid vendor
                         regs[ rd ] = 0xbeabad00bee;
                     else if ( 0xf12 == csr ) // marchid architecture
@@ -2782,9 +2781,9 @@ uint64_t RiscV::run( uint64_t max_cycles )
         } // switch( opcode_type )
 
         pc = pcnext;
-        cycles_so_far++;
-    } while ( cycles_so_far < target_cycles );
+        cycles++;
+    } // for
 
-    return cycles_so_far - start_cycles;
+    return cycles;
 } //run
 

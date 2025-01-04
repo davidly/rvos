@@ -74,7 +74,7 @@ struct RiscV
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
     } //RiscV
 
-    uint64_t run( uint64_t max_cycles );
+    uint64_t run( void );
     const char * reg_name( uint64_t reg );
     const char * freg_name( uint64_t reg );
 

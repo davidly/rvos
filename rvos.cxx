@@ -3521,7 +3521,6 @@ int main( int argc, char * argv[] )
         {
             unique_ptr<CPUClass> cpu( new CPUClass( memory, g_base_address, g_execution_address, g_stack_commit, g_top_of_stack ) );
             cpu->trace_instructions( traceInstructions );
-            uint64_t cycles = 0;
     
             high_resolution_clock::time_point tStart = high_resolution_clock::now();
     
@@ -3529,10 +3528,7 @@ int main( int argc, char * argv[] )
                 g_tAppStart = tStart;
             #endif
     
-            do
-            {
-                cycles += cpu->run( 1000000 );
-            } while( !g_terminate );
+            uint64_t cycles = cpu->run();
     
             char ac[ 100 ];
             if ( showPerformance )
