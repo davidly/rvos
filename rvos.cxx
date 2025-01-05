@@ -347,7 +347,7 @@ struct ElfSymbol64
     uint64_t value;         // address where the symbol resides in memory
     uint64_t size;          // length in memory of the symbol
 
-    const char * show_info()
+    const char * show_info() const
     {
         if ( 0 == info )
             return "local";
@@ -376,7 +376,7 @@ struct ElfSymbol64
         return "unknown";
     } //show_info
 
-    const char * show_other()
+    const char * show_other() const
     {
         if ( 0 == other )
             return "default";
@@ -401,7 +401,7 @@ struct ElfProgramHeader64
     uint64_t memory_size;
     uint64_t alignment;
 
-    const char * show_type()
+    const char * show_type() const
     {
         uint32_t basetype = ( type & 0xf );
 
@@ -440,7 +440,7 @@ struct ElfSectionHeader64
     uint64_t address_alignment;
     uint64_t entry_size;
 
-    const char * show_type()
+    const char * show_type() const
     {
         uint32_t basetype = ( type & 0xf );
 
@@ -477,7 +477,7 @@ struct ElfSectionHeader64
         return "unknown";
     }
 
-    const char * show_flags()
+    const char * show_flags() const
     {
         static char ac[ 80 ];
         ac[0] = 0;
@@ -498,7 +498,7 @@ struct ElfSectionHeader64
 
 #pragma pack(pop)
 
-void usage( char const * perror = 0 )
+static void usage( char const * perror = 0 )
 {
     g_consoleConfig.RestoreConsole( false );
 
@@ -520,7 +520,7 @@ void usage( char const * perror = 0 )
     exit( 1 );
 } //usage
 
-int gettimeofday( linux_timeval * tp )
+static int gettimeofday( linux_timeval * tp )
 {
     // the OLDGCC's chrono implementation is built on time(), which calls this but
     // has only second resolution. So the microseconds returned here are lost.
@@ -534,7 +534,7 @@ int gettimeofday( linux_timeval * tp )
     return 0;
 } //gettimeofday
 
-uint64_t rand64()
+static uint64_t rand64()
 {
     uint64_t r = 0;
 
@@ -544,7 +544,7 @@ uint64_t rand64()
     return r;
 } //rand64
 
-void backslash_to_slash( char * p )
+static void backslash_to_slash( char * p )
 {
     while ( *p )
     {
@@ -556,7 +556,7 @@ void backslash_to_slash( char * p )
 
 #ifdef _WIN32
 
-void slash_to_backslash( char * p )
+static void slash_to_backslash( char * p )
 {
     while ( *p )
     {
@@ -566,7 +566,7 @@ void slash_to_backslash( char * p )
     }
 } //slash_to_backslash
 
-int windows_translate_flags( int flags )
+static int windows_translate_flags( int flags )
 {
     // Translate open() flags from Linux to Windows
     // Microsoft C uses different constants for flags than linux:
@@ -608,7 +608,7 @@ int windows_translate_flags( int flags )
     return f;
 } //windows_translate_flags
 
-uint32_t epoch_days( uint16_t y, uint16_t m, uint16_t d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
+static uint32_t epoch_days( uint16_t y, uint16_t m, uint16_t d ) // taken from https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
 {
     const uint32_t year_base = 4800;    /* Before min year, multiple of 400. */
     const uint32_t m_adj = m - 3;       /* March-based month. */
@@ -620,15 +620,15 @@ uint32_t epoch_days( uint16_t y, uint16_t m, uint16_t d ) // taken from https://
     return y_adj * 365 + leap_days + month_days + (d - 1) - 2472632;
 } //epoch_days
 
-uint64_t SystemTime_to_esecs( SYSTEMTIME & st )
+static uint64_t SystemTime_to_esecs( SYSTEMTIME & st )
 {
     // takes a Windows system time and returns linux epoch seconds
     uint32_t edays = epoch_days( st. wYear, st.wMonth, st.wDay );
     uint32_t secs = ( st.wHour * 3600 ) + ( st.wMinute * 60 ) + st.wSecond;
-    return ( edays * 24 * 3600 ) + secs;
+    return ( edays * 24ull * 3600ull ) + secs;
 } //SystemTime_to_esecs
 
-int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
+static int fill_pstat_windows( int descriptor, struct stat_linux_syscall * pstat, const char * path )
 {
     char ac[ MAX_PATH ];
     if ( 0 != path )
@@ -753,7 +753,7 @@ static const char * clockids[] =
 
 typedef int clockid_t;
 
-const char * get_clockid( clockid_t clockid )
+static const char * get_clockid( clockid_t clockid )
 {
     if ( clockid < _countof( clockids ) )
         return clockids[ clockid ];
@@ -762,7 +762,7 @@ const char * get_clockid( clockid_t clockid )
 
 high_resolution_clock::time_point g_tAppStart;
 
-int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
+static int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
 {
     tracer.Trace( "  msc_clock_gettime, clockid %d == %s\n", clockid, get_clockid( clockid ) );
     uint64_t diff = 0;
@@ -794,7 +794,7 @@ int msc_clock_gettime( clockid_t clockid, struct timespec_syscall * tv )
 // so translating them wouldn't have any impact). If anyone understands the historical reasons for the differences
 // in these flags I'd love to hear about it. Why did coders knowngly pick different constant values?
 
-tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
+static tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
     if ( f & 1 ) // OPOST is the same bit
@@ -815,7 +815,7 @@ tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
     return r;
 } //map_termios_oflag_linux_to_macos
 
-tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
+static tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
     if ( f & 1 ) // OPOST is the same bit for both
@@ -836,7 +836,7 @@ tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
     return r;
 } //map_termios_oflag_linux_to_macos
 
-tcflag_t map_termios_iflag_linux_to_macos( tcflag_t f )
+static tcflag_t map_termios_iflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = f;
 
@@ -854,7 +854,7 @@ tcflag_t map_termios_iflag_linux_to_macos( tcflag_t f )
     return r;
 } //map_termios_oflag_linux_to_macos
 
-tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
+static tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = f;
 
@@ -872,7 +872,7 @@ tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
     return r;
 } //map_termios_oflag_linux_to_macos
 
-tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
+static tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
 
@@ -912,7 +912,7 @@ tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
     return r;
 } //map_termios_lflag_linux_to_macos
 
-tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
+static tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
 
@@ -952,7 +952,7 @@ tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
     return r;
 } //map_termios_lflag_linux_to_macos
 
-tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
+static tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
 
@@ -986,7 +986,7 @@ tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
     return r;
 } //map_termios_cflag_linux_to_macos
 
-tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
+static tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
 
@@ -1024,7 +1024,7 @@ tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 
 #if !defined(__APPLE__)
 #if defined(__ARM_32BIT_STATE) || defined(__ARM_64BIT_STATE) || defined(__riscv)
-    int linux_swap_riscv64_arm_dir_open_flags( int flags )
+    static int linux_swap_riscv64_arm_dir_open_flags( int flags )
     {
         // values are the same aside from these, which are flipped:
         //               riscv64      arm32 and arm64
@@ -1128,7 +1128,7 @@ static const SysCall syscalls[] =
     { "emulator_sys_print_int64", emulator_sys_print_int64 },
 };
 
-int syscall_find_compare( const void * a, const void * b )
+static int syscall_find_compare( const void * a, const void * b )
 {
     SysCall & sa = * (SysCall *) a;
     SysCall & sb = * (SysCall *) b;
@@ -1142,7 +1142,7 @@ int syscall_find_compare( const void * a, const void * b )
     return 0;
 } //syscall_find_compare
 
-const char * lookup_syscall( uint64_t x )
+static const char * lookup_syscall( uint64_t x )
 {
 #ifndef NDEBUG
     // ensure they're sorted
@@ -1159,7 +1159,7 @@ const char * lookup_syscall( uint64_t x )
     return "unknown";
 } //lookup_syscall
 
-void update_result_errno( CPUClass & cpu, int64_t result )
+static void update_result_errno( CPUClass & cpu, int64_t result )
 {
 
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
@@ -2661,7 +2661,7 @@ void emulator_hard_termination( CPUClass & cpu, const char *pcerr, uint64_t erro
     exit( 1 );
 } //emulator_hard_termination
 
-int symbol_find_compare( const void * a, const void * b )
+static int symbol_find_compare( const void * a, const void * b )
 {
     ElfSymbol64 & sa = * (ElfSymbol64 *) a;
     ElfSymbol64 & sb = * (ElfSymbol64 *) b;
@@ -2707,7 +2707,7 @@ const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset )
     return "";
 } //emulator_symbol_lookup
 
-int symbol_compare( const void * a, const void * b )
+static int symbol_compare( const void * a, const void * b )
 {
     ElfSymbol64 * pa = (ElfSymbol64 *) a;
     ElfSymbol64 * pb = (ElfSymbol64 *) b;
@@ -2719,7 +2719,7 @@ int symbol_compare( const void * a, const void * b )
     return -1;
 } //symbol_compare
 
-void remove_spaces( char * p )
+static void remove_spaces( char * p )
 {
     char * o;
     for ( o = p; *p; p++ )
@@ -2730,7 +2730,7 @@ void remove_spaces( char * p )
     *o = 0;
 } //remove_spaces
 
-const char * image_type( uint16_t e_type )
+static const char * image_type( uint16_t e_type )
 {
     if ( 0 == e_type )
         return "et none";
@@ -2745,7 +2745,7 @@ const char * image_type( uint16_t e_type )
     return "et unknown";
 } //image_type
 
-bool load_image( const char * pimage, const char * app_args )
+static bool load_image( const char * pimage, const char * app_args )
 {
     tracer.Trace( "loading image %s\n", pimage );
 
@@ -3199,7 +3199,7 @@ bool load_image( const char * pimage, const char * app_args )
     return true;
 } //load_image
 
-void elf_info( const char * pimage, bool verbose )
+static void elf_info( const char * pimage, bool verbose )
 {
     ElfHeader64 ehead = {0};
 
@@ -3376,7 +3376,7 @@ void elf_info( const char * pimage, bool verbose )
     printf( "g_execution_address %llx\n", g_execution_address );
 } //elf_info
 
-int ends_with( const char * str, const char * end )
+static int ends_with( const char * str, const char * end )
 {
     size_t len = strlen( str );
     size_t lenend = strlen( end );
