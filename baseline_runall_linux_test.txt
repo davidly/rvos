@@ -1,4 +1,4 @@
-Fri Dec 20 11:11:39 PST 2024
+Mon Jan  6 14:56:23 UTC 2025
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -3225,30 +3225,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 11, sec 42
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 11, sec 42
+before TZ is set: tz: '(null)', year: 2025, month 1, day 6, hour 14, min 56, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 1, day 6, hour 9, min 56, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 1, day 6, hour 6, min 56, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 1, day 6, hour 14, min 56, sec 56
 c_tests/bin1/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 11, sec 42
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 11, sec 42
+before TZ is set: tz: '(null)', year: 2025, month 1, day 6, hour 14, min 56, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 1, day 6, hour 9, min 56, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 1, day 6, hour 6, min 56, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 1, day 6, hour 14, min 56, sec 56
 c_tests/bin2/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 11, sec 42
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 11, sec 42
+before TZ is set: tz: '(null)', year: 2025, month 1, day 6, hour 14, min 56, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 1, day 6, hour 9, min 56, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 1, day 6, hour 6, min 56, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 1, day 6, hour 14, min 56, sec 56
 c_tests/bin3/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 11, sec 42
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 11, sec 42
+before TZ is set: tz: '(null)', year: 2025, month 1, day 6, hour 14, min 56, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 1, day 6, hour 9, min 56, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 1, day 6, hour 6, min 56, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 1, day 6, hour 14, min 56, sec 56
 c_tests/binfast/ttime
-before TZ is set: tz: '(null)', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2024, month 12, day 20, hour 14, min 11, sec 42
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2024, month 12, day 20, hour 11, min 11, sec 42
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2024, month 12, day 20, hour 19, min 11, sec 42
+before TZ is set: tz: '(null)', year: 2025, month 1, day 6, hour 14, min 56, sec 56
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 1, day 6, hour 9, min 56, sec 56
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 1, day 6, hour 6, min 56, sec 56
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 1, day 6, hour 14, min 56, sec 56
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -3795,2213 +3795,2213 @@ attempting large allocations
 caught a standard execption: std::bad_alloc
 leaving main
 c_tests/bin0/mm
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix float 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix float 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix float 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix float 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix float 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix float 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix float 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix float 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix float 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix float 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix float 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix float 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix float 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix float 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix float 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix float 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix float 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix float 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix float 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix float 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix double 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix double 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix double 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix double 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix double 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix double 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix double 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix double 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix double 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix double 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix double 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix double 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix double 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix double 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix double 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix double 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix double 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix double 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix double 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix double 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix ldouble_t 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix ldouble_t 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix ldouble_t 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix ldouble_t 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix ldouble_t 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix ldouble_t 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix ldouble_t 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix ldouble_t 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix ldouble_t 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix ldouble_t 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix ldouble_t 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix ldouble_t 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix ldouble_t 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix ldouble_t 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix ldouble_t 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix ldouble_t 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix ldouble_t 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix ldouble_t 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix ldouble_t 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix ldouble_t 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int8_t 3: -28
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum -94.0
 matrix int8_t 4: -62
-min -126.000000 max 110.000000
+min, -126.000000 max 110.000000, fmodsum 22.000, dotsum 47.0
 matrix int8_t 5: -117
-min -119.000000 max 122.000000
+min, -119.000000 max 122.000000, fmodsum 31.000, dotsum 10.0
 matrix int8_t 6: -83
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 30.000, dotsum 47.0
 matrix int8_t 7: 40
-min -126.000000 max 124.000000
+min, -126.000000 max 124.000000, fmodsum 8.000, dotsum -65.0
 matrix int8_t 8: 52
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -14.000, dotsum -67.0
 matrix int8_t 9: -127
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -26.000, dotsum 68.0
 matrix int8_t 10: -37
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -29.000, dotsum 70.0
 matrix int8_t 11: -108
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum -35.000, dotsum 13.0
 matrix int8_t 12: -126
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum 8.000, dotsum 105.0
 matrix int8_t 13: -69
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -17.000, dotsum -118.0
 matrix int8_t 14: 119
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -16.000, dotsum 126.0
 matrix int8_t 15: -78
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -42.000, dotsum 106.0
 matrix int8_t 16: 64
-min -126.000000 max 127.000000
+min, -126.000000 max 127.000000, fmodsum 16.000, dotsum 30.0
 matrix int8_t 17: 20
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -12.000, dotsum 1.0
 matrix int8_t 18: -62
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 13.000, dotsum -58.0
 matrix int8_t 19: 14
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -15.000, dotsum -35.0
 matrix int8_t 20: -40
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint8_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint8_t 4: 194
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 47.0
 matrix uint8_t 5: 139
-min 18.000000 max 247.000000
+min, 18.000000 max 247.000000, fmodsum 45.000, dotsum 10.0
 matrix uint8_t 6: 173
-min 17.000000 max 238.000000
+min, 17.000000 max 238.000000, fmodsum 58.000, dotsum 47.0
 matrix uint8_t 7: 40
-min 18.000000 max 250.000000
+min, 18.000000 max 250.000000, fmodsum 70.000, dotsum 191.0
 matrix uint8_t 8: 52
-min 6.000000 max 254.000000
+min, 6.000000 max 254.000000, fmodsum 99.000, dotsum 189.0
 matrix uint8_t 9: 129
-min 1.000000 max 253.000000
+min, 1.000000 max 253.000000, fmodsum 113.000, dotsum 68.0
 matrix uint8_t 10: 219
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 144.000, dotsum 70.0
 matrix uint8_t 11: 148
-min 1.000000 max 255.000000
+min, 1.000000 max 255.000000, fmodsum 144.000, dotsum 13.0
 matrix uint8_t 12: 130
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 203.000, dotsum 105.0
 matrix uint8_t 13: 187
-min 1.000000 max 254.000000
+min, 1.000000 max 254.000000, fmodsum 196.000, dotsum 138.0
 matrix uint8_t 14: 119
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 231.000, dotsum 126.0
 matrix uint8_t 15: 178
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 8.000, dotsum 106.0
 matrix uint8_t 16: 64
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 73.000, dotsum 30.0
 matrix uint8_t 17: 20
-min 0.000000 max 251.000000
+min, 0.000000 max 251.000000, fmodsum 100.000, dotsum 1.0
 matrix uint8_t 18: 194
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 156.000, dotsum 198.0
 matrix uint8_t 19: 14
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 189.000, dotsum 221.0
 matrix uint8_t 20: 216
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int16_t 11: -25452
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int16_t 12: -8062
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int16_t 14: -23433
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int16_t 16: -10176
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int16_t 17: -23532
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int16_t 18: -25406
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int16_t 19: -16370
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint16_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint16_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint16_t 14: 42103
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint16_t 16: 55360
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint16_t 17: 42004
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint16_t 18: 40130
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint16_t 19: 49166
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int64_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin1/mm
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix float 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix float 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix float 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix float 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix float 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix float 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix float 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix float 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix float 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix float 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix float 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix float 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix float 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix float 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix float 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix float 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix float 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix float 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix float 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix float 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix double 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix double 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix double 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix double 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix double 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix double 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix double 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix double 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix double 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix double 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix double 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix double 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix double 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix double 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix double 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix double 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix double 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix double 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix double 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix double 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix ldouble_t 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix ldouble_t 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix ldouble_t 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix ldouble_t 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix ldouble_t 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix ldouble_t 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix ldouble_t 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix ldouble_t 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix ldouble_t 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix ldouble_t 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix ldouble_t 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix ldouble_t 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix ldouble_t 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix ldouble_t 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix ldouble_t 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix ldouble_t 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix ldouble_t 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix ldouble_t 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix ldouble_t 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix ldouble_t 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int8_t 3: -28
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum -94.0
 matrix int8_t 4: -62
-min -126.000000 max 110.000000
+min, -126.000000 max 110.000000, fmodsum 22.000, dotsum 47.0
 matrix int8_t 5: -117
-min -119.000000 max 122.000000
+min, -119.000000 max 122.000000, fmodsum 31.000, dotsum 10.0
 matrix int8_t 6: -83
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 30.000, dotsum 47.0
 matrix int8_t 7: 40
-min -126.000000 max 124.000000
+min, -126.000000 max 124.000000, fmodsum 8.000, dotsum -65.0
 matrix int8_t 8: 52
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -14.000, dotsum -67.0
 matrix int8_t 9: -127
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -26.000, dotsum 68.0
 matrix int8_t 10: -37
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -29.000, dotsum 70.0
 matrix int8_t 11: -108
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum -35.000, dotsum 13.0
 matrix int8_t 12: -126
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum 8.000, dotsum 105.0
 matrix int8_t 13: -69
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -17.000, dotsum -118.0
 matrix int8_t 14: 119
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -16.000, dotsum 126.0
 matrix int8_t 15: -78
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -42.000, dotsum 106.0
 matrix int8_t 16: 64
-min -126.000000 max 127.000000
+min, -126.000000 max 127.000000, fmodsum 16.000, dotsum 30.0
 matrix int8_t 17: 20
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -12.000, dotsum 1.0
 matrix int8_t 18: -62
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 13.000, dotsum -58.0
 matrix int8_t 19: 14
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -15.000, dotsum -35.0
 matrix int8_t 20: -40
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint8_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint8_t 4: 194
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 47.0
 matrix uint8_t 5: 139
-min 18.000000 max 247.000000
+min, 18.000000 max 247.000000, fmodsum 45.000, dotsum 10.0
 matrix uint8_t 6: 173
-min 17.000000 max 238.000000
+min, 17.000000 max 238.000000, fmodsum 58.000, dotsum 47.0
 matrix uint8_t 7: 40
-min 18.000000 max 250.000000
+min, 18.000000 max 250.000000, fmodsum 70.000, dotsum 191.0
 matrix uint8_t 8: 52
-min 6.000000 max 254.000000
+min, 6.000000 max 254.000000, fmodsum 99.000, dotsum 189.0
 matrix uint8_t 9: 129
-min 1.000000 max 253.000000
+min, 1.000000 max 253.000000, fmodsum 113.000, dotsum 68.0
 matrix uint8_t 10: 219
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 144.000, dotsum 70.0
 matrix uint8_t 11: 148
-min 1.000000 max 255.000000
+min, 1.000000 max 255.000000, fmodsum 144.000, dotsum 13.0
 matrix uint8_t 12: 130
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 203.000, dotsum 105.0
 matrix uint8_t 13: 187
-min 1.000000 max 254.000000
+min, 1.000000 max 254.000000, fmodsum 196.000, dotsum 138.0
 matrix uint8_t 14: 119
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 231.000, dotsum 126.0
 matrix uint8_t 15: 178
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 8.000, dotsum 106.0
 matrix uint8_t 16: 64
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 73.000, dotsum 30.0
 matrix uint8_t 17: 20
-min 0.000000 max 251.000000
+min, 0.000000 max 251.000000, fmodsum 100.000, dotsum 1.0
 matrix uint8_t 18: 194
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 156.000, dotsum 198.0
 matrix uint8_t 19: 14
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 189.000, dotsum 221.0
 matrix uint8_t 20: 216
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int16_t 11: -25452
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int16_t 12: -8062
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int16_t 14: -23433
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int16_t 16: -10176
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int16_t 17: -23532
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int16_t 18: -25406
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int16_t 19: -16370
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint16_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint16_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint16_t 14: 42103
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint16_t 16: 55360
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint16_t 17: 42004
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint16_t 18: 40130
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint16_t 19: 49166
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int64_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin2/mm
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix float 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix float 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix float 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix float 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix float 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix float 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix float 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix float 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix float 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix float 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix float 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix float 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix float 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix float 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix float 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix float 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix float 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix float 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix float 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix float 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix double 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix double 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix double 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix double 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix double 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix double 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix double 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix double 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix double 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix double 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix double 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix double 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix double 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix double 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix double 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix double 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix double 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix double 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix double 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix double 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix ldouble_t 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix ldouble_t 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix ldouble_t 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix ldouble_t 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix ldouble_t 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix ldouble_t 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix ldouble_t 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix ldouble_t 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix ldouble_t 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix ldouble_t 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix ldouble_t 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix ldouble_t 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix ldouble_t 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix ldouble_t 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix ldouble_t 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix ldouble_t 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix ldouble_t 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix ldouble_t 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix ldouble_t 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix ldouble_t 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int8_t 3: -28
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum -94.0
 matrix int8_t 4: -62
-min -126.000000 max 110.000000
+min, -126.000000 max 110.000000, fmodsum 22.000, dotsum 47.0
 matrix int8_t 5: -117
-min -119.000000 max 122.000000
+min, -119.000000 max 122.000000, fmodsum 31.000, dotsum 10.0
 matrix int8_t 6: -83
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 30.000, dotsum 47.0
 matrix int8_t 7: 40
-min -126.000000 max 124.000000
+min, -126.000000 max 124.000000, fmodsum 8.000, dotsum -65.0
 matrix int8_t 8: 52
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -14.000, dotsum -67.0
 matrix int8_t 9: -127
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -26.000, dotsum 68.0
 matrix int8_t 10: -37
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -29.000, dotsum 70.0
 matrix int8_t 11: -108
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum -35.000, dotsum 13.0
 matrix int8_t 12: -126
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum 8.000, dotsum 105.0
 matrix int8_t 13: -69
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -17.000, dotsum -118.0
 matrix int8_t 14: 119
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -16.000, dotsum 126.0
 matrix int8_t 15: -78
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -42.000, dotsum 106.0
 matrix int8_t 16: 64
-min -126.000000 max 127.000000
+min, -126.000000 max 127.000000, fmodsum 16.000, dotsum 30.0
 matrix int8_t 17: 20
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -12.000, dotsum 1.0
 matrix int8_t 18: -62
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 13.000, dotsum -58.0
 matrix int8_t 19: 14
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -15.000, dotsum -35.0
 matrix int8_t 20: -40
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint8_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint8_t 4: 194
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 47.0
 matrix uint8_t 5: 139
-min 18.000000 max 247.000000
+min, 18.000000 max 247.000000, fmodsum 45.000, dotsum 10.0
 matrix uint8_t 6: 173
-min 17.000000 max 238.000000
+min, 17.000000 max 238.000000, fmodsum 58.000, dotsum 47.0
 matrix uint8_t 7: 40
-min 18.000000 max 250.000000
+min, 18.000000 max 250.000000, fmodsum 70.000, dotsum 191.0
 matrix uint8_t 8: 52
-min 6.000000 max 254.000000
+min, 6.000000 max 254.000000, fmodsum 99.000, dotsum 189.0
 matrix uint8_t 9: 129
-min 1.000000 max 253.000000
+min, 1.000000 max 253.000000, fmodsum 113.000, dotsum 68.0
 matrix uint8_t 10: 219
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 144.000, dotsum 70.0
 matrix uint8_t 11: 148
-min 1.000000 max 255.000000
+min, 1.000000 max 255.000000, fmodsum 144.000, dotsum 13.0
 matrix uint8_t 12: 130
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 203.000, dotsum 105.0
 matrix uint8_t 13: 187
-min 1.000000 max 254.000000
+min, 1.000000 max 254.000000, fmodsum 196.000, dotsum 138.0
 matrix uint8_t 14: 119
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 231.000, dotsum 126.0
 matrix uint8_t 15: 178
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 8.000, dotsum 106.0
 matrix uint8_t 16: 64
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 73.000, dotsum 30.0
 matrix uint8_t 17: 20
-min 0.000000 max 251.000000
+min, 0.000000 max 251.000000, fmodsum 100.000, dotsum 1.0
 matrix uint8_t 18: 194
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 156.000, dotsum 198.0
 matrix uint8_t 19: 14
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 189.000, dotsum 221.0
 matrix uint8_t 20: 216
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int16_t 11: -25452
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int16_t 12: -8062
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int16_t 14: -23433
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int16_t 16: -10176
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int16_t 17: -23532
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int16_t 18: -25406
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int16_t 19: -16370
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint16_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint16_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint16_t 14: 42103
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint16_t 16: 55360
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint16_t 17: 42004
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint16_t 18: 40130
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint16_t 19: 49166
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int64_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin3/mm
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix float 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix float 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix float 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix float 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix float 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix float 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix float 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix float 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix float 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix float 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix float 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix float 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix float 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix float 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix float 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix float 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix float 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix float 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix float 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix float 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix double 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix double 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix double 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix double 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix double 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix double 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix double 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix double 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix double 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix double 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix double 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix double 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix double 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix double 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix double 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix double 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix double 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix double 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix double 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix double 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix ldouble_t 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix ldouble_t 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix ldouble_t 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix ldouble_t 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix ldouble_t 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix ldouble_t 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix ldouble_t 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix ldouble_t 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix ldouble_t 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix ldouble_t 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix ldouble_t 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix ldouble_t 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix ldouble_t 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix ldouble_t 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix ldouble_t 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix ldouble_t 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix ldouble_t 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix ldouble_t 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix ldouble_t 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix ldouble_t 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int8_t 3: -28
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum -94.0
 matrix int8_t 4: -62
-min -126.000000 max 110.000000
+min, -126.000000 max 110.000000, fmodsum 22.000, dotsum 47.0
 matrix int8_t 5: -117
-min -119.000000 max 122.000000
+min, -119.000000 max 122.000000, fmodsum 31.000, dotsum 10.0
 matrix int8_t 6: -83
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 30.000, dotsum 47.0
 matrix int8_t 7: 40
-min -126.000000 max 124.000000
+min, -126.000000 max 124.000000, fmodsum 8.000, dotsum -65.0
 matrix int8_t 8: 52
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -14.000, dotsum -67.0
 matrix int8_t 9: -127
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -26.000, dotsum 68.0
 matrix int8_t 10: -37
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -29.000, dotsum 70.0
 matrix int8_t 11: -108
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum -35.000, dotsum 13.0
 matrix int8_t 12: -126
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum 8.000, dotsum 105.0
 matrix int8_t 13: -69
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -17.000, dotsum -118.0
 matrix int8_t 14: 119
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -16.000, dotsum 126.0
 matrix int8_t 15: -78
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -42.000, dotsum 106.0
 matrix int8_t 16: 64
-min -126.000000 max 127.000000
+min, -126.000000 max 127.000000, fmodsum 16.000, dotsum 30.0
 matrix int8_t 17: 20
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -12.000, dotsum 1.0
 matrix int8_t 18: -62
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 13.000, dotsum -58.0
 matrix int8_t 19: 14
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -15.000, dotsum -35.0
 matrix int8_t 20: -40
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint8_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint8_t 4: 194
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 47.0
 matrix uint8_t 5: 139
-min 18.000000 max 247.000000
+min, 18.000000 max 247.000000, fmodsum 45.000, dotsum 10.0
 matrix uint8_t 6: 173
-min 17.000000 max 238.000000
+min, 17.000000 max 238.000000, fmodsum 58.000, dotsum 47.0
 matrix uint8_t 7: 40
-min 18.000000 max 250.000000
+min, 18.000000 max 250.000000, fmodsum 70.000, dotsum 191.0
 matrix uint8_t 8: 52
-min 6.000000 max 254.000000
+min, 6.000000 max 254.000000, fmodsum 99.000, dotsum 189.0
 matrix uint8_t 9: 129
-min 1.000000 max 253.000000
+min, 1.000000 max 253.000000, fmodsum 113.000, dotsum 68.0
 matrix uint8_t 10: 219
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 144.000, dotsum 70.0
 matrix uint8_t 11: 148
-min 1.000000 max 255.000000
+min, 1.000000 max 255.000000, fmodsum 144.000, dotsum 13.0
 matrix uint8_t 12: 130
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 203.000, dotsum 105.0
 matrix uint8_t 13: 187
-min 1.000000 max 254.000000
+min, 1.000000 max 254.000000, fmodsum 196.000, dotsum 138.0
 matrix uint8_t 14: 119
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 231.000, dotsum 126.0
 matrix uint8_t 15: 178
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 8.000, dotsum 106.0
 matrix uint8_t 16: 64
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 73.000, dotsum 30.0
 matrix uint8_t 17: 20
-min 0.000000 max 251.000000
+min, 0.000000 max 251.000000, fmodsum 100.000, dotsum 1.0
 matrix uint8_t 18: 194
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 156.000, dotsum 198.0
 matrix uint8_t 19: 14
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 189.000, dotsum 221.0
 matrix uint8_t 20: 216
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int16_t 11: -25452
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int16_t 12: -8062
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int16_t 14: -23433
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int16_t 16: -10176
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int16_t 17: -23532
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int16_t 18: -25406
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int16_t 19: -16370
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint16_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint16_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint16_t 14: 42103
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint16_t 16: 55360
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint16_t 17: 42004
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint16_t 18: 40130
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint16_t 19: 49166
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int64_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/binfast/mm
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix float 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix float 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix float 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix float 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix float 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix float 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix float 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix float 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix float 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix float 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix float 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix float 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix float 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix float 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix float 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix float 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix float 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix float 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix float 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix float 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix double 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix double 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix double 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix double 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix double 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix double 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix double 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix double 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix double 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix double 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix double 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix double 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix double 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix double 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix double 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix double 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix double 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix double 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix double 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix double 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.800, dotsum 4.0
 matrix ldouble_t 1: 4.000000
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 5.200, dotsum 24.0
 matrix ldouble_t 2: 50.000000
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 13.600, dotsum 71.0
 matrix ldouble_t 3: 228.000000
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 27.600, dotsum 162.0
 matrix ldouble_t 4: 706.000000
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 43.000, dotsum 303.0
 matrix ldouble_t 5: 1675.000000
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 64.200, dotsum 522.0
 matrix ldouble_t 6: 3501.000000
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 84.800, dotsum 815.0
 matrix ldouble_t 7: 6440.000000
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 106.400, dotsum 1215.0
 matrix ldouble_t 8: 11060.000000
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 145.000, dotsum 1725.0
 matrix ldouble_t 9: 17793.000000
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 167.800, dotsum 2372.0
 matrix ldouble_t 10: 27355.000000
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 212.000, dotsum 3142.0
 matrix ldouble_t 11: 40084.000000
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 232.400, dotsum 4109.0
 matrix ldouble_t 12: 57474.000000
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 299.000, dotsum 5225.0
 matrix ldouble_t 13: 79547.000000
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 314.200, dotsum 6538.0
 matrix ldouble_t 14: 107639.000000
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 360.400, dotsum 8062.0
 matrix ldouble_t 15: 142770.000000
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 409.600, dotsum 9834.0
 matrix ldouble_t 16: 186432.000000
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 490.400, dotsum 11806.0
 matrix ldouble_t 17: 238612.000000
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 536.400, dotsum 14081.0
 matrix ldouble_t 18: 302274.000000
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 609.200, dotsum 16582.0
 matrix ldouble_t 19: 376846.000000
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 676.800, dotsum 19421.0
 matrix ldouble_t 20: 465880.000000
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int8_t 3: -28
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum -94.0
 matrix int8_t 4: -62
-min -126.000000 max 110.000000
+min, -126.000000 max 110.000000, fmodsum 22.000, dotsum 47.0
 matrix int8_t 5: -117
-min -119.000000 max 122.000000
+min, -119.000000 max 122.000000, fmodsum 31.000, dotsum 10.0
 matrix int8_t 6: -83
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 30.000, dotsum 47.0
 matrix int8_t 7: 40
-min -126.000000 max 124.000000
+min, -126.000000 max 124.000000, fmodsum 8.000, dotsum -65.0
 matrix int8_t 8: 52
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -14.000, dotsum -67.0
 matrix int8_t 9: -127
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -26.000, dotsum 68.0
 matrix int8_t 10: -37
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -29.000, dotsum 70.0
 matrix int8_t 11: -108
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum -35.000, dotsum 13.0
 matrix int8_t 12: -126
-min -127.000000 max 126.000000
+min, -127.000000 max 126.000000, fmodsum 8.000, dotsum 105.0
 matrix int8_t 13: -69
-min -125.000000 max 127.000000
+min, -125.000000 max 127.000000, fmodsum -17.000, dotsum -118.0
 matrix int8_t 14: 119
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -16.000, dotsum 126.0
 matrix int8_t 15: -78
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -42.000, dotsum 106.0
 matrix int8_t 16: 64
-min -126.000000 max 127.000000
+min, -126.000000 max 127.000000, fmodsum 16.000, dotsum 30.0
 matrix int8_t 17: 20
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -12.000, dotsum 1.0
 matrix int8_t 18: -62
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum 13.000, dotsum -58.0
 matrix int8_t 19: 14
-min -128.000000 max 127.000000
+min, -128.000000 max 127.000000, fmodsum -15.000, dotsum -35.0
 matrix int8_t 20: -40
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint8_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint8_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint8_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint8_t 4: 194
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 47.0
 matrix uint8_t 5: 139
-min 18.000000 max 247.000000
+min, 18.000000 max 247.000000, fmodsum 45.000, dotsum 10.0
 matrix uint8_t 6: 173
-min 17.000000 max 238.000000
+min, 17.000000 max 238.000000, fmodsum 58.000, dotsum 47.0
 matrix uint8_t 7: 40
-min 18.000000 max 250.000000
+min, 18.000000 max 250.000000, fmodsum 70.000, dotsum 191.0
 matrix uint8_t 8: 52
-min 6.000000 max 254.000000
+min, 6.000000 max 254.000000, fmodsum 99.000, dotsum 189.0
 matrix uint8_t 9: 129
-min 1.000000 max 253.000000
+min, 1.000000 max 253.000000, fmodsum 113.000, dotsum 68.0
 matrix uint8_t 10: 219
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 144.000, dotsum 70.0
 matrix uint8_t 11: 148
-min 1.000000 max 255.000000
+min, 1.000000 max 255.000000, fmodsum 144.000, dotsum 13.0
 matrix uint8_t 12: 130
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 203.000, dotsum 105.0
 matrix uint8_t 13: 187
-min 1.000000 max 254.000000
+min, 1.000000 max 254.000000, fmodsum 196.000, dotsum 138.0
 matrix uint8_t 14: 119
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 231.000, dotsum 126.0
 matrix uint8_t 15: 178
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 8.000, dotsum 106.0
 matrix uint8_t 16: 64
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 73.000, dotsum 30.0
 matrix uint8_t 17: 20
-min 0.000000 max 251.000000
+min, 0.000000 max 251.000000, fmodsum 100.000, dotsum 1.0
 matrix uint8_t 18: 194
-min 0.000000 max 254.000000
+min, 0.000000 max 254.000000, fmodsum 156.000, dotsum 198.0
 matrix uint8_t 19: 14
-min 0.000000 max 255.000000
+min, 0.000000 max 255.000000, fmodsum 189.000, dotsum 221.0
 matrix uint8_t 20: 216
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int16_t 11: -25452
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int16_t 12: -8062
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int16_t 14: -23433
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int16_t 16: -10176
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int16_t 17: -23532
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int16_t 18: -25406
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int16_t 19: -16370
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint16_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint16_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint16_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint16_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint16_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint16_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint16_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint16_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint16_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint16_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint16_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint16_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint16_t 13: 14011
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint16_t 14: 42103
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint16_t 15: 11698
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint16_t 16: 55360
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint16_t 17: 42004
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint16_t 18: 40130
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint16_t 19: 49166
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint16_t 20: 7128
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint32_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint32_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint32_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint32_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint32_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint32_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint32_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint32_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint32_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint32_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint32_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint32_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint32_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint32_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint32_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint32_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint32_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint32_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint32_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint32_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix int64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix int64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix int64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix int64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix int64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix int64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix int64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix int64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix int64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix int64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix int64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix int64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix int64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix int64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix int64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix int64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix int64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix int64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix int64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix int64_t 20: 465880
-min 4.000000 max 4.000000
+min, 4.000000 max 4.000000, fmodsum 0.000, dotsum 4.0
 matrix uint64_t 1: 4
-min 8.000000 max 18.000000
+min, 8.000000 max 18.000000, fmodsum 3.000, dotsum 24.0
 matrix uint64_t 2: 50
-min 13.000000 max 47.000000
+min, 13.000000 max 47.000000, fmodsum 9.000, dotsum 71.0
 matrix uint64_t 3: 228
-min 19.000000 max 96.000000
+min, 19.000000 max 96.000000, fmodsum 18.000, dotsum 162.0
 matrix uint64_t 4: 706
-min 26.000000 max 170.000000
+min, 26.000000 max 170.000000, fmodsum 28.000, dotsum 303.0
 matrix uint64_t 5: 1675
-min 34.000000 max 274.000000
+min, 34.000000 max 274.000000, fmodsum 45.000, dotsum 522.0
 matrix uint64_t 6: 3501
-min 43.000000 max 413.000000
+min, 43.000000 max 413.000000, fmodsum 58.000, dotsum 815.0
 matrix uint64_t 7: 6440
-min 53.000000 max 592.000000
+min, 53.000000 max 592.000000, fmodsum 70.000, dotsum 1215.0
 matrix uint64_t 8: 11060
-min 64.000000 max 816.000000
+min, 64.000000 max 816.000000, fmodsum 99.000, dotsum 1725.0
 matrix uint64_t 9: 17793
-min 76.000000 max 1090.000000
+min, 76.000000 max 1090.000000, fmodsum 111.000, dotsum 2372.0
 matrix uint64_t 10: 27355
-min 89.000000 max 1419.000000
+min, 89.000000 max 1419.000000, fmodsum 147.000, dotsum 3142.0
 matrix uint64_t 11: 40084
-min 103.000000 max 1808.000000
+min, 103.000000 max 1808.000000, fmodsum 142.000, dotsum 4109.0
 matrix uint64_t 12: 57474
-min 118.000000 max 2262.000000
+min, 118.000000 max 2262.000000, fmodsum 207.000, dotsum 5225.0
 matrix uint64_t 13: 79547
-min 134.000000 max 2786.000000
+min, 134.000000 max 2786.000000, fmodsum 195.000, dotsum 6538.0
 matrix uint64_t 14: 107639
-min 151.000000 max 3385.000000
+min, 151.000000 max 3385.000000, fmodsum 230.000, dotsum 8062.0
 matrix uint64_t 15: 142770
-min 169.000000 max 4064.000000
+min, 169.000000 max 4064.000000, fmodsum 264.000, dotsum 9834.0
 matrix uint64_t 16: 186432
-min 188.000000 max 4828.000000
+min, 188.000000 max 4828.000000, fmodsum 326.000, dotsum 11806.0
 matrix uint64_t 17: 238612
-min 208.000000 max 5682.000000
+min, 208.000000 max 5682.000000, fmodsum 355.000, dotsum 14081.0
 matrix uint64_t 18: 302274
-min 229.000000 max 6631.000000
+min, 229.000000 max 6631.000000, fmodsum 408.000, dotsum 16582.0
 matrix uint64_t 19: 376846
-min 251.000000 max 7680.000000
+min, 251.000000 max 7680.000000, fmodsum 449.000, dotsum 19421.0
 matrix uint64_t 20: 465880
 matrix multiply test completed with great success
 c_tests/bin0/pis
@@ -6191,15 +6191,12 @@ results are valid
 final: 243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b54709179216d5d98979fb1bd1310ba698dfb5ac2ffd72dbd01adfb7b8e1afed6a267e96ba7c9045f12c7f9924a19947b3916cf70801f2e2858efc16636920d871574e69a458fea3f4933d7e0d95748f728eb658718bcd5882154aee7b54a41dc25a59b59c30d5392af26013c5d1b023286085f0ca417918b8db38ef8e79dcb0603a180e6c9e0e8bb01e8a3ed71577c1bd314b2778af2fda55605c60e65525f3aa55ab945748986263e8144055ca396a2aab10b6b4cc5c341141e8cea15486af7c72e993b3ee1411636fbc2a2ba9c55d741831f6ce5c3e169b87931eafd6ba336c24cf5c7a325381289586773b8f48986b4bb9afc4bfe81b6628219361d809ccfb21a991487cac605dec8032ef845d5de98575b1dc262302eb651b8823893e81d396acc50f6d6ff383f442392e0b4482a484200469c8f04a9e1f9b5e21c66842f6e96c9a670c9c61abd388f06a51a0d2d8542f68960fa728ab5133a36eef0b6c137a3be4ba3bf0507efb2a98a1f1651d39af017666ca593e82430e888cee8619456f9fb47d84a5c33b8b5ebee06f75d885c12073401a449f56c16aa64ed3aa62363f77061bfedf72429b023d37d0d724d00a1248db0fead349f1c09b075372c980991b7b
 c_tests/bin0/sleeptm
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1010, system time 0
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/bin2/sleeptm
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1008, system time 0
 sleepy time ended with great success
 c_tests/bin3/sleeptm
 clk_tck / number of linux ticks per second: 100
@@ -6459,7 +6456,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-396 ms for 1 iterations
+5,653 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -6486,7 +6483,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-96 ms for 1 iterations
+1,540 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -6513,7 +6510,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-93 ms for 1 iterations
+1,233 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -6540,7 +6537,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-103 ms for 1 iterations
+1,283 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -6567,7 +6564,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-104 ms for 1 iterations
+1,304 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -6609,19 +6606,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   8.873266ms
+serial runtime:   140.73646ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.643148ms
+serial runtime:   34.432846ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   2.052096ms
+serial runtime:   26.564987ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.583237ms
+serial runtime:   20.232831ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -6884,4 +6881,4 @@ element count after dedup: 58175
 rust_tests/bin3/mysort
 element count in vector: 58175
 element count after dedup: 58175
-Fri Dec 20 11:12:07 PST 2024
+Mon Jan  6 15:00:12 UTC 2025
