@@ -12,6 +12,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <cmath>
+
+#define _perhaps_inline __attribute__((noinline))
+//#define _perhaps_inline
 
 typedef unsigned __int128 uint128_t;
 typedef __int128 int128_t;
@@ -21,25 +25,25 @@ typedef long double ldouble_t;
     ftype A_##ftype##dim[ dim ][ dim ]; \
     ftype B_##ftype##dim[ dim ][ dim ]; \
     ftype C_##ftype##dim[ dim ][ dim ]; \
-    __attribute__((noinline)) void fillA_##ftype##dim() \
+    _perhaps_inline void fillA_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 A_##ftype##dim[ i ][ j ] = (ftype) ( i + j + 2 ); \
     } \
-    __attribute__((noinline)) void fillB_##ftype##dim() \
+    _perhaps_inline void fillB_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 B_##ftype##dim[ i ][ j ] = (ftype) ( ( i + j + 2 ) / ( j + 1 ) ); \
     } \
-    __attribute__((noinline)) void fillC_##ftype##dim() \
+    _perhaps_inline void fillC_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             for ( int j = 0; j < dim; j++ ) \
                 C_##ftype##dim[ i ][ j ] = (ftype) 0; \
     } \
-    __attribute__((noinline)) void print_array_##ftype##dim( ftype a[dim][dim] ) \
+    _perhaps_inline void print_array_##ftype##dim( ftype a[dim][dim] ) \
     { \
         printf( "array: \n" ); \
         for ( int i = 0; i < dim; i++ ) \
@@ -49,17 +53,45 @@ typedef long double ldouble_t;
             printf( "\n" ); \
         } \
     } \
-    __attribute__((noinline)) void matmult_##ftype##dim() \
+    _perhaps_inline void matmult_##ftype##dim() \
     { \
         /* this debugging line causes the compiler to optimize code differently (tbl/zip)! syscall( 0x2002, 1 ); */ \
         for ( int i = 0; i < dim; i++ ) \
-        { \
             for ( int j = 0; j < dim; j++ ) \
                 for ( int k = 0; k < dim; k++ ) \
                     C_##ftype##dim[ i ][ j ] += A_##ftype##dim[ i ][ k ] * B_##ftype##dim[ k ][ j ]; \
-        } \
     } \
-    __attribute__((noinline)) void div_nonsense_##ftype##dim() /* force more instructions to be generated with this nonsense */ \
+    _perhaps_inline ftype fmod_nonsense_##ftype##dim() /* find fmods */ \
+    { \
+        ftype FM_##ftype##dim[ dim ][ dim ]; \
+        for ( int i = 0; i < dim; i++ ) \
+            for ( int j = 0; j < dim; j++ ) \
+                FM_##ftype##dim[ i ][ j ] = fmod( C_##ftype##dim[ i ][ j ], 3.2 ); \
+        ftype m = -1; \
+        ftype sum = 0; \
+        for ( int i = 0; i < dim; i++ ) \
+            for ( int j = 0; j < dim; j++ ) \
+            { \
+                sum += FM_##ftype##dim[ i ][ j ]; \
+                if ( FM_##ftype##dim[ i ][ j ] > m ) \
+                    m = FM_##ftype##dim[ i ][ j ]; \
+            } \
+        /*print_array_##ftype##dim( FM_##ftype##dim );*/ \
+        return sum; \
+    } \
+    _perhaps_inline ftype dotsum_nonsense_##ftype##dim() /* find fmods */ \
+    { \
+        ftype dotsum = 0; \
+        ftype negsum = 0; \
+        for ( int i = 0; i < dim; i++ ) \
+            for ( int j = 0; j < dim; j++ ) \
+            { \
+                dotsum += ( A_##ftype##dim[ i ][ j ] * B_##ftype##dim[ i ][ j ] ); \
+                negsum += ( -A_##ftype##dim[ i ][ j ] * B_##ftype##dim[ i ][ j ] ); \
+            } \
+        return dotsum; \
+    } \
+    _perhaps_inline void div_nonsense_##ftype##dim() /* force more instructions to be generated with this nonsense */ \
     { \
         for ( int i = 0; i < dim; i++ ) \
         { \
@@ -74,7 +106,7 @@ typedef long double ldouble_t;
                     } \
         } \
     } \
-    __attribute__((noinline)) ftype sum_##ftype##dim() \
+    _perhaps_inline ftype sum_##ftype##dim() \
     { \
         ftype result = (ftype) 0; \
         for ( int i = 0; i < dim; i++ ) \
@@ -82,7 +114,7 @@ typedef long double ldouble_t;
                 result += C_##ftype##dim[ i ][ j ]; \
         return result; \
     } \
-     __attribute__((noinline)) ftype min_##ftype##dim() \
+    _perhaps_inline ftype min_##ftype##dim() \
     { \
         ftype result = C_##ftype##dim[ 0 ][ 0 ]; \
         for ( int i = 0; i < dim; i++ ) \
@@ -90,7 +122,7 @@ typedef long double ldouble_t;
                 result = C_##ftype##dim[ i ][ j ] < result ? C_##ftype##dim[ i ][ j ] : result; \
         return result; \
     } \
-     __attribute__((noinline)) ftype max_##ftype##dim() \
+    _perhaps_inline ftype max_##ftype##dim() \
     { \
         ftype result = C_##ftype##dim[ 0 ][ 0 ]; \
         for ( int i = 0; i < dim; i++ ) \
@@ -109,10 +141,12 @@ typedef long double ldouble_t;
         /*print_array_##ftype##dim( C_##ftype##dim );*/ \
         ftype sum = sum_##ftype##dim(); \
         div_nonsense_##ftype##dim(); \
+        ftype fmodsum = fmod_nonsense_##ftype##dim(); \
+        ftype dotsum = dotsum_nonsense_##ftype##dim(); \
         ftype nonsense_sum = sum_##ftype##dim(); \
         if ( sum != nonsense_sum ) \
             printf( "nonsense: %lf\n", (double) nonsense_sum ); \
-        printf( "min %lf max %lf\n", (double) min_##ftype##dim(), (double) max_##ftype##dim() ); \
+        printf( "min, %lf max %lf, fmodsum %.3lf, dotsum %.1lf\n", (double) min_##ftype##dim(), (double) max_##ftype##dim(), (double) fmodsum, (double) dotsum ); \
         return sum; \
     }
 
@@ -199,9 +233,9 @@ declare_matrix_tests( uint128_t );
 #define run_this_test( type, format ) \
     printf( "matrix %s 4: " format "\n", #type, run_##type##4() );
 
-
 int main( int argc, char * argv[] )
 {
+#if 1
     run_tests( float, "%f");
     run_tests( double, "%lf");
     run_tests( ldouble_t, "%Lf");
@@ -213,8 +247,9 @@ int main( int argc, char * argv[] )
     run_tests( uint32_t, "%u");
     run_tests( int64_t, "%lld");
     run_tests( uint64_t, "%llu");
-
-    //run_this_test( ldouble_t, "%Lf" );    
+#else    
+    run_this_test( float, "%f" );    
+#endif    
 
     // these two return incorrect results even on Arm64 hardware
 
