@@ -799,16 +799,12 @@ static tcflag_t map_termios_oflag_linux_to_macos( tcflag_t f )
     tcflag_t r = 0;
     if ( f & 1 ) // OPOST is the same bit
         r |= 1;
-
     if ( f & 4 ) // ONLCR
         r |= 2;
-
     if ( f & 8 ) // OCRNL
         r |= 0x10;
-
     if ( f & 0x10 ) // ONOCR
         r |= 0x20;
-
     if ( f & 0x20 ) // ONLRET
         r |= 0x40;
 
@@ -820,16 +816,12 @@ static tcflag_t map_termios_oflag_macos_to_linux( tcflag_t f )
     tcflag_t r = 0;
     if ( f & 1 ) // OPOST is the same bit for both
         r |= 1;
-
     if ( f & 2 ) // ONLCR
         r |= 4;
-
     if ( f & 0x10 ) // OCRNL
         r |= 8;
-
     if ( f & 0x20 ) // ONOCR
         r |= 0x10;
-
     if ( f & 0x40 ) // ONLRET
         r |= 0x20;
 
@@ -875,37 +867,26 @@ static tcflag_t map_termios_iflag_macos_to_linux( tcflag_t f )
 static tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
-
     if ( f & 1 ) // ICANON
         r |= 0x80;
-
     if ( f & 2 ) // ECHONL
         r |= 0x100;
-
     if ( f & 8 ) // ECHOK
         r |= 8;
-
     if ( f & 0x10 ) // ECHOKE
         r |= 2;
-
     if ( f & 0x20 ) // ECHOE
         r |= 4;
-
     if ( f & 0x40 ) // ECHO
         r |= 0x10;
-
     if ( f & 0x100 ) // EXTPROC
         r |= 0x400000;
-
     if ( f & 0x200 ) // ECHOPRT
         r |= 0x40;
-
     if ( f & 0x400 ) // ECONL
         r |= 0x20;
-
     if ( f & 0x8000 ) // ISIG
         r |= 0x400;
-
     if ( f & 0x10000 ) // IEXTEN
         r |= 0x800;
 
@@ -915,37 +896,26 @@ static tcflag_t map_termios_lflag_linux_to_macos( tcflag_t f )
 static tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
-
     if ( f & 0x80 ) // ICANON
         r |= 1;
-
     if ( f & 0x100 ) // ECHONL
         r |= 2;
-
     if ( f & 8 ) // ECHOK
         r |= 8;
-
     if ( f & 2 ) // ECHOKE
         r |= 0x10;
-
     if ( f & 4 ) // ECHOE
         r |= 0x20;
-
     if ( f & 0x10 ) // ECHO
         r |= 0x40;
-
     if ( f & 0x400000 ) // EXTPROC
         r |= 0x100;
-
     if ( f & 0x40 ) // ECHOPRT
         r |= 0x200;
-
     if ( f & 0x20 ) // ECONL
         r |= 0x400;
-
     if ( f & 0x400 ) // ISIG
         r |= 0x8000;
-
     if ( f & 0x800 ) // IEXTEN
         r |= 0x10000;
 
@@ -955,31 +925,22 @@ static tcflag_t map_termios_lflag_macos_to_linux( tcflag_t f )
 static tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
 {
     tcflag_t r = 0;
-
     if ( f & 0x10 ) // CS5
         r |= 0x100;
-
     if ( f & 0x20 ) // CS6  CLOCAL is also 0x20 on linux and 0x400 on MacOS
         r |= 0x200;
-
     if ( f & 0x30 ) // CS7
         r |= 0x300;
-
     if ( f & 0x40 ) // CSIZE
         r |= 0x400;
-
     if ( f & 0x80 ) // CSTOPB
         r |= 0x800;
-
     if ( f & 0x100 ) // CREAD
         r |= 0x1000;
-
     if ( f & 0x200 ) // PARENB
         r |= 0x2000;
-
     if ( f & 0x400 ) // CS8
         r |=  0x4000;
-
     if ( f & 0x800 ) // HUPCL
         r |= 0x8000;
 
@@ -989,31 +950,22 @@ static tcflag_t map_termios_cflag_linux_to_macos( tcflag_t f )
 static tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 {
     tcflag_t r = 0;
-
     if ( f & 0x100 ) // CS5
         r |= 0x10;
-
     if ( f & 0x200 ) // CS6  CLOCAL is also 0x20 on linux and 0x400 on MacOS
         r |= 0x20;
-
     if ( f & 0x300 ) // CS7
         r |= 0x30;
-
     if ( f & 0x400 ) // CSIZE
         r |= 0x40;
-
     if ( f & 0x800 ) // CSTOPB
         r |= 0x80;
-
     if ( f & 0x1000 ) // CREAD
         r |= 0x100;
-
     if ( f & 0x2000 ) // PARENB
         r |= 0x200;
-
     if ( f & 0x4000 ) // CS8
         r |=  0x400;
-
     if ( f & 0x8000 ) // HUPCL
         r |= 0x800;
 
@@ -1161,7 +1113,6 @@ static const char * lookup_syscall( uint64_t x )
 
 static void update_result_errno( CPUClass & cpu, int64_t result )
 {
-
     if ( result >= 0 || result <= -4096 ) // syscalls like write() return positive values to indicate success.
     {
         tracer.Trace( "  syscall success, returning %lld = %#llx\n", result, result );
@@ -1804,7 +1755,7 @@ void emulator_invoke_svc( CPUClass & cpu )
         {
             // The gnu c runtime is ok with this failing -- it just allocates memory instead probably assuming it's an embedded system.
             // Same for the gnu runtime with Rust.
-            // But golang actually needs this to succeed.
+            // But golang actually needs this to succeed and return the requested address and this code doesn't support that.
 
             uint64_t addr = cpu.regs[ REG_ARG0 ];
             size_t length = cpu.regs[ REG_ARG1 ];
@@ -1855,10 +1806,6 @@ void emulator_invoke_svc( CPUClass & cpu )
         {
             tracer.Trace( "  syscall command SYS_openat\n" );
             // a0: directory. a1: asciiz string of file to open. a2: flags. a3: mode
-
-            // G++ on RISC-V on a opendir() call will call this with 0x80000 set in flags. Ignored for now,
-            // but this should call opendir() on non-Windows and on Windows would take substantial code to
-            // implement since opendir() doesn't exist. For now it fails with errno 13.
 
             int directory = (int) cpu.regs[ REG_ARG0 ];
 #ifdef __APPLE__
