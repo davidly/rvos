@@ -14,7 +14,173 @@ wchar_t wc_zeroes[ 4096 ] = {0};
 
 #define _countof( X ) ( sizeof( X ) / sizeof( X[0] ) )
 
-extern "C" bool trace_instructions( bool trace );
+#if 0
+
+#define memcmp fake_memcmp
+#define memcpy fake_memcpy
+#define memset fake_memset
+#define strchr fake_strchr
+#define strrchr fake_strrchr
+#define strstr fake_strstr
+#define strlen fake_strlen
+#define wcschr fake_wcschr
+#define wcsrchr fake_wcsrchr
+#define wcsstr fake_wcsstr
+#define wcslen fake_wcslen
+
+int fake_memcmp(const void *s1, const void *s2, size_t n) 
+{
+    const unsigned char *p1 = (const unsigned char *) s1;
+    const unsigned char *p2 = (const unsigned char *) s2;
+    while (n-- > 0) 
+    {
+        if (*p1 != *p2)
+            return (*p1 < *p2) ? -1 : 1;
+        p1++;
+        p2++;
+    }
+
+    return 0;
+}
+
+void * fake_memcpy(void *dest, const void *src, size_t n) 
+{
+    char *d = (char *)dest;
+    const char *s = (const char *)src;
+    for (size_t i = 0; i < n; i++)
+        d[i] = s[i];
+    return dest;
+}    
+
+void * fake_memset(void *s, int c, size_t n) 
+{
+    unsigned char *p = (unsigned char *)s;
+    while (n--)
+        *p++ = (unsigned char)c;
+    return s;
+}
+
+char * fake_strchr(const char *str, int c) 
+{
+    while (*str != '\0') 
+    {
+        if (*str == c)
+            return (char *)str; 
+        str++;
+    }
+
+    return NULL;
+}
+
+wchar_t * fake_wcschr(const wchar_t *str, int c) 
+{
+    while (*str != 0) 
+    {
+        if (*str == c)
+            return (wchar_t *)str; 
+        str++;
+    }
+
+    return NULL;
+}
+
+char * fake_strrchr(const char *str, int c) 
+{
+    const char *last_occurrence = NULL;
+    while (*str != '\0') 
+    {
+        if (*str == c)
+            last_occurrence = str;
+        str++;
+    }
+    return (char *)last_occurrence;
+}
+
+wchar_t * fake_wcsrchr(const wchar_t *str, int c) 
+{
+    const wchar_t *last_occurrence = NULL;
+    while (*str != 0) 
+    {
+        if (*str == c)
+            last_occurrence = str;
+        str++;
+    }
+    return (wchar_t *)last_occurrence;
+}
+
+char * fake_strstr(const char *haystack, const char *needle) 
+{
+    if (!*needle)
+        return (char *)haystack;
+
+    while (*haystack) 
+    {
+        const char *h = haystack;
+        const char *n = needle;
+
+        while (*h && *n && *h == *n) 
+        {
+            h++;
+            n++;
+        }
+
+        if (!*n)
+            return (char *)haystack;
+
+        haystack++;
+    }
+    return NULL;
+}
+
+wchar_t * fake_wcsstr(const wchar_t *haystack, const wchar_t *needle) 
+{
+    if (!*needle)
+        return (wchar_t *)haystack;
+
+    while (*haystack) 
+    {
+        const wchar_t *h = haystack;
+        const wchar_t *n = needle;
+
+        while (*h && *n && *h == *n) 
+        {
+            h++;
+            n++;
+        }
+
+        if (!*n)
+            return (wchar_t *)haystack;
+
+        haystack++;
+    }
+    return NULL;
+}
+
+size_t fake_strlen(const char *str) 
+{
+    size_t len = 0;
+
+    while (*str != '\0') 
+    {
+        len++;
+        str++; 
+    }
+    return len;
+}
+
+size_t fake_wcslen(const wchar_t *str) 
+{
+    size_t len = 0;
+
+    while (*str != 0) 
+    {
+        len++;
+        str++; 
+    }
+    return len;
+}
+
+#endif
 
 void test_wide()
 {
@@ -90,12 +256,12 @@ void test_wide()
         const wchar_t * p = wcsstr( wc + start, pattern );
         if ( !p )
         {
-            printf( "strstr pattern not found iteration %d, start %d, offset %d, len %d, pattern %ls\n", i, start, offset, len, pattern );
+            printf( "wcsstr pattern not found iteration %d, start %d, offset %d, len %d, pattern %ls\n", i, start, offset, len, pattern );
             exit( 1 );
         }
         if ( memcmp( p, pattern, len * sizeof( wchar_t ) ) )
         {
-            printf( "strstr found the wrong pattern iteration %d, start %d, offset %d, len %d, pattern %ls\n", i, start, offset, len, pattern );
+            printf( "wcsstr found the wrong pattern iteration %d, start %d, offset %d, len %d, pattern %ls\n", i, start, offset, len, pattern );
             exit( 1 );
         }
     }
@@ -149,10 +315,14 @@ int main( int argc, char * argv[] )
             printf( "strrchr failed to find char: iteration %d, len %d, start %d, end %d\n", i, len, start, end );
             exit( 1 );
         }
-
         if ( pbang != ( ac + end ) )
         {
             printf( "strrchr offset incorrect: iteration %d, len %d, start %d, end %d\n", i, len, start, end );
+            exit( 1 );
+        }
+        if ( strchr( ac + start, '$' ) )
+        {
+            printf( "strrchr somehow found $: iteration %d, len %d, start %d, end %d\n", i, len, start, end );
             exit( 1 );
         }
         ac[ end ] = orig;
@@ -181,6 +351,11 @@ int main( int argc, char * argv[] )
         if ( memcmp( p, pattern, len ) )
         {
             printf( "strstr found the wrong pattern iteration %d, start %d, offset %d, len %d, pattern %s\n", i, start, offset, len, pattern );
+            exit( 1 );
+        }
+        if ( strstr( ac + start, "gfe" ) )
+        {
+            printf( "strstr somehow found gfe. iteration %d, start %d, offset %d\n", i, start, offset );
             exit( 1 );
         }
     }
