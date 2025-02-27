@@ -1467,6 +1467,8 @@ void emulator_invoke_svc( CPUClass & cpu )
                         g_hFindFirst = INVALID_HANDLE_VALUE;
                         g_acFindFirstPattern[ 0 ] = 0;
                     }
+                    update_result_errno( cpu, 0 );
+                    break;
                 }
                 else if ( timebaseFrequencyDescriptor == descriptor || osreleaseDescriptor == descriptor )
                 {
@@ -2214,7 +2216,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 ptms->tms_cutime = local_tms.tms_cutime;
                 ptms->tms_cstime = local_tms.tms_cstime;
 #endif
-
             }
 
             struct linux_timeval tv;
@@ -2532,7 +2533,7 @@ void emulator_invoke_svc( CPUClass & cpu )
         case SYS_getgid:
         case SYS_getegid:
         {
-            update_result_errno( cpu, 0x5549 ); // IU
+            update_result_errno( cpu, 0x5549 ); // IU. Love wins all.
             break;
         }
         default:
@@ -2886,7 +2887,7 @@ static bool load_image( const char * pimage, const char * app_args )
     //     g_brk_offset with uninitialized RAM (just after arg_data_offset initially)
     //     g_end_of_data
     //     arg_data_offset
-    //     uninitalized data (size read from the .elf file)
+    //     uninitalized data bss (size read from the .elf file)
     //     initialized data (size & data read from the .elf file)
     //     code (read from the .elf file)
     //     g_base_address (offset read from the .elf file).

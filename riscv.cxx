@@ -2324,7 +2324,7 @@ uint64_t RiscV::run()
                     }
                     else if ( 1 == funct3 )
                     {
-                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
+                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
     
                         float f = fabsf( fregs[ rs1 ].f );
                         if ( fregs[ rs2 ].f >= 0.0 )
