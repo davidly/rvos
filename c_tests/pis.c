@@ -121,49 +121,50 @@ void Usage()
 {
     printf( "Usage: pis [offset] [count]\n" );
     printf( "  PI source. Generates hexadecimal digits of PI.\n" );
-    printf( "  arguments:  [offset]    Offset in 1k where generation starts. Default is 0.\n" );
-    printf( "              [count]     Count in 1k of digits to generate. Default is 1.\n" );
+    printf( "  arguments:  [offset]    Offset in 128 where generation starts. Default is 0.\n" );
+    printf( "              [count]     Count in 128 of digits to generate. Default is 1.\n" );
     exit( 1 );
 } //Usage
 
 int main( int argc, char * argv[] )
 {
-    // These are in units of 1k (1024)
+    // These are in units of 128
 
     size_t startingOffset = 0;
-    size_t startingOffset1k = 0;
-    size_t countGenerated1k = 1;
-    size_t countGenerated = countGenerated1k * 1024;
+    size_t startingOffset128 = 0;
+    size_t countGenerated128 = 1;
+    size_t countGenerated = countGenerated128 * 128;
 
     if ( argc > 3 )
         Usage();
 
     if ( argc >= 2 )
     {
-        startingOffset1k = atoll( argv[ 1 ] );
-        startingOffset = startingOffset1k * 1024;
+        startingOffset128 = atoll( argv[ 1 ] );
+        startingOffset = startingOffset128 * 128;
     }
 
     if ( 3 == argc )
     {
-        countGenerated1k = atoll( argv[ 2 ] );
-        countGenerated = 1024 * countGenerated1k;
+        countGenerated128 = atoll( argv[ 2 ] );
+        countGenerated = 128 * countGenerated128;
     }
 
-    printf( "startingOffset1k: %lld, startingOffset: %lld, countGenerated1k %lld, countGenerated %lld\n", startingOffset1k, startingOffset, countGenerated1k, countGenerated );
+    printf( "startingOffset128: %lld, startingOffset: %lld, countGenerated128 %lld, countGenerated %lld\n", 
+            startingOffset128, startingOffset, countGenerated128, countGenerated );
 
     size_t bufsize = 1 + countGenerated;
     char* ac = new char[ bufsize ];
     memset( ac, 0, bufsize );
 
-    const size_t chunkSize = 32; // rely on fact that 32*32 = 1024
-    size_t startInChunks = startingOffset1k * chunkSize;
-    size_t limitInChunks = startInChunks + ( countGenerated1k * chunkSize );
+    const size_t chunkSize = 32; // rely on fact that 32*3 = 128
+    size_t startInChunks = ( startingOffset128 * 128 ) / chunkSize;
+    size_t limitInChunks = ( startInChunks + ( countGenerated128 * 128 ) ) / chunkSize;
 
     printf( "startInChunks: %lld, limitInChunks %lld\n", startInChunks, limitInChunks );
 
     size_t complete = 0;
-    size_t generatedChunks = countGenerated1k * chunkSize;
+    size_t generatedChunks = countGenerated128 * 129 / chunkSize;
 
     for ( size_t i = startInChunks; i < limitInChunks; i++ )
     {
@@ -180,7 +181,7 @@ int main( int argc, char * argv[] )
         printf( "percent complete: %lf\n", 100.0 * (double) complete / (double) generatedChunks );
     };
 
-    if ( 0 == startingOffset && countGenerated1k >= 1 )
+    if ( 0 == startingOffset && countGenerated128 >= 1 )
     {
         const char* Julia1k =
             "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be54"
@@ -197,8 +198,10 @@ int main( int argc, char * argv[] )
             "2073401a449f56c16aa64ed3aa62363f77061bfedf72429b023d37d0d724d00a1248db0fead349f1c09b"
             "075372c980991b7b";
     
-        if ( strncmp( ac, Julia1k, 1024 ) )
-            printf( "results don't match Julia!\n" );
+        if ( countGenerated128 >= 8 && strncmp( ac, Julia1k, 1024 ) )
+            printf( "results 1k don't match Julia!\n" );
+        else if ( strncmp( ac, Julia1k, 128 ) )
+            printf( "results 128 don't match Julia!\n" );
         else
             printf( "results are valid\n" );
     }

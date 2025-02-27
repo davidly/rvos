@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-for arg in ato e fileops mysort real tap td tphi ttt;
+for arg in ato e fileops mysort real tap td tphi ttt tmm;
 do
     echo $arg
 

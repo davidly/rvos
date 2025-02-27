@@ -1,50 +1,78 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <stdint.h>
 
-#define BA_ENABLE_COMPILER
 
-static void Usage()
+void cppreference() // from https://en.cppreference.com/w/c/io/fprintf
 {
-    printf( "Usage: ba [-a] [-e] [-l] [-m] [-p] [-t] [-x] [-8] filename.bas [argvalue]\n" );
-    printf( "  Basic interpreter\n" );
-    printf( "  Arguments:     filename.bas     Subset of TRS-80 compatible BASIC\n" );
-
-    printf( "                 argvalue         One optional integer argument to the app referenced in basic as av%%\n" );
-#ifdef BA_ENABLE_COMPILER
-    printf( "                 -a:X             Generate assembly code, where X is one of:\n" );
-    printf( "                                  6 -- Generate 8-bit Apple 1 'sbasm30306\\sbasm.py' compatible assembler code to filename.s\n" );
-    printf( "                                  8 -- Generate 8-bit CP/M 2.2 i8080 'asm' compatible assembler code to filename.asm\n" );
-    printf( "                                  a -- Generate 64-bit arm64 Windows armasm64 compatible assembler code to filename.asm\n" );
-    printf( "                                  d -- Generate 16-bit 8086 DOS ml /AT /omf /c compatible assembler code to filename.asm\n" );
-    printf( "                                  3 -- Generate 32-bit Linux arm32 armv8 'gcc / as' compatible assembler code to filename.s\n" );
-    printf( "                                  i -- Generate 32-bit i386 (686) Windows x86 'ml' compatible assembler code to filename.asm\n" );
-    printf( "                                  I -- Generate 32-bit i386 (386) Windows 98 'ml' compatible assembler code to filename.asm\n" );
-    printf( "                                  m -- Generate 64-bit MacOS 'as -arch arm64' compatible assembler code to filename.s\n" );
-    printf( "                                  r -- Generate 64-bit RISC-V 64-bit GNU 'as' compatible assembler code to filename.s\n" );
-    printf( "                                  x -- Generate 64-bit Windows x64 'ml64' compatible assembler code to filename.asm\n" );
-    printf( "                 -d               Generate a dollar sign $ at the end of execution for Apple 1 apps\n" );
-#endif
-    printf( "                 -e               Show execution count and time for each line\n" );
-    printf( "                 -l               Show 'pcode' listing\n" );
-#ifdef BA_ENABLE_COMPILER
-    printf( "                 -o               Don't do expression optimization for assembly code\n" );
-#endif
-    printf( "                 -p               Show parse time for input file\n" );
-    printf( "                 -q               Quiet. Don't show start and end messages in interpreter or compiled code\n" );
-#ifdef BA_ENABLE_COMPILER
-    printf( "                 -r               Don't use registers for variables in assembly code\n" );
-#endif
-    printf( "                 -t               Show debug tracing\n" );
-    printf( "                 -x               Parse only; don't execute the code\n" );
-#ifdef BA_ENABLE_COMPILER
-    printf( "  notes:  --  Assembly instructions are located at the top of generated files\n" );
-#endif
-    exit( 1 );
-} //Usage
+    const char* s = "Hello";
+    printf("Strings:\n"); // same as puts("Strings");
+    printf(" padding:\n");
+    printf("\t[%10s]\n", s);
+    printf("\t[%-10s]\n", s);
+    printf("\t[%*s]\n", 10, s);
+    printf(" truncating:\n");
+    printf("\t%.4s\n", s);
+    printf("\t%.*s\n", 3, s);
+ 
+    printf("Characters:\t%c %%\n", 'A');
+ 
+    printf("Integers:\n");
+    printf("\tDecimal:\t%i %d %.6i %i %.0i %+i %i\n",
+                         1, 2,   3, 0,   0,  4,-4);
+    printf("\tHexadecimal:\t%x %x %X %#x\n", 5, 10, 10, 6);
+    printf("\tOctal:\t\t%o %#o %#o\n", 10, 10, 4);
+ 
+    printf("Floating-point:\n");
+    printf("\tRounding:\t%f %.0f %.32f\n", 1.5, 1.5, 1.3);
+    printf("\tPadding:\t%05.2f %.2f %5.2f\n", 1.5, 1.5, 1.5);
+    printf("\tScientific:\t%E %e\n", 1.5, 1.5);
+    printf("\tHexadecimal:\t%a %A\n", 1.5, 1.5);
+    printf("\tSpecial values:\t0/0=%g 1/0=%g\n", 0.0 / 0.0, 1.0 / 0.0);
+ 
+    printf("Fixed-width types:\n");
+    printf("\tLargest 32-bit value is %" PRIu32 " or %#" PRIx32 "\n",
+                                     UINT32_MAX,     UINT32_MAX );
+}
 
 int main( int argc, char * argv[] )
 {
-    Usage();
+    float f = 1.01;
+    printf( "float: %f\n", f );
+    printf( "  %3.3f\n", f );
+    printf( "  %1.1f\n", f );
+    printf( "  %.4f\n", f );
+    printf( "  %4.f\n", f );
+ 
+    f = -6789.01234;
+    printf( "float: %f\n", f );
+    printf( "  %3.3f\n", f );
+    printf( "  %1.1f\n", f );
+    printf( "  %.4f\n", f );
+    printf( "  %4.f\n", f );
+
+    double d = 1.01;
+    printf( "double: %lf\n", d );
+    printf( "  %3.3lf\n", d );
+    printf( "  %1.1lf\n", d );
+    printf( "  %.4lf\n", d );
+    printf( "  %4.lf\n", d );
+    printf( " %e\n", d );
+    printf( " %a\n", d );
+    printf( " %g\n", d );
+
+    d = -6789.01234;
+    printf( "double: %lf\n", d );
+    printf( "  %3.3lf\n", d );
+    printf( "  %1.1lf\n", d );
+    printf( "  %.4lf\n", d );
+    printf( "  %4.lf\n", d );
+    printf( " %e\n", d );
+    printf( " %a\n", d );
+    printf( " %g\n", d );
+ 
+    cppreference();
+ 
     return 0;
 }

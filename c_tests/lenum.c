@@ -35,7 +35,12 @@ int main( int argc, char * argv[] )
         return 1; 
     }
 
-    closedir( dir );
+    int ret = closedir( dir );
+    if ( 0 != ret )
+    {
+        printf( "error: closedir after enumeration failed, errno: %d\n", errno );
+        return 1; 
+    }
 
     printf( "linux file system enumeration completed with great success\n" );
     return 0;
