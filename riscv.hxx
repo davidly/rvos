@@ -56,6 +56,39 @@ struct RiscV
     static const size_t t5 = 30;
     static const size_t t6 = 31;
 
+    static const size_t ft0 = 0;
+    static const size_t ft1 = 1;
+    static const size_t ft2 = 2;
+    static const size_t ft3 = 3;
+    static const size_t ft4 = 4;
+    static const size_t ft5 = 5;
+    static const size_t ft6 = 6;
+    static const size_t ft7 = 7;
+    static const size_t fs0 = 8;
+    static const size_t fs1 = 9;
+    static const size_t fa0 = 10;
+    static const size_t fa1 = 11;
+    static const size_t fa2 = 12;
+    static const size_t fa3 = 13;
+    static const size_t fa4 = 14;
+    static const size_t fa5 = 15;
+    static const size_t fa6 = 16;
+    static const size_t fa7 = 17;
+    static const size_t fs2 = 18;
+    static const size_t fs3 = 19;
+    static const size_t fs4 = 20;
+    static const size_t fs5 = 21;
+    static const size_t fs6 = 22;
+    static const size_t fs7 = 23;
+    static const size_t fs8 = 24;
+    static const size_t fs9 = 25;
+    static const size_t fs10 = 26;
+    static const size_t fs11 = 27;
+    static const size_t ft8 = 28;
+    static const size_t ft9 = 29;
+    static const size_t ft10 = 30;
+    static const size_t ft11 = 31;
+
     bool trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table

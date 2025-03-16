@@ -72,7 +72,7 @@
         #endif
 
         // this structure is smaller than the usermode version. I don't know of a cross-platform header with it.
-    
+
         #define local_KERNEL_NCCS 19
         struct local_kernel_termios
         {
@@ -1146,7 +1146,7 @@ void emulator_invoke_svc( CPUClass & cpu )
     // Linux syscalls support up to 6 arguments
 
     if ( tracer.IsEnabled() )
-        tracer.Trace( "syscall %s %llx = %lld, arg0 %llx, arg1 %llx, arg2 %llx, arg3 %llx, arg4 %llx, arg5 %llx\n", 
+        tracer.Trace( "syscall %s %llx = %lld, arg0 %llx, arg1 %llx, arg2 %llx, arg3 %llx, arg4 %llx, arg5 %llx\n",
                       lookup_syscall( cpu.regs[ REG_SYSCALL ] ), cpu.regs[ REG_SYSCALL ], cpu.regs[ REG_SYSCALL ],
                       cpu.regs[ REG_ARG0 ], cpu.regs[ REG_ARG1 ], cpu.regs[ REG_ARG2 ], cpu.regs[ REG_ARG3 ],
                       cpu.regs[ REG_ARG4 ], cpu.regs[ REG_ARG5 ] );
@@ -1613,7 +1613,7 @@ void emulator_invoke_svc( CPUClass & cpu )
             if ( 0 != pent )
             {
                 tracer.Trace( "  readdir returned '%s'\n", pent->d_name );
-                size_t len = strlen( pent->d_name );    
+                size_t len = strlen( pent->d_name );
                 if ( len > ( count - sizeof( struct linux_dirent64_syscall ) ) )
                 {
                     errno = ENOENT;
@@ -1750,6 +1750,10 @@ void emulator_invoke_svc( CPUClass & cpu )
         case emulator_sys_trace_instructions:
         {
             tracer.Trace( "  syscall command trace_instructions %d\n", cpu.regs[ REG_ARG0 ] );
+#if !defined( _WIN32 ) && !defined( __APPLE__ ) // only on Linux can there be a parent emulator
+            uint64_t v = cpu.regs[ REG_ARG0 ];
+            syscall( 0x2002, 0 != v );
+#endif
             cpu.regs[ REG_RESULT ] = cpu.trace_instructions( 0 != cpu.regs[ REG_ARG0 ] );
             break;
         }
@@ -1797,7 +1801,7 @@ void emulator_invoke_svc( CPUClass & cpu )
             }
             else
                 tracer.Trace( "  mmap allocation at specific address isn't supported\n" );
-    
+
             tracer.Trace( "  mmap failed\n" );
             errno = ENOMEM;
             update_result_errno( cpu, -1 );
@@ -1930,7 +1934,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 result = fstat( descriptor, & local_stat );
             else
                 result = fstatat( descriptor, path, & local_stat, flags );
-#else            
+#else
             result = fstatat( descriptor, path, & local_stat, flags );
 #endif
             if ( 0 == result )
@@ -1986,7 +1990,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 #ifdef __APPLE__
             if ( -100 == directory )
                 directory = -2;
-#endif     
+#endif
             mode_t mode = (mode_t) cpu.regs[ REG_ARG2 ];
             tracer.Trace( "  syscall command SYS_mkdirat dir %d, path %s, mode %x\n", directory, path, mode );
             int result = mkdirat( directory, path, mode );
@@ -2014,7 +2018,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 #ifdef __APPLE__
             if ( -100 == directory )
                 directory = -2;
-#endif     
+#endif
             int result = unlinkat( directory, path, flags );
 #endif
             update_result_errno( cpu, result );
@@ -2067,7 +2071,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                     uint64_t utotal = ( ( (uint64_t) ftUser.dwHighDateTime << 32 ) + ftUser.dwLowDateTime ) / 10; // 100ns to microseconds
                     prusage->ru_utime.tv_sec = utotal / 1000000;
                     prusage->ru_utime.tv_usec = utotal % 1000000;
-                    uint64_t stotal = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 10; 
+                    uint64_t stotal = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 10;
                     prusage->ru_stime.tv_sec = stotal / 1000000;
                     prusage->ru_stime.tv_usec = stotal % 1000000;
                 }
@@ -2088,9 +2092,9 @@ void emulator_invoke_svc( CPUClass & cpu )
                 prusage->ru_majflt = local_rusage.ru_majflt;
                 prusage->ru_nswap = local_rusage.ru_nswap;
                 prusage->ru_inblock = local_rusage.ru_inblock;
-                prusage->ru_oublock = local_rusage.ru_oublock;                
+                prusage->ru_oublock = local_rusage.ru_oublock;
                 prusage->ru_msgsnd = local_rusage.ru_msgsnd;
-                prusage->ru_msgrcv = local_rusage.ru_msgrcv;                                                                                                
+                prusage->ru_msgrcv = local_rusage.ru_msgrcv;
                 prusage->ru_nsignals = local_rusage.ru_nsignals;
                 prusage->ru_nvcsw = local_rusage.ru_nvcsw;
                 prusage->ru_nivcsw = local_rusage.ru_nivcsw;
@@ -2101,7 +2105,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 
             update_result_errno( cpu, 0 );
         }
-        case SYS_futex: 
+        case SYS_futex:
         {
             if ( !cpu.is_address_valid( cpu.regs[ REG_ARG0 ] ) ) // sometimes it's malformed on arm64. not sure why yet.
             {
@@ -2122,10 +2126,10 @@ void emulator_invoke_svc( CPUClass & cpu )
                     cpu.regs[ REG_RESULT ] = 11; // EAGAIN
                 else
                     cpu.regs[ REG_RESULT ] = 0;
-            }    
+            }
             else if ( 1 == futex_op ) // FUTEX_WAKE
                 cpu.regs[ REG_RESULT ] = 0;
-            else    
+            else
                 cpu.regs[ REG_RESULT ] = (uint64_t) -1; // fail this until/unless there is a real-world use
             break;
         }
@@ -2204,7 +2208,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 if ( GetProcessTimes( GetCurrentProcess(), &ftCreation, &ftExit, &ftKernel, &ftUser ) )
                 {
                     ptms->tms_utime = ( ( (uint64_t) ftUser.dwHighDateTime << 32) + ftUser.dwLowDateTime ) / 100000; // 100ns to hundredths of a second
-                    ptms->tms_stime = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 100000; 
+                    ptms->tms_stime = ( ( (uint64_t) ftKernel.dwHighDateTime << 32 ) + ftKernel.dwLowDateTime ) / 100000;
                 }
                 else
                     tracer.Trace( "  unable to GetProcessTimes, error %d\n", GetLastError() );
@@ -2420,7 +2424,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                     pt->c_line = val.c_line;
                     memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
-                    tracer.Trace( "  ioctl queried termios on stdin, sizeof local_kernel_termios %zd, sizeof val %zd\n", 
+                    tracer.Trace( "  ioctl queried termios on stdin, sizeof local_kernel_termios %zd, sizeof val %zd\n",
                                 sizeof( struct local_kernel_termios ), sizeof( val ) );
                 }
                 else if ( 0x5402 == request ) // TCSETS
@@ -2441,7 +2445,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                     val.c_oflag = pt->c_oflag;
                     val.c_cflag = pt->c_cflag;
                     val.c_lflag = pt->c_lflag;
-                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );                   
+                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
 #ifdef __APPLE__
                     val.c_iflag = map_termios_iflag_linux_to_macos( val.c_iflag );
                     val.c_oflag = map_termios_oflag_linux_to_macos( val.c_oflag );
@@ -2492,11 +2496,11 @@ void emulator_invoke_svc( CPUClass & cpu )
                     pt->c_line = val.c_line;
                     memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 #endif
-                    tracer.Trace( "  ioctl queried termios on stdout, sizeof local_kernel_termios %zd, sizeof val %zd\n", 
+                    tracer.Trace( "  ioctl queried termios on stdout, sizeof local_kernel_termios %zd, sizeof val %zd\n",
                                 sizeof( struct local_kernel_termios ), sizeof( val ) );
 #endif // _WIN32
                 }
-                
+
             }
 
             cpu.regs[ REG_RESULT ] = 0;
@@ -2970,7 +2974,7 @@ static bool load_image( const char * pimage, const char * app_args )
     {
         while ( ' ' == *pargs )
             pargs++;
-    
+
         char * space = strchr( pargs, ' ' );
         if ( space )
             *space = 0;
@@ -2981,7 +2985,7 @@ static bool load_image( const char * pimage, const char * app_args )
 
         app_argc++;
         pargs += strlen( pargs );
-    
+
         if ( space )
             pargs++;
     }
@@ -3068,7 +3072,7 @@ static bool load_image( const char * pimage, const char * app_args )
     pstack -= 2; // the AT_NULL record will be here since memory is initialized to 0
 
     pstack -= 16; // for 8 aux records
-    AuxProcessStart * paux = (AuxProcessStart *) pstack;    
+    AuxProcessStart * paux = (AuxProcessStart *) pstack;
     paux[0].a_type = 25; // AT_RANDOM
     paux[0].a_un.a_val = prandom;
     paux[1].a_type = 6; // AT_PAGESZ
@@ -3348,7 +3352,7 @@ int main( int argc, char * argv[] )
         bool generateRVCTable = false;
         static char acAppArgs[1024] = {0};
         static char acApp[1024] = {0};
-    
+
         setlocale( LC_CTYPE, "en_US.UTF-8" );            // these are needed for printf of utf-8 to work
         setlocale( LC_COLLATE, "en_US.UTF-8" );
 
@@ -3356,7 +3360,7 @@ int main( int argc, char * argv[] )
         {
             char *parg = argv[i];
             char c = *parg;
-    
+
             if ( ( 0 == pcApp ) && ( '-' == c
 #if defined( WATCOM ) || defined( _WIN32 )
                 || '/' == c
@@ -3364,7 +3368,7 @@ int main( int argc, char * argv[] )
                ) )
             {
                 char ca = (char) tolower( parg[1] );
-    
+
                 if ( 't' == ca )
                     trace = true;
                 else if ( 'i' == ca )
@@ -3377,22 +3381,22 @@ int main( int argc, char * argv[] )
                 {
                     if ( ':' != parg[2] )
                         usage( "the -h argument requires a value" );
-    
+
                     uint64_t heap = strtoull( parg + 3 , 0, 10 );
                     if ( heap > 1024 ) // limit to a gig
                         usage( "invalid heap size specified" );
-    
+
                     g_brk_commit = heap * 1024 * 1024;
                 }
                 else if ( 'm' == ca )
                 {
                     if ( ':' != parg[2] )
                         usage( "the -m argument requires a value" );
-    
+
                     uint64_t mmap_space = strtoull( parg + 3 , 0, 10 );
                     if ( mmap_space > 1024 ) // limit to a gig
                         usage( "invalid mmap size specified" );
-    
+
                     g_mmap_commit = mmap_space * 1024 * 1024;
                 }
                 else if ( 'e' == ca )
@@ -3412,15 +3416,15 @@ int main( int argc, char * argv[] )
                 {
                     if ( 0 != acAppArgs[0] )
                         strcat( acAppArgs, " " );
-    
+
                     strcat( acAppArgs, parg );
                 }
             }
         }
-    
+
         tracer.Enable( trace, LOGFILE_NAME, true );
         tracer.SetQuiet( true );
-    
+
         g_consoleConfig.EstablishConsoleOutput( 0, 0 );
 
 #ifdef RVOS
@@ -3431,18 +3435,18 @@ int main( int argc, char * argv[] )
                 printf( "rvctable.txt successfully created\n" );
             else
                 printf( "unable to create rvctable.txt\n" );
-    
+
             g_consoleConfig.RestoreConsole( false );
             return 0;
         }
 #endif
-    
+
         if ( 0 == pcApp )
         {
             usage( "no executable specified\n" );
             assume_false;
         }
-    
+
         strcpy( acApp, pcApp );
         bool appExists = file_exists( acApp );
         if ( !appExists )
@@ -3453,44 +3457,44 @@ int main( int argc, char * argv[] )
                 appExists = file_exists( acApp );
             }
         }
-    
+
         if ( !appExists )
             usage( "input .elf executable file not found" );
-    
+
         if ( elfInfo )
         {
             elf_info( acApp, verboseElfInfo );
             g_consoleConfig.RestoreConsole( false );
             return 0;
         }
-    
+
         bool ok = load_image( acApp, acAppArgs );
         if ( ok )
         {
             unique_ptr<CPUClass> cpu( new CPUClass( memory, g_base_address, g_execution_address, g_stack_commit, g_top_of_stack ) );
             cpu->trace_instructions( traceInstructions );
-    
+
             high_resolution_clock::time_point tStart = high_resolution_clock::now();
-    
+
             #ifdef _WIN32
                 g_tAppStart = tStart;
             #endif
-    
+
             uint64_t cycles = cpu->run();
-    
+
             char ac[ 100 ];
             if ( showPerformance )
             {
                 high_resolution_clock::time_point tDone = high_resolution_clock::now();
                 int64_t totalTime = duration_cast<std::chrono::milliseconds>( tDone - tStart ).count();
-    
+
                 printf( "elapsed milliseconds:  %15s\n", CDJLTrace::RenderNumberWithCommas( totalTime, ac ) );
                 printf( "cycles:                %15s\n", CDJLTrace::RenderNumberWithCommas( cycles, ac ) );
                 if ( 0 != totalTime )
                     printf( "effective clock rate:  %15s\n", CDJLTrace::RenderNumberWithCommas( cycles / totalTime, ac ) );
                 printf( "app exit code:         %15d\n", g_exit_code );
             }
-    
+
             tracer.Trace( "highwater brk heap:  %15s\n", CDJLTrace::RenderNumberWithCommas( g_highwater_brk - g_end_of_data, ac ) );
             g_mmap.trace_allocations();
             tracer.Trace( "highwater mmap heap: %15s\n", CDJLTrace::RenderNumberWithCommas( g_mmap.peak_usage(), ac ) );

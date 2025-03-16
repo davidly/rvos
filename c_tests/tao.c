@@ -23,6 +23,8 @@ template <class T> T do_abs( T x )
 #define array_operations_test( ftype, dim ) \
     ftype A_##ftype##dim[ dim ]; \
     ftype B_##ftype##dim[ dim ]; \
+    ftype C_##ftype##dim[ dim ]; \
+    ftype D_##ftype##dim[ dim ]; \
     _perhaps_inline void fillA_##ftype##dim( ftype val ) \
     { \
         for ( int i = 0; i < dim; i++ ) \
@@ -33,10 +35,23 @@ template <class T> T do_abs( T x )
         for ( int i = 0; i < dim; i++ ) \
             B_##ftype##dim[ i ] = val + i; \
     } \
+    _perhaps_inline void fillCD_##ftype##dim( ftype val ) \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+        { \
+            C_##ftype##dim[ i ] = val + i * 2; \
+            D_##ftype##dim[ i ] = val + i * 2; \
+        } \
+    } \
     _perhaps_inline void randomizeB_##ftype##dim() \
     { \
         for ( int i = 0; i < dim; i++ ) \
             B_##ftype##dim[ i ] = rand(); \
+    } \
+    _perhaps_inline void randomizeCD_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            D_##ftype##dim[ i ] = C_##ftype##dim[ i ] = rand(); \
     } \
     _perhaps_inline void shift_left_##ftype##dim() \
     { \
@@ -144,6 +159,13 @@ template <class T> T do_abs( T x )
             printf( " %.0Lf", (long double) A_##ftype##dim[ i ] ); \
         printf( "\n" ); \
     } \
+    _perhaps_inline void print_array_C_##ftype##dim() \
+    { \
+        printf( "arrayC:" ); \
+        for ( int i = 0; i < dim; i++ ) \
+            printf( " %.0Lf", (long double) C_##ftype##dim[ i ] ); \
+        printf( "\n" ); \
+    } \
     _perhaps_inline ftype count_A_GE_B_##ftype##dim() \
     { \
         ftype result = (ftype) 0; \
@@ -186,6 +208,20 @@ template <class T> T do_abs( T x )
             result += A_##ftype##dim[ i ]; \
         return result; \
     } \
+    _perhaps_inline ftype sum_C_##ftype##dim() \
+    { \
+        ftype result = (ftype) 0; \
+        for ( int i = 0; i < dim; i++ ) \
+            result += C_##ftype##dim[ i ]; \
+        return result; \
+    } \
+    _perhaps_inline ftype sum_D_##ftype##dim() \
+    { \
+        ftype result = (ftype) 0; \
+        for ( int i = 0; i < dim; i++ ) \
+            result += D_##ftype##dim[ i ]; \
+        return result; \
+    } \
     _perhaps_inline ftype magnitude_##ftype##dim() \
     { \
         ftype result = (ftype) 0; \
@@ -207,6 +243,56 @@ template <class T> T do_abs( T x )
         for ( int i = 0; i < dim; i++ ) \
             result = A_##ftype##dim[ i ] > result ? A_##ftype##dim[ i ] : result; \
         return result; \
+    } \
+    _perhaps_inline void inc_C_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ]++; \
+    } \
+    _perhaps_inline void dec_C_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ]--; \
+    } \
+    _perhaps_inline void add_mul_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] += B_##ftype##dim[ i ] * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void sub_mul_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] -= B_##ftype##dim[ i ] * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void add_mul_div2_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] += ( B_##ftype##dim[ i ] / 4 ) * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void sub_mul_div2_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] -= ( B_##ftype##dim[ i ] / 4 ) * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void add_mul_div2b_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] += ( B_##ftype##dim[ i ] * 4 ) * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void sub_mul_div2b_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] -= ( B_##ftype##dim[ i ] * 4 ) * A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void add_div_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] += B_##ftype##dim[ i ] / A_##ftype##dim[ i ]; \
+    } \
+    _perhaps_inline void sub_div_ABC_##ftype##dim() \
+    { \
+        for ( int i = 0; i < dim; i++ ) \
+            C_##ftype##dim[ i ] -= B_##ftype##dim[ i ] / A_##ftype##dim[ i ]; \
     } \
     ftype run_##ftype##dim() \
     { \
@@ -289,6 +375,51 @@ template <class T> T do_abs( T x )
             printf( "ERROR! aLTb %.0lf + GE %.0lf != dim %u\n", (double) aLTb, (double) aGEb, dim ); \
             exit( 1 ); \
         } \
+        randomizeCD_##ftype##dim(); \
+        add_mul_ABC_##ftype##dim(); \
+        sub_mul_ABC_##ftype##dim(); \
+        ftype sumC = sum_C_##ftype##dim(); \
+        ftype sumD = sum_D_##ftype##dim(); \
+        if ( sumC != sumD ) \
+        { \
+            printf( "ERROR! after mul sumC %.01f, sumD %.01f\n", (double) sumC, (double) sumD ); \
+            exit( 1 ); \
+        } \
+        add_mul_div2_ABC_##ftype##dim(); \
+        sub_mul_div2_ABC_##ftype##dim(); \
+        sumC = sum_C_##ftype##dim(); \
+        sumD = sum_D_##ftype##dim(); \
+        if ( sumC != sumD ) \
+        { \
+            printf( "ERROR! after mul div2 sumC %.01f, sumD %.01f\n", (double) sumC, (double) sumD ); \
+            exit( 1 ); \
+        } \
+        add_mul_div2b_ABC_##ftype##dim(); \
+        sub_mul_div2b_ABC_##ftype##dim(); \
+        sumC = sum_C_##ftype##dim(); \
+        sumD = sum_D_##ftype##dim(); \
+        if ( sumC != sumD ) \
+        { \
+            printf( "ERROR! after mul div2b sumC %.01f, sumD %.01f\n", (double) sumC, (double) sumD ); \
+            exit( 1 ); \
+        } \
+        add_div_ABC_##ftype##dim(); \
+        sub_div_ABC_##ftype##dim(); \
+        sumC = sum_C_##ftype##dim(); \
+        sumD = sum_D_##ftype##dim(); \
+        if ( sumC != sumD ) \
+        { \
+            printf( "ERROR! after div sumC %.01f, sumD %.01f, type %s, dim %u\n", (double) sumC, (double) sumD, #ftype, dim ); \
+            exit( 1 ); \
+        } \
+        inc_C_##ftype##dim(); \
+        dec_C_##ftype##dim(); \
+        sumC = sum_C_##ftype##dim(); \
+        if ( sumC != sumD ) \
+        { \
+            printf( "ERROR! after sqrt/sqr sumC %.01f, sumD %.01f, type %s, dim %u\n", (double) sumC, (double) sumD, #ftype, dim ); \
+            exit( 1 ); \
+        } \
         return sum; \
     }
 
@@ -348,7 +479,7 @@ declare_array_operations_tests( uint128_t );
     run_##type##20();
 
 #define run_this_test( type ) \
-    run_##type##16();
+    run_##type##12();
 
 int main( int argc, char * argv[] )
 {
@@ -367,14 +498,9 @@ int main( int argc, char * argv[] )
         run_tests( int128_t );
         run_tests( uint128_t );
 #else    
-        run_this_test( uint8_t );    
+        run_this_test( int8_t );    
 #endif    
     }
-
-    // these two return incorrect results even on Arm64 hardware
-
-    //run_tests( int128_t, "%lld");
-    //run_tests( uint128_t, "%llu");
 
     printf( "array operations test completed with great success\n" );
     return 0;
