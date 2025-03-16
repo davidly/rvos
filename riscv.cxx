@@ -2243,25 +2243,13 @@ uint64_t RiscV::run()
                         regs[ rd ] = high;
                     }
                     else if ( 4 == funct3 )
-                    {
-                        if ( 0 != (int64_t) regs[ rs2 ] )
-                            regs[ rd ] = (int64_t) regs[ rs1 ] / (int64_t) regs[ rs2 ]; // div rd, rs1, rs2
-                    }
+                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : (int64_t) regs[ rs1 ] / (int64_t) regs[ rs2 ]; // div rd, rs1, rs2
                     else if ( 5 == funct3 )
-                    {
-                        if ( 0 != regs[ rs2 ] )
-                            regs[ rd ] = regs[ rs1 ] / regs[ rs2 ]; // udiv rd, rs1, rs2
-                    }
+                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : regs[ rs1 ] / regs[ rs2 ]; // udiv rd, rs1, rs2
                     else if ( 6 == funct3 )
-                    {
-                        if ( 0 != (int64_t) regs[ rs2 ] )
-                            regs[ rd ] = (int64_t) regs[ rs1 ] % (int64_t) regs[ rs2 ]; // rem rd, rs1, rs2
-                    }
+                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : (int64_t) regs[ rs1 ] % (int64_t) regs[ rs2 ]; // rem rd, rs1, rs2
                     else if ( 7 == funct3 )
-                    {
-                        if ( 0 != regs[ rs2 ] )
-                            regs[ rd ] = regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
-                    }
+                         regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
                     else
                         unhandled();
                 }
@@ -2330,23 +2318,27 @@ uint64_t RiscV::run()
                     }
                     else if ( 4 == funct3 )
                     {
-                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                            regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) / (int32_t) ( 0xffffffff & regs[ rs2 ] ); // divw rd, rs1, rs2
+                        int32_t val1 = (int32_t) ( 0xffffffff & regs[ rs1 ] );
+                        int32_t val2 = (int32_t) ( 0xffffffff & regs[ rs2 ] );
+                        regs[ rd ] = ( 0 == val2 ) ? 0 : val1 / val2; // divw rd, rs1, rs2
                     }
                     else if ( 5 == funct3 )
                     {
-                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                            regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) / ( 0xffffffff & regs[ rs2 ] ); // divuw rd, rs1, rs2
+                        uint32_t val1 = ( 0xffffffff & regs[ rs1 ] );
+                        uint32_t val2 = ( 0xffffffff & regs[ rs2 ] );
+                        regs[ rd ] = ( 0 == val2 ) ? 0 : val1 / val2; // divuw rd, rs1, rs2
                     }
                     else if ( 6 == funct3 )
                     {
-                        if ( 0 != (int32_t) ( 0xffffffff & regs[ rs2 ] ) )
-                            regs[ rd ] = (int32_t) ( 0xffffffff & regs[ rs1 ] ) % (int32_t) ( 0xffffffff & regs[ rs2 ] ); // remw rd, rs1, rs2
+                        int32_t val1 = (int32_t) ( 0xffffffff & regs[ rs1 ] );
+                        int32_t val2 = (int32_t) ( 0xffffffff & regs[ rs2 ] );
+                        regs[ rd ] = ( 0 == val2 ) ? 0 : ( val1 % val2 ); // remw rd, rs1, rs2
                     }
                     else if ( 7 == funct3 )
                     {
-                        if ( 0 != ( 0xffffffff & regs[ rs2 ] ) )
-                            regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) % ( 0xffffffff & regs[ rs2 ] ); // remuw rd, rs1, rs2
+                        uint32_t val1 = ( 0xffffffff & regs[ rs1 ] );
+                        uint32_t val2 = ( 0xffffffff & regs[ rs2 ] );
+                        regs[ rd ] = ( 0 == val2 ) ? 0 : ( val1 % val2 ); // remuw rd, rs1, rs2
                     }
                     else
                         unhandled();
