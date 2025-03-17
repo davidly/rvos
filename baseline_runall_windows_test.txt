@@ -1,4 +1,4 @@
-Sun 03/16/2025 12:27:49.01 
+Sun 03/16/2025 21:25:08.23 
 test c_tests\bin0\tcmp 
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -650,10 +650,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin0\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 11, min 27, sec 50
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 14, min 27, sec 50
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 11, min 27, sec 50
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 16, hour 19, min 27, sec 50
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 9
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 9
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 9
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 9
 test c_tests\bin0\tm 
 tm has completed with great success
 test c_tests\bin0\glob 
@@ -970,6 +970,208 @@ uint64_t dim 18: sum 302274.0, mag 302274.0, min, 208.0 max 5682.0, fmodsum 355.
 uint64_t dim 19: sum 376846.0, mag 376846.0, min, 229.0 max 6631.0, fmodsum 408.000, dotsum 16582.0, sqrtsum 10597.0
 uint64_t dim 20: sum 465880.0, mag 465880.0, min, 251.0 max 7680.0, fmodsum 449.000, dotsum 19421.0, sqrtsum 12388.0
 matrix multiply test completed with great success
+test c_tests\bin0\tao 
+type int8_t size 1, sum -52, magnitude 52 min, -52 max -52
+type int8_t size 2, sum -60, magnitude 60 min, -52 max -8
+type int8_t size 3, sum -56, magnitude 64 min, -52 max 4
+type int8_t size 4, sum -39, magnitude 81 min, -52 max 17
+type int8_t size 5, sum -56, magnitude 98 min, -52 max 17
+type int8_t size 6, sum -60, magnitude 102 min, -52 max 17
+type int8_t size 7, sum -56, magnitude 106 min, -52 max 17
+type int8_t size 8, sum -60, magnitude 110 min, -52 max 17
+type int8_t size 9, sum -64, magnitude 114 min, -52 max 17
+type int8_t size 10, sum -68, magnitude 118 min, -52 max 17
+type int8_t size 11, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 12, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 13, sum -77, magnitude 127 min, -52 max 17
+type int8_t size 14, sum -69, magnitude -121 min, -52 max 17
+type int8_t size 15, sum -65, magnitude -117 min, -52 max 17
+type int8_t size 16, sum -71, magnitude -111 min, -52 max 17
+type int8_t size 17, sum -67, magnitude -107 min, -52 max 17
+type int8_t size 18, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 19, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 20, sum -66, magnitude -106 min, -52 max 17
+type uint8_t size 1, sum 76, magnitude 76 min, 76 max 76
+type uint8_t size 2, sum 110, magnitude 110 min, 34 max 76
+type uint8_t size 3, sum 114, magnitude 114 min, 4 max 76
+type uint8_t size 4, sum 157, magnitude 157 min, 4 max 76
+type uint8_t size 5, sum 182, magnitude 182 min, 4 max 76
+type uint8_t size 6, sum 196, magnitude 196 min, 4 max 76
+type uint8_t size 7, sum 200, magnitude 200 min, 4 max 76
+type uint8_t size 8, sum 224, magnitude 224 min, 4 max 76
+type uint8_t size 9, sum 245, magnitude 245 min, 4 max 76
+type uint8_t size 10, sum 8, magnitude 8 min, 4 max 76
+type uint8_t size 11, sum 25, magnitude 25 min, 4 max 76
+type uint8_t size 12, sum 43, magnitude 43 min, 4 max 76
+type uint8_t size 13, sum 56, magnitude 56 min, 4 max 76
+type uint8_t size 14, sum 64, magnitude 64 min, 4 max 76
+type uint8_t size 15, sum 68, magnitude 68 min, 4 max 76
+type uint8_t size 16, sum 76, magnitude 76 min, 4 max 76
+type uint8_t size 17, sum 80, magnitude 80 min, 4 max 76
+type uint8_t size 18, sum 81, magnitude 81 min, 1 max 76
+type uint8_t size 19, sum 93, magnitude 93 min, 1 max 76
+type uint8_t size 20, sum 93, magnitude 93 min, 0 max 76
+type int16_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int16_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int16_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int16_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int16_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int16_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int16_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int16_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int16_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int16_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int16_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int16_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int16_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int16_t size 14, sum -1209, magnitude 2499 min, -188 max 252
+type int16_t size 15, sum -1013, magnitude 2695 min, -188 max 252
+type int16_t size 16, sum -809, magnitude 2899 min, -188 max 252
+type int16_t size 17, sum -605, magnitude 3103 min, -188 max 252
+type int16_t size 18, sum -401, magnitude 3307 min, -188 max 252
+type int16_t size 19, sum -197, magnitude 3511 min, -188 max 252
+type int16_t size 20, sum -1, magnitude 3707 min, -188 max 252
+type uint16_t size 1, sum 32588, magnitude 32588 min, 32588 max 32588
+type uint16_t size 2, sum 48793, magnitude 48793 min, 16205 max 32588
+type uint16_t size 3, sum 56797, magnitude 56797 min, 8004 max 32588
+type uint16_t size 4, sum 60706, magnitude 60706 min, 3909 max 32588
+type uint16_t size 5, sum 62566, magnitude 62566 min, 1860 max 32588
+type uint16_t size 6, sum 63403, magnitude 63403 min, 837 max 32588
+type uint16_t size 7, sum 63727, magnitude 63727 min, 324 max 32588
+type uint16_t size 8, sum 63852, magnitude 63852 min, 125 max 32588
+type uint16_t size 9, sum 64104, magnitude 64104 min, 125 max 32588
+type uint16_t size 10, sum 64357, magnitude 64357 min, 125 max 32588
+type uint16_t size 11, sum 64609, magnitude 64609 min, 125 max 32588
+type uint16_t size 12, sum 64806, magnitude 64806 min, 125 max 32588
+type uint16_t size 13, sum 65002, magnitude 65002 min, 125 max 32588
+type uint16_t size 14, sum 65199, magnitude 65199 min, 125 max 32588
+type uint16_t size 15, sum 65395, magnitude 65395 min, 125 max 32588
+type uint16_t size 16, sum 63, magnitude 63 min, 125 max 32588
+type uint16_t size 17, sum 267, magnitude 267 min, 125 max 32588
+type uint16_t size 18, sum 471, magnitude 471 min, 125 max 32588
+type uint16_t size 19, sum 675, magnitude 675 min, 125 max 32588
+type uint16_t size 20, sum 871, magnitude 871 min, 125 max 32588
+type int32_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int32_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int32_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int32_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int32_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int32_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int32_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int32_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int32_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int32_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int32_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int32_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int32_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int32_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int32_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int32_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int32_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int32_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int32_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int32_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint32_t size 1, sum 2147483468, magnitude 2147483468 min, 2147483468 max 2147483468
+type uint32_t size 2, sum 3221225113, magnitude 3221225113 min, 1073741645 max 2147483468
+type uint32_t size 3, sum 3758095837, magnitude 3758095837 min, 536870724 max 2147483468
+type uint32_t size 4, sum 4026531106, magnitude 4026531106 min, 268435269 max 2147483468
+type uint32_t size 5, sum 4160748646, magnitude 4160748646 min, 134217540 max 2147483468
+type uint32_t size 6, sum 4227857323, magnitude 4227857323 min, 67108677 max 2147483468
+type uint32_t size 7, sum 4261411567, magnitude 4261411567 min, 33554244 max 2147483468
+type uint32_t size 8, sum 4278188652, magnitude 4278188652 min, 16777085 max 2147483468
+type uint32_t size 9, sum 4286577128, magnitude 4286577128 min, 8388476 max 2147483468
+type uint32_t size 10, sum 4290771301, magnitude 4290771301 min, 4194173 max 2147483468
+type uint32_t size 11, sum 4290771553, magnitude 4290771553 min, 252 max 2147483468
+type uint32_t size 12, sum 4290771750, magnitude 4290771750 min, 197 max 2147483468
+type uint32_t size 13, sum 4290771946, magnitude 4290771946 min, 196 max 2147483468
+type uint32_t size 14, sum 4290772143, magnitude 4290772143 min, 196 max 2147483468
+type uint32_t size 15, sum 4290772339, magnitude 4290772339 min, 196 max 2147483468
+type uint32_t size 16, sum 4290772544, magnitude 4290772544 min, 196 max 2147483468
+type uint32_t size 17, sum 4290772748, magnitude 4290772748 min, 196 max 2147483468
+type uint32_t size 18, sum 4290772953, magnitude 4290772953 min, 196 max 2147483468
+type uint32_t size 19, sum 4290773149, magnitude 4290773149 min, 196 max 2147483468
+type uint32_t size 20, sum 4290773346, magnitude 4290773346 min, 196 max 2147483468
+type int64_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int64_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int64_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int64_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int64_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int64_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int64_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int64_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int64_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int64_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int64_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int64_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int64_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int64_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int64_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int64_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int64_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int64_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int64_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int64_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint64_t size 1, sum 9223372036854775808, magnitude 9223372036854775808 min, 9223372036854775808 max 9223372036854775808
+type uint64_t size 2, sum 13835058055282163712, magnitude 13835058055282163712 min, 4611686018427387904 max 9223372036854775808
+type uint64_t size 3, sum 16140901064495857664, magnitude 16140901064495857664 min, 2305843009213693696 max 9223372036854775808
+type uint64_t size 4, sum 17293822569102704640, magnitude 17293822569102704640 min, 1152921504606846848 max 9223372036854775808
+type uint64_t size 5, sum 17870283321406128128, magnitude 17870283321406128128 min, 576460752303423296 max 9223372036854775808
+type uint64_t size 6, sum 18158513697557837824, magnitude 18158513697557837824 min, 288230376151711552 max 9223372036854775808
+type uint64_t size 7, sum 18302628885633693696, magnitude 18302628885633693696 min, 144115188075855680 max 9223372036854775808
+type uint64_t size 8, sum 18374686479671621632, magnitude 18374686479671621632 min, 72057594037927808 max 9223372036854775808
+type uint64_t size 9, sum 18410715276690585600, magnitude 18410715276690585600 min, 36028797018963836 max 9223372036854775808
+type uint64_t size 10, sum 18428729675200067584, magnitude 18428729675200067584 min, 18014398509481852 max 9223372036854775808
+type uint64_t size 11, sum 18428729675200067584, magnitude 18428729675200067584 min, 252 max 9223372036854775808
+type uint64_t size 12, sum 18428729675200067584, magnitude 18428729675200067584 min, 197 max 9223372036854775808
+type uint64_t size 13, sum 18428729675200067584, magnitude 18428729675200067584 min, 196 max 9223372036854775808
+type uint64_t size 14, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 15, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 16, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 17, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 18, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 19, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 20, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type int128_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int128_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int128_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int128_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int128_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int128_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int128_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int128_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int128_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int128_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int128_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int128_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int128_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int128_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int128_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int128_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int128_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int128_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int128_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int128_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint128_t size 1, sum 170141183460469231731687303715884105728, magnitude 170141183460469231731687303715884105728 min, 170141183460469231731687303715884105728 max 170141183460469231731687303715884105728
+type uint128_t size 2, sum 255211775190703847597530955573826158592, magnitude 255211775190703847597530955573826158592 min, 85070591730234615865843651857942052864 max 170141183460469231731687303715884105728
+type uint128_t size 3, sum 297747071055821155530452781502797185024, magnitude 297747071055821155530452781502797185024 min, 42535295865117307932921825928971026432 max 170141183460469231731687303715884105728
+type uint128_t size 4, sum 319014718988379809496913694467282698240, magnitude 319014718988379809496913694467282698240 min, 21267647932558653966460912964485513216 max 170141183460469231731687303715884105728
+type uint128_t size 5, sum 329648542954659136480144150949525454848, magnitude 329648542954659136480144150949525454848 min, 10633823966279326983230456482242756608 max 170141183460469231731687303715884105728
+type uint128_t size 6, sum 334965454937798799971759379190646833152, magnitude 334965454937798799971759379190646833152 min, 5316911983139663491615228241121378304 max 170141183460469231731687303715884105728
+type uint128_t size 7, sum 337623910929368631717566993311207522304, magnitude 337623910929368631717566993311207522304 min, 2658455991569831745807614120560689152 max 170141183460469231731687303715884105728
+type uint128_t size 8, sum 338953138925153547590470800371487866880, magnitude 338953138925153547590470800371487866880 min, 1329227995784915872903807060280344576 max 170141183460469231731687303715884105728
+type uint128_t size 9, sum 339617752923046005526922703901628039168, magnitude 339617752923046005526922703901628039168 min, 664613997892457936451903530140172288 max 170141183460469231731687303715884105728
+type uint128_t size 10, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 332306998946228968225951765070086144 max 170141183460469231731687303715884105728
+type uint128_t size 11, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 252 max 170141183460469231731687303715884105728
+type uint128_t size 12, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 197 max 170141183460469231731687303715884105728
+type uint128_t size 13, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 14, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 15, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 16, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 17, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 18, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 19, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 20, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+array operations test completed with great success
 test c_tests\bin0\pis 
 startingOffset128: 0, startingOffset: 0, countGenerated128 1, countGenerated 128
 startInChunks: 0, limitInChunks 4
@@ -5248,7 +5450,7 @@ lade vied
 lead vied
 test c_tests\bin0\ba 
 parsing input file tp.bas
-694 ms for 1 iterations
+329 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -5924,10 +6126,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin1\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 11, min 28, sec 1
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 14, min 28, sec 1
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 11, min 28, sec 1
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 16, hour 19, min 28, sec 1
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 17
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 17
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 17
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 17
 test c_tests\bin1\tm 
 tm has completed with great success
 test c_tests\bin1\glob 
@@ -6244,6 +6446,208 @@ uint64_t dim 18: sum 302274.0, mag 302274.0, min, 208.0 max 5682.0, fmodsum 355.
 uint64_t dim 19: sum 376846.0, mag 376846.0, min, 229.0 max 6631.0, fmodsum 408.000, dotsum 16582.0, sqrtsum 10597.0
 uint64_t dim 20: sum 465880.0, mag 465880.0, min, 251.0 max 7680.0, fmodsum 449.000, dotsum 19421.0, sqrtsum 12388.0
 matrix multiply test completed with great success
+test c_tests\bin1\tao 
+type int8_t size 1, sum -52, magnitude 52 min, -52 max -52
+type int8_t size 2, sum -60, magnitude 60 min, -52 max -8
+type int8_t size 3, sum -56, magnitude 64 min, -52 max 4
+type int8_t size 4, sum -39, magnitude 81 min, -52 max 17
+type int8_t size 5, sum -56, magnitude 98 min, -52 max 17
+type int8_t size 6, sum -60, magnitude 102 min, -52 max 17
+type int8_t size 7, sum -56, magnitude 106 min, -52 max 17
+type int8_t size 8, sum -60, magnitude 110 min, -52 max 17
+type int8_t size 9, sum -64, magnitude 114 min, -52 max 17
+type int8_t size 10, sum -68, magnitude 118 min, -52 max 17
+type int8_t size 11, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 12, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 13, sum -77, magnitude 127 min, -52 max 17
+type int8_t size 14, sum -69, magnitude -121 min, -52 max 17
+type int8_t size 15, sum -65, magnitude -117 min, -52 max 17
+type int8_t size 16, sum -71, magnitude -111 min, -52 max 17
+type int8_t size 17, sum -67, magnitude -107 min, -52 max 17
+type int8_t size 18, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 19, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 20, sum -66, magnitude -106 min, -52 max 17
+type uint8_t size 1, sum 76, magnitude 76 min, 76 max 76
+type uint8_t size 2, sum 110, magnitude 110 min, 34 max 76
+type uint8_t size 3, sum 114, magnitude 114 min, 4 max 76
+type uint8_t size 4, sum 157, magnitude 157 min, 4 max 76
+type uint8_t size 5, sum 182, magnitude 182 min, 4 max 76
+type uint8_t size 6, sum 196, magnitude 196 min, 4 max 76
+type uint8_t size 7, sum 200, magnitude 200 min, 4 max 76
+type uint8_t size 8, sum 224, magnitude 224 min, 4 max 76
+type uint8_t size 9, sum 245, magnitude 245 min, 4 max 76
+type uint8_t size 10, sum 8, magnitude 8 min, 4 max 76
+type uint8_t size 11, sum 25, magnitude 25 min, 4 max 76
+type uint8_t size 12, sum 43, magnitude 43 min, 4 max 76
+type uint8_t size 13, sum 56, magnitude 56 min, 4 max 76
+type uint8_t size 14, sum 64, magnitude 64 min, 4 max 76
+type uint8_t size 15, sum 68, magnitude 68 min, 4 max 76
+type uint8_t size 16, sum 76, magnitude 76 min, 4 max 76
+type uint8_t size 17, sum 80, magnitude 80 min, 4 max 76
+type uint8_t size 18, sum 81, magnitude 81 min, 1 max 76
+type uint8_t size 19, sum 93, magnitude 93 min, 1 max 76
+type uint8_t size 20, sum 93, magnitude 93 min, 0 max 76
+type int16_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int16_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int16_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int16_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int16_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int16_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int16_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int16_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int16_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int16_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int16_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int16_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int16_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int16_t size 14, sum -1209, magnitude 2499 min, -188 max 252
+type int16_t size 15, sum -1013, magnitude 2695 min, -188 max 252
+type int16_t size 16, sum -809, magnitude 2899 min, -188 max 252
+type int16_t size 17, sum -605, magnitude 3103 min, -188 max 252
+type int16_t size 18, sum -401, magnitude 3307 min, -188 max 252
+type int16_t size 19, sum -197, magnitude 3511 min, -188 max 252
+type int16_t size 20, sum -1, magnitude 3707 min, -188 max 252
+type uint16_t size 1, sum 32588, magnitude 32588 min, 32588 max 32588
+type uint16_t size 2, sum 48793, magnitude 48793 min, 16205 max 32588
+type uint16_t size 3, sum 56797, magnitude 56797 min, 8004 max 32588
+type uint16_t size 4, sum 60706, magnitude 60706 min, 3909 max 32588
+type uint16_t size 5, sum 62566, magnitude 62566 min, 1860 max 32588
+type uint16_t size 6, sum 63403, magnitude 63403 min, 837 max 32588
+type uint16_t size 7, sum 63727, magnitude 63727 min, 324 max 32588
+type uint16_t size 8, sum 63852, magnitude 63852 min, 125 max 32588
+type uint16_t size 9, sum 64104, magnitude 64104 min, 125 max 32588
+type uint16_t size 10, sum 64357, magnitude 64357 min, 125 max 32588
+type uint16_t size 11, sum 64609, magnitude 64609 min, 125 max 32588
+type uint16_t size 12, sum 64806, magnitude 64806 min, 125 max 32588
+type uint16_t size 13, sum 65002, magnitude 65002 min, 125 max 32588
+type uint16_t size 14, sum 65199, magnitude 65199 min, 125 max 32588
+type uint16_t size 15, sum 65395, magnitude 65395 min, 125 max 32588
+type uint16_t size 16, sum 63, magnitude 63 min, 125 max 32588
+type uint16_t size 17, sum 267, magnitude 267 min, 125 max 32588
+type uint16_t size 18, sum 471, magnitude 471 min, 125 max 32588
+type uint16_t size 19, sum 675, magnitude 675 min, 125 max 32588
+type uint16_t size 20, sum 871, magnitude 871 min, 125 max 32588
+type int32_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int32_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int32_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int32_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int32_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int32_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int32_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int32_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int32_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int32_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int32_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int32_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int32_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int32_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int32_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int32_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int32_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int32_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int32_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int32_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint32_t size 1, sum 2147483468, magnitude 2147483468 min, 2147483468 max 2147483468
+type uint32_t size 2, sum 3221225113, magnitude 3221225113 min, 1073741645 max 2147483468
+type uint32_t size 3, sum 3758095837, magnitude 3758095837 min, 536870724 max 2147483468
+type uint32_t size 4, sum 4026531106, magnitude 4026531106 min, 268435269 max 2147483468
+type uint32_t size 5, sum 4160748646, magnitude 4160748646 min, 134217540 max 2147483468
+type uint32_t size 6, sum 4227857323, magnitude 4227857323 min, 67108677 max 2147483468
+type uint32_t size 7, sum 4261411567, magnitude 4261411567 min, 33554244 max 2147483468
+type uint32_t size 8, sum 4278188652, magnitude 4278188652 min, 16777085 max 2147483468
+type uint32_t size 9, sum 4286577128, magnitude 4286577128 min, 8388476 max 2147483468
+type uint32_t size 10, sum 4290771301, magnitude 4290771301 min, 4194173 max 2147483468
+type uint32_t size 11, sum 4290771553, magnitude 4290771553 min, 252 max 2147483468
+type uint32_t size 12, sum 4290771750, magnitude 4290771750 min, 197 max 2147483468
+type uint32_t size 13, sum 4290771946, magnitude 4290771946 min, 196 max 2147483468
+type uint32_t size 14, sum 4290772143, magnitude 4290772143 min, 196 max 2147483468
+type uint32_t size 15, sum 4290772339, magnitude 4290772339 min, 196 max 2147483468
+type uint32_t size 16, sum 4290772544, magnitude 4290772544 min, 196 max 2147483468
+type uint32_t size 17, sum 4290772748, magnitude 4290772748 min, 196 max 2147483468
+type uint32_t size 18, sum 4290772953, magnitude 4290772953 min, 196 max 2147483468
+type uint32_t size 19, sum 4290773149, magnitude 4290773149 min, 196 max 2147483468
+type uint32_t size 20, sum 4290773346, magnitude 4290773346 min, 196 max 2147483468
+type int64_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int64_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int64_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int64_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int64_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int64_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int64_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int64_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int64_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int64_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int64_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int64_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int64_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int64_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int64_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int64_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int64_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int64_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int64_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int64_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint64_t size 1, sum 9223372036854775808, magnitude 9223372036854775808 min, 9223372036854775808 max 9223372036854775808
+type uint64_t size 2, sum 13835058055282163712, magnitude 13835058055282163712 min, 4611686018427387904 max 9223372036854775808
+type uint64_t size 3, sum 16140901064495857664, magnitude 16140901064495857664 min, 2305843009213693696 max 9223372036854775808
+type uint64_t size 4, sum 17293822569102704640, magnitude 17293822569102704640 min, 1152921504606846848 max 9223372036854775808
+type uint64_t size 5, sum 17870283321406128128, magnitude 17870283321406128128 min, 576460752303423296 max 9223372036854775808
+type uint64_t size 6, sum 18158513697557837824, magnitude 18158513697557837824 min, 288230376151711552 max 9223372036854775808
+type uint64_t size 7, sum 18302628885633693696, magnitude 18302628885633693696 min, 144115188075855680 max 9223372036854775808
+type uint64_t size 8, sum 18374686479671621632, magnitude 18374686479671621632 min, 72057594037927808 max 9223372036854775808
+type uint64_t size 9, sum 18410715276690585600, magnitude 18410715276690585600 min, 36028797018963836 max 9223372036854775808
+type uint64_t size 10, sum 18428729675200067584, magnitude 18428729675200067584 min, 18014398509481852 max 9223372036854775808
+type uint64_t size 11, sum 18428729675200067584, magnitude 18428729675200067584 min, 252 max 9223372036854775808
+type uint64_t size 12, sum 18428729675200067584, magnitude 18428729675200067584 min, 197 max 9223372036854775808
+type uint64_t size 13, sum 18428729675200067584, magnitude 18428729675200067584 min, 196 max 9223372036854775808
+type uint64_t size 14, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 15, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 16, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 17, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 18, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 19, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 20, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type int128_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int128_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int128_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int128_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int128_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int128_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int128_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int128_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int128_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int128_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int128_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int128_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int128_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int128_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int128_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int128_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int128_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int128_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int128_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int128_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint128_t size 1, sum 170141183460469231731687303715884105728, magnitude 170141183460469231731687303715884105728 min, 170141183460469231731687303715884105728 max 170141183460469231731687303715884105728
+type uint128_t size 2, sum 255211775190703847597530955573826158592, magnitude 255211775190703847597530955573826158592 min, 85070591730234615865843651857942052864 max 170141183460469231731687303715884105728
+type uint128_t size 3, sum 297747071055821155530452781502797185024, magnitude 297747071055821155530452781502797185024 min, 42535295865117307932921825928971026432 max 170141183460469231731687303715884105728
+type uint128_t size 4, sum 319014718988379809496913694467282698240, magnitude 319014718988379809496913694467282698240 min, 21267647932558653966460912964485513216 max 170141183460469231731687303715884105728
+type uint128_t size 5, sum 329648542954659136480144150949525454848, magnitude 329648542954659136480144150949525454848 min, 10633823966279326983230456482242756608 max 170141183460469231731687303715884105728
+type uint128_t size 6, sum 334965454937798799971759379190646833152, magnitude 334965454937798799971759379190646833152 min, 5316911983139663491615228241121378304 max 170141183460469231731687303715884105728
+type uint128_t size 7, sum 337623910929368631717566993311207522304, magnitude 337623910929368631717566993311207522304 min, 2658455991569831745807614120560689152 max 170141183460469231731687303715884105728
+type uint128_t size 8, sum 338953138925153547590470800371487866880, magnitude 338953138925153547590470800371487866880 min, 1329227995784915872903807060280344576 max 170141183460469231731687303715884105728
+type uint128_t size 9, sum 339617752923046005526922703901628039168, magnitude 339617752923046005526922703901628039168 min, 664613997892457936451903530140172288 max 170141183460469231731687303715884105728
+type uint128_t size 10, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 332306998946228968225951765070086144 max 170141183460469231731687303715884105728
+type uint128_t size 11, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 252 max 170141183460469231731687303715884105728
+type uint128_t size 12, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 197 max 170141183460469231731687303715884105728
+type uint128_t size 13, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 14, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 15, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 16, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 17, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 18, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 19, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 20, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+array operations test completed with great success
 test c_tests\bin1\pis 
 startingOffset128: 0, startingOffset: 0, countGenerated128 1, countGenerated 128
 startInChunks: 0, limitInChunks 4
@@ -10522,7 +10926,7 @@ lade vied
 lead vied
 test c_tests\bin1\ba 
 parsing input file tp.bas
-163 ms for 1 iterations
+84 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -11198,10 +11602,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin2\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 11, min 28, sec 9
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 14, min 28, sec 9
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 11, min 28, sec 9
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 16, hour 19, min 28, sec 9
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 24
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 24
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 24
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 24
 test c_tests\bin2\tm 
 tm has completed with great success
 test c_tests\bin2\glob 
@@ -11518,6 +11922,208 @@ uint64_t dim 18: sum 302274.0, mag 302274.0, min, 208.0 max 5682.0, fmodsum 355.
 uint64_t dim 19: sum 376846.0, mag 376846.0, min, 229.0 max 6631.0, fmodsum 408.000, dotsum 16582.0, sqrtsum 10597.0
 uint64_t dim 20: sum 465880.0, mag 465880.0, min, 251.0 max 7680.0, fmodsum 449.000, dotsum 19421.0, sqrtsum 12388.0
 matrix multiply test completed with great success
+test c_tests\bin2\tao 
+type int8_t size 1, sum -52, magnitude 52 min, -52 max -52
+type int8_t size 2, sum -60, magnitude 60 min, -52 max -8
+type int8_t size 3, sum -56, magnitude 64 min, -52 max 4
+type int8_t size 4, sum -39, magnitude 81 min, -52 max 17
+type int8_t size 5, sum -56, magnitude 98 min, -52 max 17
+type int8_t size 6, sum -60, magnitude 102 min, -52 max 17
+type int8_t size 7, sum -56, magnitude 106 min, -52 max 17
+type int8_t size 8, sum -60, magnitude 110 min, -52 max 17
+type int8_t size 9, sum -64, magnitude 114 min, -52 max 17
+type int8_t size 10, sum -68, magnitude 118 min, -52 max 17
+type int8_t size 11, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 12, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 13, sum -77, magnitude 127 min, -52 max 17
+type int8_t size 14, sum -69, magnitude -121 min, -52 max 17
+type int8_t size 15, sum -65, magnitude -117 min, -52 max 17
+type int8_t size 16, sum -71, magnitude -111 min, -52 max 17
+type int8_t size 17, sum -67, magnitude -107 min, -52 max 17
+type int8_t size 18, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 19, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 20, sum -66, magnitude -106 min, -52 max 17
+type uint8_t size 1, sum 76, magnitude 76 min, 76 max 76
+type uint8_t size 2, sum 110, magnitude 110 min, 34 max 76
+type uint8_t size 3, sum 114, magnitude 114 min, 4 max 76
+type uint8_t size 4, sum 157, magnitude 157 min, 4 max 76
+type uint8_t size 5, sum 182, magnitude 182 min, 4 max 76
+type uint8_t size 6, sum 196, magnitude 196 min, 4 max 76
+type uint8_t size 7, sum 200, magnitude 200 min, 4 max 76
+type uint8_t size 8, sum 224, magnitude 224 min, 4 max 76
+type uint8_t size 9, sum 245, magnitude 245 min, 4 max 76
+type uint8_t size 10, sum 8, magnitude 8 min, 4 max 76
+type uint8_t size 11, sum 25, magnitude 25 min, 4 max 76
+type uint8_t size 12, sum 43, magnitude 43 min, 4 max 76
+type uint8_t size 13, sum 56, magnitude 56 min, 4 max 76
+type uint8_t size 14, sum 64, magnitude 64 min, 4 max 76
+type uint8_t size 15, sum 68, magnitude 68 min, 4 max 76
+type uint8_t size 16, sum 76, magnitude 76 min, 4 max 76
+type uint8_t size 17, sum 80, magnitude 80 min, 4 max 76
+type uint8_t size 18, sum 81, magnitude 81 min, 1 max 76
+type uint8_t size 19, sum 93, magnitude 93 min, 1 max 76
+type uint8_t size 20, sum 93, magnitude 93 min, 0 max 76
+type int16_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int16_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int16_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int16_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int16_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int16_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int16_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int16_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int16_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int16_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int16_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int16_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int16_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int16_t size 14, sum -1209, magnitude 2499 min, -188 max 252
+type int16_t size 15, sum -1013, magnitude 2695 min, -188 max 252
+type int16_t size 16, sum -809, magnitude 2899 min, -188 max 252
+type int16_t size 17, sum -605, magnitude 3103 min, -188 max 252
+type int16_t size 18, sum -401, magnitude 3307 min, -188 max 252
+type int16_t size 19, sum -197, magnitude 3511 min, -188 max 252
+type int16_t size 20, sum -1, magnitude 3707 min, -188 max 252
+type uint16_t size 1, sum 32588, magnitude 32588 min, 32588 max 32588
+type uint16_t size 2, sum 48793, magnitude 48793 min, 16205 max 32588
+type uint16_t size 3, sum 56797, magnitude 56797 min, 8004 max 32588
+type uint16_t size 4, sum 60706, magnitude 60706 min, 3909 max 32588
+type uint16_t size 5, sum 62566, magnitude 62566 min, 1860 max 32588
+type uint16_t size 6, sum 63403, magnitude 63403 min, 837 max 32588
+type uint16_t size 7, sum 63727, magnitude 63727 min, 324 max 32588
+type uint16_t size 8, sum 63852, magnitude 63852 min, 125 max 32588
+type uint16_t size 9, sum 64104, magnitude 64104 min, 125 max 32588
+type uint16_t size 10, sum 64357, magnitude 64357 min, 125 max 32588
+type uint16_t size 11, sum 64609, magnitude 64609 min, 125 max 32588
+type uint16_t size 12, sum 64806, magnitude 64806 min, 125 max 32588
+type uint16_t size 13, sum 65002, magnitude 65002 min, 125 max 32588
+type uint16_t size 14, sum 65199, magnitude 65199 min, 125 max 32588
+type uint16_t size 15, sum 65395, magnitude 65395 min, 125 max 32588
+type uint16_t size 16, sum 63, magnitude 63 min, 125 max 32588
+type uint16_t size 17, sum 267, magnitude 267 min, 125 max 32588
+type uint16_t size 18, sum 471, magnitude 471 min, 125 max 32588
+type uint16_t size 19, sum 675, magnitude 675 min, 125 max 32588
+type uint16_t size 20, sum 871, magnitude 871 min, 125 max 32588
+type int32_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int32_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int32_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int32_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int32_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int32_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int32_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int32_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int32_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int32_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int32_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int32_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int32_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int32_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int32_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int32_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int32_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int32_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int32_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int32_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint32_t size 1, sum 2147483468, magnitude 2147483468 min, 2147483468 max 2147483468
+type uint32_t size 2, sum 3221225113, magnitude 3221225113 min, 1073741645 max 2147483468
+type uint32_t size 3, sum 3758095837, magnitude 3758095837 min, 536870724 max 2147483468
+type uint32_t size 4, sum 4026531106, magnitude 4026531106 min, 268435269 max 2147483468
+type uint32_t size 5, sum 4160748646, magnitude 4160748646 min, 134217540 max 2147483468
+type uint32_t size 6, sum 4227857323, magnitude 4227857323 min, 67108677 max 2147483468
+type uint32_t size 7, sum 4261411567, magnitude 4261411567 min, 33554244 max 2147483468
+type uint32_t size 8, sum 4278188652, magnitude 4278188652 min, 16777085 max 2147483468
+type uint32_t size 9, sum 4286577128, magnitude 4286577128 min, 8388476 max 2147483468
+type uint32_t size 10, sum 4290771301, magnitude 4290771301 min, 4194173 max 2147483468
+type uint32_t size 11, sum 4290771553, magnitude 4290771553 min, 252 max 2147483468
+type uint32_t size 12, sum 4290771750, magnitude 4290771750 min, 197 max 2147483468
+type uint32_t size 13, sum 4290771946, magnitude 4290771946 min, 196 max 2147483468
+type uint32_t size 14, sum 4290772143, magnitude 4290772143 min, 196 max 2147483468
+type uint32_t size 15, sum 4290772339, magnitude 4290772339 min, 196 max 2147483468
+type uint32_t size 16, sum 4290772544, magnitude 4290772544 min, 196 max 2147483468
+type uint32_t size 17, sum 4290772748, magnitude 4290772748 min, 196 max 2147483468
+type uint32_t size 18, sum 4290772953, magnitude 4290772953 min, 196 max 2147483468
+type uint32_t size 19, sum 4290773149, magnitude 4290773149 min, 196 max 2147483468
+type uint32_t size 20, sum 4290773346, magnitude 4290773346 min, 196 max 2147483468
+type int64_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int64_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int64_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int64_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int64_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int64_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int64_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int64_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int64_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int64_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int64_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int64_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int64_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int64_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int64_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int64_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int64_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int64_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int64_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int64_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint64_t size 1, sum 9223372036854775808, magnitude 9223372036854775808 min, 9223372036854775808 max 9223372036854775808
+type uint64_t size 2, sum 13835058055282163712, magnitude 13835058055282163712 min, 4611686018427387904 max 9223372036854775808
+type uint64_t size 3, sum 16140901064495857664, magnitude 16140901064495857664 min, 2305843009213693696 max 9223372036854775808
+type uint64_t size 4, sum 17293822569102704640, magnitude 17293822569102704640 min, 1152921504606846848 max 9223372036854775808
+type uint64_t size 5, sum 17870283321406128128, magnitude 17870283321406128128 min, 576460752303423296 max 9223372036854775808
+type uint64_t size 6, sum 18158513697557837824, magnitude 18158513697557837824 min, 288230376151711552 max 9223372036854775808
+type uint64_t size 7, sum 18302628885633693696, magnitude 18302628885633693696 min, 144115188075855680 max 9223372036854775808
+type uint64_t size 8, sum 18374686479671621632, magnitude 18374686479671621632 min, 72057594037927808 max 9223372036854775808
+type uint64_t size 9, sum 18410715276690585600, magnitude 18410715276690585600 min, 36028797018963836 max 9223372036854775808
+type uint64_t size 10, sum 18428729675200067584, magnitude 18428729675200067584 min, 18014398509481852 max 9223372036854775808
+type uint64_t size 11, sum 18428729675200067584, magnitude 18428729675200067584 min, 252 max 9223372036854775808
+type uint64_t size 12, sum 18428729675200067584, magnitude 18428729675200067584 min, 197 max 9223372036854775808
+type uint64_t size 13, sum 18428729675200067584, magnitude 18428729675200067584 min, 196 max 9223372036854775808
+type uint64_t size 14, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 15, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 16, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 17, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 18, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 19, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 20, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type int128_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int128_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int128_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int128_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int128_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int128_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int128_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int128_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int128_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int128_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int128_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int128_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int128_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int128_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int128_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int128_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int128_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int128_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int128_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int128_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint128_t size 1, sum 170141183460469231731687303715884105728, magnitude 170141183460469231731687303715884105728 min, 170141183460469231731687303715884105728 max 170141183460469231731687303715884105728
+type uint128_t size 2, sum 255211775190703847597530955573826158592, magnitude 255211775190703847597530955573826158592 min, 85070591730234615865843651857942052864 max 170141183460469231731687303715884105728
+type uint128_t size 3, sum 297747071055821155530452781502797185024, magnitude 297747071055821155530452781502797185024 min, 42535295865117307932921825928971026432 max 170141183460469231731687303715884105728
+type uint128_t size 4, sum 319014718988379809496913694467282698240, magnitude 319014718988379809496913694467282698240 min, 21267647932558653966460912964485513216 max 170141183460469231731687303715884105728
+type uint128_t size 5, sum 329648542954659136480144150949525454848, magnitude 329648542954659136480144150949525454848 min, 10633823966279326983230456482242756608 max 170141183460469231731687303715884105728
+type uint128_t size 6, sum 334965454937798799971759379190646833152, magnitude 334965454937798799971759379190646833152 min, 5316911983139663491615228241121378304 max 170141183460469231731687303715884105728
+type uint128_t size 7, sum 337623910929368631717566993311207522304, magnitude 337623910929368631717566993311207522304 min, 2658455991569831745807614120560689152 max 170141183460469231731687303715884105728
+type uint128_t size 8, sum 338953138925153547590470800371487866880, magnitude 338953138925153547590470800371487866880 min, 1329227995784915872903807060280344576 max 170141183460469231731687303715884105728
+type uint128_t size 9, sum 339617752923046005526922703901628039168, magnitude 339617752923046005526922703901628039168 min, 664613997892457936451903530140172288 max 170141183460469231731687303715884105728
+type uint128_t size 10, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 332306998946228968225951765070086144 max 170141183460469231731687303715884105728
+type uint128_t size 11, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 252 max 170141183460469231731687303715884105728
+type uint128_t size 12, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 197 max 170141183460469231731687303715884105728
+type uint128_t size 13, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 14, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 15, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 16, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 17, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 18, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 19, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 20, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+array operations test completed with great success
 test c_tests\bin2\pis 
 startingOffset128: 0, startingOffset: 0, countGenerated128 1, countGenerated 128
 startInChunks: 0, limitInChunks 4
@@ -15743,7 +16349,6 @@ testing with div by 0:
 nan test completed with great success
 test c_tests\bin2\sleeptm 
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1046, system time 0
 sleepy time ended with great success
 test c_tests\bin2\tatomic 
 test atomic completed with great success
@@ -15797,7 +16402,7 @@ lade vied
 lead vied
 test c_tests\bin2\ba 
 parsing input file tp.bas
-157 ms for 1 iterations
+78 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -16473,10 +17078,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin3\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 11, min 28, sec 16
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 14, min 28, sec 16
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 11, min 28, sec 16
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 16, hour 19, min 28, sec 16
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 31
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 31
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 31
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 31
 test c_tests\bin3\tm 
 tm has completed with great success
 test c_tests\bin3\glob 
@@ -16793,6 +17398,208 @@ uint64_t dim 18: sum 302274.0, mag 302274.0, min, 208.0 max 5682.0, fmodsum 355.
 uint64_t dim 19: sum 376846.0, mag 376846.0, min, 229.0 max 6631.0, fmodsum 408.000, dotsum 16582.0, sqrtsum 10597.0
 uint64_t dim 20: sum 465880.0, mag 465880.0, min, 251.0 max 7680.0, fmodsum 449.000, dotsum 19421.0, sqrtsum 12388.0
 matrix multiply test completed with great success
+test c_tests\bin3\tao 
+type int8_t size 1, sum -52, magnitude 52 min, -52 max -52
+type int8_t size 2, sum -60, magnitude 60 min, -52 max -8
+type int8_t size 3, sum -56, magnitude 64 min, -52 max 4
+type int8_t size 4, sum -39, magnitude 81 min, -52 max 17
+type int8_t size 5, sum -56, magnitude 98 min, -52 max 17
+type int8_t size 6, sum -60, magnitude 102 min, -52 max 17
+type int8_t size 7, sum -56, magnitude 106 min, -52 max 17
+type int8_t size 8, sum -60, magnitude 110 min, -52 max 17
+type int8_t size 9, sum -64, magnitude 114 min, -52 max 17
+type int8_t size 10, sum -68, magnitude 118 min, -52 max 17
+type int8_t size 11, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 12, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 13, sum -77, magnitude 127 min, -52 max 17
+type int8_t size 14, sum -69, magnitude -121 min, -52 max 17
+type int8_t size 15, sum -65, magnitude -117 min, -52 max 17
+type int8_t size 16, sum -71, magnitude -111 min, -52 max 17
+type int8_t size 17, sum -67, magnitude -107 min, -52 max 17
+type int8_t size 18, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 19, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 20, sum -66, magnitude -106 min, -52 max 17
+type uint8_t size 1, sum 76, magnitude 76 min, 76 max 76
+type uint8_t size 2, sum 110, magnitude 110 min, 34 max 76
+type uint8_t size 3, sum 114, magnitude 114 min, 4 max 76
+type uint8_t size 4, sum 157, magnitude 157 min, 4 max 76
+type uint8_t size 5, sum 182, magnitude 182 min, 4 max 76
+type uint8_t size 6, sum 196, magnitude 196 min, 4 max 76
+type uint8_t size 7, sum 200, magnitude 200 min, 4 max 76
+type uint8_t size 8, sum 224, magnitude 224 min, 4 max 76
+type uint8_t size 9, sum 245, magnitude 245 min, 4 max 76
+type uint8_t size 10, sum 8, magnitude 8 min, 4 max 76
+type uint8_t size 11, sum 25, magnitude 25 min, 4 max 76
+type uint8_t size 12, sum 43, magnitude 43 min, 4 max 76
+type uint8_t size 13, sum 56, magnitude 56 min, 4 max 76
+type uint8_t size 14, sum 64, magnitude 64 min, 4 max 76
+type uint8_t size 15, sum 68, magnitude 68 min, 4 max 76
+type uint8_t size 16, sum 76, magnitude 76 min, 4 max 76
+type uint8_t size 17, sum 80, magnitude 80 min, 4 max 76
+type uint8_t size 18, sum 81, magnitude 81 min, 1 max 76
+type uint8_t size 19, sum 93, magnitude 93 min, 1 max 76
+type uint8_t size 20, sum 93, magnitude 93 min, 0 max 76
+type int16_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int16_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int16_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int16_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int16_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int16_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int16_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int16_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int16_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int16_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int16_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int16_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int16_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int16_t size 14, sum -1209, magnitude 2499 min, -188 max 252
+type int16_t size 15, sum -1013, magnitude 2695 min, -188 max 252
+type int16_t size 16, sum -809, magnitude 2899 min, -188 max 252
+type int16_t size 17, sum -605, magnitude 3103 min, -188 max 252
+type int16_t size 18, sum -401, magnitude 3307 min, -188 max 252
+type int16_t size 19, sum -197, magnitude 3511 min, -188 max 252
+type int16_t size 20, sum -1, magnitude 3707 min, -188 max 252
+type uint16_t size 1, sum 32588, magnitude 32588 min, 32588 max 32588
+type uint16_t size 2, sum 48793, magnitude 48793 min, 16205 max 32588
+type uint16_t size 3, sum 56797, magnitude 56797 min, 8004 max 32588
+type uint16_t size 4, sum 60706, magnitude 60706 min, 3909 max 32588
+type uint16_t size 5, sum 62566, magnitude 62566 min, 1860 max 32588
+type uint16_t size 6, sum 63403, magnitude 63403 min, 837 max 32588
+type uint16_t size 7, sum 63727, magnitude 63727 min, 324 max 32588
+type uint16_t size 8, sum 63852, magnitude 63852 min, 125 max 32588
+type uint16_t size 9, sum 64104, magnitude 64104 min, 125 max 32588
+type uint16_t size 10, sum 64357, magnitude 64357 min, 125 max 32588
+type uint16_t size 11, sum 64609, magnitude 64609 min, 125 max 32588
+type uint16_t size 12, sum 64806, magnitude 64806 min, 125 max 32588
+type uint16_t size 13, sum 65002, magnitude 65002 min, 125 max 32588
+type uint16_t size 14, sum 65199, magnitude 65199 min, 125 max 32588
+type uint16_t size 15, sum 65395, magnitude 65395 min, 125 max 32588
+type uint16_t size 16, sum 63, magnitude 63 min, 125 max 32588
+type uint16_t size 17, sum 267, magnitude 267 min, 125 max 32588
+type uint16_t size 18, sum 471, magnitude 471 min, 125 max 32588
+type uint16_t size 19, sum 675, magnitude 675 min, 125 max 32588
+type uint16_t size 20, sum 871, magnitude 871 min, 125 max 32588
+type int32_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int32_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int32_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int32_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int32_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int32_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int32_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int32_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int32_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int32_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int32_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int32_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int32_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int32_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int32_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int32_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int32_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int32_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int32_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int32_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint32_t size 1, sum 2147483468, magnitude 2147483468 min, 2147483468 max 2147483468
+type uint32_t size 2, sum 3221225113, magnitude 3221225113 min, 1073741645 max 2147483468
+type uint32_t size 3, sum 3758095837, magnitude 3758095837 min, 536870724 max 2147483468
+type uint32_t size 4, sum 4026531106, magnitude 4026531106 min, 268435269 max 2147483468
+type uint32_t size 5, sum 4160748646, magnitude 4160748646 min, 134217540 max 2147483468
+type uint32_t size 6, sum 4227857323, magnitude 4227857323 min, 67108677 max 2147483468
+type uint32_t size 7, sum 4261411567, magnitude 4261411567 min, 33554244 max 2147483468
+type uint32_t size 8, sum 4278188652, magnitude 4278188652 min, 16777085 max 2147483468
+type uint32_t size 9, sum 4286577128, magnitude 4286577128 min, 8388476 max 2147483468
+type uint32_t size 10, sum 4290771301, magnitude 4290771301 min, 4194173 max 2147483468
+type uint32_t size 11, sum 4290771553, magnitude 4290771553 min, 252 max 2147483468
+type uint32_t size 12, sum 4290771750, magnitude 4290771750 min, 197 max 2147483468
+type uint32_t size 13, sum 4290771946, magnitude 4290771946 min, 196 max 2147483468
+type uint32_t size 14, sum 4290772143, magnitude 4290772143 min, 196 max 2147483468
+type uint32_t size 15, sum 4290772339, magnitude 4290772339 min, 196 max 2147483468
+type uint32_t size 16, sum 4290772544, magnitude 4290772544 min, 196 max 2147483468
+type uint32_t size 17, sum 4290772748, magnitude 4290772748 min, 196 max 2147483468
+type uint32_t size 18, sum 4290772953, magnitude 4290772953 min, 196 max 2147483468
+type uint32_t size 19, sum 4290773149, magnitude 4290773149 min, 196 max 2147483468
+type uint32_t size 20, sum 4290773346, magnitude 4290773346 min, 196 max 2147483468
+type int64_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int64_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int64_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int64_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int64_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int64_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int64_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int64_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int64_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int64_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int64_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int64_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int64_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int64_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int64_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int64_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int64_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int64_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int64_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int64_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint64_t size 1, sum 9223372036854775808, magnitude 9223372036854775808 min, 9223372036854775808 max 9223372036854775808
+type uint64_t size 2, sum 13835058055282163712, magnitude 13835058055282163712 min, 4611686018427387904 max 9223372036854775808
+type uint64_t size 3, sum 16140901064495857664, magnitude 16140901064495857664 min, 2305843009213693696 max 9223372036854775808
+type uint64_t size 4, sum 17293822569102704640, magnitude 17293822569102704640 min, 1152921504606846848 max 9223372036854775808
+type uint64_t size 5, sum 17870283321406128128, magnitude 17870283321406128128 min, 576460752303423296 max 9223372036854775808
+type uint64_t size 6, sum 18158513697557837824, magnitude 18158513697557837824 min, 288230376151711552 max 9223372036854775808
+type uint64_t size 7, sum 18302628885633693696, magnitude 18302628885633693696 min, 144115188075855680 max 9223372036854775808
+type uint64_t size 8, sum 18374686479671621632, magnitude 18374686479671621632 min, 72057594037927808 max 9223372036854775808
+type uint64_t size 9, sum 18410715276690585600, magnitude 18410715276690585600 min, 36028797018963836 max 9223372036854775808
+type uint64_t size 10, sum 18428729675200067584, magnitude 18428729675200067584 min, 18014398509481852 max 9223372036854775808
+type uint64_t size 11, sum 18428729675200067584, magnitude 18428729675200067584 min, 252 max 9223372036854775808
+type uint64_t size 12, sum 18428729675200067584, magnitude 18428729675200067584 min, 197 max 9223372036854775808
+type uint64_t size 13, sum 18428729675200067584, magnitude 18428729675200067584 min, 196 max 9223372036854775808
+type uint64_t size 14, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 15, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 16, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 17, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 18, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 19, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 20, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type int128_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int128_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int128_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int128_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int128_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int128_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int128_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int128_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int128_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int128_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int128_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int128_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int128_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int128_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int128_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int128_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int128_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int128_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int128_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int128_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint128_t size 1, sum 170141183460469231731687303715884105728, magnitude 170141183460469231731687303715884105728 min, 170141183460469231731687303715884105728 max 170141183460469231731687303715884105728
+type uint128_t size 2, sum 255211775190703847597530955573826158592, magnitude 255211775190703847597530955573826158592 min, 85070591730234615865843651857942052864 max 170141183460469231731687303715884105728
+type uint128_t size 3, sum 297747071055821155530452781502797185024, magnitude 297747071055821155530452781502797185024 min, 42535295865117307932921825928971026432 max 170141183460469231731687303715884105728
+type uint128_t size 4, sum 319014718988379809496913694467282698240, magnitude 319014718988379809496913694467282698240 min, 21267647932558653966460912964485513216 max 170141183460469231731687303715884105728
+type uint128_t size 5, sum 329648542954659136480144150949525454848, magnitude 329648542954659136480144150949525454848 min, 10633823966279326983230456482242756608 max 170141183460469231731687303715884105728
+type uint128_t size 6, sum 334965454937798799971759379190646833152, magnitude 334965454937798799971759379190646833152 min, 5316911983139663491615228241121378304 max 170141183460469231731687303715884105728
+type uint128_t size 7, sum 337623910929368631717566993311207522304, magnitude 337623910929368631717566993311207522304 min, 2658455991569831745807614120560689152 max 170141183460469231731687303715884105728
+type uint128_t size 8, sum 338953138925153547590470800371487866880, magnitude 338953138925153547590470800371487866880 min, 1329227995784915872903807060280344576 max 170141183460469231731687303715884105728
+type uint128_t size 9, sum 339617752923046005526922703901628039168, magnitude 339617752923046005526922703901628039168 min, 664613997892457936451903530140172288 max 170141183460469231731687303715884105728
+type uint128_t size 10, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 332306998946228968225951765070086144 max 170141183460469231731687303715884105728
+type uint128_t size 11, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 252 max 170141183460469231731687303715884105728
+type uint128_t size 12, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 197 max 170141183460469231731687303715884105728
+type uint128_t size 13, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 14, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 15, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 16, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 17, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 18, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 19, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 20, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+array operations test completed with great success
 test c_tests\bin3\pis 
 startingOffset128: 0, startingOffset: 0, countGenerated128 1, countGenerated 128
 startInChunks: 0, limitInChunks 4
@@ -21018,6 +21825,7 @@ testing with div by 0:
 nan test completed with great success
 test c_tests\bin3\sleeptm 
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1031, system time 0
 sleepy time ended with great success
 test c_tests\bin3\tatomic 
 test atomic completed with great success
@@ -21071,7 +21879,7 @@ lade vied
 lead vied
 test c_tests\bin3\ba 
 parsing input file tp.bas
-174 ms for 1 iterations
+93 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -21747,10 +22555,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\binfast\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 11, min 28, sec 24
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 14, min 28, sec 24
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 11, min 28, sec 24
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 16, hour 19, min 28, sec 24
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 37
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 37
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 37
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 37
 test c_tests\binfast\tm 
 tm has completed with great success
 test c_tests\binfast\glob 
@@ -22067,6 +22875,208 @@ uint64_t dim 18: sum 302274.0, mag 302274.0, min, 208.0 max 5682.0, fmodsum 355.
 uint64_t dim 19: sum 376846.0, mag 376846.0, min, 229.0 max 6631.0, fmodsum 408.000, dotsum 16582.0, sqrtsum 10597.0
 uint64_t dim 20: sum 465880.0, mag 465880.0, min, 251.0 max 7680.0, fmodsum 449.000, dotsum 19421.0, sqrtsum 12388.0
 matrix multiply test completed with great success
+test c_tests\binfast\tao 
+type int8_t size 1, sum -52, magnitude 52 min, -52 max -52
+type int8_t size 2, sum -60, magnitude 60 min, -52 max -8
+type int8_t size 3, sum -56, magnitude 64 min, -52 max 4
+type int8_t size 4, sum -39, magnitude 81 min, -52 max 17
+type int8_t size 5, sum -56, magnitude 98 min, -52 max 17
+type int8_t size 6, sum -60, magnitude 102 min, -52 max 17
+type int8_t size 7, sum -56, magnitude 106 min, -52 max 17
+type int8_t size 8, sum -60, magnitude 110 min, -52 max 17
+type int8_t size 9, sum -64, magnitude 114 min, -52 max 17
+type int8_t size 10, sum -68, magnitude 118 min, -52 max 17
+type int8_t size 11, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 12, sum -72, magnitude 122 min, -52 max 17
+type int8_t size 13, sum -77, magnitude 127 min, -52 max 17
+type int8_t size 14, sum -69, magnitude -121 min, -52 max 17
+type int8_t size 15, sum -65, magnitude -117 min, -52 max 17
+type int8_t size 16, sum -71, magnitude -111 min, -52 max 17
+type int8_t size 17, sum -67, magnitude -107 min, -52 max 17
+type int8_t size 18, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 19, sum -66, magnitude -106 min, -52 max 17
+type int8_t size 20, sum -66, magnitude -106 min, -52 max 17
+type uint8_t size 1, sum 76, magnitude 76 min, 76 max 76
+type uint8_t size 2, sum 110, magnitude 110 min, 34 max 76
+type uint8_t size 3, sum 114, magnitude 114 min, 4 max 76
+type uint8_t size 4, sum 157, magnitude 157 min, 4 max 76
+type uint8_t size 5, sum 182, magnitude 182 min, 4 max 76
+type uint8_t size 6, sum 196, magnitude 196 min, 4 max 76
+type uint8_t size 7, sum 200, magnitude 200 min, 4 max 76
+type uint8_t size 8, sum 224, magnitude 224 min, 4 max 76
+type uint8_t size 9, sum 245, magnitude 245 min, 4 max 76
+type uint8_t size 10, sum 8, magnitude 8 min, 4 max 76
+type uint8_t size 11, sum 25, magnitude 25 min, 4 max 76
+type uint8_t size 12, sum 43, magnitude 43 min, 4 max 76
+type uint8_t size 13, sum 56, magnitude 56 min, 4 max 76
+type uint8_t size 14, sum 64, magnitude 64 min, 4 max 76
+type uint8_t size 15, sum 68, magnitude 68 min, 4 max 76
+type uint8_t size 16, sum 76, magnitude 76 min, 4 max 76
+type uint8_t size 17, sum 80, magnitude 80 min, 4 max 76
+type uint8_t size 18, sum 81, magnitude 81 min, 1 max 76
+type uint8_t size 19, sum 93, magnitude 93 min, 1 max 76
+type uint8_t size 20, sum 93, magnitude 93 min, 0 max 76
+type int16_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int16_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int16_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int16_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int16_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int16_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int16_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int16_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int16_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int16_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int16_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int16_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int16_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int16_t size 14, sum -1209, magnitude 2499 min, -188 max 252
+type int16_t size 15, sum -1013, magnitude 2695 min, -188 max 252
+type int16_t size 16, sum -809, magnitude 2899 min, -188 max 252
+type int16_t size 17, sum -605, magnitude 3103 min, -188 max 252
+type int16_t size 18, sum -401, magnitude 3307 min, -188 max 252
+type int16_t size 19, sum -197, magnitude 3511 min, -188 max 252
+type int16_t size 20, sum -1, magnitude 3707 min, -188 max 252
+type uint16_t size 1, sum 32588, magnitude 32588 min, 32588 max 32588
+type uint16_t size 2, sum 48793, magnitude 48793 min, 16205 max 32588
+type uint16_t size 3, sum 56797, magnitude 56797 min, 8004 max 32588
+type uint16_t size 4, sum 60706, magnitude 60706 min, 3909 max 32588
+type uint16_t size 5, sum 62566, magnitude 62566 min, 1860 max 32588
+type uint16_t size 6, sum 63403, magnitude 63403 min, 837 max 32588
+type uint16_t size 7, sum 63727, magnitude 63727 min, 324 max 32588
+type uint16_t size 8, sum 63852, magnitude 63852 min, 125 max 32588
+type uint16_t size 9, sum 64104, magnitude 64104 min, 125 max 32588
+type uint16_t size 10, sum 64357, magnitude 64357 min, 125 max 32588
+type uint16_t size 11, sum 64609, magnitude 64609 min, 125 max 32588
+type uint16_t size 12, sum 64806, magnitude 64806 min, 125 max 32588
+type uint16_t size 13, sum 65002, magnitude 65002 min, 125 max 32588
+type uint16_t size 14, sum 65199, magnitude 65199 min, 125 max 32588
+type uint16_t size 15, sum 65395, magnitude 65395 min, 125 max 32588
+type uint16_t size 16, sum 63, magnitude 63 min, 125 max 32588
+type uint16_t size 17, sum 267, magnitude 267 min, 125 max 32588
+type uint16_t size 18, sum 471, magnitude 471 min, 125 max 32588
+type uint16_t size 19, sum 675, magnitude 675 min, 125 max 32588
+type uint16_t size 20, sum 871, magnitude 871 min, 125 max 32588
+type int32_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int32_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int32_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int32_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int32_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int32_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int32_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int32_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int32_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int32_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int32_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int32_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int32_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int32_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int32_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int32_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int32_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int32_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int32_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int32_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint32_t size 1, sum 2147483468, magnitude 2147483468 min, 2147483468 max 2147483468
+type uint32_t size 2, sum 3221225113, magnitude 3221225113 min, 1073741645 max 2147483468
+type uint32_t size 3, sum 3758095837, magnitude 3758095837 min, 536870724 max 2147483468
+type uint32_t size 4, sum 4026531106, magnitude 4026531106 min, 268435269 max 2147483468
+type uint32_t size 5, sum 4160748646, magnitude 4160748646 min, 134217540 max 2147483468
+type uint32_t size 6, sum 4227857323, magnitude 4227857323 min, 67108677 max 2147483468
+type uint32_t size 7, sum 4261411567, magnitude 4261411567 min, 33554244 max 2147483468
+type uint32_t size 8, sum 4278188652, magnitude 4278188652 min, 16777085 max 2147483468
+type uint32_t size 9, sum 4286577128, magnitude 4286577128 min, 8388476 max 2147483468
+type uint32_t size 10, sum 4290771301, magnitude 4290771301 min, 4194173 max 2147483468
+type uint32_t size 11, sum 4290771553, magnitude 4290771553 min, 252 max 2147483468
+type uint32_t size 12, sum 4290771750, magnitude 4290771750 min, 197 max 2147483468
+type uint32_t size 13, sum 4290771946, magnitude 4290771946 min, 196 max 2147483468
+type uint32_t size 14, sum 4290772143, magnitude 4290772143 min, 196 max 2147483468
+type uint32_t size 15, sum 4290772339, magnitude 4290772339 min, 196 max 2147483468
+type uint32_t size 16, sum 4290772544, magnitude 4290772544 min, 196 max 2147483468
+type uint32_t size 17, sum 4290772748, magnitude 4290772748 min, 196 max 2147483468
+type uint32_t size 18, sum 4290772953, magnitude 4290772953 min, 196 max 2147483468
+type uint32_t size 19, sum 4290773149, magnitude 4290773149 min, 196 max 2147483468
+type uint32_t size 20, sum 4290773346, magnitude 4290773346 min, 196 max 2147483468
+type int64_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int64_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int64_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int64_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int64_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int64_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int64_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int64_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int64_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int64_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int64_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int64_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int64_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int64_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int64_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int64_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int64_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int64_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int64_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int64_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint64_t size 1, sum 9223372036854775808, magnitude 9223372036854775808 min, 9223372036854775808 max 9223372036854775808
+type uint64_t size 2, sum 13835058055282163712, magnitude 13835058055282163712 min, 4611686018427387904 max 9223372036854775808
+type uint64_t size 3, sum 16140901064495857664, magnitude 16140901064495857664 min, 2305843009213693696 max 9223372036854775808
+type uint64_t size 4, sum 17293822569102704640, magnitude 17293822569102704640 min, 1152921504606846848 max 9223372036854775808
+type uint64_t size 5, sum 17870283321406128128, magnitude 17870283321406128128 min, 576460752303423296 max 9223372036854775808
+type uint64_t size 6, sum 18158513697557837824, magnitude 18158513697557837824 min, 288230376151711552 max 9223372036854775808
+type uint64_t size 7, sum 18302628885633693696, magnitude 18302628885633693696 min, 144115188075855680 max 9223372036854775808
+type uint64_t size 8, sum 18374686479671621632, magnitude 18374686479671621632 min, 72057594037927808 max 9223372036854775808
+type uint64_t size 9, sum 18410715276690585600, magnitude 18410715276690585600 min, 36028797018963836 max 9223372036854775808
+type uint64_t size 10, sum 18428729675200067584, magnitude 18428729675200067584 min, 18014398509481852 max 9223372036854775808
+type uint64_t size 11, sum 18428729675200067584, magnitude 18428729675200067584 min, 252 max 9223372036854775808
+type uint64_t size 12, sum 18428729675200067584, magnitude 18428729675200067584 min, 197 max 9223372036854775808
+type uint64_t size 13, sum 18428729675200067584, magnitude 18428729675200067584 min, 196 max 9223372036854775808
+type uint64_t size 14, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 15, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 16, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 17, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 18, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 19, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type uint64_t size 20, sum 18428729675200069632, magnitude 18428729675200069632 min, 196 max 9223372036854775808
+type int128_t size 1, sum -180, magnitude 180 min, -180 max -180
+type int128_t size 2, sum -359, magnitude 359 min, -180 max -179
+type int128_t size 3, sum -547, magnitude 547 min, -188 max -179
+type int128_t size 4, sum -734, magnitude 734 min, -188 max -179
+type int128_t size 5, sum -922, magnitude 922 min, -188 max -179
+type int128_t size 6, sum -1109, magnitude 1109 min, -188 max -179
+type int128_t size 7, sum -1297, magnitude 1297 min, -188 max -179
+type int128_t size 8, sum -1428, magnitude 1428 min, -188 max -131
+type int128_t size 9, sum -1560, magnitude 1560 min, -188 max -131
+type int128_t size 10, sum -1691, magnitude 1691 min, -188 max -131
+type int128_t size 11, sum -1439, magnitude 1943 min, -188 max 252
+type int128_t size 12, sum -1242, magnitude 2140 min, -188 max 252
+type int128_t size 13, sum -1046, magnitude 2336 min, -188 max 252
+type int128_t size 14, sum -849, magnitude 2533 min, -188 max 252
+type int128_t size 15, sum -653, magnitude 2729 min, -188 max 252
+type int128_t size 16, sum -448, magnitude 2934 min, -188 max 252
+type int128_t size 17, sum -244, magnitude 3138 min, -188 max 252
+type int128_t size 18, sum -39, magnitude 3343 min, -188 max 252
+type int128_t size 19, sum 157, magnitude 3539 min, -188 max 252
+type int128_t size 20, sum 354, magnitude 3736 min, -188 max 252
+type uint128_t size 1, sum 170141183460469231731687303715884105728, magnitude 170141183460469231731687303715884105728 min, 170141183460469231731687303715884105728 max 170141183460469231731687303715884105728
+type uint128_t size 2, sum 255211775190703847597530955573826158592, magnitude 255211775190703847597530955573826158592 min, 85070591730234615865843651857942052864 max 170141183460469231731687303715884105728
+type uint128_t size 3, sum 297747071055821155530452781502797185024, magnitude 297747071055821155530452781502797185024 min, 42535295865117307932921825928971026432 max 170141183460469231731687303715884105728
+type uint128_t size 4, sum 319014718988379809496913694467282698240, magnitude 319014718988379809496913694467282698240 min, 21267647932558653966460912964485513216 max 170141183460469231731687303715884105728
+type uint128_t size 5, sum 329648542954659136480144150949525454848, magnitude 329648542954659136480144150949525454848 min, 10633823966279326983230456482242756608 max 170141183460469231731687303715884105728
+type uint128_t size 6, sum 334965454937798799971759379190646833152, magnitude 334965454937798799971759379190646833152 min, 5316911983139663491615228241121378304 max 170141183460469231731687303715884105728
+type uint128_t size 7, sum 337623910929368631717566993311207522304, magnitude 337623910929368631717566993311207522304 min, 2658455991569831745807614120560689152 max 170141183460469231731687303715884105728
+type uint128_t size 8, sum 338953138925153547590470800371487866880, magnitude 338953138925153547590470800371487866880 min, 1329227995784915872903807060280344576 max 170141183460469231731687303715884105728
+type uint128_t size 9, sum 339617752923046005526922703901628039168, magnitude 339617752923046005526922703901628039168 min, 664613997892457936451903530140172288 max 170141183460469231731687303715884105728
+type uint128_t size 10, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 332306998946228968225951765070086144 max 170141183460469231731687303715884105728
+type uint128_t size 11, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 252 max 170141183460469231731687303715884105728
+type uint128_t size 12, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 197 max 170141183460469231731687303715884105728
+type uint128_t size 13, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 14, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 15, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 16, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 17, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 18, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 19, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+type uint128_t size 20, sum 339950059921992234495148655666698125312, magnitude 339950059921992234495148655666698125312 min, 196 max 170141183460469231731687303715884105728
+array operations test completed with great success
 test c_tests\binfast\pis 
 startingOffset128: 0, startingOffset: 0, countGenerated128 1, countGenerated 128
 startInChunks: 0, limitInChunks 4
@@ -26345,7 +27355,7 @@ lade vied
 lead vied
 test c_tests\binfast\ba 
 parsing input file tp.bas
-173 ms for 1 iterations
+91 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -26375,7 +27385,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin0\ttt 
-serial runtime:   16.3377ms
+serial runtime:   9.377ms
 moves:            6493
 iterations:       1
 test rust_tests\bin0\fileops 
@@ -26448,7 +27458,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin1\ttt 
-serial runtime:   4.1267ms
+serial runtime:   2.6529ms
 moves:            6493
 iterations:       1
 test rust_tests\bin1\fileops 
@@ -26521,7 +27531,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin2\ttt 
-serial runtime:   3.2526ms
+serial runtime:   1.9278ms
 moves:            6493
 iterations:       1
 test rust_tests\bin2\fileops 
@@ -26594,7 +27604,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin3\ttt 
-serial runtime:   2.6393ms
+serial runtime:   1.511ms
 moves:            6493
 iterations:       1
 test rust_tests\bin3\fileops 
@@ -26669,17 +27679,17 @@ test ntvcm
 moves: 6493
 iterations: 1
 test ntvdm 
-0.1 seconds
+0.0 seconds
 moves: 6493
 iterations: 1
 test rvos 
 starting...
 6493 moves
-97 milliseconds
+58 milliseconds
 1 iterations
 test armos 
 starting
-110888 microseconds (-6)
+69413 microseconds (-6)
 1 iterations
 6493 moves
-Sun 03/16/2025 12:28:38.92 
+Sun 03/16/2025 21:25:49.24 
