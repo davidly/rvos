@@ -1,4 +1,4 @@
-Sun 03/16/2025 21:25:08.23 
+Mon 03/17/2025  9:23:15.47 
 test c_tests\bin0\tcmp 
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -650,10 +650,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin0\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 9
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 9
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 9
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 9
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 17, hour 8, min 23, sec 16
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 17, hour 11, min 23, sec 16
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 17, hour 8, min 23, sec 16
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 16, min 23, sec 16
 test c_tests\bin0\tm 
 tm has completed with great success
 test c_tests\bin0\glob 
@@ -815,20 +815,20 @@ int8_t dim 3: sum -28.0, mag -28.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71
 int8_t dim 4: sum -62.0, mag -62.0, min, 19.0 max 96.0, fmodsum 18.000, dotsum -94.0, sqrtsum 95.0
 int8_t dim 5: sum -117.0, mag 7.0, min, -126.0 max 110.0, fmodsum 22.000, dotsum 47.0, sqrtsum -74.0
 int8_t dim 6: sum -83.0, mag -31.0, min, -119.0 max 122.0, fmodsum 31.000, dotsum 10.0, sqrtsum 21.0
-int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -108.0
+int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -109.0
 int8_t dim 8: sum 52.0, mag 34.0, min, -126.0 max 124.0, fmodsum 8.000, dotsum -65.0, sqrtsum 34.0
-int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -116.0
+int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -118.0
 int8_t dim 10: sum -37.0, mag -83.0, min, -125.0 max 127.0, fmodsum -26.000, dotsum 68.0, sqrtsum 4.0
-int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 89.0
+int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 88.0
 int8_t dim 12: sum -126.0, mag 78.0, min, -127.0 max 126.0, fmodsum -35.000, dotsum 13.0, sqrtsum -37.0
 int8_t dim 13: sum -69.0, mag -43.0, min, -127.0 max 126.0, fmodsum 8.000, dotsum 105.0, sqrtsum -124.0
 int8_t dim 14: sum 119.0, mag 33.0, min, -125.0 max 127.0, fmodsum -17.000, dotsum -118.0, sqrtsum 71.0
-int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 16.0
-int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -14.0
+int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 15.0
+int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -15.0
 int8_t dim 17: sum 20.0, mag 102.0, min, -126.0 max 127.0, fmodsum 16.000, dotsum 30.0, sqrtsum -6.0
-int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -25.0
-int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -64.0
-int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 55.0
+int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -27.0
+int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -68.0
+int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 54.0
 uint8_t dim 1: sum 4.0, mag 4.0, min, 4.0 max 4.0, fmodsum 0.000, dotsum 4.0, sqrtsum 2.0
 uint8_t dim 2: sum 50.0, mag 50.0, min, 8.0 max 18.0, fmodsum 3.000, dotsum 24.0, sqrtsum 12.0
 uint8_t dim 3: sum 228.0, mag 228.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71.0, sqrtsum 41.0
@@ -5450,7 +5450,7 @@ lade vied
 lead vied
 test c_tests\bin0\ba 
 parsing input file tp.bas
-329 ms for 1 iterations
+416 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -6126,10 +6126,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin1\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 17
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 17
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 17
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 17
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 17, hour 8, min 23, sec 25
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 17, hour 11, min 23, sec 25
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 17, hour 8, min 23, sec 25
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 16, min 23, sec 25
 test c_tests\bin1\tm 
 tm has completed with great success
 test c_tests\bin1\glob 
@@ -6291,20 +6291,20 @@ int8_t dim 3: sum -28.0, mag -28.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71
 int8_t dim 4: sum -62.0, mag -62.0, min, 19.0 max 96.0, fmodsum 18.000, dotsum -94.0, sqrtsum 95.0
 int8_t dim 5: sum -117.0, mag 7.0, min, -126.0 max 110.0, fmodsum 22.000, dotsum 47.0, sqrtsum -74.0
 int8_t dim 6: sum -83.0, mag -31.0, min, -119.0 max 122.0, fmodsum 31.000, dotsum 10.0, sqrtsum 21.0
-int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -108.0
+int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -109.0
 int8_t dim 8: sum 52.0, mag 34.0, min, -126.0 max 124.0, fmodsum 8.000, dotsum -65.0, sqrtsum 34.0
-int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -116.0
+int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -118.0
 int8_t dim 10: sum -37.0, mag -83.0, min, -125.0 max 127.0, fmodsum -26.000, dotsum 68.0, sqrtsum 4.0
-int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 89.0
+int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 88.0
 int8_t dim 12: sum -126.0, mag 78.0, min, -127.0 max 126.0, fmodsum -35.000, dotsum 13.0, sqrtsum -37.0
 int8_t dim 13: sum -69.0, mag -43.0, min, -127.0 max 126.0, fmodsum 8.000, dotsum 105.0, sqrtsum -124.0
 int8_t dim 14: sum 119.0, mag 33.0, min, -125.0 max 127.0, fmodsum -17.000, dotsum -118.0, sqrtsum 71.0
-int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 16.0
-int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -14.0
+int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 15.0
+int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -15.0
 int8_t dim 17: sum 20.0, mag 102.0, min, -126.0 max 127.0, fmodsum 16.000, dotsum 30.0, sqrtsum -6.0
-int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -25.0
-int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -64.0
-int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 55.0
+int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -27.0
+int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -68.0
+int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 54.0
 uint8_t dim 1: sum 4.0, mag 4.0, min, 4.0 max 4.0, fmodsum 0.000, dotsum 4.0, sqrtsum 2.0
 uint8_t dim 2: sum 50.0, mag 50.0, min, 8.0 max 18.0, fmodsum 3.000, dotsum 24.0, sqrtsum 12.0
 uint8_t dim 3: sum 228.0, mag 228.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71.0, sqrtsum 41.0
@@ -10926,7 +10926,7 @@ lade vied
 lead vied
 test c_tests\bin1\ba 
 parsing input file tp.bas
-84 ms for 1 iterations
+98 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -11602,10 +11602,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin2\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 24
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 24
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 24
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 24
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 17, hour 8, min 23, sec 32
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 17, hour 11, min 23, sec 32
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 17, hour 8, min 23, sec 32
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 16, min 23, sec 32
 test c_tests\bin2\tm 
 tm has completed with great success
 test c_tests\bin2\glob 
@@ -11767,20 +11767,20 @@ int8_t dim 3: sum -28.0, mag -28.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71
 int8_t dim 4: sum -62.0, mag -62.0, min, 19.0 max 96.0, fmodsum 18.000, dotsum -94.0, sqrtsum 95.0
 int8_t dim 5: sum -117.0, mag 7.0, min, -126.0 max 110.0, fmodsum 22.000, dotsum 47.0, sqrtsum -74.0
 int8_t dim 6: sum -83.0, mag -31.0, min, -119.0 max 122.0, fmodsum 31.000, dotsum 10.0, sqrtsum 21.0
-int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -108.0
+int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -109.0
 int8_t dim 8: sum 52.0, mag 34.0, min, -126.0 max 124.0, fmodsum 8.000, dotsum -65.0, sqrtsum 34.0
-int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -116.0
+int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -118.0
 int8_t dim 10: sum -37.0, mag -83.0, min, -125.0 max 127.0, fmodsum -26.000, dotsum 68.0, sqrtsum 4.0
-int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 89.0
+int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 88.0
 int8_t dim 12: sum -126.0, mag 78.0, min, -127.0 max 126.0, fmodsum -35.000, dotsum 13.0, sqrtsum -37.0
 int8_t dim 13: sum -69.0, mag -43.0, min, -127.0 max 126.0, fmodsum 8.000, dotsum 105.0, sqrtsum -124.0
 int8_t dim 14: sum 119.0, mag 33.0, min, -125.0 max 127.0, fmodsum -17.000, dotsum -118.0, sqrtsum 71.0
-int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 16.0
-int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -14.0
+int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 15.0
+int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -15.0
 int8_t dim 17: sum 20.0, mag 102.0, min, -126.0 max 127.0, fmodsum 16.000, dotsum 30.0, sqrtsum -6.0
-int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -25.0
-int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -64.0
-int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 55.0
+int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -27.0
+int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -68.0
+int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 54.0
 uint8_t dim 1: sum 4.0, mag 4.0, min, 4.0 max 4.0, fmodsum 0.000, dotsum 4.0, sqrtsum 2.0
 uint8_t dim 2: sum 50.0, mag 50.0, min, 8.0 max 18.0, fmodsum 3.000, dotsum 24.0, sqrtsum 12.0
 uint8_t dim 3: sum 228.0, mag 228.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71.0, sqrtsum 41.0
@@ -16402,7 +16402,7 @@ lade vied
 lead vied
 test c_tests\bin2\ba 
 parsing input file tp.bas
-78 ms for 1 iterations
+91 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -17078,10 +17078,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin3\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 31
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 31
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 31
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 31
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 17, hour 8, min 23, sec 38
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 17, hour 11, min 23, sec 38
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 17, hour 8, min 23, sec 38
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 16, min 23, sec 38
 test c_tests\bin3\tm 
 tm has completed with great success
 test c_tests\bin3\glob 
@@ -17243,20 +17243,20 @@ int8_t dim 3: sum -28.0, mag -28.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71
 int8_t dim 4: sum -62.0, mag -62.0, min, 19.0 max 96.0, fmodsum 18.000, dotsum -94.0, sqrtsum 95.0
 int8_t dim 5: sum -117.0, mag 7.0, min, -126.0 max 110.0, fmodsum 22.000, dotsum 47.0, sqrtsum -74.0
 int8_t dim 6: sum -83.0, mag -31.0, min, -119.0 max 122.0, fmodsum 31.000, dotsum 10.0, sqrtsum 21.0
-int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -108.0
+int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -109.0
 int8_t dim 8: sum 52.0, mag 34.0, min, -126.0 max 124.0, fmodsum 8.000, dotsum -65.0, sqrtsum 34.0
-int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -116.0
+int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -118.0
 int8_t dim 10: sum -37.0, mag -83.0, min, -125.0 max 127.0, fmodsum -26.000, dotsum 68.0, sqrtsum 4.0
-int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 89.0
+int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 88.0
 int8_t dim 12: sum -126.0, mag 78.0, min, -127.0 max 126.0, fmodsum -35.000, dotsum 13.0, sqrtsum -37.0
 int8_t dim 13: sum -69.0, mag -43.0, min, -127.0 max 126.0, fmodsum 8.000, dotsum 105.0, sqrtsum -124.0
 int8_t dim 14: sum 119.0, mag 33.0, min, -125.0 max 127.0, fmodsum -17.000, dotsum -118.0, sqrtsum 71.0
-int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 16.0
-int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -14.0
+int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 15.0
+int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -15.0
 int8_t dim 17: sum 20.0, mag 102.0, min, -126.0 max 127.0, fmodsum 16.000, dotsum 30.0, sqrtsum -6.0
-int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -25.0
-int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -64.0
-int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 55.0
+int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -27.0
+int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -68.0
+int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 54.0
 uint8_t dim 1: sum 4.0, mag 4.0, min, 4.0 max 4.0, fmodsum 0.000, dotsum 4.0, sqrtsum 2.0
 uint8_t dim 2: sum 50.0, mag 50.0, min, 8.0 max 18.0, fmodsum 3.000, dotsum 24.0, sqrtsum 12.0
 uint8_t dim 3: sum 228.0, mag 228.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71.0, sqrtsum 41.0
@@ -21825,7 +21825,6 @@ testing with div by 0:
 nan test completed with great success
 test c_tests\bin3\sleeptm 
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1031, system time 0
 sleepy time ended with great success
 test c_tests\bin3\tatomic 
 test atomic completed with great success
@@ -21879,7 +21878,7 @@ lade vied
 lead vied
 test c_tests\bin3\ba 
 parsing input file tp.bas
-93 ms for 1 iterations
+105 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -22555,10 +22554,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\binfast\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 16, hour 20, min 25, sec 37
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 16, hour 23, min 25, sec 37
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 16, hour 20, min 25, sec 37
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 4, min 25, sec 37
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 17, hour 8, min 23, sec 45
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 17, hour 11, min 23, sec 45
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 17, hour 8, min 23, sec 45
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 17, hour 16, min 23, sec 45
 test c_tests\binfast\tm 
 tm has completed with great success
 test c_tests\binfast\glob 
@@ -22720,20 +22719,20 @@ int8_t dim 3: sum -28.0, mag -28.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71
 int8_t dim 4: sum -62.0, mag -62.0, min, 19.0 max 96.0, fmodsum 18.000, dotsum -94.0, sqrtsum 95.0
 int8_t dim 5: sum -117.0, mag 7.0, min, -126.0 max 110.0, fmodsum 22.000, dotsum 47.0, sqrtsum -74.0
 int8_t dim 6: sum -83.0, mag -31.0, min, -119.0 max 122.0, fmodsum 31.000, dotsum 10.0, sqrtsum 21.0
-int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -108.0
+int8_t dim 7: sum 40.0, mag -66.0, min, -128.0 max 127.0, fmodsum 30.000, dotsum 47.0, sqrtsum -109.0
 int8_t dim 8: sum 52.0, mag 34.0, min, -126.0 max 124.0, fmodsum 8.000, dotsum -65.0, sqrtsum 34.0
-int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -116.0
+int8_t dim 9: sum -127.0, mag -7.0, min, -128.0 max 127.0, fmodsum -14.000, dotsum -67.0, sqrtsum -118.0
 int8_t dim 10: sum -37.0, mag -83.0, min, -125.0 max 127.0, fmodsum -26.000, dotsum 68.0, sqrtsum 4.0
-int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 89.0
+int8_t dim 11: sum -108.0, mag 108.0, min, -128.0 max 127.0, fmodsum -29.000, dotsum 70.0, sqrtsum 88.0
 int8_t dim 12: sum -126.0, mag 78.0, min, -127.0 max 126.0, fmodsum -35.000, dotsum 13.0, sqrtsum -37.0
 int8_t dim 13: sum -69.0, mag -43.0, min, -127.0 max 126.0, fmodsum 8.000, dotsum 105.0, sqrtsum -124.0
 int8_t dim 14: sum 119.0, mag 33.0, min, -125.0 max 127.0, fmodsum -17.000, dotsum -118.0, sqrtsum 71.0
-int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 16.0
-int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -14.0
+int8_t dim 15: sum -78.0, mag -64.0, min, -128.0 max 127.0, fmodsum -16.000, dotsum 126.0, sqrtsum 15.0
+int8_t dim 16: sum 64.0, mag 72.0, min, -128.0 max 127.0, fmodsum -42.000, dotsum 106.0, sqrtsum -15.0
 int8_t dim 17: sum 20.0, mag 102.0, min, -126.0 max 127.0, fmodsum 16.000, dotsum 30.0, sqrtsum -6.0
-int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -25.0
-int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -64.0
-int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 55.0
+int8_t dim 18: sum -62.0, mag -90.0, min, -128.0 max 127.0, fmodsum -12.000, dotsum 1.0, sqrtsum -27.0
+int8_t dim 19: sum 14.0, mag 32.0, min, -128.0 max 127.0, fmodsum 13.000, dotsum -58.0, sqrtsum -68.0
+int8_t dim 20: sum -40.0, mag 12.0, min, -128.0 max 127.0, fmodsum -15.000, dotsum -35.0, sqrtsum 54.0
 uint8_t dim 1: sum 4.0, mag 4.0, min, 4.0 max 4.0, fmodsum 0.000, dotsum 4.0, sqrtsum 2.0
 uint8_t dim 2: sum 50.0, mag 50.0, min, 8.0 max 18.0, fmodsum 3.000, dotsum 24.0, sqrtsum 12.0
 uint8_t dim 3: sum 228.0, mag 228.0, min, 13.0 max 47.0, fmodsum 9.000, dotsum 71.0, sqrtsum 41.0
@@ -27355,7 +27354,7 @@ lade vied
 lead vied
 test c_tests\binfast\ba 
 parsing input file tp.bas
-91 ms for 1 iterations
+102 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -27385,7 +27384,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin0\ttt 
-serial runtime:   9.377ms
+serial runtime:   9.6175ms
 moves:            6493
 iterations:       1
 test rust_tests\bin0\fileops 
@@ -27458,7 +27457,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin1\ttt 
-serial runtime:   2.6529ms
+serial runtime:   2.7275ms
 moves:            6493
 iterations:       1
 test rust_tests\bin1\fileops 
@@ -27531,7 +27530,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin2\ttt 
-serial runtime:   1.9278ms
+serial runtime:   1.9931ms
 moves:            6493
 iterations:       1
 test rust_tests\bin2\fileops 
@@ -27604,7 +27603,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin3\ttt 
-serial runtime:   1.511ms
+serial runtime:   1.6213ms
 moves:            6493
 iterations:       1
 test rust_tests\bin3\fileops 
@@ -27685,11 +27684,11 @@ iterations: 1
 test rvos 
 starting...
 6493 moves
-58 milliseconds
+54 milliseconds
 1 iterations
 test armos 
 starting
-69413 microseconds (-6)
+75074 microseconds (-6)
 1 iterations
 6493 moves
-Sun 03/16/2025 21:25:49.24 
+Mon 03/17/2025  9:23:57.41 

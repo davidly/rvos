@@ -201,12 +201,13 @@ int64_t round_i64_from_double( double d, uint64_t rm )
 
 int32_t round_i32_from_double( double d, uint64_t rm )
 {
+    if ( isnan( d ) )
+        return INT32_MAX; // RISC-V hardware does this
+
     if ( rm_RNE == rm )
         return (int32_t) round( d );
     if ( rm_RTZ == rm )
-    {
         return (int32_t) trunc( d );
-    }
     if ( rm_RDN == rm )
         return (int32_t) floor( d );
     if ( rm_RUP == rm )
@@ -1086,7 +1087,7 @@ void RiscV::trace_state()
                         tracer.Trace( "sltu    %s, %s, %s # %d == %llu < %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       regs[rs1] < regs[rs2], regs[rs1], regs[rs2] );
                     else if ( 4 == funct3  )
-                        tracer.Trace( "xor     %s, %s, %s # %d == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2] );
+                        tracer.Trace( "xor     %s, %s, %s # %d == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2], regs[rs1] ^ regs[rs2] );
                     else if ( 5 == funct3  )
                         tracer.Trace( "srl     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 6 == funct3 )
@@ -2539,14 +2540,22 @@ uint64_t RiscV::run()
                 else if ( 0x2c == funct7 )
                 {
                     if ( 0 == rs2 )
+                    {
                         fregs[ rd ].f = sqrtf( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
+                        if ( isnan( fregs[ rd ].f ) )
+                            fregs[ rd ].f = MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
+                    }
                     else
                         unhandled();
                 }
                 else if ( 0x2d == funct7 )
                 {
                     if ( 0 == rs2 )
+                    {
                         fregs[ rd ].d = sqrt( fregs[ rs1 ].d ); // fsqrt.d rd, rs1
+                        if ( isnan( fregs[ rd ].d ) )
+                            fregs[ rd ].d = MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
+                    }
                     else
                         unhandled();
                 }
