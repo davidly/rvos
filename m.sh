@@ -1,1 +1,1 @@
-g++ -DRVOS -Ofast -fno-builtin -I . rvos.cxx riscv.cxx -o rvos -static
+g++ -DRVOS -O3 -fno-builtin -I . rvos.cxx riscv.cxx -o rvos -static
