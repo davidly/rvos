@@ -6,7 +6,8 @@
 #include <math.h>
 #include <unistd.h>
 
-
+// -Ofast doesn't understand infinity so the compiler would emit this warning
+// v14 of clang doesn't understand this 
 #pragma clang diagnostic ignored "-Wnan-infinity-disabled"
 
 const char * tf( bool f )

@@ -41,7 +41,17 @@ using namespace std::chrono;
 
 #define USE_RVCTABLE 1
 
-#define MY_NAN NAN
+#ifdef __clang__
+    // some versions of clang++ reverse the definitions of NAN to be -NAN.
+    // specifically the version that ships with Microsoft Visual Studio 2022
+    // clang version 18.1.8
+    // Target: x86_64-pc-windows-msvc
+    // Thread model: posix
+
+    #define MY_NAN ((float)(INFINITY * 0.0F))
+#else
+    #define MY_NAN NAN
+#endif
 
 // these instruction types are mostly just useful for debugging
 
@@ -135,6 +145,30 @@ const char * get_rm( uint64_t rm )
         return "rup";
     return "rmm";
 } //get_rm
+
+// signbit() does not work reliably for -0.0 on all platforms (e.g. g++ 11.4.0 on WSL2), so...
+
+bool get_float_sign( float f )
+{
+    return ( 0 != ( ( * (uint32_t *) &f ) & 0x80000000 ) );
+} //get_float_sign
+
+bool get_double_sign( double d )
+{
+    return ( 0 != ( ( * (uint64_t *) &d ) & 0x8000000000000000 ) );
+} //get_double_sign
+
+float set_float_sign( float f, bool sign )
+{
+    uint32_t val = sign ? ( ( * (uint32_t *) &f ) | 0x80000000 ) : ( ( * (uint32_t *) &f ) & 0x7fffffff );
+    return * (float *) &val;
+} //set_float_sign
+
+double set_double_sign( double d, bool sign )
+{
+    uint64_t val = sign ? ( ( * (uint64_t *) &d ) | 0x8000000000000000 ) : ( ( * (uint64_t *) &d ) & 0x7fffffffffffffff );
+    return * (double *) &val;
+} //set_double_sign
 
 double round_ties_to_max_magnitude( double x )
 {
@@ -1240,29 +1274,20 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
-
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( signbit( fregs[ rs2 ].f ) )
-                            f = -f;
+                        float f = set_float_sign( fregs[ rs1 ].f, get_float_sign( fregs[ rs2 ].f ) ); // fsgnj.s rd, rs1, rs2
                         tracer.Trace( "fsgnj.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                     else if ( 1 == funct3 )
                     {
-                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
-
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( !signbit( fregs[ rs2 ].f ) )
-                            f = -f;
+                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
+                        float f = set_float_sign( fregs[ rs1 ].f, !get_float_sign( fregs[ rs2 ].f )); // fsgnjn.s rd, rs1, rs2
                         tracer.Trace( "fsgnjn.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-
-                        bool result_negative = ( signbit( fregs[ rs1 ].f ) ^ signbit( fregs[ rs2 ].f ) );
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( result_negative )
-                            f = -f;
+                        bool result_negative = ( get_float_sign( fregs[ rs1 ].f ) ^ get_float_sign( fregs[ rs2 ].f ) );
+                        float f = set_float_sign( fregs[ rs1 ].f, result_negative ); // fsgnjnx.s rd, rs1, rs2
                         tracer.Trace( "fsgnjnx.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                 }
@@ -1271,29 +1296,20 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
-
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( signbit( fregs[ rs2 ].d ) )
-                            d = -d;
-                        tracer.Trace( "fsgnj.d %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), d );
+                        double d = set_double_sign( fregs[ rs1 ].d, get_double_sign( fregs[ rs2 ].d ) ); // fsgnj.d rd, rs1, rs2
+                        tracer.Trace( "fsgnj.d %s, %s, %s  # %.2lf\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), d );
                     }
                     else if ( 1 == funct3 )
                     {
-                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
-
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( !signbit( fregs[ rs2 ].d ) )
-                            d = -d;
-                        tracer.Trace( "fsgnjn.d %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), d );
+                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
+                        double d = set_double_sign( fregs[ rs1 ].d, !get_double_sign( fregs[ rs2 ].d ) ); // fsgnjn.d rd, rs1, rs2
+                        tracer.Trace( "fsgnjn.d %s, %s, %s  # %.2lf\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), d );
                     }
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-
-                        bool result_negative = ( signbit( fregs[ rs1 ].d ) ^ signbit( fregs[ rs2 ].d ) );
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( result_negative )
-                            d = -d;
+                        bool result_negative = ( get_double_sign( fregs[ rs1 ].d ) ^ get_double_sign( fregs[ rs2 ].d ) );
+                        double d = set_double_sign( fregs[ rs1 ].d, result_negative ); // fsgnjnx.d rd, rs1, rs2
                         tracer.Trace( "fsgnjnx.d %s, %s, %s  # %.2f\n", freg_name( rd ), freg_name( rs1 ) , freg_name( rs2 ), d );
                     }
                 }
@@ -1489,16 +1505,20 @@ void RiscV::trace_state()
     }
 
 #if 0
-    tracer.Trace( "fs0 %lf, fs1 %lf, fs2 %lf, fs3 %lf, fs4 %lf, fs5 %lf, fa5 %lf\n",
+    tracer.Trace( "float: fs0 %lf, fs1 %lf, fs2 %lf, fs3 %lf, fs4 %lf, fs5 %lf, fa0 %lf, fa5 %lf\n",
                   fregs[ fs0 ].f, fregs[ fs1 ].f, fregs[ fs2 ].f, fregs[ fs3 ].f, fregs[ fs4 ].f, fregs[ fs5 ].f,
-                  fregs[ fa5 ].f );
-    tracer.Trace( "fs0 %#llx, fs1 %#llx, fs2 %#llx, fs3 %#llx, fs4 %#llx, fs5 %#llx, fa5 %#llx\n",
+                  fregs[ fa0 ].f, fregs[ fa5 ].f );
+    tracer.Trace( "double: fs0 %lf, fs1 %lf, fs2 %lf, fs3 %lf, fs4 %lf, fs5 %lf, fa0 %lf, fa5 %lf\n",
+                  fregs[ fs0 ].d, fregs[ fs1 ].d, fregs[ fs2 ].d, fregs[ fs3 ].d, fregs[ fs4 ].d, fregs[ fs5 ].d,
+                  fregs[ fa0 ].d, fregs[ fa5 ].d );
+    tracer.Trace( "fs0 %#llx, fs1 %#llx, fs2 %#llx, fs3 %#llx, fs4 %#llx, fs5 %#llx, fa0 %#llx, fa5 %#llx\n",
                   * (uint64_t *) & fregs[ fs0 ].d,
                   * (uint64_t *) & fregs[ fs1 ].d,
                   * (uint64_t *) & fregs[ fs2 ].d,
                   * (uint64_t *) & fregs[ fs3 ].d,
                   * (uint64_t *) & fregs[ fs4 ].d,
                   * (uint64_t *) & fregs[ fs5 ].d,
+                  * (uint64_t *) & fregs[ fa0 ].d,
                   * (uint64_t *) & fregs[ fa5 ].d );
 #endif
 } //trace_state
@@ -1526,7 +1546,7 @@ double do_fmul( double a, double b )
 
     if ( ainf && binf )
     {
-        if ( signbit( a ) == signbit( b ) )
+        if ( get_double_sign( a ) == get_double_sign( b ) )
             return INFINITY;
         return -INFINITY;
     }
@@ -1561,7 +1581,7 @@ double do_fdiv( double a, double b )
 
     if ( binf )
     {
-        if ( signbit( a ) == signbit( b ) )
+        if ( get_double_sign( a ) == get_double_sign( b ) )
             return 0.0;
         else
             return -0.0;
@@ -2451,30 +2471,18 @@ uint64_t RiscV::run()
                     if ( 0 == funct3 )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
-    
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( signbit( fregs[ rs2 ].f ) )
-                            f = -f;
-                        fregs[ rd ].f = f; // fsgnj.s rd, rs1, rs2
+                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, get_float_sign( fregs[ rs2 ].f ) ); // fsgnj.s rd, rs1, rs2
                     }
                     else if ( 1 == funct3 )
                     {
                         // put rs1's absolute value in rd and use opposite of rs2's sign bit
-    
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( !signbit( fregs[ rs2 ].f ) )
-                            f = -f;
-                        fregs[ rd ].f = f; // fsgnjn.s rd, rs1, rs2
+                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, !get_float_sign( fregs[ rs2 ].f )); // fsgnjn.s rd, rs1, rs2
                     }
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-    
-                        bool result_negative = ( signbit( fregs[ rs1 ].f ) ^ signbit( fregs[ rs2 ].f ) );
-                        float f = fabsf( fregs[ rs1 ].f );
-                        if ( result_negative )
-                            f = -f;
-                        fregs[ rd ].f = f; // fsgnjnx.s rd, rs1, rs2
+                        bool result_negative = ( get_float_sign( fregs[ rs1 ].f ) ^ get_float_sign( fregs[ rs2 ].f ) );
+                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, result_negative ); // fsgnjnx.s rd, rs1, rs2
                     }
                     else
                         unhandled();
@@ -2484,30 +2492,18 @@ uint64_t RiscV::run()
                     if ( 0 == funct3 )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
-    
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( signbit( fregs[ rs2 ].d ) )
-                            d = -d;
-                        fregs[ rd ].d = d; // fsgnj.d rd, rs1, rs2
+                        fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, get_double_sign( fregs[ rs2 ].d ) ); // fsgnj.d rd, rs1, rs2
                     }
                     else if ( 1 == funct3 )
                     {
-                        // put rs1's absolute value in rd and use opposeite of rs2's sign bit
-    
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( !signbit( fregs[ rs2 ].d ) )
-                            d = -d;
-                        fregs[ rd ].d = d; // fsgnjn.d rd, rs1, rs2
+                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
+                        fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, !get_double_sign( fregs[ rs2 ].d ) ); // fsgnjn.d rd, rs1, rs2
                     }
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-
-                        bool result_negative = ( signbit( fregs[ rs1 ].d ) ^ signbit( fregs[ rs2 ].d ) );
-                        double d = fabs( fregs[ rs1 ].d );
-                        if ( result_negative )
-                            d = -d;
-                        fregs[ rd ].d = d; // fsgnjnx.d rd, rs1, rs2
+                        bool result_negative = ( get_double_sign( fregs[ rs1 ].d ) ^ get_double_sign( fregs[ rs2 ].d ) );
+                        fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, result_negative ); // fsgnjnx.d rd, rs1, rs2
                     }
                     else
                         unhandled();

@@ -403,8 +403,11 @@ template <class T> T do_abs( T x )
             printf( "ERROR! after mul div2b sumC %.01f, sumD %.01f\n", (double) sumC, (double) sumD ); \
             exit( 1 ); \
         } \
+        /*print_array_C_##ftype##dim();*/ \
         add_div_ABC_##ftype##dim(); \
+        /*print_array_C_##ftype##dim();*/ \
         sub_div_ABC_##ftype##dim(); \
+        /*print_array_C_##ftype##dim();*/ \
         sumC = sum_C_##ftype##dim(); \
         sumD = sum_D_##ftype##dim(); \
         if ( sumC != sumD ) \
@@ -479,7 +482,7 @@ declare_array_operations_tests( uint128_t );
     run_##type##20();
 
 #define run_this_test( type ) \
-    run_##type##12();
+    run_##type##13();
 
 int main( int argc, char * argv[] )
 {
