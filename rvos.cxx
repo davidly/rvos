@@ -1080,6 +1080,85 @@ static const SysCall syscalls[] =
     { "emulator_sys_print_int64", emulator_sys_print_int64 },
 };
 
+// Use custom versions of bsearch and qsort to get consistent behavior across platforms.
+// That consistency enables identical instruction trace log files across platforms for debugging.
+
+const void * my_bsearch( const void * key, const void * vbase, size_t num, unsigned width, int (*compare)( const void * a, const void * b ) )
+{
+    const char * base = (const char *) vbase;
+
+    size_t i = 0;
+    size_t j = num - 1;
+    do
+    {
+        size_t k = ( j + i ) / 2;
+        const char * here = base + width*k;
+        int cmp = ( *compare )( key, here );
+        if ( 0 == cmp )
+        {
+            while ( ( here > base ) && ( ( *compare )( key, here - width ) == 0 ) )
+                here -= width;
+            return here;
+        }
+
+        if ( cmp < 0 )
+            j = k - 1;
+        else
+            i = k + 1;
+      } while ( j >= i );
+
+   return 0;
+} //my_bsearch
+
+void memswap( char * a, char * b, unsigned len )
+{
+    char t;
+    for ( unsigned x = 0; x < len; x++ )
+    {
+        t = *a;
+        *a = *b;
+        *b = t;
+        a++;
+        b++;
+    }
+} //memswap
+
+// adapted from powerc
+void my_qsort( void * vbase, size_t num, unsigned width, int (*compare)( const void * a, const void * b ) )
+{
+    char * base = (char *) vbase;
+    char * max;
+    char * last = max = base + ( num - 1 ) * width;
+    char * first = base;
+    char * key = base + width * ( num >> 1 );
+    do
+    {
+        while ( ( *compare )( first, key ) < 0 )
+            first += width;
+        while ( ( *compare )( key, last ) < 0 )
+            last -= width;
+
+        if ( first <= last )
+        {
+            if (first != last)
+            {
+                memswap( first, last, width );
+                if ( first == key )
+                    key = last;
+                else if ( last == key )
+                    key = first;
+             }
+             first += width;
+             last -= width;
+        }
+    } while ( first <= last );
+
+    if ( base < last )
+        my_qsort( base, ( last - base ) / width + 1, width, compare );
+    if ( first < max)
+        my_qsort( first, ( max - first ) / width + 1, width, compare );
+} //my_qsort
+
 static int syscall_find_compare( const void * a, const void * b )
 {
     SysCall & sa = * (SysCall *) a;
@@ -1103,7 +1182,7 @@ static const char * lookup_syscall( uint64_t x )
 #endif
 
     SysCall key = { 0, x };
-    SysCall * presult = (SysCall *) bsearch( &key, syscalls, _countof( syscalls ), sizeof( key ), syscall_find_compare );
+    SysCall * presult = (SysCall *) my_bsearch( &key, syscalls, _countof( syscalls ), sizeof( key ), syscall_find_compare );
 
     if ( 0 != presult )
         return presult->name;
@@ -2647,7 +2726,7 @@ const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset )
     ElfSymbol64 key = {0};
     key.value = address;
 
-    ElfSymbol64 * psym = (ElfSymbol64 *) bsearch( &key, g_symbols.data(), g_symbols.size(), sizeof( key ), symbol_find_compare );
+    ElfSymbol64 * psym = (ElfSymbol64 *) my_bsearch( &key, g_symbols.data(), g_symbols.size(), sizeof( key ), symbol_find_compare );
 
     if ( 0 != psym )
     {
@@ -2844,7 +2923,8 @@ static bool load_image( const char * pimage, const char * app_args )
         if ( ( 0 == g_symbols[se].name ) || ( '$' == g_string_table[ g_symbols[se].name ] ) )
             g_symbols[se].value = 0;
 
-    qsort( g_symbols.data(), g_symbols.size(), sizeof( ElfSymbol64 ), symbol_compare );
+    // use known qsort so traces are consistent across platforms because qsort implementations for ties differ
+    my_qsort( g_symbols.data(), g_symbols.size(), sizeof( ElfSymbol64 ), symbol_compare );
 
     // remove symbols that don't look like they have a valid addresses (rust binaries have tens of thousands of these)
 
