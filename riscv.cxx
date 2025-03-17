@@ -243,10 +243,7 @@ uint64_t round_ui64_from_double( double d, uint64_t rm )
 
 uint32_t round_ui32_from_double( double d, uint64_t rm )
 {
-    if ( d <= 0.0 )
-        return 0;
-
-    return round_i32_from_double( d, rm );
+    return (uint32_t) round_ui64_from_double( d, rm );
 } //round_ui32_from_double
 
 #pragma warning(disable: 4100)
