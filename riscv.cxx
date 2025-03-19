@@ -1521,19 +1521,63 @@ void RiscV::trace_state()
 #endif
 } //trace_state
 
+// Arm64 returns -NAN in some cases for +-*/ math.
+// RISC-V64 always returns positive NAN in these cases.
+
 double do_fsub( double a, double b )
 {
     bool ainf = isinf( a );
     bool binf = isinf( b );
 
     if ( ainf && binf )
+    {
+        if ( signbit( a ) != signbit( b ) )
+            return a;
         return MY_NAN; // msft C will return -nan if this check isn't here
+    }
 
-    return a - b;
+    double result = a - b;
+    if ( isnan( result ) ) // never return -NAN
+        return MY_NAN;
+
+    return result;
 } //do_fsub
+
+double do_fadd( double a, double b )
+{
+    bool ainf = isinf( a );
+    bool binf = isinf( b );
+
+    if ( ainf && binf )
+    {
+        if ( signbit( a ) == signbit( b ) )
+            return a;
+        return MY_NAN; // msft C will return -nan if this check isn't here
+    }
+
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
+    if ( ainf )
+        return a;
+
+    if ( binf )
+        return b;
+
+    return a + b;
+} //do_fadd
 
 double do_fmul( double a, double b )
 {
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
     bool ainf = isinf( a );
     bool binf = isinf( b );
     bool azero = ( 0.0 == a );
@@ -1543,29 +1587,25 @@ double do_fmul( double a, double b )
         return MY_NAN;
 
     if ( ainf && binf )
-    {
-        if ( get_double_sign( a ) == get_double_sign( b ) )
-            return INFINITY;
-        return -INFINITY;
-    }
+        set_double_sign( INFINITY, ( signbit( a ) != signbit( b ) ) );
 
-    if ( ainf )
-        return a; // may be negative infinity
-
-    if ( binf )
-        return b; // may be negative infinity
-
-    if ( isnan( a ) || isnan( b ) )
-        return MY_NAN;
+    if ( ainf || binf )
+        return set_double_sign( INFINITY, signbit( a ) ^ signbit( b ) );
 
     if ( azero || bzero )
-        return 0.0;
+        return set_double_sign( 0.0, signbit( a ) ^ signbit( b ) );
 
     return a * b;
 } //do_fmul
 
 double do_fdiv( double a, double b )
 {
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
     bool ainf = isinf( a );
     bool binf = isinf( b );
     bool azero = ( 0.0 == a );
@@ -1575,18 +1615,10 @@ double do_fdiv( double a, double b )
         return MY_NAN;
 
     if ( ainf )
-        return a; // may be negative infinity
+        return set_double_sign( INFINITY, signbit( a ) ^ signbit( b ) );
 
     if ( binf )
-    {
-        if ( get_double_sign( a ) == get_double_sign( b ) )
-            return 0.0;
-        else
-            return -0.0;
-    }
-
-    if ( isnan( a ) || isnan( b ) )
-        return MY_NAN;
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
     if ( azero || binf )
         return 0.0;
@@ -2388,9 +2420,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) ( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ) + fregs[ rs3 ].f ); // fmadd.s frd, frs1, frs2, frs3
+                    fregs[ rd ].f = (float) do_fadd( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fmadd.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) + fregs[ rs3 ].d; // fmadd.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = do_fadd( do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fmadd.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2404,9 +2436,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) ( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ) - fregs[ rs3 ].f ); // fmsub.s frd, frs1, frs2, frs3
+                    fregs[ rd ].f = (float) do_fsub( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fmsub.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) - fregs[ rs3 ].d; // fmsub.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = do_fsub( do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fmsub.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2420,9 +2452,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) ( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ) + fregs[ rs3 ].f ); // fnmsub.s frd, frs1, frs2, frs3
+                    fregs[ rd ].f = (float) do_fadd( ( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ) ), fregs[ rs3 ].f ); // fnmsub.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = ( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) ) + fregs[ rs3 ].d; // fnmsub.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = do_fadd( ( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) ), fregs[ rs3 ].d ); // fnmsub.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2436,9 +2468,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) ( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ) - fregs[ rs3 ].f ); // fnmadd.s frd, frs1, frs2, frs3
+                    fregs[ rd ].f = (float) do_fsub( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fnmadd.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = ( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) ) - fregs[ rs3 ].d; // fnmadd.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = do_fsub( ( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ) ), fregs[ rs3 ].d ); // fnmadd.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2449,9 +2481,9 @@ uint64_t RiscV::run()
                 decode_R();
     
                 if ( 0 == funct7 )
-                    fregs[ rd ].f = fregs[ rs1 ].f + fregs[ rs2 ].f; // fadd.s frd, frs1, frs2
+                    fregs[ rd ].f = (float) do_fadd( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fadd.s frd, frs1, frs2
                 else if ( 1 == funct7 )
-                    fregs[ rd ].d = fregs[ rs1 ].d + fregs[ rs2 ].d; // fadd.d frd, frs1, frs2
+                    fregs[ rd ].d = do_fadd( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fadd.d frd, frs1, frs2
                 else if ( 4 == funct7 )
                     fregs[ rd ].f = (float) do_fsub( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fsub.s frd, frs1, frs2
                 else if ( 5 == funct7 )

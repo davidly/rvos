@@ -6,95 +6,109 @@
 #include <math.h>
 #include <unistd.h>
 
+#define _perhaps_inline __attribute__((noinline))
+
 // -Ofast doesn't understand infinity so the compiler would emit this warning
 // v14 of clang doesn't understand this 
 #pragma clang diagnostic ignored "-Wnan-infinity-disabled"
+
+double set_double_sign( double d, bool sign )
+{
+    uint64_t val = sign ? ( ( * (uint64_t *) &d ) | 0x8000000000000000 ) : ( ( * (uint64_t *) &d ) & 0x7fffffffffffffff );
+    return * (double *) &val;
+} //set_double_sign
 
 const char * tf( bool f )
 {
     return f ? "true" : "false";
 }
 
-void show_num( double d )
+void _perhaps_inline show_num( double d )
 {
-    printf( "    value: %lf = %#llx, isnan %s, isinf %s, iszero %s, signbit %s\n", * (uint64_t *) &d,
+    printf( "  %lf = %#llx, isnan %s, isinf %s, iszero %s, signbit %s\n", * (uint64_t *) &d,
             (double) d, tf( isnan( d ) ), tf( isinf( d ) ),
             tf( 0.0 == d ),  tf( signbit( d ) ) );
 } //show_num
 
-template <class T> T do_math( T a, T b )
+double _perhaps_inline do_math( double a, double b )
 {
     printf( "  in do_math()\n" );
+    printf( "       a:" );
     show_num( a );
+    printf( "       b:" );
     show_num( b );
 
-    T r = a * b;
+    double r = a * b;
+    printf( "       *:" );
     show_num( r );
 
     r = a / b;
+    printf( "       /:" );
     show_num( r );
 
     r = a + b;
+    printf( "       +:" );
     show_num( r );
 
     r = a - b;
-    show_num( r );
-
-    r = a * a * a * a * b * b * b * b;
+    printf( "       -:" );
     show_num( r );
 
     return r;
 }
 
+double neg_zero = set_double_sign( 0.0, true );
+double infinity = INFINITY;
+double neg_infinity = set_double_sign( INFINITY, true );
+double not_a_number = NAN;
+double neg_not_a_number = set_double_sign( NAN, true );
+
+double test_case( double d )
+{
+    double r = 0.0;
+    r += do_math( d, 0.0 );
+    r += do_math( d, neg_zero );
+    r += do_math( 3.0, d );
+    r += do_math( -3.0, d );
+    r += do_math( d, not_a_number );
+    r += do_math( d, neg_not_a_number );
+    r += do_math( d, infinity );
+    r += do_math( d, neg_infinity );
+    r += do_math( d, d );
+    return r;
+} //test_case
+
 int main( int argc, char * argv[] )
 {
     double d;
 
-    d = NAN;
-    printf( "NAN: %#llx\n", * (uint64_t *) &d );
-    d = -NAN;
-    printf( "-NAN: %#llx\n", * (uint64_t *) &d );
-    d = INFINITY;
-    printf( "INFINITY: %#llx\n", * (uint64_t *) &d );
-    d = -INFINITY;
-    printf( "-INFINITY: %#llx\n", * (uint64_t *) &d );
+    printf( "NAN: %#llx\n", * (uint64_t *) & not_a_number );
+    printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
+    printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
+    printf( "-INFINITY: %#llx\n", * (uint64_t *) & neg_infinity );
 
     printf( "testing with invalid double:\n" );
-    uint64_t x = 0x7ff8000000000000;
+    uint64_t x = 0x7ff8000000000000; // aka NAN for most compilers
     memcpy( &d, &x, 8 );
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    test_case( d );
 
     printf( "testing with NAN:\n" );
-    d = NAN;
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    test_case( not_a_number );
+
+    printf( "testing with -NAN:\n" );
+    test_case( neg_not_a_number );
 
     printf( "testing with INFINITY:\n" );
-    d = INFINITY;
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    test_case( infinity );
 
     printf( "testing with -INFINITY:\n" );
-    d = -INFINITY;
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    test_case( neg_infinity );
 
     printf( "testing with 69:\n" );
-    d = 69.0;
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    test_case( 69.0 );
 
-    printf( "testing with div by 0:\n" );
-    d = 0.0 / 0.0;
-    do_math( d, 0.0 );
-    do_math( 3.0, d );
-    do_math( d, d );
+    printf( "testing with result of div by 0:\n" );
+    test_case( 0.0 / 0.0 );
 
     printf( "nan test completed with great success\n" );
     return 0;
