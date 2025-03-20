@@ -73,7 +73,7 @@ echo test %~1 >>%outputfile%
 exit /b /o
 
 :rustfolder
-set _rustlist=e ttt fileops ato tap real tphi mysort
+set _rustlist=e ttt fileops ato tap real tphi mysort tmm
 ( for %%a in (%_rustlist%) do ( call :rustRun rust_tests\%%f\%%a ) )
 exit /b /o
 
