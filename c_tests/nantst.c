@@ -57,6 +57,7 @@ double _perhaps_inline do_math( double a, double b )
     return r;
 }
 
+double zero = 0.0;
 double neg_zero = set_double_sign( 0.0, true );
 double infinity = INFINITY;
 double neg_infinity = set_double_sign( INFINITY, true );
@@ -94,6 +95,8 @@ int main( int argc, char * argv[] )
     printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
     printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
     printf( "-INFINITY: %#llx\n", * (uint64_t *) & neg_infinity );
+    printf( "0.0: %#llx\n", * (uint64_t *) & zero );
+    printf( "-0.0: %#llx\n", * (uint64_t *) & neg_zero );
 
     printf( "testing with NAN:\n" );
     test_case( not_a_number );
@@ -109,6 +112,15 @@ int main( int argc, char * argv[] )
 
     printf( "testing with 69:\n" );
     test_case( 69.0 );
+
+    printf( "testing with -69:\n" );
+    test_case( -69.0 );
+
+    printf( "testing with 0.0:\n" );
+    test_case( zero );
+
+    printf( "testing with -0.0:\n" );
+    test_case( neg_zero );
 
     printf( "nan test completed with great success\n" );
     return 0;

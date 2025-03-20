@@ -1590,10 +1590,10 @@ double do_fmul( double a, double b )
         set_double_sign( INFINITY, ( signbit( a ) != signbit( b ) ) );
 
     if ( ainf || binf )
-        return set_double_sign( INFINITY, signbit( a ) ^ signbit( b ) );
+        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
 
     if ( azero || bzero )
-        return set_double_sign( 0.0, signbit( a ) ^ signbit( b ) );
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
     return a * b;
 } //do_fmul
@@ -1615,13 +1615,13 @@ double do_fdiv( double a, double b )
         return MY_NAN;
 
     if ( ainf )
-        return set_double_sign( INFINITY, signbit( a ) ^ signbit( b ) );
+        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
 
     if ( binf )
         return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
     if ( azero )
-        return a; // return a's sign bit as well
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
     return a / b;
 } //do_fdiv
