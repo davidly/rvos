@@ -1,9 +1,10 @@
 @echo off
 setlocal
 
-rem if "%1" == "" (set _runcmd=rvos -h:100) else (set _runcmd=rvos -h:160 bin\rvos -h:100 )
-rem if "%1" == "" (set _runcmd=rvos -h:100) else (set _runcmd=..\armos\armos -h:160 ..\armos\bin\rvos -h:100 )
-if "%1" == "" (set _runcmd=rvos -h:100) else (set _runcmd=..\armos\armos -h:160 ..\armos\bin\rvoscl -h:100 )
+if "%1" == "" (set _runcmd=rvos -h:100) else (set _runcmd=%1 )
+if "%1" == "armos" (set _runcmd="..\armos\armos" -h:160 ..\armos\bin\rvos -h:100 )
+if "%1" == "armoscl" (set _runcmd="..\armos\armoscl" -h:160 ..\armos\bin\rvoscl -h:100 )
+if "%1" == "nested" (set _runcmd=rvos -h:160 bin\rvos -h:100 )
 
 set outputfile=runall_windows_test.txt
 echo %date% %time% >%outputfile%
