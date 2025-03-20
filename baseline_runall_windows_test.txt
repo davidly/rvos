@@ -1,4 +1,4 @@
-Wed 03/19/2025 15:31:14.33 
+Thu 03/20/2025 12:27:42.73 
 test c_tests\bin0\tcmp 
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -650,10 +650,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin0\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 19, hour 14, min 31, sec 15
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 19, hour 17, min 31, sec 15
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 19, hour 14, min 31, sec 15
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 19, hour 22, min 31, sec 15
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 20, hour 11, min 27, sec 44
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 20, hour 14, min 27, sec 44
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 20, hour 11, min 27, sec 44
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 20, hour 19, min 27, sec 44
 test c_tests\bin0\tm 
 tm has completed with great success
 test c_tests\bin0\glob 
@@ -5748,7 +5748,7 @@ lade vied
 lead vied
 test c_tests\bin0\ba 
 parsing input file tp.bas
-358 ms for 1 iterations
+360 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -6424,10 +6424,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin1\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 19, hour 14, min 31, sec 23
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 19, hour 17, min 31, sec 23
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 19, hour 14, min 31, sec 23
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 19, hour 22, min 31, sec 23
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 20, hour 11, min 27, sec 52
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 20, hour 14, min 27, sec 52
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 20, hour 11, min 27, sec 52
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 20, hour 19, min 27, sec 52
 test c_tests\bin1\tm 
 tm has completed with great success
 test c_tests\bin1\glob 
@@ -11469,7 +11469,6 @@ testing with result of div by 0:
 nan test completed with great success
 test c_tests\bin1\sleeptm 
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 984, system time 0
 sleepy time ended with great success
 test c_tests\bin1\tatomic 
 test atomic completed with great success
@@ -12199,10 +12198,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin2\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 19, hour 14, min 31, sec 30
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 19, hour 17, min 31, sec 30
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 19, hour 14, min 31, sec 30
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 19, hour 22, min 31, sec 30
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 20, hour 11, min 27, sec 59
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 20, hour 14, min 27, sec 59
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 20, hour 11, min 27, sec 59
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 20, hour 19, min 27, sec 59
 test c_tests\bin2\tm 
 tm has completed with great success
 test c_tests\bin2\glob 
@@ -17973,10 +17972,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\bin3\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 19, hour 14, min 31, sec 37
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 19, hour 17, min 31, sec 37
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 19, hour 14, min 31, sec 37
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 19, hour 22, min 31, sec 37
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 20, hour 11, min 28, sec 6
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 20, hour 14, min 28, sec 6
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 20, hour 11, min 28, sec 6
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 20, hour 19, min 28, sec 6
 test c_tests\bin3\tm 
 tm has completed with great success
 test c_tests\bin3\glob 
@@ -23071,7 +23070,7 @@ lade vied
 lead vied
 test c_tests\bin3\ba 
 parsing input file tp.bas
-98 ms for 1 iterations
+96 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -23747,10 +23746,10 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 test c_tests\binfast\ttime 
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 19, hour 14, min 31, sec 44
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 19, hour 17, min 31, sec 44
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 19, hour 14, min 31, sec 44
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 19, hour 22, min 31, sec 44
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 3, day 20, hour 11, min 28, sec 12
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 3, day 20, hour 14, min 28, sec 12
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 3, day 20, hour 11, min 28, sec 12
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 3, day 20, hour 19, min 28, sec 12
 test c_tests\binfast\tm 
 tm has completed with great success
 test c_tests\binfast\glob 
@@ -28792,6 +28791,7 @@ testing with result of div by 0:
 nan test completed with great success
 test c_tests\binfast\sleeptm 
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1015, system time 0
 sleepy time ended with great success
 test c_tests\binfast\tatomic 
 test atomic completed with great success
@@ -28845,7 +28845,7 @@ lade vied
 lead vied
 test c_tests\binfast\ba 
 parsing input file tp.bas
-98 ms for 1 iterations
+97 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file tp.bas
@@ -28875,7 +28875,7 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin0\ttt 
-serial runtime:   9.7677ms
+serial runtime:   9.2393ms
 moves:            6493
 iterations:       1
 test rust_tests\bin0\fileops 
@@ -28943,12 +28943,18 @@ exiting finding phi with great success
 test rust_tests\bin0\mysort 
 element count in vector: 58175
 element count after dedup: 58175
+test rust_tests\bin0\tmm 
+sum f64: 465880
+sum f32: 465880
+sum u32: 465880
+sum u16: 7128
+exiting matrix multiply testing with great success
 test rust_tests\bin1\e 
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin1\ttt 
-serial runtime:   2.5585ms
+serial runtime:   2.5162ms
 moves:            6493
 iterations:       1
 test rust_tests\bin1\fileops 
@@ -29016,12 +29022,18 @@ exiting finding phi with great success
 test rust_tests\bin1\mysort 
 element count in vector: 58175
 element count after dedup: 58175
+test rust_tests\bin1\tmm 
+sum f64: 465880
+sum f32: 465880
+sum u32: 465880
+sum u16: 7128
+exiting matrix multiply testing with great success
 test rust_tests\bin2\e 
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin2\ttt 
-serial runtime:   1.9689ms
+serial runtime:   1.8673ms
 moves:            6493
 iterations:       1
 test rust_tests\bin2\fileops 
@@ -29089,12 +29101,18 @@ exiting finding phi with great success
 test rust_tests\bin2\mysort 
 element count in vector: 58175
 element count after dedup: 58175
+test rust_tests\bin2\tmm 
+sum f64: 465880
+sum f32: 465880
+sum u32: 465880
+sum u16: 7128
+exiting matrix multiply testing with great success
 test rust_tests\bin3\e 
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 test rust_tests\bin3\ttt 
-serial runtime:   1.5694ms
+serial runtime:   1.5275ms
 moves:            6493
 iterations:       1
 test rust_tests\bin3\fileops 
@@ -29162,6 +29180,12 @@ exiting finding phi with great success
 test rust_tests\bin3\mysort 
 element count in vector: 58175
 element count after dedup: 58175
+test rust_tests\bin3\tmm 
+sum f64: 465880
+sum f32: 465880
+sum u32: 465880
+sum u16: 7128
+exiting matrix multiply testing with great success
 test ntvao 
 
 195D 0001$
@@ -29175,11 +29199,11 @@ iterations: 1
 test rvos 
 starting...
 6493 moves
-49 milliseconds
+58 milliseconds
 1 iterations
 test armos 
 starting
-69172 microseconds (-6)
+68147 microseconds (-6)
 1 iterations
 6493 moves
-Wed 03/19/2025 15:31:55.64 
+Thu 03/20/2025 12:28:25.81 
