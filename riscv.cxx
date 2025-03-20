@@ -1620,8 +1620,8 @@ double do_fdiv( double a, double b )
     if ( binf )
         return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
-    if ( azero || binf )
-        return 0.0;
+    if ( azero )
+        return a; // return a's sign bit as well
 
     return a / b;
 } //do_fdiv

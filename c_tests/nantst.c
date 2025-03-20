@@ -67,13 +67,21 @@ double test_case( double d )
 {
     double r = 0.0;
     r += do_math( d, 0.0 );
+    r += do_math( 0.0, d );
     r += do_math( d, neg_zero );
+    r += do_math( neg_zero, d );
     r += do_math( 3.0, d );
+    r += do_math( d, 3.0 );
     r += do_math( -3.0, d );
+    r += do_math( d, -3.0 );
     r += do_math( d, not_a_number );
+    r += do_math( not_a_number, d );
     r += do_math( d, neg_not_a_number );
+    r += do_math( neg_not_a_number, d );
     r += do_math( d, infinity );
+    r += do_math( infinity, d );
     r += do_math( d, neg_infinity );
+    r += do_math( neg_infinity, d );
     r += do_math( d, d );
     return r;
 } //test_case
@@ -86,11 +94,6 @@ int main( int argc, char * argv[] )
     printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
     printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
     printf( "-INFINITY: %#llx\n", * (uint64_t *) & neg_infinity );
-
-    printf( "testing with invalid double:\n" );
-    uint64_t x = 0x7ff8000000000000; // aka NAN for most compilers
-    memcpy( &d, &x, 8 );
-    test_case( d );
 
     printf( "testing with NAN:\n" );
     test_case( not_a_number );
@@ -106,9 +109,6 @@ int main( int argc, char * argv[] )
 
     printf( "testing with 69:\n" );
     test_case( 69.0 );
-
-    printf( "testing with result of div by 0:\n" );
-    test_case( 0.0 / 0.0 );
 
     printf( "nan test completed with great success\n" );
     return 0;
