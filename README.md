@@ -37,11 +37,10 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * mmap calls work provided calls use flags ( MAP_PRIVATE | MAP_ANONYMOUS ). See tests\tmmap.c for an example. This is how clib uses mmap.
     * Works with Rust apps provided they're statically linked, e.g.: rustc -O -C target-feature=+crt-static sample.rs
     
-
 * Files:
     * riscv.?xx       Emulates a RISC-V processor in M mode.
     * rvos.cxx        Loads .elf files and executes them using the riscv.?xx emulator. Emulates some Linux syscalls.
-    * rvos.h          Header file for rvos and for apps that call into rvos syscalls
+    * linuxem.h          Header file for rvos and for apps that call into rvos syscalls
     * rvctable.txt    RVC compressed to 32-bit RISC-V instruction lookup table. Generated with rvos -g
     * m.bat           Builds rvos on Windows. mr.bat is the same but release-optimized
     * m.sh            Builds rvos on Linux. mr.sh is the same but is release-optimized.
@@ -51,9 +50,9 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * mrvoself.sh     Builds rvos.elf so it can be run in an rvos emulator on Linux
     * marm64.bat      Builds rvos on Arm64 Windows
     * mrvos.bat       Builds rvos.elf targeting a RISC-V Linux machine, which rvos can execute.
-    * rt.bat          Runs tests in the test folder, assuming they're built
-    * rt.sh           Runs tests on Linux
-    * baseline_test_rvos.txt  Expected output of rt.bat, rt.sh, rti.bat, rti.sh, etc.
+    * runall.bat      Runs tests in the test folders, assuming they're built for risc-v64
+    * runall.sh       Runs tests on Linux and MacOS
+    * baseline_*.txt  Expected test output of runall.bat and runall.sh
     * kendryte.ld     Gnu ld configuration file to target SiPeed K210 RISC-V hardware and RVOS
     * djltrace.hxx    debug tracing class
     * djl_os.hxx      eases porting among various operating systems
@@ -62,44 +61,62 @@ Loads and runs Linux RISC-V .elf files on Linux, MacOS, and Windows.
     * djl_mmap.hxx    very simplistic mmap implementation so the GNU C Runtime heap works
     * words.txt       Used by tests\an.c test app to generate anagrams 
 
-The testrust and tests foldesr have a number of small C/C++/Rust programs to validate rvos. If the app will
+The c_tests and rust_tests foldesr have a number of small C/C++/Rust programs to validate rvos. If the app will
 use more 20 meg of RAM for the heap, use rvos' -h or -m argument to specify how much RAM to allocate. The anagram 
 generater an can use up to 30MB in some cases.
 
-* Rust test apps in the testrust folder:
+* Rust test apps in the rust_tests folder:
     * ato.rs      Tests atomic operations on ints of various sizes
     * e.rs        Computes e
     * fileops.rs  Tests file i/o
-    * mysort.exe  Tests file i/o and vectors
+    * mysort.rs   Tests file i/o and vectors
     * real.rs     Tests floating point
     * tap.rs      Computes Apéry's number
+    * tmm.rs      Tests matrix multiply
     * tphi.rs     Computes phi
     * ttt.rs      Proves you can't win at tic-tac-toe
 
-* C test apps in the Test folder:
+* C test apps in the c_tests folder:
     * an.c        Anagram generator
     * ba.c        Simple basic interpreter and compiler (can target RISC-V, 6502, 8080, 8086, x86, amd64, arm32, arm64)
     * e.c         Computes e
+    * fileops.c   Tests fopen/fread/fwrite/fclose related functions
     * glob.c      Global C++ class to test construction/destruction before/after main().
+    * lenum.c     Tests directory enumeration syscalls
+    * mm.c        Tests matrix multiplications
     * mysort.c    Sorts a text input file and produces a text output file
+    * nantst.c    Tests NAN and INFINITE numbers
+    * pis.c       Finds PI in hex
+    * printint.c  Just prints an integer
     * sieve.c     Finds prime numbers
+    * simple.c    hello world
+    * sleeptm.c   tests sleep and time duration syscalls
     * t.c         Tests integers of various sizes: 8, 16, 32, 64, 128
+    * tao.c       Tests array operations
     * tap.c       Computes Apéry's number
-    * tcrash.c    Tests out of bounds memory, pc, and sp references
+    * tarray.c    Tests array operations
+    * tatomic.c   Tests atomic operations
+    * tbits.c     Tests bitwise operations
+    * tcmp.c      Tests various comparisons
     * td.c        Tests doubles
-    * tdir.c      Tests directory functions (only works with the newer g++ tools)
     * tenv.c      Tests using C environment functions
     * terrno.c    Tests errno functions
+    * tex.c       Tests C++ exceptions
     * tf.c        Tests floating point numbers
     * tfile.c     Tests file I/O
-    * tins.s      Test various instructions I couldn't get g++ or Rust apps to use
     * tm.c        Lightly test malloc/calloc/free
+    * tmmap.c     Tests map related memory allocation calls
+    * tmuldiv.c   Tests multiplication and division
     * tphi.c      Computes phi
     * tpi.c       Computes PI
+    * tregex.c    Tests Posix regular expressions
+    * trw.c       Tests open/read/write/close functions
     * ts.c        Tests bit shifts on various integer types
+    * tsimplef.c  Simple floating point operations and printing
+    * tstr.c      Tests string functions including strcmp, strcpy, strchr, memset, memcpy, etc.
     * ttime.c     Tests retrieving and showing the current time
     * ttt.c       Proves you can't win at tic-tac-toe
-    * ttty.c      Tests isatty()
+    * ttypes.c    Tests type conversions
     * fileops.c   Tests fopen() and related functions
     * trw.c       Tests open() and related functions
     * t_setjmp.c  Tests setjmp()
@@ -120,16 +137,6 @@ tests folder) so it can find the 485 3-word anagrams for that text including bog
 in the emulator makes it about 64x slower. Four Grammys and she deserved more.
 
 The Gnu g++ compiler produces code that's about 10% faster than the Microsoft C++ compiler.
-
-ttt_riscv.s is a sample assembler app. This requires rvos_shell.s, which has _start and a function to print text to the console
-that apps can call. I used the SiPeed Maixduino Arduino Gnu tools for the K210 RISC-V machine. The shell is slightly
-different on the actual hardware -- it calls bamain (not main) and the text print function prints to the device's LCD.
-
-* Sample assembler files:
-    * make_s.bat:     test app build script. compiles and links ttt_riscv.s and riscv_shell.s to make ttt_riscv.elf
-    * ttt_riscv.s:    app to prove you can't win a nuclear war per War Games
-    * rvos_shell.s:   wrapper for the app (defines _start and rvos ABI)
-    * minimal.ino:    Arduino IDE equivalent C++ app for riscv_shell.s on the K210 hardware
 
 If you get a runtime error like this then use the -h or -m flags to reserve more RAM for the heap.
 
