@@ -1,8 +1,14 @@
 #!/bin/bash
 
 _rvoscmd="rvos"
-if [ "$1" != "" ]; then
+if [ "$1" = "nested" ]; then
     _rvoscmd="rvos -h:200 bin/rvos"
+elif [ "$1" = "rvoscl" ]; then
+    _rvoscmd="rvoscl -h:200"
+elif [ "$1" = "armos" ]; then
+    _rvoscmd="../ArmOS/armos -h:200 ../ArmOS/bin/rvos -h:100"
+elif [ "$1" = "armoscl" ]; then
+    _rvoscmd="../ArmOS/armoscl -h:200 ../ArmOS/bin/rvos -h:100"
 fi    
 
 outputfile="runall_linux_test.txt"
