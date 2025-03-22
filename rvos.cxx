@@ -995,12 +995,14 @@ static tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
             r |= 0x4000;
         }
 
-        tracer.Trace( "  O_DIRECT %#x, O_DIRECTORY %#x\n", O_DIRECT, O_DIRECTORY );
+        #if defined( O_DIRECT ) && defined( O_DIRECTORY )
+            tracer.Trace( "  O_DIRECT %#x, O_DIRECTORY %#x\n", O_DIRECT, O_DIRECTORY );
+        #endif
         tracer.Trace( "  mapped from flags %#x to flags %#x\n", flags, r );
         return r;
     } //linux_swap_riscv64_arm_dir_open_flags
 #endif
-#endif
+#endif // !APPLE
 
 struct SysCall
 {
