@@ -975,7 +975,7 @@ static tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 #endif
 
 #if !defined(__APPLE__)
-#if defined(__ARM_32BIT_STATE) || defined(__ARM_64BIT_STATE) || defined(__riscv)
+#if defined(__ARM_32BIT_STATE) || defined(__ARM_64BIT_STATE) || defined(__riscv) || defined( __amd64 )
     static int linux_swap_riscv64_arm_dir_open_flags( int flags )
     {
         // values are the same aside from these, which are flipped:
@@ -1903,6 +1903,7 @@ void emulator_invoke_svc( CPUClass & cpu )
             int64_t descriptor = 0;
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file '%s'\n", directory, flags, mode, pname );
+            tracer.Trace( "  O_DIRECT %#x, O_DIRECTORY %#x\n", O_DIRECT, O_DIRECTORY );
 
             if ( !strcmp( pname, "/proc/device-tree/cpus/timebase-frequency" ) )
             {
@@ -1951,13 +1952,14 @@ void emulator_invoke_svc( CPUClass & cpu )
             flags = linux_swap_riscv64_arm_dir_open_flags( flags );
     #endif // ARM32 or ARM64
 #elif defined( ARMOS )
-    #if defined (__riscv)
+    #if defined (__riscv) || defined( __amd64 )
             flags = linux_swap_riscv64_arm_dir_open_flags( flags );
     #endif // __riscv
 #endif
 
 #endif
 
+            tracer.Trace( "final flags passed to openat: %#llx\n", flags );
             descriptor = openat( directory, pname, flags, mode );
 #endif
             update_result_errno( cpu, descriptor );
