@@ -1903,7 +1903,7 @@ void emulator_invoke_svc( CPUClass & cpu )
             int64_t descriptor = 0;
 
             tracer.Trace( "  open dir %d, flags %x, mode %x, file '%s'\n", directory, flags, mode, pname );
-            tracer.Trace( "  O_DIRECT %#x, O_DIRECTORY %#x\n", O_DIRECT, O_DIRECTORY );
+            //tracer.Trace( "  O_DIRECT %#x, O_DIRECTORY %#x\n", O_DIRECT, O_DIRECTORY );
 
             if ( !strcmp( pname, "/proc/device-tree/cpus/timebase-frequency" ) )
             {
