@@ -6,6 +6,7 @@
 #include <float.h>
 #include <cmath>
 #include <typeinfo>
+#include <cstring>
 #include <type_traits>
 
 typedef unsigned __int128 uint128_t;
@@ -284,11 +285,51 @@ template <class T, class U, size_t size> T tstOverflows( T t, U u )
     return x;
 } //tstOverflows
 
+#if 0
+
+template <class T, class U, size_t size> T tstAssignments( T t, U u )
+{
+    T a[ size ] = { 0 };
+    U b[ _countof( a ) ] = { 0 };
+    U c[ _countof( a ) ] = { 0 };
+    srand( 0 );
+
+    memset( &a, 0x22, sizeof( a ) );
+    memset( &b, 0x66, sizeof( b ) );
+
+    for ( int i = 0; i < _countof( a ); i++ )
+    {
+        a[ i ] += do_cast<T,size_t>( ( rand() % 111 ) - 55 );
+        b[ i ] += do_cast<U,T>( a[ i ] );
+        c[ i ] = (U) a[ i ];
+    }
+
+    T sumA = do_sum( a, _countof( a ) );
+    U sumB = do_sum( b, _countof( b ) );
+    U sumC = do_sum( c, _countof( c ) );
+    
+    T x = sumA / 128;
+    
+    // use 6 digits of precision for float and 12 for everything else
+
+    int t_precision = std::is_same<T,float>::value ? 6 : 12;
+    int u_precision = std::is_same<U,float>::value ? 6 : 12;
+    printf( "assignment: types %7s + %7s, size %d, sumA %.*g, sumB %.*g, sumC %.*g\n", 
+        maptype( typeid(T).name() ), maptype( typeid(U).name() ), 
+        size, t_precision, (double) sumA, u_precision, (double) sumB, u_precision, (double) sumC );
+
+
+    return x;            
+} //tstAssignments
+
+#endif
+
 template <class T, class U, size_t size> T tst( T t, U u )
 {
     T result = 0;
     result += tstCasts<T,U,size>( t, u );
     result += tstOverflows<T,U,size>( t, u );
+    //result += tstAssignments<T,U,size>( t, u );
     return result;
 }
 
@@ -366,7 +407,7 @@ int main( int argc, char * argv[], char * env[] )
     run_dimension( 128 );
 #else    
     //run_dimensionz( 3 );    
-    tst<float,int128_t,32>( 0, 0 );
+    tst<float,uint32_t,2>( 0, 0 );
     //tst<int128_t,int128_t,3>( 0, 0 );
 #endif
 

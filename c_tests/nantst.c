@@ -12,6 +12,20 @@
 // v14 of clang doesn't understand this 
 #pragma clang diagnostic ignored "-Wnan-infinity-disabled"
 
+template <class T> inline T get_max( T a, T b )
+{
+    if ( a > b )
+        return a;
+    return b;
+} //get_max
+
+template <class T> inline T get_min( T a, T b )
+{
+    if ( a < b )
+        return a;
+    return b;
+} //get_min
+
 double set_double_sign( double d, bool sign )
 {
     uint64_t val = sign ? ( ( * (uint64_t *) &d ) | 0x8000000000000000 ) : ( ( * (uint64_t *) &d ) & 0x7fffffffffffffff );
@@ -30,29 +44,52 @@ void _perhaps_inline show_num( double d )
             tf( 0.0 == d ),  tf( signbit( d ) ) );
 } //show_num
 
+template <class T> void _perhaps_inline cmp( T a, T b )
+{
+    bool gt = ( a > b );
+    bool lt = ( a < b );
+    bool eq = ( a == b );
+    bool le = ( a <= b );
+    bool ge = ( a >= b );
+    printf( "  lt %d le %d eq %d ge %d gt %d\n", lt, le, eq, ge, gt );
+} //cmp
+
+template <class T> void _perhaps_inline minmax( T a, T b )
+{
+    T min = get_min( a, b );
+    T max = get_max( a, b );
+    printf( "  min %lf, max %lf\n", (double) a, (double) b );
+} //minmax
+
 double _perhaps_inline do_math( double a, double b )
 {
     printf( "  in do_math()\n" );
-    printf( "       a:" );
+    printf( "         a:" );
     show_num( a );
-    printf( "       b:" );
+    printf( "         b:" );
     show_num( b );
 
     double r = a * b;
-    printf( "       *:" );
+    printf( "         *:" );
     show_num( r );
 
     r = a / b;
-    printf( "       /:" );
+    printf( "         /:" );
     show_num( r );
 
     r = a + b;
-    printf( "       +:" );
+    printf( "         +:" );
     show_num( r );
 
     r = a - b;
-    printf( "       -:" );
+    printf( "         -:" );
     show_num( r );
+
+    printf( "       cmp:" );
+    cmp( a, b );
+
+    printf( "    minmax:" );
+    minmax( a, b );
 
     return r;
 }
@@ -90,7 +127,7 @@ double test_case( double d )
 int main( int argc, char * argv[] )
 {
     double d;
-
+    
     printf( "NAN: %#llx\n", * (uint64_t *) & not_a_number );
     printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
     printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
