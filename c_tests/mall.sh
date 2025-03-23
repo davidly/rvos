@@ -18,3 +18,6 @@ do
     done
 done
 
+echo "Waiting for all processes to complete..."
+wait
+
