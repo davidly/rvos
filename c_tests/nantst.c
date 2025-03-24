@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <math.h>
 #include <unistd.h>
+#include <math.h>
+#include <cmath>
+#include <limits>
 
 #define _perhaps_inline __attribute__((noinline))
 
@@ -58,18 +60,20 @@ template <class T> void _perhaps_inline minmax( T a, T b )
 {
     T min = get_min( a, b );
     T max = get_max( a, b );
-    printf( "  min %lf, max %lf\n", (double) a, (double) b );
+    printf( "  min %lf, max %lf\n", (double) min, (double) max );
 } //minmax
 
 double _perhaps_inline do_math( double a, double b )
 {
+    double r = 0.0;
+
     printf( "  in do_math()\n" );
     printf( "         a:" );
     show_num( a );
     printf( "         b:" );
     show_num( b );
 
-    double r = a * b;
+    r = a * b;
     printf( "         *:" );
     show_num( r );
 
@@ -100,6 +104,8 @@ double infinity = INFINITY;
 double neg_infinity = set_double_sign( INFINITY, true );
 double not_a_number = NAN;
 double neg_not_a_number = set_double_sign( NAN, true );
+double quiet_nan = std::numeric_limits<double>::quiet_NaN();
+double signaling_nan = std::numeric_limits<double>::signaling_NaN();
 
 double test_case( double d )
 {
@@ -127,9 +133,11 @@ double test_case( double d )
 int main( int argc, char * argv[] )
 {
     double d;
-    
+
     printf( "NAN: %#llx\n", * (uint64_t *) & not_a_number );
     printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
+    printf( "quiet NAN: %#llx\n", * (uint64_t *) & quiet_nan );
+    printf( "signaling NAN: %#llx\n", * (uint64_t *) & signaling_nan );
     printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
     printf( "-INFINITY: %#llx\n", * (uint64_t *) & neg_infinity );
     printf( "0.0: %#llx\n", * (uint64_t *) & zero );
