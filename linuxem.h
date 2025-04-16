@@ -7,6 +7,7 @@
 #define emulator_sys_print_text         0x2004
 #define emulator_sys_get_datetime       0x2005
 #define emulator_sys_print_int64        0x2006
+#define emulator_sys_print_char         0x2007
 
 // Linux syscall numbers differ by ISA. InSAne. These are RISC and ARM64, which are the same!
 // Note that there are differences between these two sets. which is correct?

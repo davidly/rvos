@@ -91,6 +91,7 @@ struct RiscV
 
     bool trace_instructions( bool trace );                // enable/disable tracing each instruction
     void end_emulation( void );                           // make the emulator return at the start of the next instruction
+    uint64_t run( void );
     static bool generate_rvc_table( const char * path );  // generate a 64k x 32-bit rvc lookup table
 
     RiscV( vector<uint8_t> & memory, uint64_t base_address, uint64_t start, uint64_t stack_commit, uint64_t top_of_stack )
@@ -107,7 +108,6 @@ struct RiscV
         membase = mem - base;                      // real pointer to the start of the app's memory (prior to offset)
     } //RiscV
 
-    uint64_t run( void );
     const char * reg_name( uint64_t reg );
     const char * freg_name( uint64_t reg );
 
@@ -120,7 +120,6 @@ struct RiscV
     uint64_t regs[ 32 ]; // x0 through x31
     floating fregs[ 32 ]; // f0 through f31
     uint64_t pc;
-    uint64_t cycles_so_far;
     uint64_t csr_mstatus;
     uint64_t csr_sstatus;
     uint64_t csr_stvec;
