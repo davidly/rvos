@@ -896,14 +896,14 @@ static void usage( char const * perror = 0 )
     if ( 0 != perror )
         printf( "error: %s\n", perror );
 
-    printf( "usage: %s <%s arguments> <elf_executable> <app arguments>\n", APP_NAME, APP_NAME );
+    printf( "usage: %s <%s arguments> <executable> <app arguments>\n", APP_NAME, APP_NAME );
     printf( "   arguments:    -e     just show information about the elf executable; don't actually run it\n" );
 #ifdef RVOS
     printf( "                 -g     (internal) generate rcvtable.txt then exit\n" );
 #endif
     printf( "                 -h:X   # of meg for the heap (brk space). 0..1024 are valid. default is 40\n" );
-    printf( "                 -i     if -t is set, also enables instruction tracing\n" );
-    printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 40\n" );
+    printf( "                 -i     if -t is set, also enables instruction tracing with symbols\n" );
+    printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 40. 0 for CP/M\n" );
     printf( "                 -p     shows performance information at app exit\n" );
     printf( "                 -t     enable debug tracing to %ls\n", LOGFILE_NAME );
     printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
@@ -3305,6 +3305,82 @@ void emulator_hard_termination( CPUClass & cpu, const char *pcerr, uint64_t erro
 
 #ifdef M68
 
+const char * bdos_functions[] =
+{
+    "system reset",                        // 0
+    "console input",
+    "console output",
+    "auxiliary input",
+    "auxiliary output",
+    "list output",
+    "direct console i/o",
+    "get i/o byte",
+    "set i/o byte",
+    "print string",
+    "read console buffer",                 // 10
+    "get console status",
+    "return version number",
+    "reset disk system",
+    "select disk",
+    "open file",
+    "close file",
+    "search for first",
+    "search for next",
+    "delete file",
+    "read sequential",                     // 20
+    "write sequential",
+    "make file",
+    "rename file",
+    "return login vector",
+    "return current disk",
+    "set dma address",
+    "27 is unused",
+    "write protect disk",
+    "get read-only vector",
+    "set file attributes",                 // 30
+    "get disk parmameters",
+    "get/set user code",
+    "read random",
+    "write random",
+    "compute file size",
+    "set random record",
+    "reset drive",
+    "38 is unused",
+    "39 is unused",
+    "write random with zero fill",         // 40
+    "41 is unused",
+    "42 is unused",
+    "43 is unused",
+    "44 is unused",
+    "45 is unused",
+    "get disk free space",
+    "chain to program",
+    "flush buffers"
+    "49 is unused",
+    "direct BIOS call",                    // 50
+    "51 is unused",
+    "52 is unused",
+    "53 is unused",
+    "54 is unused",
+    "55 is unused",
+    "56 is unused",
+    "57 is unused",
+    "58 is unused",
+    "program load",
+    "60 is unused",                        // 60
+    "set exception vector",
+    "set supervisor state",
+    "get/set tpa limits"
+};
+
+const char * bdos_function( uint32_t id )
+{
+    if ( id < _countof( bdos_functions ) )
+        return bdos_functions[ id ];
+
+    return "unknown";
+};
+
 void append_string( char * pc, const char * a )
 {
     size_t len = strlen( pc );
@@ -3789,6 +3865,357 @@ static int symbol_compare_cpm( const void * a, const void * b )
     return -1;
 } //symbol_compare_cpm
 
+bool write_fcb_arg( FCBCPM68K * arg, char * pc )
+{
+    if ( ':' == pc[ 1 ] )
+    {
+        if ( pc[0] > 'P' || pc[0] < 'A' )
+            return false; // don't write arguments that don't look like filenames
+
+        arg->dr = 1 + pc[0] - 'A';
+        pc += 2;
+    }
+
+    char * dot = strchr( pc, '.' );
+    if ( dot )
+    {
+        memcpy( & ( arg->f ), pc, get_min( (size_t) 8, (size_t) ( dot - pc ) ) );
+        memcpy( & ( arg->t ), dot + 1, get_min( (size_t) 3, strlen( dot + 1 ) ) );
+    }
+    else
+        memcpy( & ( arg->f ), pc, get_min( (size_t) 8, strlen( pc ) ) );
+
+    return true;
+} //write_fcb_arg
+
+bool load_cpm68k( const char * acApp, const char * acAppArgs )
+{
+    assert( 256 == sizeof( BasePageCPM ) ); // make sure the structure was defined correctly
+
+    // if this is being called from the bdos chain call, reset global data structures.
+    memory.resize( 0 );
+    g_cpmSymbols.resize( 0 );
+
+    FILE * fp = fopen( acApp, "rb" );
+    if ( !fp )
+    {
+        printf( "can't open cp/m 68k image file: %s\n", acApp );
+        return false;
+    }
+
+    CFile file( fp );
+    HeaderCPM68K head;
+    size_t read = fread( &head, sizeof( head ), 1, fp );
+    if ( 1 != read )
+    {
+        printf( "can't read header of cp/m 68k image file: %s\n", acApp );
+        return false;
+    }
+
+    head.swap_endianness();
+    head.trace();
+
+    if ( 0x601a != head.signature )
+    {
+        printf( "header of cp/m 68k image file isn't standard no-relocation 0x601a: %s\n", acApp );
+        return false;
+    }
+
+    uint32_t text_base;
+    if ( 0 != head.relocation_flag ) // 0 means they exist, != 0 means they don't exist
+        text_base = head.text_start;
+    else
+        text_base = 0x7b00; // arbitrary, but this is what an actual cp/m 68k machine uses
+
+    uint32_t image_size = head.cb_text + head.cb_data + head.cb_bss;
+    uint32_t memory_size = 0x100 + text_base + image_size; // base page + offset from 0 to start of code + total size of image loaded from the executable
+
+    // make it 16-byte aligned for no particular reason
+
+    if ( memory_size & 0xf )
+    {
+        memory_size += 16;
+        memory_size &= ~0xf;
+    }
+
+    g_end_of_data = memory_size;
+    g_brk_offset = memory_size;
+    g_highwater_brk = memory_size;
+    memory_size += g_brk_commit;
+
+    g_bottom_of_stack = memory_size;
+    memory_size += g_stack_commit;
+
+#if 0 // no map functionality in cp/m 68k
+    memory_size = round_up( memory_size, (REG_TYPE) 4096 ); // mmap should hand out 4k-aligned pages
+    g_mmap_offset = memory_size;
+    memory_size += g_mmap_commit;
+#endif
+
+    memory.resize( memory_size );
+    memset( memory.data(), 0, memory.size() );
+
+    g_base_address = 0;
+    uint32_t base_page = text_base - 0x100; // where the base page (256 bytes) resides
+    BasePageCPM * pbasepage = (BasePageCPM *) ( memory.data() + base_page );
+    g_execution_address = text_base;
+#if 0 // no map functionality in cp/m 68k
+    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit, memory.data() - g_base_address );
+#endif
+    g_top_of_stack = (REG_TYPE) g_bottom_of_stack + g_stack_commit;
+    pbasepage->reserved[ 1 ] = 0x4e; // stop instruction at at offset 0x26 in the base page (not a cp/m standard)
+    pbasepage->reserved[ 2 ] = 0x72;
+
+    // per the cp/m 68k spec there must be two 32-bit values at the top of the stack for base address and return location at app completion
+    g_top_of_stack -= 8;
+    uint32_t * preturn_address = (uint32_t *) & memory[ g_top_of_stack ];
+    uint32_t * pbase_page_address = (uint32_t *) & memory[ g_top_of_stack + 4 ];
+    *preturn_address = swap_endian32( base_page + 0x26 );
+    *pbase_page_address = swap_endian32( base_page );
+    tracer.Trace( "memory at top of stack address %#x:\n", g_top_of_stack );
+    tracer.TraceBinaryData( & memory[ g_top_of_stack ], 8, 4 );
+    
+    fseek( fp, (long) sizeof( head ), SEEK_SET );
+    read = fread( memory.data() + text_base, head.cb_text + head.cb_data, 1, fp );
+    if ( 1 != read )
+    {
+        printf( "can't read text and data segments of cp/m 68k image file: %s\n", acApp );
+        return false;
+    }
+
+    while ( ' ' == *acAppArgs )
+        acAppArgs++;
+
+    uint8_t arg_len = (uint8_t) strlen( acAppArgs );
+    if ( arg_len > 126 )
+    {
+        printf( "app arguments for cp/m can't be > 126 characters long\n" );
+        return false;
+    }
+
+    memset( & ( pbasepage->firstFCB.f ), ' ', 11 ); // 8 filename + 3 type
+    memset( & ( pbasepage->secondFCB.f ), ' ', 11 );
+
+    pbasepage->cb_command_tail = arg_len;
+    strcpy( (char *) ( pbasepage->command_tail ), acAppArgs );
+    tracer.Trace( "arg_len %u, command tail %s\n", arg_len, acAppArgs );
+
+    // put what look like filenames on the command tail in the two FCBs in the base page. Apps don't much use this.
+
+    char acCopy[ 128 ];
+    strcpy( acCopy, acAppArgs );
+
+    char * pcArg1 = 0;
+    char * pcArg2 = 0;
+    char * pa = acCopy;
+
+    while ( *pa && !pcArg1 && !pcArg2 )
+    {
+        if ( ' ' == *pa )
+            pa++;
+        else if ( '-' == *pa )
+        {
+            while ( *pa && ' ' != *pa )
+                pa++;
+        }
+        else if ( ':' == * ( pa + 1 ) )
+            pa += 2;
+        else if ( !pcArg1 )
+        {
+            pcArg1 = pa;
+            while ( *pa && ' ' != *pa )
+                pa++;
+        }
+        else
+        {
+            pcArg2 = pa;
+            while ( *pa && ' ' != *pa )
+                pa++;
+        }
+    }
+
+    if ( pcArg1 )
+    {
+        char * p = pcArg1;
+        while ( *p )
+        {
+            if ( ' ' == *p )
+                *p = 0;
+            else
+                p++;
+        }
+        tracer.Trace( "    arg1: '%s'\n", pcArg1 );
+        strupr( pcArg1 );
+        write_fcb_arg( & ( pbasepage->firstFCB ), pcArg1 );
+    }
+    if ( pcArg2 )
+    {
+        char * p = pcArg2;
+        while ( *p )
+        {
+            if ( ' ' == *p )
+                *p = 0;
+            else
+                p++;
+        }
+        tracer.Trace( "    arg2: '%s'\n", pcArg2 );
+        strupr( pcArg2 );
+        write_fcb_arg( & ( pbasepage->secondFCB ), pcArg2 );
+    }
+
+    // malloc / brk in the C runtime for DR C use some of these values
+
+    pbasepage->lowest_tpa = 0;
+    pbasepage->highest_tpa = swap_endian32( g_base_address + memory_size - 1 );
+    pbasepage->start_text = swap_endian32( text_base );
+    pbasepage->cb_text = swap_endian32( head.cb_text );
+    pbasepage->start_data = swap_endian32( text_base + head.cb_text );
+    pbasepage->cb_data = swap_endian32( head.cb_data );
+    pbasepage->start_bss = swap_endian32( text_base + head.cb_text + head.cb_data );
+    pbasepage->cb_bss = swap_endian32( head.cb_bss );
+    pbasepage->cb_after_bss = swap_endian32( g_brk_commit );
+
+    g_DMA = memory.data() + text_base - 0x80; // midway through the base page
+    uint32_t data_base = text_base; // + head.cb_text; with 0x601a all bases belong to text_base
+    uint32_t bss_base = text_base; // data_base + head.cb_data;
+
+    if ( 0 == head.relocation_flag ) // 0 means they exist
+    {
+        uint16_t * pimage = (uint16_t *) ( memory.data() + text_base );
+        uint32_t relocation_words = ( head.cb_text + head.cb_data ) / 2;
+        vector<uint16_t> relocations;
+        relocations.resize( relocation_words );
+        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data + head.cb_symbols, SEEK_SET );
+        read = fread( relocations.data(), relocation_words * 2, 1, fp );
+        if ( 1 != read )
+        {
+            printf( "can't read relocations data of cp/m 68k image file: %s\n", acApp );
+            return false;
+        }
+
+        bool longword_mode = false;
+
+        for ( uint32_t i = 0; i < relocation_words; i++ )
+        {
+            uint16_t r = 7 & swap_endian16( relocations[ i ] );
+
+            if ( 1 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with data_base %#x, longword_mode %u\n", i, data_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( data_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }    
+                else
+                    pimage[ i ] = swap_endian16( ( 0xffff & data_base ) + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 2 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with text_base %#x, longword_mode %u\n", i, text_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( text_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }
+                else
+                    pimage[ i ] = swap_endian16( (uint16_t) text_base + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 3 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with bss_base %#x, longword_mode %u\n", i, bss_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( bss_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }
+                else
+                    pimage[ i ] = swap_endian16( (uint16_t) bss_base + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 5 == r )
+                longword_mode = true;
+            else
+                longword_mode = false;
+        }
+    }
+
+    if ( 0 != head.cb_symbols ) // if they exist, load symbols so disassembly and hard termination can show them
+    {
+        uint32_t symbol_count = head.cb_symbols / sizeof( SymbolEntryCPM );
+        g_cpmSymbols.resize( symbol_count );
+        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data, SEEK_SET );
+        read = fread( g_cpmSymbols.data(), head.cb_symbols, 1, fp );
+        if ( 1 != read )
+        {
+            printf( "can't read symbol data of cp/m 68k image file: %s\n", acApp );
+            return false;
+        }
+
+        for ( uint32_t i = 0; i < symbol_count; i++ )
+        {
+            SymbolEntryCPM & sym = g_cpmSymbols[ i ];
+            sym.swap_endianness();
+            if ( sym.type & 0x400 )
+                sym.value += data_base;
+            else if ( sym.type & 0x200 )
+                sym.value += text_base;
+            else if ( sym.type & 0x100 )
+                sym.value += bss_base;
+
+            // the DR tools create some symbols that aren't null-terminated
+            sym.name[ 7 ] = 0;
+        }
+
+        // add a final entry with a very large value so the lookup doesn't have to worry about that edge case
+
+        SymbolEntryCPM last;
+        strcpy( last.name, "!last" );
+        last.value = 0xffffffff;
+        g_cpmSymbols.push_back( last );
+
+        my_qsort( g_cpmSymbols.data(), g_cpmSymbols.size(), sizeof( SymbolEntryCPM ), symbol_compare_cpm );
+
+        tracer.Trace( "symbols:\n" );
+        for ( uint32_t i = 0; i < symbol_count; i++ )
+            g_cpmSymbols[ i ].trace();
+    }
+
+    tracer.Trace( "memory map from highest to lowest addresses:\n" );
+    tracer.Trace( "  first byte beyond allocated memory:                 %x\n", g_base_address + memory_size );
+#if 0 // no mmap support in cp/m 68k
+    tracer.Trace( "  <mmap arena>                                        (%d = %x bytes)\n", g_mmap_commit, g_mmap_commit );
+    tracer.Trace( "  mmap start adddress:                                %x\n", g_base_address + g_mmap_offset );
+    tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
+#endif
+    tracer.Trace( "  actual top of stack:                                %x\n", g_top_of_stack + 8 );
+    tracer.Trace( "  initial stack pointer g_top_of_stack:               %x\n", g_top_of_stack );
+    REG_TYPE stack_bytes = g_stack_commit;
+    tracer.Trace( "  <stack>                                             (%d == %x bytes)\n", stack_bytes, stack_bytes );
+    tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %x\n", g_base_address + g_bottom_of_stack );
+    tracer.Trace( "  <unallocated space between brk and the stack>       (%d == %llx bytes)\n", g_brk_commit, g_brk_commit );
+    tracer.Trace( "  end_of_bss / current brk:                           %x\n", g_base_address + g_end_of_data );
+    tracer.Trace( "  <uninitialized bss data\n" );
+    tracer.Trace( "  start of bss segment:                               %x\n", g_execution_address + head.cb_text + head.cb_data );
+    tracer.Trace( "  <initialized data from the .68k file>\n" );
+    tracer.Trace( "  start of data segment:                              %x\n", g_execution_address + head.cb_text );
+    tracer.Trace( "  <code from the .68k file>\n" );
+    tracer.Trace( "  initial pc execution_addess + start of code         %x\n", g_execution_address );
+    tracer.Trace( "  start of base page:                                 %x\n", base_page );
+    tracer.Trace( "  start of the address space:                         %x\n", g_base_address );
+
+    tracer.Trace( "vm memory first byte beyond:     %p\n", memory.data() + memory_size );
+    tracer.Trace( "vm memory start:                 %p\n", memory.data() );
+    tracer.Trace( "memory_size:                     %#x == %d\n", memory_size, memory_size );
+
+    tracer.Trace( "first 512 bytes starting at base page:\n" );
+    tracer.TraceBinaryData( memory.data() + base_page, 512, 8 );
+
+    return true;
+} //load_cpm68k
+
 bool parse_FCB_Filename( FCBCPM68K * pfcb, char * pcFilename )
 {
     char * orig = pcFilename;
@@ -3891,9 +4318,9 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
 {
     char acFilename[ CPM_FILENAME_LEN ];
     uint16_t function = ( 0xffff & ACCESS_REG( REG_SYSCALL ) );
-    tracer.Trace( "trap 2 cp/m 68k bdos call %u, first argument %#x\n", function, ACCESS_REG( REG_ARG0 ) );
+    tracer.Trace( "trap 2 cp/m 68k bdos call %u, argument %#x -- %s\n", function, ACCESS_REG( REG_ARG0 ), bdos_function( function ) );
 
-    // note: only the subset invoked by cp/m 68k versions of the C compiler, assembler, and linker are implemented.
+    // note: only the subset invoked by cp/m 68k versions of the C, BASIC, and Pascal compilers, assembler, and linker are implemented.
 
     switch ( function )
     {
@@ -3903,6 +4330,44 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             cpu.end_emulation();
             g_exit_code = (int) ACCESS_REG( REG_ARG0 ); // not part of the cp/m 68k spec but it seems handy
             tracer.Trace( "  emulated app exit code %d\n", g_exit_code );
+            break;
+        }
+        case 2: // console output. d1.w ascii chracter
+        {
+            // console output
+            // CP/M 2.2 checks for ^s and ^q to pause and resume output. If output is paused due to ^s,
+            // a subsequent ^c terminates the application. ^q resumes output then ^c has no effect.
+
+            uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
+            if ( 0x0d != ch )             // skip carriage return because line feed turns into cr+lf
+            {
+                tracer.Trace( "  bdos console out: %02x == '%c'\n", ch, printable( ch ) );
+                printf( "%c", ch );
+                fflush( stdout );
+            }
+
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 6: // direct console i/o
+        {
+            uint16_t cmd = (uint16_t) ( 0xffff & ACCESS_REG( REG_ARG0 ) );
+            if ( 0xff == cmd ) // input
+            {
+            }
+            else if ( 0xfe == cmd ) // status
+            {
+            }
+            else // output
+            {
+                uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
+                if ( 0x0d != ch )             // skip carriage return because line feed turns into cr+lf
+                {
+                    tracer.Trace( "  bdos console i/o output: %02x == '%c'\n", ch, printable( ch ) );
+                    printf( "%c", ch );
+                    fflush( stdout );
+                }
+            }
             break;
         }
         case 9: // send $-terminated string to stdout
@@ -3925,6 +4390,18 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                     printf( "%c", ch );
             }
             fflush( stdout );
+            break;
+        }
+        case 11: // get console status
+        {
+            // for now lie and say no characters are available
+
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 12: // return version number
+        {
+            ACCESS_REG( REG_RESULT ) = 0x2022; // cp/m-68k v1.1
             break;
         }
         case 15: // open file. success 0-3, error 0xff
@@ -4038,6 +4515,104 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename for delete file\n" );
             break;
         }
+        case 20:
+        {
+            // read sequential. return 0 on success or non-0 on failure:
+            // reads 128 bytes from cr of the extent and increments cr.
+            // if cr overflows, the extent is incremented and cr is set to 0 for the next read
+
+            FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pfcb->Trace();
+            ACCESS_REG( REG_RESULT ) = 255;
+            bool ok = parse_FCB_Filename( pfcb, acFilename );
+            if ( ok )
+            {
+                FILE * fp = FindFileEntry( acFilename );
+                if ( fp )
+                {
+                    // apps like Digital Research's linker LK80 update pcb->cr and pfcb->ex between
+                    // calls to sequential read and effectively does random reads using sequential I/O.
+                    // This is illegal (the doc says apps can't touch this data, but that ship has sailed and sunk).
+
+                    uint32_t file_size = portable_filelen( fp );
+                    uint32_t curr = pfcb->GetSequentialOffset();
+                    uint16_t dmaOffset = (uint16_t) ( g_DMA - memory.data() );
+                    tracer.Trace( "  file size: %#x = %u, current %#x = %u, dma %#x = %u\n",
+                                  file_size, file_size, curr, curr, dmaOffset, dmaOffset );
+
+                    if ( curr < file_size )
+                    {
+                        fseek( fp, curr, SEEK_SET );
+
+                        uint32_t to_read = get_min( file_size - curr, (uint32_t) 128 );
+                        memset( g_DMA, 0x1a, 128 ); // fill with ^z, the EOF marker in CP/M
+
+                        size_t numread = fread( g_DMA, 1, to_read, fp );
+                        if ( numread > 0 )
+                        {
+                            tracer.TraceBinaryData( g_DMA, 128, 2 );
+                            ACCESS_REG( REG_RESULT ) = 0;
+                            pfcb->UpdateSequentialOffset( curr + 128 );
+                        }
+                        else
+                        {
+                            ACCESS_REG( REG_RESULT ) = 1;
+                            tracer.Trace( "  read error %d = %s, so returning a = 1\n", errno, strerror( errno ) );
+                        }
+                    }
+                    else
+                    {
+                        ACCESS_REG( REG_RESULT ) = 1;
+                        tracer.Trace( "  at the end of file, so returning a = 1\n" );
+                    }
+                }
+                else
+                    tracer.Trace( "ERROR: can't read from a file that's not open\n" );
+            }
+            else
+                tracer.Trace( "ERROR: can't parse filename in read sequential file\n" );
+            break;
+        }
+        case 21:
+        {
+            // write sequential. return 0 on success or non-0 on failure (out of disk space)
+            // reads 128 bytes from cr of the extent and increments cr.
+            // if cr overflows, the extent is incremented and cr is set to 0 for the next read
+
+            FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pfcb->Trace();
+            ACCESS_REG( REG_RESULT ) = 255;
+            bool ok = parse_FCB_Filename( pfcb, acFilename );
+            if ( ok )
+            {
+                FILE * fp = FindFileEntry( acFilename );
+                if ( fp )
+                {
+                    uint32_t file_size = portable_filelen( fp );
+                    uint32_t curr = pfcb->GetSequentialOffset();
+                    uint16_t dmaOffset = (uint16_t) ( g_DMA - memory.data() );
+                    tracer.Trace( "  writing at offset %#x = %u, file size is %#x = %u, dma %#x = %u\n",
+                                  curr, curr, file_size, file_size, dmaOffset, dmaOffset );
+                    fseek( fp, curr, SEEK_SET );
+
+                    tracer.TraceBinaryData( g_DMA, 128, 2 );
+                    size_t numwritten = fwrite( g_DMA, 128, 1, fp );
+                    if ( numwritten > 0 )
+                    {
+                        ACCESS_REG( REG_RESULT ) = 0;
+                        pfcb->UpdateSequentialOffset( curr + 128 );
+                        pfcb->SetRecordCount( fp ); // Whitesmith C v2.1's A80.COM assembler requires this
+                    }
+                    else
+                        tracer.Trace( "ERROR: fwrite returned %zd, errno %d = %s\n", numwritten, errno, strerror( errno ) );
+                }
+                else
+                    tracer.Trace( "ERROR: can't write to a file that's not open\n" );
+            }
+            else
+                tracer.Trace( "ERROR: can't parse filename in write sequential file\n" );
+            break;
+        }
         case 22:
         {
             // make file. return 255 if out of space or the file exists. 0..3 directory code otherwise.
@@ -4071,6 +4646,13 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             }
             else
                 tracer.Trace( "ERROR: can't parse filename in make file\n" );
+            break;
+        }
+        case 25:
+        {
+            // return current disk
+
+            ACCESS_REG( REG_RESULT ) = 0;
             break;
         }
         case 26:
@@ -4195,6 +4777,42 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             }
             break;
         }
+        case 47: // chain to program
+        {
+            tracer.Trace( "chain to len %u command '%s'\n", * g_DMA, g_DMA + 1 );
+            char * pcmdline = (char *) ( g_DMA + 1 );
+            char * ptail = strchr( pcmdline, ' ' );
+            if ( ptail )
+            {
+                *ptail = 0;
+                ptail++;
+            }
+            else
+                ptail = pcmdline + strlen( pcmdline );
+
+            char acApp[ CPM_FILENAME_LEN ];
+            strcpy( acApp, pcmdline );
+            char acAppArgs[ 128 ];
+            strcpy( acAppArgs, ptail );
+
+            if ( load_cpm68k( acApp, acAppArgs ) )
+            {
+                tracer.Trace( "loaded chained app successfully\n" );
+                cpu.reset( memory, g_base_address, g_execution_address, g_stack_commit, g_top_of_stack );
+            }
+            else
+            {
+                ACCESS_REG( REG_RESULT ) = 0xff;
+                tracer.Trace( "unable to load chained app\n" );
+            }
+            break;
+        }
+        case 48: // flush buffers
+        {
+            fflush( 0 );
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
         default:
         {
             printf( "  unhandled cp/m bdos call %u\n", function );
@@ -4203,346 +4821,6 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
         }
     }
 } //emulator_invoke_68k_trap2
-
-bool write_fcb_arg( FCBCPM68K * arg, char * pc )
-{
-    if ( ':' == pc[ 1 ] )
-    {
-        if ( pc[0] > 'P' || pc[0] < 'A' )
-            return false; // don't write arguments that don't look like filenames
-
-        arg->dr = 1 + pc[0] - 'A';
-        pc += 2;
-    }
-
-    char * dot = strchr( pc, '.' );
-    if ( dot )
-    {
-        memcpy( & ( arg->f ), pc, get_min( (size_t) 8, (size_t) ( dot - pc ) ) );
-        memcpy( & ( arg->t ), dot + 1, get_min( (size_t) 3, strlen( dot + 1 ) ) );
-    }
-    else
-        memcpy( & ( arg->f ), pc, get_min( (size_t) 8, strlen( pc ) ) );
-
-    return true;
-} //write_fcb_arg
-
-bool load_cpm68k( const char * acApp, const char * acAppArgs )
-{
-    assert( 256 == sizeof( BasePageCPM ) ); // make sure the structure was defined correctly
-
-    FILE * fp = fopen( acApp, "rb" );
-    if ( !fp )
-    {
-        printf( "can't open cp/m 68k image file: %s\n", acApp );
-        return false;
-    }
-
-    CFile file( fp );
-    HeaderCPM68K head;
-    size_t read = fread( &head, sizeof( head ), 1, fp );
-    if ( 1 != read )
-    {
-        printf( "can't read header of cp/m 68k image file: %s\n", acApp );
-        return false;
-    }
-
-    head.swap_endianness();
-    head.trace();
-
-    if ( 0x601a != head.signature )
-    {
-        printf( "header of cp/m 68k image file isn't standard no-relocation 0x601a: %s\n", acApp );
-        return false;
-    }
-
-    uint32_t text_base;
-    if ( 0 != head.relocation_flag ) // 0 means they exist, != 0 means they don't exist
-        text_base = head.text_start;
-    else
-        text_base = 0x7b00; // arbitrary, but this is what an actual cp/m 68k machine uses
-
-    uint32_t image_size = head.cb_text + head.cb_data + head.cb_bss;
-    uint32_t memory_size = 0x100 + text_base + image_size; // base page + offset from 0 to start of code + total size of image loaded from the executable
-
-    // make it 16-byte aligned for no particular reason
-
-    if ( memory_size & 0xf )
-    {
-        memory_size += 16;
-        memory_size &= ~0xf;
-    }
-
-    g_end_of_data = memory_size;
-    g_brk_offset = memory_size;
-    g_highwater_brk = memory_size;
-    memory_size += g_brk_commit;
-
-    g_bottom_of_stack = memory_size;
-    memory_size += g_stack_commit;
-
-#if 0 // no map functionality in cp/m 68k
-    memory_size = round_up( memory_size, (REG_TYPE) 4096 ); // mmap should hand out 4k-aligned pages
-    g_mmap_offset = memory_size;
-    memory_size += g_mmap_commit;
-#endif
-
-    memory.resize( memory_size );
-    memset( memory.data() + g_brk_offset, 0, memory_size - g_brk_offset );
-
-    g_base_address = 0;
-    uint32_t base_page = text_base - 0x100; // where the base page (256 bytes) resides
-    BasePageCPM * pbasepage = (BasePageCPM *) ( memory.data() + base_page );
-    g_execution_address = text_base;
-#if 0 // no map functionality in cp/m 68k
-    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit, memory.data() - g_base_address );
-#endif
-    g_top_of_stack = (REG_TYPE) g_bottom_of_stack + g_stack_commit;
-    pbasepage->reserved[ 1 ] = 0x4e; // stop instruction at at offset 0x26 in the base page (not a cp/m standard)
-    pbasepage->reserved[ 2 ] = 0x72;
-
-    // per the cp/m 68k spec there must be two 32-bit values at the top of the stack for base address and return location at app completion
-    g_top_of_stack -= 8;
-    uint32_t * preturn_address = (uint32_t *) & memory[ g_top_of_stack ];
-    uint32_t * pbase_page_address = (uint32_t *) & memory[ g_top_of_stack + 4 ];
-    *preturn_address = swap_endian32( base_page + 0x26 );
-    *pbase_page_address = swap_endian32( base_page );
-    tracer.Trace( "memory at top of stack address %#x:\n", g_top_of_stack );
-    tracer.TraceBinaryData( & memory[ g_top_of_stack ], 8, 4 );
-    
-    fseek( fp, (long) sizeof( head ), SEEK_SET );
-    read = fread( memory.data() + text_base, head.cb_text + head.cb_data, 1, fp );
-    if ( 1 != read )
-    {
-        printf( "can't read text and data segments of cp/m 68k image file: %s\n", acApp );
-        return false;
-    }
-
-    while ( ' ' == *acAppArgs )
-        acAppArgs++;
-
-    uint8_t arg_len = (uint8_t) strlen( acAppArgs );
-    if ( arg_len > 126 )
-    {
-        printf( "app arguments for cp/m can't be > 126 characters long\n" );
-        return false;
-    }
-
-    memset( & ( pbasepage->firstFCB.f ), ' ', 11 ); // 8 filename + 3 type
-    memset( & ( pbasepage->secondFCB.f ), ' ', 11 );
-
-    pbasepage->cb_command_tail = arg_len;
-    strcpy( (char *) ( pbasepage->command_tail ), acAppArgs );
-    tracer.Trace( "arg_len %u, command tail %s\n", arg_len, acAppArgs );
-
-    // put what look like filenames on the command tail in the two FCBs in the base page. Apps don't much use this.
-
-    char acCopy[ 128 ];
-    strcpy( acCopy, acAppArgs );
-
-    char * pcArg1 = 0;
-    char * pcArg2 = 0;
-    char * pa = acCopy;
-
-    while ( *pa && !pcArg1 && !pcArg2 )
-    {
-        if ( ' ' == *pa )
-            pa++;
-        else if ( '-' == *pa )
-        {
-            while ( *pa && ' ' != *pa )
-                pa++;
-        }
-        else if ( ':' == * ( pa + 1 ) )
-            pa += 2;
-        else if ( !pcArg1 )
-        {
-            pcArg1 = pa;
-            while ( *pa && ' ' != *pa )
-                pa++;
-        }
-        else
-        {
-            pcArg2 = pa;
-            while ( *pa && ' ' != *pa )
-                pa++;
-        }
-    }
-
-    if ( pcArg1 )
-    {
-        char * p = pcArg1;
-        while ( *p )
-        {
-            if ( ' ' == *p )
-                *p = 0;
-            else
-                p++;
-        }
-        tracer.Trace( "    arg1: '%s'\n", pcArg1 );
-        strupr( pcArg1 );
-        write_fcb_arg( & ( pbasepage->firstFCB ), pcArg1 );
-    }
-    if ( pcArg2 )
-    {
-        char * p = pcArg2;
-        while ( *p )
-        {
-            if ( ' ' == *p )
-                *p = 0;
-            else
-                p++;
-        }
-        tracer.Trace( "    arg2: '%s'\n", pcArg2 );
-        strupr( pcArg2 );
-        write_fcb_arg( & ( pbasepage->secondFCB ), pcArg2 );
-    }
-
-    // malloc / brk in the C runtime for DR C use some of these values
-
-    pbasepage->lowest_tpa = 0;
-    pbasepage->highest_tpa = g_base_address + memory_size - 1;
-    pbasepage->start_text = swap_endian32( text_base );
-    pbasepage->cb_text = swap_endian32( head.cb_text );
-    pbasepage->start_data = swap_endian32( text_base + head.cb_text );
-    pbasepage->cb_data = swap_endian32( head.cb_data );
-    pbasepage->start_bss = swap_endian32( text_base + head.cb_text + head.cb_data );
-    pbasepage->cb_bss = swap_endian32( head.cb_bss );
-    pbasepage->cb_after_bss = swap_endian32( g_brk_commit );
-
-    g_DMA = memory.data() + text_base - 0x80; // midway through the base page
-    uint32_t data_base = text_base; // + head.cb_text; with 0x601a all bases belong to text_base
-    uint32_t bss_base = text_base; // data_base + head.cb_data;
-
-    if ( 0 == head.relocation_flag ) // 0 means they exist
-    {
-        uint16_t * pimage = (uint16_t *) ( memory.data() + text_base );
-        uint32_t relocation_words = ( head.cb_text + head.cb_data ) / 2;
-        vector<uint16_t> relocations;
-        relocations.resize( relocation_words );
-        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data + head.cb_symbols, SEEK_SET );
-        read = fread( relocations.data(), relocation_words * 2, 1, fp );
-        if ( 1 != read )
-        {
-            printf( "can't read relocations data of cp/m 68k image file: %s\n", acApp );
-            return false;
-        }
-
-        bool longword_mode = false;
-
-        for ( uint32_t i = 0; i < relocation_words; i++ )
-        {
-            uint16_t r = 7 & swap_endian16( relocations[ i ] );
-
-            if ( 1 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with data_base %#x, longword_mode %u\n", i, data_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( data_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }    
-                else
-                    pimage[ i ] = swap_endian16( ( 0xffff & data_base ) + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 2 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with text_base %#x, longword_mode %u\n", i, text_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( text_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }
-                else
-                    pimage[ i ] = swap_endian16( (uint16_t) text_base + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 3 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with bss_base %#x, longword_mode %u\n", i, bss_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( bss_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }
-                else
-                    pimage[ i ] = swap_endian16( (uint16_t) bss_base + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 5 == r )
-                longword_mode = true;
-            else
-                longword_mode = false;
-        }
-    }
-
-    if ( 0 != head.cb_symbols ) // if they exist, load symbols so disassembly and hard termination can show them
-    {
-        uint32_t symbol_count = head.cb_symbols / sizeof( SymbolEntryCPM );
-        g_cpmSymbols.resize( symbol_count );
-        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data, SEEK_SET );
-        read = fread( g_cpmSymbols.data(), head.cb_symbols, 1, fp );
-        if ( 1 != read )
-        {
-            printf( "can't read symbol data of cp/m 68k image file: %s\n", acApp );
-            return false;
-        }
-
-        for ( uint32_t i = 0; i < symbol_count; i++ )
-        {
-            SymbolEntryCPM & sym = g_cpmSymbols[ i ];
-            sym.swap_endianness();
-            if ( sym.type & 0x400 )
-                sym.value += data_base;
-            else if ( sym.type & 0x200 )
-                sym.value += text_base;
-            else if ( sym.type & 0x100 )
-                sym.value += bss_base;
-        }
-
-        // add a final entry with a very large value so the lookup doesn't have to worry about that edge case
-
-        SymbolEntryCPM last;
-        strcpy( last.name, "!last" );
-        last.value = 0xffffffff;
-        g_cpmSymbols.push_back( last );
-
-        my_qsort( g_cpmSymbols.data(), g_cpmSymbols.size(), sizeof( SymbolEntryCPM ), symbol_compare_cpm );
-
-        tracer.Trace( "symbols:\n" );
-        for ( uint32_t i = 0; i < symbol_count; i++ )
-            g_cpmSymbols[ i ].trace();
-    }
-
-    tracer.Trace( "memory map from highest to lowest addresses:\n" );
-    tracer.Trace( "  first byte beyond allocated memory:                 %x\n", g_base_address + memory_size );
-#if 0 // no mmap support in cp/m 68k
-    tracer.Trace( "  <mmap arena>                                        (%d = %x bytes)\n", g_mmap_commit, g_mmap_commit );
-    tracer.Trace( "  mmap start adddress:                                %x\n", g_base_address + g_mmap_offset );
-    tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
-#endif
-    tracer.Trace( "  actual top of stack:                                %x\n", g_top_of_stack + 8 );
-    tracer.Trace( "  initial stack pointer g_top_of_stack:               %x\n", g_top_of_stack );
-    REG_TYPE stack_bytes = g_stack_commit;
-    tracer.Trace( "  <stack>                                             (%d == %x bytes)\n", stack_bytes, stack_bytes );
-    tracer.Trace( "  last byte stack can use (g_bottom_of_stack):        %x\n", g_base_address + g_bottom_of_stack );
-    tracer.Trace( "  <unallocated space between brk and the stack>       (%d == %llx bytes)\n", g_brk_commit, g_brk_commit );
-    tracer.Trace( "  end_of_data / current brk:                          %x\n", g_base_address + g_end_of_data );
-    tracer.Trace( "  <code + data from the .hex file>\n" );
-    tracer.Trace( "  initial pc execution_addess:                        %x\n", g_execution_address );
-    tracer.Trace( "  <code per the .68k file>\n" );
-    tracer.Trace( "  start of the address space:                         %x\n", g_base_address );
-
-    tracer.Trace( "vm memory first byte beyond:     %p\n", memory.data() + memory_size );
-    tracer.Trace( "vm memory start:                 %p\n", memory.data() );
-    tracer.Trace( "memory_size:                     %#x == %d\n", memory_size, memory_size );
-
-    tracer.Trace( "first 512 bytes starting at base page:\n" );
-    tracer.TraceBinaryData( memory.data() + text_base - 0x100, 512, 8 );
-
-    return true;
-} //load_cpm68k
 
 static bool load_image32( FILE * fp, const char * pimage, const char * app_args )
 {
