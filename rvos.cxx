@@ -76,7 +76,7 @@
 
         #ifndef M68K
             // this structure is smaller than the usermode version. I don't know of a cross-platform header with it.
-    
+
             #define local_KERNEL_NCCS 19
             struct local_kernel_termios
             {
@@ -1521,12 +1521,11 @@ static const SysCall syscalls[] =
 const void * my_bsearch( const void * key, const void * vbase, size_t num, unsigned width, int (*compare)( const void * a, const void * b ) )
 {
     const char * base = (const char *) vbase;
-
-    size_t i = 0;
-    size_t j = num - 1;
+    int i = 0;
+    int j = (int) num - 1;
     do
     {
-        size_t k = ( j + i ) / 2;
+        int k = ( j + i ) / 2;
         const char * here = base + width*k;
         int cmp = ( *compare )( key, here );
         if ( 0 == cmp )
@@ -1996,7 +1995,7 @@ void emulator_invoke_svc( CPUClass & cpu )
             flags = windows_translate_flags( flags );
 #endif
 
-#ifdef M68
+#if defined(M68) && !defined(M68K)
             flags = linux_translate_flags( flags );
 #endif
 
@@ -2447,11 +2446,11 @@ void emulator_invoke_svc( CPUClass & cpu )
 
 #endif
 
-#ifdef M68
+#if defined(M68) && !defined(__APPLE__) && !defined(M68K)  // macOS and 68000 share the same open flags and are different than generic linux
             flags = linux_translate_flags( flags );
 #endif
 
-            tracer.Trace( "final flags passed to openat: %#llx\n", flags );
+            tracer.Trace( "  final directory %d, flags %#llx, mode %x passed to openat\n", directory, flags, mode );
             descriptor = openat( directory, pname, flags, mode );
 #endif
             update_result_errno( cpu, (int) descriptor );
@@ -3355,7 +3354,7 @@ const char * bdos_functions[] =
     "45 is unused",
     "get disk free space",
     "chain to program",
-    "flush buffers"
+    "flush buffers",
     "49 is unused",
     "direct BIOS call",                    // 50
     "51 is unused",
@@ -3449,12 +3448,12 @@ static int symbol_find_compare32( const void * a, const void * b )
 
     if ( 0 == sa.size ) // a is the key
     {
-        if ( sa.value >= sb.value && sa.value < ( sb.value + sb.size ) )
+        if ( ( sa.value == sb.value ) || ( sa.value > sb.value && sa.value < ( sb.value + sb.size ) ) )
             return 0;
     }
     else // b is the key
     {
-        if ( sb.value >= sa.value && sb.value < ( sa.value + sa.size ) )
+        if ( ( sb.value == sa.value ) || ( sb.value > sa.value && sb.value < ( sa.value + sa.size ) ) )
             return 0;
     }
 
@@ -3471,13 +3470,13 @@ static int symbol_find_compare_cpm( const void * a, const void * b )
     if ( 0 == sa.name[0] ) // a is the key
     {
         SymbolEntryCPM * pnext = ( ( & sb ) + 1 );
-        if ( sa.value >= sb.value && sa.value < pnext->value )
+        if ( ( sa.value == sb.value ) || ( sa.value > sb.value && sa.value < pnext->value ) )
             return 0;
     }
     else // b is the key
     {
         SymbolEntryCPM * pnext = ( ( & sa ) + 1 );
-        if ( sb.value >= sa.value && sb.value < pnext->value )
+        if ( ( sb.value == sa.value ) || ( sb.value > sa.value && sb.value < pnext->value ) )
             return 0;
     }
 
@@ -3693,6 +3692,59 @@ FILE * FindFileEntry( char * name )
 
 #pragma pack( push, 1 )
 
+struct ExceptionParameterBlockCPM
+{
+    uint16_t vector;
+    uint32_t newValue;
+    uint32_t oldValue;
+
+    void swap_endianness()
+    {
+        vector = swap_endian16( vector );
+        newValue = swap_endian32( newValue );
+        oldValue = swap_endian32( oldValue );
+    }
+
+    void trace()
+    {
+        tracer.Trace( "  ExceptionParameterBlockCPM:\n" );
+        tracer.Trace( "    vector %#x\n", vector );
+        tracer.Trace( "    newValue %#x\n", newValue );
+        tracer.Trace( "    oldValue %#x\n", oldValue );
+    }
+};
+
+struct LoadParameterBlockCPM
+{
+    uint32_t fcbOfChildApp;      // the calling app must have opened the file that's here
+    uint32_t lowestAddress;      // the calling app specifies this
+    uint32_t highestAddress;     // the calling app specifies this
+    uint32_t childBasePage;      // returned by bdos
+    uint32_t childStackPointer;  // returned by bdos
+    uint16_t loaderControlFlags; // 0 == load in lowest possible address. 1 == load in highest possible address
+
+    void swap_endianness()
+    {
+         fcbOfChildApp = swap_endian32( fcbOfChildApp );
+         lowestAddress = swap_endian32( lowestAddress );
+         highestAddress = swap_endian32( highestAddress );
+         childBasePage = swap_endian32( childBasePage );
+         childStackPointer = swap_endian32( childStackPointer );
+         loaderControlFlags= swap_endian16( loaderControlFlags );
+    }
+
+    void trace()
+    {
+        tracer.Trace( "  load parameter block:\n" );
+        tracer.Trace( "    fcb of child app:               %lx\n", fcbOfChildApp );
+        tracer.Trace( "    lowest address of child app:    %lx\n", lowestAddress );
+        tracer.Trace( "    highest address of child app:   %lx\n", highestAddress );
+        tracer.Trace( "    child base page from bdos:      %lx\n", childBasePage );
+        tracer.Trace( "    child stack pointer from bdos:  %lx\n", childStackPointer );
+        tracer.Trace( "    loader control flags:           %x\n", loaderControlFlags );
+    }
+};
+
 struct HeaderCPM68K    // .68k executable files for cp/m 68k v1.3
 {
     uint16_t signature;
@@ -3888,6 +3940,263 @@ bool write_fcb_arg( FCBCPM68K * arg, char * pc )
     return true;
 } //write_fcb_arg
 
+char get_next_kbd_char()
+{
+    return (char) ConsoleConfiguration::portable_getch();
+} //get_next_kbd_char
+
+bool is_kbd_char_available()
+{
+    return g_consoleConfig.portable_kbhit();
+} //is_kbd_char_available
+
+bool cpm_read_console( char * buf, size_t bufsize, uint8_t & out_len )
+{
+    char ch = 0;
+    out_len = 0;
+    while ( out_len < (uint8_t) bufsize )
+    {
+        ch = get_next_kbd_char();
+        tracer.Trace( "  get_next_kbd_char read character %02x -- '%c'\n", ch, printable( ch ) );
+
+        // CP/M read console buffer treats these control characters as special: c, e, h, j, m, r, u, x
+        // per http://www.gaby.de/cpm/manuals/archive/cpm22htm/ch5.htm
+        // Only c, h, j, and m are currently handled correctly.
+        // ^c means exit the currently running app in CP/M if it's the first character in the buffer
+
+        if ( ( 3 == ch ) && ( 0 == out_len ) )
+            return true;
+
+        if ( '\n' == ch || '\r' == ch )
+            break;
+
+        if ( 0x7f == ch || 8 == ch ) // backspace (it's not 8 for some reason)
+        {
+            if ( out_len > 0 )
+            {
+                printf( "\x8 \x8" );
+                fflush( stdout );
+                out_len--;
+            }
+        }
+        else
+        {
+            printf( "%c", ch );
+            fflush( stdout );
+            buf[ out_len++ ] = ch;
+        }
+    }
+
+    return false;
+} //cpm_read_console
+
+bool read_symbols_cpm( FILE * fp, HeaderCPM68K & head, uint32_t text_base, uint32_t data_base, uint32_t bss_base )
+{
+    if ( 0 != head.cb_symbols ) // if they exist, load symbols so disassembly and hard termination can show them
+    {
+        uint32_t symbol_count = head.cb_symbols / sizeof( SymbolEntryCPM );
+        g_cpmSymbols.resize( symbol_count );
+        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data, SEEK_SET );
+        size_t read = fread( g_cpmSymbols.data(), head.cb_symbols, 1, fp );
+        if ( 1 != read )
+        {
+            printf( "can't read symbol data of cp/m 68k image file\n" );
+            return false;
+        }
+
+        for ( uint32_t i = 0; i < symbol_count; i++ )
+        {
+            SymbolEntryCPM & sym = g_cpmSymbols[ i ];
+            sym.swap_endianness();
+            if ( sym.type & 0x400 )
+                sym.value += data_base;
+            else if ( sym.type & 0x200 )
+                sym.value += text_base;
+            else if ( sym.type & 0x100 )
+                sym.value += bss_base;
+
+            // the DR tools create some symbols that aren't null-terminated
+            sym.name[ 7 ] = 0;
+        }
+
+        // add a final entry with a very large value so the lookup doesn't have to worry about that edge case
+
+        SymbolEntryCPM last;
+        strcpy( last.name, "!last" );
+        last.value = 0xffffffff;
+        g_cpmSymbols.push_back( last );
+
+        my_qsort( g_cpmSymbols.data(), g_cpmSymbols.size(), sizeof( SymbolEntryCPM ), symbol_compare_cpm );
+
+        tracer.Trace( "symbols:\n" );
+        for ( uint32_t i = 0; i < symbol_count; i++ )
+            g_cpmSymbols[ i ].trace();
+    }
+
+    return true;
+} //read_symbols_cpm
+
+bool handle_relocations_cpm( FILE * fp, HeaderCPM68K & head, uint32_t text_base, uint32_t data_base, uint32_t bss_base )
+{
+    if ( 0 == head.relocation_flag ) // 0 means they exist
+    {
+        uint16_t * pimage = (uint16_t *) ( memory.data() + text_base );
+        uint32_t relocation_words = ( head.cb_text + head.cb_data ) / 2;
+        vector<uint16_t> relocations;
+        relocations.resize( relocation_words );
+        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data + head.cb_symbols, SEEK_SET );
+        size_t read = fread( relocations.data(), relocation_words * 2, 1, fp );
+        if ( 1 != read )
+        {
+            printf( "can't read relocations data of cp/m 68k image file\n" );
+            return false;
+        }
+
+        bool longword_mode = false;
+
+        for ( uint32_t i = 0; i < relocation_words; i++ )
+        {
+            uint16_t r = 7 & swap_endian16( relocations[ i ] );
+
+            if ( 1 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with data_base %#x, longword_mode %u\n", i, data_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( data_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }
+                else
+                    pimage[ i ] = swap_endian16( ( 0xffff & data_base ) + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 2 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with text_base %#x, longword_mode %u\n", i, text_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( text_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }
+                else
+                    pimage[ i ] = swap_endian16( (uint16_t) text_base + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 3 == r )
+            {
+                //tracer.Trace( "updating relocation offset %u with bss_base %#x, longword_mode %u\n", i, bss_base, longword_mode );
+                if ( longword_mode )
+                {
+                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
+                    *pfull = swap_endian32( bss_base + swap_endian32( *pfull ) );
+                    longword_mode = false;
+                }
+                else
+                    pimage[ i ] = swap_endian16( (uint16_t) bss_base + swap_endian16( pimage[ i ] ) );
+            }
+            else if ( 5 == r )
+                longword_mode = true;
+            else
+                longword_mode = false;
+        }
+    }
+
+    return true;
+} //handle_relocations_cpm
+
+bool load59_cpm68k( FILE *fp, uint32_t lowestAddress, uint32_t highestAddress, uint16_t loaderControlFlags, uint32_t & basePage, uint32_t & stackPointer )
+{
+    if ( 0 != loaderControlFlags )
+    {
+        tracer.Trace( "ERROR: only loading to lowest address is implemented\n" );
+        printf( "ERROR: only loading to lowest address is implemented\n" );
+        return false;
+    }
+
+    g_cpmSymbols.resize( 0 ); // throw away parent symbols
+    uint32_t child_memory_size = highestAddress + 1 - lowestAddress;
+
+    fseek( fp, (long) 0, SEEK_SET );
+    HeaderCPM68K head;
+    size_t read = fread( &head, sizeof( head ), 1, fp );
+    if ( 1 != read )
+    {
+        printf( "can't read header of cp/m 68k image file\n" );
+        return false;
+    }
+
+    head.swap_endianness();
+    head.trace();
+
+    if ( 0x601a != head.signature )
+    {
+        printf( "header of cp/m 68k image file isn't standard 0x601a:\n" );
+        return false;
+    }
+
+    if ( 0 == lowestAddress )    // ddt loads debugged apps at 0. Don't overwrite trap vectors; use a standard address
+        lowestAddress = 0x7a00;
+
+    uint32_t text_base;
+    if ( 0 != head.relocation_flag ) // 0 means they exist, != 0 means they don't exist
+        text_base = head.text_start;
+    else
+        text_base = lowestAddress + 0x100; // leave room for the base page
+
+    uint32_t image_size = head.cb_text + head.cb_data + head.cb_bss;
+    basePage = lowestAddress;
+    stackPointer = highestAddress & 0xfffffffe; // make sure it's 2-byte aligned
+    BasePageCPM * pbasepage = (BasePageCPM *) ( memory.data() + basePage );
+
+    fseek( fp, (long) sizeof( head ), SEEK_SET );
+    read = fread( memory.data() + text_base, head.cb_text + head.cb_data, 1, fp );
+    if ( 1 != read )
+    {
+        printf( "can't read text and data segments of cp/m 68k image file\n" );
+        return false;
+    }
+
+    // malloc / brk in the C runtime for DR C use some of these values
+
+    pbasepage->lowest_tpa = swap_endian32( lowestAddress );
+    pbasepage->highest_tpa = swap_endian32( highestAddress );
+    pbasepage->start_text = swap_endian32( text_base );
+    pbasepage->cb_text = swap_endian32( head.cb_text );
+    pbasepage->start_data = swap_endian32( text_base + head.cb_text );
+    pbasepage->cb_data = swap_endian32( head.cb_data );
+    pbasepage->start_bss = swap_endian32( text_base + head.cb_text + head.cb_data );
+    pbasepage->cb_bss = swap_endian32( head.cb_bss );
+    pbasepage->cb_after_bss = swap_endian32( highestAddress + 1 - lowestAddress + 0x100 + head.cb_text + head.cb_data + head.cb_bss );
+
+    uint32_t data_base = text_base; // + head.cb_text; with 0x601a all bases belong to text_base
+    uint32_t bss_base = text_base; // data_base + head.cb_data;
+
+    if ( !handle_relocations_cpm( fp, head, text_base, data_base, bss_base ) )
+        return false;
+
+    if ( !read_symbols_cpm( fp, head, text_base, data_base, bss_base ) )
+        return false;
+
+    tracer.Trace( "memory map from highest to lowest addresses:\n" );
+    tracer.Trace( "  actual top of stack:                                %x\n", stackPointer );
+    tracer.Trace( "  <stack>\n" );
+    tracer.Trace( "  <unallocated space between brk and the stack>\n" );
+    tracer.Trace( "  end_of_bss / current brk:                           %x\n", text_base + head.cb_text + head.cb_data  + head.cb_bss );
+    tracer.Trace( "  <uninitialized bss data\n" );
+    tracer.Trace( "  start of bss segment:                               %x\n", text_base + head.cb_text + head.cb_data );
+    tracer.Trace( "  <initialized data from the .68k file>\n" );
+    tracer.Trace( "  start of data segment:                              %x\n", text_base + head.cb_text );
+    tracer.Trace( "  <code from the .68k file>\n" );
+    tracer.Trace( "  initial pc execution_addess + start of code         %x\n", text_base );
+    tracer.Trace( "  start of base page:                                 %x\n", basePage );
+    tracer.Trace( "  start of the address space:                         %x\n", g_base_address );
+
+    tracer.Trace( "first 512 bytes starting at base page:\n" );
+    tracer.TraceBinaryData( memory.data() + basePage, 512, 8 );
+
+    return true;
+} //load59_cpm68k
+
 bool load_cpm68k( const char * acApp, const char * acAppArgs )
 {
     assert( 256 == sizeof( BasePageCPM ) ); // make sure the structure was defined correctly
@@ -3930,12 +4239,12 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     uint32_t image_size = head.cb_text + head.cb_data + head.cb_bss;
     uint32_t memory_size = 0x100 + text_base + image_size; // base page + offset from 0 to start of code + total size of image loaded from the executable
 
-    // make it 16-byte aligned for no particular reason
+    // make it 4-byte aligned
 
-    if ( memory_size & 0xf )
+    if ( memory_size & 3 )
     {
-        memory_size += 16;
-        memory_size &= ~0xf;
+        memory_size += 4;
+        memory_size &= ~3;
     }
 
     g_end_of_data = memory_size;
@@ -3946,22 +4255,16 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     g_bottom_of_stack = memory_size;
     memory_size += g_stack_commit;
 
-#if 0 // no map functionality in cp/m 68k
-    memory_size = round_up( memory_size, (REG_TYPE) 4096 ); // mmap should hand out 4k-aligned pages
-    g_mmap_offset = memory_size;
-    memory_size += g_mmap_commit;
-#endif
-
     memory.resize( memory_size );
     memset( memory.data(), 0, memory.size() );
+
+    // put the supervisor stack pointer in the first 4 bytes of RAM.
+    * (uint32_t *) memory.data() = swap_endian32( 0x2000 ); // arbitrary, but above the vector table and below the typical cp/m 68k base page
 
     g_base_address = 0;
     uint32_t base_page = text_base - 0x100; // where the base page (256 bytes) resides
     BasePageCPM * pbasepage = (BasePageCPM *) ( memory.data() + base_page );
     g_execution_address = text_base;
-#if 0 // no map functionality in cp/m 68k
-    g_mmap.initialize( g_base_address + g_mmap_offset, g_mmap_commit, memory.data() - g_base_address );
-#endif
     g_top_of_stack = (REG_TYPE) g_bottom_of_stack + g_stack_commit;
     pbasepage->reserved[ 1 ] = 0x4e; // stop instruction at at offset 0x26 in the base page (not a cp/m standard)
     pbasepage->reserved[ 2 ] = 0x72;
@@ -3974,7 +4277,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     *pbase_page_address = swap_endian32( base_page );
     tracer.Trace( "memory at top of stack address %#x:\n", g_top_of_stack );
     tracer.TraceBinaryData( & memory[ g_top_of_stack ], 8, 4 );
-    
+
     fseek( fp, (long) sizeof( head ), SEEK_SET );
     read = fread( memory.data() + text_base, head.cb_text + head.cb_data, 1, fp );
     if ( 1 != read )
@@ -4000,7 +4303,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     strcpy( (char *) ( pbasepage->command_tail ), acAppArgs );
     tracer.Trace( "arg_len %u, command tail %s\n", arg_len, acAppArgs );
 
-    // put what look like filenames on the command tail in the two FCBs in the base page. Apps don't much use this.
+    // put what looks like filenames in the command tail in the two FCBs in the base page. Apps don't much use this.
 
     char acCopy[ 128 ];
     strcpy( acCopy, acAppArgs );
@@ -4079,117 +4382,14 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     uint32_t data_base = text_base; // + head.cb_text; with 0x601a all bases belong to text_base
     uint32_t bss_base = text_base; // data_base + head.cb_data;
 
-    if ( 0 == head.relocation_flag ) // 0 means they exist
-    {
-        uint16_t * pimage = (uint16_t *) ( memory.data() + text_base );
-        uint32_t relocation_words = ( head.cb_text + head.cb_data ) / 2;
-        vector<uint16_t> relocations;
-        relocations.resize( relocation_words );
-        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data + head.cb_symbols, SEEK_SET );
-        read = fread( relocations.data(), relocation_words * 2, 1, fp );
-        if ( 1 != read )
-        {
-            printf( "can't read relocations data of cp/m 68k image file: %s\n", acApp );
-            return false;
-        }
+    if ( !handle_relocations_cpm( fp, head, text_base, data_base, bss_base ) )
+        return false;
 
-        bool longword_mode = false;
-
-        for ( uint32_t i = 0; i < relocation_words; i++ )
-        {
-            uint16_t r = 7 & swap_endian16( relocations[ i ] );
-
-            if ( 1 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with data_base %#x, longword_mode %u\n", i, data_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( data_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }    
-                else
-                    pimage[ i ] = swap_endian16( ( 0xffff & data_base ) + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 2 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with text_base %#x, longword_mode %u\n", i, text_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( text_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }
-                else
-                    pimage[ i ] = swap_endian16( (uint16_t) text_base + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 3 == r )
-            {
-                //tracer.Trace( "updating relocation offset %u with bss_base %#x, longword_mode %u\n", i, bss_base, longword_mode );
-                if ( longword_mode )
-                {
-                    uint32_t * pfull = (uint32_t *) ( pimage + i - 1 );
-                    *pfull = swap_endian32( bss_base + swap_endian32( *pfull ) );
-                    longword_mode = false;
-                }
-                else
-                    pimage[ i ] = swap_endian16( (uint16_t) bss_base + swap_endian16( pimage[ i ] ) );
-            }
-            else if ( 5 == r )
-                longword_mode = true;
-            else
-                longword_mode = false;
-        }
-    }
-
-    if ( 0 != head.cb_symbols ) // if they exist, load symbols so disassembly and hard termination can show them
-    {
-        uint32_t symbol_count = head.cb_symbols / sizeof( SymbolEntryCPM );
-        g_cpmSymbols.resize( symbol_count );
-        fseek( fp, (long) sizeof( head ) + head.cb_text + head.cb_data, SEEK_SET );
-        read = fread( g_cpmSymbols.data(), head.cb_symbols, 1, fp );
-        if ( 1 != read )
-        {
-            printf( "can't read symbol data of cp/m 68k image file: %s\n", acApp );
-            return false;
-        }
-
-        for ( uint32_t i = 0; i < symbol_count; i++ )
-        {
-            SymbolEntryCPM & sym = g_cpmSymbols[ i ];
-            sym.swap_endianness();
-            if ( sym.type & 0x400 )
-                sym.value += data_base;
-            else if ( sym.type & 0x200 )
-                sym.value += text_base;
-            else if ( sym.type & 0x100 )
-                sym.value += bss_base;
-
-            // the DR tools create some symbols that aren't null-terminated
-            sym.name[ 7 ] = 0;
-        }
-
-        // add a final entry with a very large value so the lookup doesn't have to worry about that edge case
-
-        SymbolEntryCPM last;
-        strcpy( last.name, "!last" );
-        last.value = 0xffffffff;
-        g_cpmSymbols.push_back( last );
-
-        my_qsort( g_cpmSymbols.data(), g_cpmSymbols.size(), sizeof( SymbolEntryCPM ), symbol_compare_cpm );
-
-        tracer.Trace( "symbols:\n" );
-        for ( uint32_t i = 0; i < symbol_count; i++ )
-            g_cpmSymbols[ i ].trace();
-    }
+    if ( !read_symbols_cpm( fp, head, text_base, data_base, bss_base ) )
+        return false;
 
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  first byte beyond allocated memory:                 %x\n", g_base_address + memory_size );
-#if 0 // no mmap support in cp/m 68k
-    tracer.Trace( "  <mmap arena>                                        (%d = %x bytes)\n", g_mmap_commit, g_mmap_commit );
-    tracer.Trace( "  mmap start adddress:                                %x\n", g_base_address + g_mmap_offset );
-    tracer.Trace( "  <align to 4k-page for mmap allocations>\n" );
-#endif
     tracer.Trace( "  actual top of stack:                                %x\n", g_top_of_stack + 8 );
     tracer.Trace( "  initial stack pointer g_top_of_stack:               %x\n", g_top_of_stack );
     REG_TYPE stack_bytes = g_stack_commit;
@@ -4314,7 +4514,119 @@ void WriteRandom( m68000 & cpu )
         tracer.Trace( "ERROR: write random can't parse filename\n" );
 } //WriteRandom
 
-void emulator_invoke_68k_trap2( m68000 & cpu )
+void emulator_invoke_68k_trap3( m68000 & cpu ) // bios
+{
+    uint16_t function = ( 0xffff & ACCESS_REG( REG_SYSCALL ) );
+    tracer.Trace( "trap 3 cp/m 68k bios call %u arguments %#x, %#x\n", function, ACCESS_REG( REG_ARG0 ), ACCESS_REG( REG_ARG1 ) );
+
+    switch( function )
+    {
+        case 22: // set exception handler address
+        {
+            uint32_t vector_number = 0xffff & ACCESS_REG( REG_ARG0 );
+            uint32_t vector_address = ACCESS_REG( REG_ARG1 );
+            ACCESS_REG( REG_RESULT ) = cpu.getui32( vector_number * 4 );
+            cpu.setui32( vector_number * 4, vector_address );
+            break;
+        }
+        default:
+        {
+            printf( "  unhandled cp/m bios call %u\n", function );
+            tracer.Trace( "  unhandled cp/m bios call %u\n", function );
+            ACCESS_REG( REG_RESULT ) = 0xff;
+            break;
+        }
+    }
+} //emulator_invoke_68k_trap3
+
+uint8_t map_input( uint8_t input )
+{
+    uint8_t output = input;
+
+#if defined(_MSC_VER) || defined(WATCOM)
+    // On Windows, input is  0xe0 for standard arrow keys and 0 for keypad equivalents
+    // On DOS/WATCOM, input is 0 for both cases
+
+    if ( 0 == input || 0xe0 == input )
+    {
+        uint8_t next = (uint8_t) ConsoleConfiguration::portable_getch();
+
+        // map various keys to ^ XSEDCRG used in many apps.
+
+        if ( 'K' == next )                   // left arrow
+            output = 1 + 'S' - 'A';
+        else if ( 'P' == next )              // down arrow
+            output = 1 + 'X' - 'A';
+        else if ( 'M' == next )              // right arrow
+            output = 1 + 'D' - 'A';
+        else if ( 'H' == next )              // up arrow
+            output = 1 + 'E' - 'A';
+        else if ( 'Q' == next )              // page down
+            output = 1 + 'C' - 'A';
+        else if ( 'I' == next )              // page up
+            output = 1 + 'R' - 'A';
+        else if ( 'S' == next )              // del
+            output = 1 + 'G' - 'A';
+        else
+            tracer.Trace( "  no map_input mapping for %02x, second character %02x\n", input, next );
+
+        tracer.Trace( "    next character after %02x: %02x == '%c' mapped to %02x\n", input, printable( next ), output );
+    }
+#else // Linux / MacOS
+    if ( 0x1b == input )
+    {
+        if ( g_consoleConfig.portable_kbhit() )
+        {
+            tracer.Trace( "read an escape on linux... getting next char\n" );
+            uint8_t nexta = ConsoleConfiguration::portable_getch();
+            tracer.Trace( "read an escape on linux... getting next char again\n" );
+            uint8_t nextb = ConsoleConfiguration::portable_getch();
+            tracer.Trace( "  nexta: %02x. nextb: %02x\n", nexta, nextb );
+
+            if ( '[' == nexta )
+            {
+                if ( 'A' == nextb )              // up arrow
+                    output = 1 + 'E' - 'A';
+                else if ( 'B' == nextb )         // down arrow
+                    output = 1 + 'X' - 'A';
+                else if ( 'C' == nextb )         // right arrow
+                    output = 1 + 'D' - 'A';
+                else if ( 'D' == nextb )         // left arrow
+                    output = 1 + 'S' - 'A';
+                else if ( '5' == nextb )         // page up
+                {
+                    uint8_t nextc = g_consoleConfig.portable_getch();
+                    tracer.Trace( "  5 nextc: %02x\n", nextc );
+                    if ( '~' == nextc )
+                        output = 1 + 'R' - 'A';
+                }
+                else if ( '6' == nextb )         // page down
+                {
+                    uint8_t nextc = g_consoleConfig.portable_getch();
+                    tracer.Trace( "  6 nextc: %02x\n", nextc );
+                    if ( '~' == nextc )
+                        output = 1 + 'C' - 'A';
+                }
+                else if ( '3' == nextb )         // DEL on linux
+                {
+                    uint8_t nextc = g_consoleConfig.portable_getch();
+                    tracer.Trace( "  3 nextc: %02x\n", nextc );
+                    if ( '~' == nextc )
+                        output = 0x7f;
+                }
+                else
+                    tracer.Trace( "unhandled nextb %u == %02x\n", nextb, nextb ); // lots of other keys not on a cp/m machine here
+            }
+            else
+                tracer.Trace( "unhandled linux keyboard escape sequence\n" );
+        }
+    }
+#endif
+
+    return output;
+} //map_input
+
+void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
 {
     char acFilename[ CPM_FILENAME_LEN ];
     uint16_t function = ( 0xffff & ACCESS_REG( REG_SYSCALL ) );
@@ -4332,6 +4644,15 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             tracer.Trace( "  emulated app exit code %d\n", g_exit_code );
             break;
         }
+        case 1: // console input. echo input to console
+        {
+            uint8_t ch = (uint8_t) get_next_kbd_char();
+            ACCESS_REG( REG_RESULT ) = map_input( ch );
+            tracer.Trace( "  bdos console in: %02x == '%c'\n", ch, printable( ch ) );
+            printf( "%c", ch );
+            fflush( stdout );
+            break;
+        }
         case 2: // console output. d1.w ascii chracter
         {
             // console output
@@ -4339,7 +4660,7 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             // a subsequent ^c terminates the application. ^q resumes output then ^c has no effect.
 
             uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
-            if ( 0x0d != ch )             // skip carriage return because line feed turns into cr+lf
+            if ( 0x0d != ch && 0 != ch )  // skip carriage return because line feed turns into cr+lf. Also, cp/m 68k as.68k v1 outputs a null character; ignore it.
             {
                 tracer.Trace( "  bdos console out: %02x == '%c'\n", ch, printable( ch ) );
                 printf( "%c", ch );
@@ -4349,14 +4670,21 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
             ACCESS_REG( REG_RESULT ) = 0;
             break;
         }
-        case 6: // direct console i/o
+        case 6: // direct console i/o. Note slightly different behavior than cp/m 80 v2.2 with the 0xff and 0xfe distinction
         {
             uint16_t cmd = (uint16_t) ( 0xffff & ACCESS_REG( REG_ARG0 ) );
-            if ( 0xff == cmd ) // input
+            if ( 0xff == cmd ) // input. block until a character is ready
             {
+                uint8_t input = (uint8_t) get_next_kbd_char();
+                tracer.Trace( "  read character %u == %02x == '%c'\n", input, input, printable( input ) );
+                ACCESS_REG( REG_RESULT ) = map_input( input );
             }
-            else if ( 0xfe == cmd ) // status
+            else if ( 0xfe == cmd ) // status. return non-zero if available and 0 if unavailable
             {
+                if ( is_kbd_char_available() )
+                    ACCESS_REG( REG_RESULT ) = 1;
+                else
+                    ACCESS_REG( REG_RESULT ) = 0;
             }
             else // output
             {
@@ -4390,6 +4718,36 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                     printf( "%c", ch );
             }
             fflush( stdout );
+            break;
+        }
+        case 10: // read console buffer. aka buffered console input. DE: buffer address. buffer:
+        {
+            //   0      1         2       3
+            //   in_len out_len   char1   char2 ...
+
+            char * pbuf = (char *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pbuf[ 1 ] = 0;
+            uint16_t in_len = *pbuf;
+
+            if ( in_len > 0 )
+            {
+                pbuf[ 2 ] = 0;
+                uint8_t out_len;
+                bool reboot = cpm_read_console( pbuf + 2, in_len, out_len );
+                if ( reboot )
+                {
+                    tracer.Trace( "  bdos read console buffer read a ^c at the first position, so it's terminating the app\n" );
+                    cpu.end_emulation();
+                    g_terminate = true;
+                    g_exit_code = 1;
+                    break;
+                }
+
+                pbuf[ 1 ] = out_len;
+                tracer.Trace( "  read console len %u, string '%.*s'\n", out_len, (size_t) out_len, pbuf + 2 );
+            }
+            else
+                tracer.Trace( "WARNING: read console buffer asked for input but provided a 0-length buffer\n" );
             break;
         }
         case 11: // get console status
@@ -4458,10 +4816,8 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename in FCB\n" );
             break;
         }
-        case 16:
+        case 16: // close file. return 255 on error and 0..3 directory code otherwise
         {
-            // close file. return 255 on error and 0..3 directory code otherwise
-
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
             pfcb->Trace();
             ACCESS_REG( REG_RESULT ) = 255;
@@ -4485,10 +4841,8 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename in close call\n" );
             break;
         }
-        case 19:
+        case 19: // delete file. return 255 if file not found and 0..3 directory code otherwise
         {
-            // delete file. return 255 if file not found and 0..3 directory code otherwise
-
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
             pfcb->Trace();
             ACCESS_REG( REG_RESULT ) = 255;
@@ -4515,9 +4869,8 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename for delete file\n" );
             break;
         }
-        case 20:
+        case 20: // read sequential. return 0 on success or non-0 on failure:
         {
-            // read sequential. return 0 on success or non-0 on failure:
             // reads 128 bytes from cr of the extent and increments cr.
             // if cr overflows, the extent is incremented and cr is set to 0 for the next read
 
@@ -4573,9 +4926,8 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename in read sequential file\n" );
             break;
         }
-        case 21:
+        case 21: // write sequential. return 0 on success or non-0 on failure (out of disk space)
         {
-            // write sequential. return 0 on success or non-0 on failure (out of disk space)
             // reads 128 bytes from cr of the extent and increments cr.
             // if cr overflows, the extent is incremented and cr is set to 0 for the next read
 
@@ -4613,9 +4965,8 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename in write sequential file\n" );
             break;
         }
-        case 22:
+        case 22: // make file. return 255 if out of space or the file exists. 0..3 directory code otherwise.
         {
-            // make file. return 255 if out of space or the file exists. 0..3 directory code otherwise.
             // "the Make function has the side effect of activating the FCB and thus a subsequent open is not necessary."
 
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
@@ -4648,32 +4999,24 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: can't parse filename in make file\n" );
             break;
         }
-        case 25:
+        case 25: // return current disk
         {
-            // return current disk
-
             ACCESS_REG( REG_RESULT ) = 0;
             break;
         }
-        case 26:
+        case 26: // set the dma address (128 byte buffer for doing I/O)
         {
-            // set the dma address (128 byte buffer for doing I/O)
-
             tracer.Trace( "  updating DMA address; D %u = %#x\n", ACCESS_REG( REG_ARG0 ), ACCESS_REG( REG_ARG0 ) );
             g_DMA = memory.data() + ACCESS_REG( REG_ARG0 );
             break;
         }
-        case 32:
+        case 32: // get/set current user
         {
-            // get/set current user
-
             ACCESS_REG( REG_RESULT ) = 0;
             break;
         }
-        case 33:
+        case 33: // read random
         {
-            // read random
-
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
             pfcb->Trace();
             ACCESS_REG( REG_RESULT ) = 6; // seek past end of disk
@@ -4737,17 +5080,13 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 tracer.Trace( "ERROR: read random can't parse filename\n" );
             break;
         }
-        case 34:
+        case 34: // write random
         {
-            // write random
-
             WriteRandom( cpu );
             break;
         }
-        case 35:
+        case 35: // Compute file size. A = 0 if ok, 0xff on failure. Sets r0/r1/2 to the number of 128 byte records
         {
-            // Compute file size. A = 0 if ok, 0xff on failure. Sets r0/r1/2 to the number of 128 byte records
-
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
             pfcb->Trace();
             ACCESS_REG( REG_RESULT ) = 255;
@@ -4775,6 +5114,18 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
                 else
                     tracer.Trace( "ERROR: compute file size can't find file '%s'\n", acFilename );
             }
+            else
+                tracer.Trace( "ERROR: compute file size can't parse filename\n" );
+            break;
+        }
+        case 40:
+        {
+            // write random with zero fill.
+            // Just like 34 / write random except also fills any file-extending blocks with 0.
+            // The 34 implementation of WriteRandom already fills with zeros, so just use that.
+            // I haven't found any apps that call this, so I can't say it's really tested.
+
+            WriteRandom( cpu );
             break;
         }
         case 47: // chain to program
@@ -4810,6 +5161,68 @@ void emulator_invoke_68k_trap2( m68000 & cpu )
         case 48: // flush buffers
         {
             fflush( 0 );
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 59: // program load (used by ddt). returns 0 = success, 1 = insufficient RAM, 2 = read error, 3 = bad relocation bits
+        {
+            LoadParameterBlockCPM * plpb = (LoadParameterBlockCPM *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            plpb->swap_endianness();
+            plpb->trace();
+            ACCESS_REG( REG_RESULT ) = 1;
+
+            bool ok = parse_FCB_Filename( (FCBCPM68K *) cpu.getmem( plpb->fcbOfChildApp ), acFilename );
+            if ( ok )
+            {
+                tracer.Trace( "  program to load: '%s'\n", acFilename );
+                FILE * fp = FindFileEntry( acFilename );
+                if ( fp )
+                {
+                    uint32_t basePage = 0;
+                    uint32_t stackPointer = 0;
+                    if ( load59_cpm68k( fp, plpb->lowestAddress, plpb->highestAddress, plpb->loaderControlFlags, basePage, stackPointer ) )
+                    {
+                        plpb->childBasePage = basePage;
+                        plpb->childStackPointer = stackPointer;
+                        plpb->trace();
+                        plpb->swap_endianness();
+                        cpu.relax_pc_sp_constraints();
+                        ACCESS_REG( REG_RESULT ) = 0;
+                    }
+                    else
+                        tracer.Trace( "ERROR: program load failed to actually load the app\n" );
+                }
+                else
+                    tracer.Trace( "ERROR: program load can't find file in list of open files\n" );
+            }
+            else
+                tracer.Trace( "ERROR: program load can't parse filename\n" );
+            break;
+        }
+        case 61: // set exception vector. returns 0 on success, 0xff on failure
+        {
+            ExceptionParameterBlockCPM * pepb = (ExceptionParameterBlockCPM *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            tracer.TraceBinaryData( (uint8_t *) pepb, 10, 8 );
+            pepb->swap_endianness();
+            pepb->trace();
+
+            if ( pepb->vector >= 64 )
+            {
+                tracer.Trace( "ERROR: invalid vector number %u\n", pepb->vector );
+                ACCESS_REG( REG_RESULT ) = 0xff;
+                break;
+            }
+
+            pepb->oldValue = cpu.getui32( pepb->vector * 4 );
+            cpu.setui32( pepb->vector * 4, pepb->newValue );
+            pepb->trace();
+            pepb->swap_endianness();
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 62: // set supervisor state.
+        {
+            cpu.set_supervisor_state();
             ACCESS_REG( REG_RESULT ) = 0;
             break;
         }

@@ -297,8 +297,8 @@ extern "C" int main()
     printf( "  negative int: %d, %x\n", -27, -27 );
     printf( "  int64_t: %lld, %llx\n", (int64_t) 27, (int64_t) 27 );
     printf( "  negative int64_t: %lld, %llx\n", (int64_t) -27, (int64_t) -27 );
-//    printf( "  float: %f\n", 3.1415729 );
-//    printf( "  negative float: %f\n", -3.1415729 );
+    printf( "  float: %f\n", 3.1415729 );
+    printf( "  negative float: %f\n", -3.1415729 );
 
     printf( "stop\n" );
     return 0;
