@@ -1712,6 +1712,8 @@ uint64_t RiscV::run()
                 trace_state();
         }
 
+        cycles++;
+
         switch( opcode_type )         // 18.5% of runtime setting up for the jump table
         {
             case 0:
@@ -2986,7 +2988,6 @@ uint64_t RiscV::run()
         } // switch( opcode_type )
 
         pc = pcnext;
-        cycles++;
     } // for
 
     return cycles;
