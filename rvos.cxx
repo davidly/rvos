@@ -958,6 +958,37 @@ static void backslash_to_slash( char * p )
     }
 } //backslash_to_slash
 
+class Win32BinaryMode
+{
+    int prevmode;
+    bool modeset;
+
+    public:
+        Win32BinaryMode( bool set ) : modeset( false ), prevmode( 0 )
+        {
+            #if defined( _WIN32 )
+                if ( set )
+                {
+                    fflush( stdout );
+                    prevmode = _setmode( _fileno( stdout ), _O_BINARY ); // don't convert LF (10) to CR LF (13 10)
+                    modeset = true;
+                    tracer.Trace( "set to binary mode\n" );
+                }
+            #endif
+        }
+    
+        ~Win32BinaryMode()
+        {
+            #if defined( _WIN32 )
+                if ( modeset )
+                {
+                    fflush( stdout );
+                    _setmode( _fileno( stdout ), prevmode ); // likely back in text mode
+                }
+            #endif
+        }
+};
+
 #ifdef _WIN32
 
 static void slash_to_backslash( char * p )
@@ -1685,6 +1716,12 @@ static void update_result_errno( CPUClass & cpu, SIGNED_REG_TYPE result )
     }
 } //update_result_errno
 
+void send_character( uint8_t c )
+{
+    Win32BinaryMode bm( 10 == c );
+    printf( "%c", c );
+} //send_character
+
 #ifdef M68K
 extern "C" long syscall( long number, ... );
 #endif
@@ -1752,7 +1789,7 @@ void emulator_invoke_svc( CPUClass & cpu )
         {
             if ( 12 != ACCESS_REG( REG_ARG0 ) )
             {
-                printf( "%c", (uint8_t) ACCESS_REG( REG_ARG0 ) );
+                send_character( (uint8_t) ACCESS_REG( REG_ARG0 ) );
                 fflush( stdout );
             }
             update_result_errno( cpu, 0 );
@@ -2033,6 +2070,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                     tracer.Trace( "  writing '%.*s'\n", (int) count, p );
 
                 tracer.TraceBinaryData( p, (uint32_t) count, 4 );
+                Win32BinaryMode bm( descriptor <= 2 );
                 size_t written = write( descriptor, p, (int) count );
                 update_result_errno( cpu, (REG_TYPE) written );
             }
@@ -2813,6 +2851,7 @@ void emulator_invoke_svc( CPUClass & cpu )
                 tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (REG_TYPE) pvec->iov_base ) );
 
 #ifdef _WIN32
+            Win32BinaryMode bm( descriptor <= 2 );
             int64_t result = write( descriptor, cpu.getmem( (uint64_t) pvec->iov_base ), (unsigned) pvec->iov_len );
 #else
             struct iovec vec_local;
@@ -3262,7 +3301,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 void emulator_invoke_68k_trap15( m68000 & cpu )
 {
     uint16_t svc = cpu.getui16( cpu.pc + 2 ); // two bytes that are two bytes past the trap instruction
-    tracer.Trace( "68k trap 16: svc %u, reg0 %x\n", svc, ACCESS_REG( 0 ) );
+    tracer.Trace( "68k trap 15: svc %u, reg0 %x\n", svc, ACCESS_REG( 0 ) );
 
     switch( svc )
     {
@@ -3277,11 +3316,9 @@ void emulator_invoke_68k_trap15( m68000 & cpu )
         case 1: // putch
         {
             uint8_t val = (uint8_t) ACCESS_REG( 0 );
-            if ( 0xd != val )
-            {
-                size_t written = write( 1, &val, 1 );
-                update_result_errno( cpu, (REG_TYPE) written );
-            }
+            Win32BinaryMode bm( 10 == val );
+            size_t written = write( 1, &val, 1 );
+            update_result_errno( cpu, (REG_TYPE) written );
             break;
         }
         default:
@@ -3492,8 +3529,46 @@ const char * bdos_function( uint32_t id )
     if ( id < _countof( bdos_functions ) )
         return bdos_functions[ id ];
 
+    if ( 108 == id )
+        return "cp/m v3 get/put exit code";
+
     return "unknown";
+} //bdos_function
+
+const char * bios_functions[] =
+{
+    "initialization",                      // 0
+    "warm boot",
+    "console status",
+    "read console character in",
+    "write console character out",
+    "list",
+    "auxiliary output",
+    "auxiliary input",
+    "home",
+    "selet disk drive",
+    "set track number",                    // 10
+    "set sector number",
+    "set dma address",
+    "read selected sector",
+    "write selected sector",
+    "return list status",
+    "sector translate",
+    "17 is unused",
+    "get memory region table address",
+    "get i/o mapping byte",
+    "set i/o mapping byte",                // 20
+    "flush buffers",
+    "set exception handler address"
 };
+
+const char * bios_function( uint32_t id )
+{
+    if ( id < _countof( bios_functions ) )
+        return bios_functions[ id ];
+
+    return "unknown";
+} //bios_function
 
 void append_string( char * pc, const char * a )
 {
@@ -4096,7 +4171,7 @@ bool cpm_read_console( char * buf, size_t bufsize, uint8_t & out_len )
         }
         else
         {
-            printf( "%c", ch );
+            send_character( ch );
             fflush( stdout );
             buf[ out_len++ ] = ch;
         }
@@ -4431,7 +4506,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     char * pcArg2 = 0;
     char * pa = acCopy;
 
-    while ( *pa && !pcArg1 && !pcArg2 )
+    while ( *pa && !pcArg2 )
     {
         if ( ' ' == *pa )
             pa++;
@@ -4448,7 +4523,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
             while ( *pa && ' ' != *pa )
                 pa++;
         }
-        else
+        else if ( !pcArg2 )
         {
             pcArg2 = pa;
             while ( *pa && ' ' != *pa )
@@ -4470,6 +4545,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
         strupr( pcArg1 );
         write_fcb_arg( & ( pbasepage->firstFCB ), pcArg1 );
     }
+
     if ( pcArg2 )
     {
         char * p = pcArg2;
@@ -4534,6 +4610,218 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
 
     return true;
 } //load_cpm68k
+
+#ifndef M68K
+
+bool IsAFolder( const char * pc )
+{
+    struct stat file_stat;
+    int result = stat( pc, &file_stat );
+    return ( ( 0 == result ) && ( 0 != ( S_IFDIR & file_stat.st_mode ) ) );
+} //IsAFolder
+
+bool ValidCPMFilename( char * pc )
+{
+    if ( !strcmp( pc, "." ) )
+        return false;
+
+    if ( !strcmp( pc, ".." ) )
+        return false;
+
+    const char * pcinvalid = "<>,;:=?[]%|()/\\";
+    for ( size_t i = 0; i < strlen( pcinvalid ); i++ )
+        if ( strchr( pc, pcinvalid[i] ) )
+            return false;
+
+    size_t len = strlen( pc );
+
+    if ( len > 12 )
+        return false;
+
+    char * pcdot = strchr( pc, '.' );
+
+    if ( !pcdot && ( len > 8 ) )
+        return false;
+
+    if ( pcdot && ( ( pcdot - pc ) > 8 ) )
+        return false;
+
+    return true;
+} //ValidCPMFilename
+
+#ifdef _MSC_VER
+    static HANDLE g_hFindFirst = INVALID_HANDLE_VALUE;
+
+    void CloseFindFirst()
+    {
+        if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+        {
+            FindClose( g_hFindFirst );
+            g_hFindFirst = INVALID_HANDLE_VALUE;
+        }
+    } //CloseFindFirst
+#else
+    #include <dirent.h>
+    static DIR * g_FindFirst = 0;
+
+    void CloseFindFirst()
+    {
+        if ( 0 != g_FindFirst )
+        {
+            closedir( g_FindFirst );
+            g_FindFirst = 0;
+        }
+    } //CloseFindFirst
+
+    void ExtractFilename( const char * filename, char * name, char * ext )
+    {
+        bool pastdot = false;
+        const char * p = filename;
+        int extlen = 0;
+        int namelen = 0;
+        while ( *p )
+        {
+            if ( '.' == *p )
+                pastdot = true;
+            else
+            {
+                if ( pastdot )
+                    ext[ extlen++ ] = *p;
+                else
+                    name[ namelen++ ] = *p;
+            }
+
+            p++;
+        }
+
+        assert( namelen <= 8 );
+        assert( extlen <= 3 );
+        name[ namelen ] = 0;
+        ext[ extlen ] = 0;
+    } //ExtractFilename
+
+    bool IsCPMPatternMatch( const char * pattern, const char * name )
+    {
+        bool match = true;
+        int o_pattern = 0, o_name = 0;
+        while ( pattern[ o_pattern ] || name[ o_name ] )
+        {
+            char cp = pattern[ o_pattern ];
+            char cn = name[ o_name ];
+
+            if ( ( '?' != cp ) && ( cp != cn ) )
+            {
+                tracer.Trace( "  not a pattern match at offsets %d / %d\n", o_pattern, o_name );
+                match = false;
+                break;
+            }
+
+            if ( cp )
+                o_pattern++;
+            if ( cn )
+                o_name++;
+        }
+
+        return match;
+    } //IsCPMPatternMatch
+
+    bool FindNextFileLinux( const char * pattern, DIR * pdir, LINUX_FIND_DATA & fd )
+    {
+        do
+        {
+            struct dirent * pent = readdir( pdir );
+            if ( 0 == pent )
+                return false;
+
+            // ignore files CP/M just wouldn't understand
+
+            if ( !ValidCPMFilename( pent->d_name ) || IsAFolder( pent->d_name ) )
+                continue;
+
+            tracer.Trace( "  FindNextFileLinux is matching '%s' with '%s'\n", pattern, pent->d_name );
+
+            bool match = true;
+            if ( strcmp( pattern, "????????.???" ) )
+            {
+                // cp/m patterns contain '?' (match anything including nothing), ' ' (match nothing), or literal characters
+
+                char acName[ 9 ], acExt[ 4 ];
+                char acPatternName[ 9 ], acPatternExt[ 4 ];
+                ExtractFilename( pattern, acPatternName, acPatternExt );
+                ExtractFilename( pent->d_name, acName, acExt );
+
+                tracer.Trace( "  extracted pattern name '%s' ext '%s', file name '%s', ext '%s'\n", acPatternName, acPatternExt, acName, acExt );
+
+                match = IsCPMPatternMatch( acPatternName, acName );
+                if ( match )
+                    match = IsCPMPatternMatch( acPatternExt, acExt );
+            }
+
+            if ( !match )
+                continue;
+
+            strcpy( fd.cFileName, pent->d_name );
+            return true;
+        } while ( true );
+
+        return false;
+    } //FindNextFileLinux
+
+    DIR * FindFirstFileLinux( const char * pattern, LINUX_FIND_DATA & fd )
+    {
+        DIR * pdir = opendir( "." );
+        tracer.Trace( "  opendir returned %p, errno %d = %s\n", pdir, errno, strerror( errno ) );
+
+        if ( 0 == pdir )
+            return 0;
+
+        bool found = FindNextFileLinux( pattern, pdir, fd );
+
+        if ( !found )
+        {
+            closedir( pdir );
+            return 0;
+        }
+
+        return pdir;
+    } //FindFirstFileLinux
+
+#endif
+
+void ParseFoundFile( char * pfile )
+{
+    tracer.Trace( "  ParseFoundFile '%s'\n", pfile );
+    memset( g_DMA, 0, 128 );
+    memset( g_DMA + 1, ' ', 11 );
+
+    size_t len = strlen( pfile );
+    assert( len <= 12 ); // 8.3 only
+    _strupr( pfile );
+
+    for ( size_t i = 0; i < len; i++ )
+    {
+        if ( '.' == pfile[ i ] )
+        {
+            for ( size_t e = 0; e < 3; e++ )
+            {
+                if ( 0 == pfile[ i + 1 + e ] )
+                    break;
+
+                g_DMA[ 8 + e + 1 ] = pfile[ i + 1 + e ];
+            }
+
+            break;
+        }
+
+        g_DMA[ i + 1 ] = pfile[ i ];
+    }
+
+    tracer.Trace( "  search for first/next found '%c%c%c%c%c%c%c%c%c%c%c'\n",
+                    g_DMA[1], g_DMA[2], g_DMA[3], g_DMA[4], g_DMA[5], g_DMA[6], g_DMA[7], g_DMA[8],
+                    g_DMA[9], g_DMA[10],  g_DMA[11] );
+} //ParseFoundFile
+
+#endif //M68K
 
 bool parse_FCB_Filename( FCBCPM68K * pfcb, char * pcFilename )
 {
@@ -4633,31 +4921,6 @@ void WriteRandom( m68000 & cpu )
         tracer.Trace( "ERROR: write random can't parse filename\n" );
 } //WriteRandom
 
-void emulator_invoke_68k_trap3( m68000 & cpu ) // bios
-{
-    uint16_t function = ( 0xffff & ACCESS_REG( REG_SYSCALL ) );
-    tracer.Trace( "trap 3 cp/m 68k bios call %u arguments %#x, %#x\n", function, ACCESS_REG( REG_ARG0 ), ACCESS_REG( REG_ARG1 ) );
-
-    switch( function )
-    {
-        case 22: // set exception handler address
-        {
-            uint32_t vector_number = 0xffff & ACCESS_REG( REG_ARG0 );
-            uint32_t vector_address = ACCESS_REG( REG_ARG1 );
-            ACCESS_REG( REG_RESULT ) = cpu.getui32( vector_number * 4 );
-            cpu.setui32( vector_number * 4, vector_address );
-            break;
-        }
-        default:
-        {
-            printf( "  unhandled cp/m bios call %u\n", function );
-            tracer.Trace( "  unhandled cp/m bios call %u\n", function );
-            ACCESS_REG( REG_RESULT ) = 0xff;
-            break;
-        }
-    }
-} //emulator_invoke_68k_trap3
-
 uint8_t map_input( uint8_t input )
 {
     uint8_t output = input;
@@ -4745,6 +5008,65 @@ uint8_t map_input( uint8_t input )
     return output;
 } //map_input
 
+void emulator_invoke_68k_trap3( m68000 & cpu ) // bios
+{
+    uint16_t function = ( 0xffff & ACCESS_REG( REG_SYSCALL ) );
+    tracer.Trace( "trap 3 cp/m 68k bios call %u arguments %#x, %#x -- %s\n", function, ACCESS_REG( REG_ARG0 ), ACCESS_REG( REG_ARG1 ), bios_function( function ) );
+
+    switch( function )
+    {
+        case 0: // cold boot
+        case 1: // warm boot
+        {
+            g_terminate = true;
+            cpu.end_emulation();
+            g_exit_code = (int) ACCESS_REG( REG_ARG0 ); // not part of the cp/m 68k spec but it seems handy
+            tracer.Trace( "  emulated app exit code %d\n", g_exit_code );
+            break;
+        }
+        case 2: // console status (check for console character ready)
+        {
+            if ( is_kbd_char_available() )
+                ACCESS_REG( REG_RESULT ) = 0xff;
+            else
+                ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 3: // read console character in
+        {
+            uint8_t input = (uint8_t) get_next_kbd_char();
+            tracer.Trace( "  read character %u == %02x == '%c'\n", input, input, printable( input ) );
+            ACCESS_REG( REG_RESULT ) = map_input( input );
+            break;
+        }
+        case 4: // write console character
+        {
+            uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
+            if ( 0 != ch )  // cp/m 68k assembler as.68k v1 outputs a null character; ignore it.
+            {
+                tracer.Trace( "  bios write console: %02x == '%c'\n", ch, printable( ch ) );
+                send_character( ch );
+                fflush( stdout );
+            }
+        }
+        case 22: // set exception handler address
+        {
+            uint32_t vector_number = 0xffff & ACCESS_REG( REG_ARG0 );
+            uint32_t vector_address = ACCESS_REG( REG_ARG1 );
+            ACCESS_REG( REG_RESULT ) = cpu.getui32( vector_number * 4 );
+            cpu.setui32( vector_number * 4, vector_address );
+            break;
+        }
+        default:
+        {
+            printf( "  unhandled cp/m bios call %u\n", function );
+            tracer.Trace( "  unhandled cp/m bios call %u\n", function );
+            ACCESS_REG( REG_RESULT ) = 0xff;
+            break;
+        }
+    }
+} //emulator_invoke_68k_trap3
+
 void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
 {
     char acFilename[ CPM_FILENAME_LEN ];
@@ -4768,7 +5090,7 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
             uint8_t ch = (uint8_t) get_next_kbd_char();
             ACCESS_REG( REG_RESULT ) = map_input( ch );
             tracer.Trace( "  bdos console in: %02x == '%c'\n", ch, printable( ch ) );
-            printf( "%c", ch );
+            send_character( ch );
             fflush( stdout );
             break;
         }
@@ -4779,10 +5101,10 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
             // a subsequent ^c terminates the application. ^q resumes output then ^c has no effect.
 
             uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
-            if ( 0x0d != ch && 0 != ch )  // skip carriage return because line feed turns into cr+lf. Also, cp/m 68k as.68k v1 outputs a null character; ignore it.
+            if ( 0 != ch )  // cp/m 68k assembler as.68k v1 outputs a null character; ignore it.
             {
                 tracer.Trace( "  bdos console out: %02x == '%c'\n", ch, printable( ch ) );
-                printf( "%c", ch );
+                send_character( ch );
                 fflush( stdout );
             }
 
@@ -4808,21 +5130,21 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
             else // output
             {
                 uint8_t ch = ( 0xff & ACCESS_REG( REG_ARG0 ) );
-                if ( 0x0d != ch )             // skip carriage return because line feed turns into cr+lf
-                {
-                    tracer.Trace( "  bdos console i/o output: %02x == '%c'\n", ch, printable( ch ) );
-                    printf( "%c", ch );
-                    fflush( stdout );
-                }
+                tracer.Trace( "  bdos console i/o output: %02x == '%c'\n", ch, printable( ch ) );
+                send_character( ch );
+                fflush( stdout );
             }
             break;
         }
-        case 9: // send $-terminated string to stdout
+        case 9: // print string. send $-terminated string to stdout
         {
             char * str = (char *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
             char * pdollar = strchr( str, '$' );
             if ( pdollar )
+            {
                 tracer.Trace( "   string: %.*s\n", pdollar - str, str );
+                tracer.TraceBinaryData( (uint8_t *) str, (uint32_t) ( pdollar - str ), 4 );
+            }
             uint32_t count = 0;
             while ( '$' != *str )
             {
@@ -4833,8 +5155,7 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
                 }
 
                 uint8_t ch = *str++;
-                if ( 0x0d != ch )              // skip carriage return because line feed turns into cr+lf
-                    printf( "%c", ch );
+                send_character( ch );
             }
             fflush( stdout );
             break;
@@ -4879,6 +5200,22 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
         case 12: // return version number
         {
             ACCESS_REG( REG_RESULT ) = 0x2022; // cp/m-68k v1.1
+            break;
+        }
+        case 13: // reset disks.
+        {
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 14: // select disk. Return 0 in result if OK, or 0xff otherwise.
+        {
+            uint8_t disk = (uint8_t) ACCESS_REG( REG_ARG0 );
+            tracer.Trace( "  selected disk %d == %c\n", disk, ( disk < 16 ) ? disk + 'A' : '?' );
+
+            if ( 0 == disk )
+                ACCESS_REG( REG_RESULT ) = 0;
+            else
+                ACCESS_REG( REG_RESULT ) = 255;
             break;
         }
         case 15: // open file. success 0-3, error 0xff
@@ -4960,6 +5297,139 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
                 tracer.Trace( "ERROR: can't parse filename in close call\n" );
             break;
         }
+#ifndef M68K
+        case 17: // search for first. 
+        {
+            // Use the FCB and write directory entries to the DMA address, then point to
+            // which of those entries is the actual one (0-3) or 0xff for not found in result.
+            // Find First on CP/M has a side-effect of flushing data to disk.
+
+            fflush( 0 );
+            FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pfcb->Trace();
+            ACCESS_REG( REG_RESULT ) = 255;
+            bool ok = parse_FCB_Filename( pfcb, acFilename );
+            if ( ok )
+            {
+                tracer.Trace( "  search for first match of '%s'\n", acFilename );
+                CloseFindFirst();
+
+#ifdef _MSC_VER
+                BOOL found = FALSE;
+                WIN32_FIND_DATAA fd = {0};
+                g_hFindFirst = FindFirstFileA( acFilename, &fd );
+                if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+                {
+                    do
+                    {
+                        if ( ValidCPMFilename( fd.cFileName ) && ! IsAFolder( fd.cFileName ) )
+                        {
+                            ParseFoundFile( fd.cFileName );
+                            ACCESS_REG( REG_RESULT ) = 0;
+                            found = TRUE;
+                            break;
+                        }
+                        else
+                        {
+                            found = FindNextFileA( g_hFindFirst, &fd );
+                            if ( !found )
+                                break;
+                        }
+                    } while ( true );
+                }
+                else
+                    tracer.Trace( "WARNING: find first file failed, error %d\n", GetLastError() );
+
+                if ( !found )
+                {
+                    CloseFindFirst();
+                    tracer.Trace( "WARNING: find first file couldn't find a single match\n" );
+                }
+#else
+                LINUX_FIND_DATA fd = {0};
+                g_FindFirst = FindFirstFileLinux( acFilename, fd );
+                if ( 0 != g_FindFirst )
+                {
+                    ParseFoundFile( fd.cFileName );
+                    ACCESS_REG( REG_RESULT ) = 0;
+                }
+                else
+                    tracer.Trace( "WARNING: find first file failed, error %d = %s\n", errno, strerror( errno ) );
+#endif
+            }
+            else
+                tracer.Trace( "ERROR: can't parse filename for search for first\n" );
+            break;
+        }
+        case 18: // search for next. 
+        {
+            // Use the FCB and write directory entries to the DMA address, then point to
+            // which of those entries is the actual one (0-3) or 0xff for not found in result.
+
+            FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pfcb->Trace();
+            ACCESS_REG( REG_RESULT ) = 255;
+            bool ok = parse_FCB_Filename( pfcb, acFilename );
+            if ( ok )
+            {
+                tracer.Trace( "  searchinf for next match of '%s'\n", acFilename );
+#ifdef _MSC_VER
+                if ( INVALID_HANDLE_VALUE != g_hFindFirst )
+                {
+                    BOOL found = FALSE;
+
+                    do
+                    {
+                        WIN32_FIND_DATAA fd = {0};
+                        found = FindNextFileA( g_hFindFirst, &fd );
+                        if ( found )
+                        {
+                            if ( ValidCPMFilename( fd.cFileName ) && !IsAFolder( fd.cFileName ) )
+                            {
+                                ParseFoundFile( fd.cFileName );
+                                ACCESS_REG( REG_RESULT ) = 0;
+                                break;
+                            }
+                            else
+                                found = FALSE;
+                        }
+                        else
+                            break;
+                    } while ( true );
+
+                    if ( !found )
+                    {
+                        tracer.Trace( "WARNING: find next file found no more, error %d\n", GetLastError() );
+                        CloseFindFirst();
+                    }
+                }
+                else
+                    tracer.Trace( "ERROR: search for next without a prior successful search for first\n" );
+#else
+                if ( 0 != g_FindFirst )
+                {
+                    LINUX_FIND_DATA fd = {0};
+                    bool found = FindNextFileLinux( acFilename, g_FindFirst, fd );
+                    if ( found )
+                    {
+                        ParseFoundFile( fd.cFileName );
+                        ACCESS_REG( REG_RESULT ) = 0;
+                    }
+                    else
+                    {
+                        tracer.Trace( "WARNING: find next file found no more, error %d = %s\n", errno, strerror( errno ) );
+                        CloseFindFirst();
+                    }
+                }
+                else
+                    tracer.Trace( "ERROR: search for next without a prior successful search for first\n" );
+#endif
+            }
+            else
+                tracer.Trace( "ERROR: can't parse filename for search for first\n" );
+            break;
+        }
+#endif
         case 19: // delete file. return 255 if file not found and 0..3 directory code otherwise
         {
             FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
@@ -5118,6 +5588,36 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
                 tracer.Trace( "ERROR: can't parse filename in make file\n" );
             break;
         }
+        case 23: // rename file. 0 for success, non-zero otherwise.
+        {
+            FCBCPM68K * pfcb = (FCBCPM68K *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            pfcb->Trace();
+            ACCESS_REG( REG_RESULT ) = 255;
+            char acOldName[ CPM_FILENAME_LEN ];
+            if ( parse_FCB_Filename( pfcb, acOldName ) )
+            {
+                 // if the file is open, close it or the rename will fail.
+
+                 if ( FindFileEntry( acOldName ) )
+                     fclose( RemoveFileEntry( acOldName ) );
+
+                char acNewName[ CPM_FILENAME_LEN ];
+                if ( parse_FCB_Filename( (FCBCPM68K *) ( ( (uint8_t *) pfcb ) + 16 ), acNewName ) )
+                {
+                    tracer.Trace( "  rename from '%s' to '%s'\n", acOldName, acNewName );
+
+                    if ( !rename( acOldName, acNewName ) )
+                        ACCESS_REG( REG_RESULT ) = 0;
+                    else
+                        tracer.Trace( "ERROR: can't rename file, errno %d = %s\n", errno, strerror( errno ) );
+                }
+                else
+                    tracer.Trace( "ERROR: can't parse new filename in rename\n" );
+            }
+            else
+                tracer.Trace( "ERROR: can't parse old filename in rename\n" );
+            break;
+        }
         case 25: // return current disk
         {
             ACCESS_REG( REG_RESULT ) = 0;
@@ -5127,6 +5627,11 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
         {
             tracer.Trace( "  updating DMA address; D %u = %#x\n", ACCESS_REG( REG_ARG0 ), ACCESS_REG( REG_ARG0 ) );
             g_DMA = memory.data() + ACCESS_REG( REG_ARG0 );
+            break;
+        }
+        case 29: // get read-only vector: return bitmap of read-only drives
+        {
+            ACCESS_REG( REG_RESULT ) = 0;
             break;
         }
         case 32: // get/set current user
@@ -5343,6 +5848,21 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
         {
             cpu.set_supervisor_state();
             ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 108: // bdos get put program return code
+        {
+            // This is not a CP/M v2.2 function. It is in CP/M v3 and it's so handy that it's here too. called by DR PLI v1.4.
+            // if DE = 0xffff then return current code in HL
+            // otherwise, set the current code to the value in DE
+
+            if ( 0xffff == ACCESS_REG( REG_ARG0 ) )
+                ACCESS_REG( REG_RESULT ) = g_exit_code;
+            else
+            {
+                g_exit_code = ACCESS_REG( REG_ARG0 ) >> 16;
+                tracer.Trace( "  app exit code set to %u\n", g_exit_code );
+            }
             break;
         }
         default:
