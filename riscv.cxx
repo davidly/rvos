@@ -41,6 +41,11 @@ using namespace std::chrono;
 
 #define USE_RVCTABLE 1
 
+static uint64_t g_ui64_NAN = 0x7ff8000000000000;
+
+#define MY_NAN ( * (double *) & g_ui64_NAN )
+
+#if 0
 #ifdef __clang__
     // some versions of clang++ reverse the definitions of NAN to be -NAN.
     // specifically the version that ships with Microsoft Visual Studio 2022
@@ -51,6 +56,7 @@ using namespace std::chrono;
     #define MY_NAN ((float)(INFINITY * 0.0F))
 #else
     #define MY_NAN NAN
+#endif
 #endif
 
 // these instruction types are mostly just useful for debugging
@@ -687,6 +693,159 @@ static const char * cmp_type( uint64_t t )
     return comparison_types[ t ];
 } //cmp_type
 
+// Arm64 returns -NAN in some cases for +-*/ math.
+// RISC-V64 always returns positive NAN in these cases.
+
+double do_fsub( double a, double b )
+{
+    bool ainf = isinf( a );
+    bool binf = isinf( b );
+
+    if ( ainf && binf )
+    {
+        if ( signbit( a ) != signbit( b ) )
+            return a;
+        return MY_NAN; // msft C will return -nan if this check isn't here
+    }
+
+    double result = a - b;
+    if ( isnan( result ) ) // never return -NAN
+        return MY_NAN;
+
+    return result;
+} //do_fsub
+
+double do_fadd( double a, double b )
+{
+    bool ainf = isinf( a );
+    bool binf = isinf( b );
+
+    if ( ainf && binf )
+    {
+        if ( signbit( a ) == signbit( b ) )
+            return a;
+        return MY_NAN; // msft C will return -nan if this check isn't here
+    }
+
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
+    if ( ainf )
+        return a;
+
+    if ( binf )
+        return b;
+
+    return a + b;
+} //do_fadd
+
+double do_fmul( double a, double b )
+{
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
+    bool ainf = isinf( a );
+    bool binf = isinf( b );
+    bool azero = ( 0.0 == a );
+    bool bzero = ( 0.0 == b );
+
+    if ( ( ainf && bzero ) || ( azero && binf ) )
+        return MY_NAN;
+
+    if ( ainf && binf )
+        set_double_sign( INFINITY, ( signbit( a ) != signbit( b ) ) );
+
+    if ( ainf || binf )
+        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
+
+    if ( azero || bzero )
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
+
+    return a * b;
+} //do_fmul
+
+double do_fdiv( double a, double b )
+{
+    if ( isnan( a ) )
+        return MY_NAN;
+
+    if ( isnan( b ) )
+        return MY_NAN;
+
+    bool ainf = isinf( a );
+    bool binf = isinf( b );
+    bool azero = ( 0.0 == a );
+    bool bzero = ( 0.0 == b );
+
+    if ( ( ainf && binf ) || ( azero && bzero ) )
+        return MY_NAN;
+
+    if ( ainf )
+        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
+
+    if ( binf )
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
+
+    if ( azero )
+        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
+
+    return a / b;
+} //do_fdiv
+
+double do_fmin( double a, double b )
+{
+    if ( ( 0.0 == a ) && ( 0.0 == b ) )
+    {
+        if ( signbit( a ) )
+            return a;
+        return b;
+    }
+
+    bool anan = isnan( a );
+    bool bnan = isnan( b );
+
+    if ( anan && bnan )
+        return MY_NAN; // canonical NAN in this case
+
+    if ( anan )
+        return b;
+
+    if ( bnan )
+        return a;
+
+    return get_min( a, b );
+} //do_fmin
+
+double do_fmax( double a, double b )
+{
+    if ( ( 0.0 == a ) && ( 0.0 == b ) )
+    {
+        if ( signbit( a ) )
+            return b;
+        return a;
+    }
+
+    bool anan = isnan( a );
+    bool bnan = isnan( b );
+
+    if ( anan && bnan )
+        return MY_NAN; // canonical NAN in this case
+
+    if ( anan )
+        return b;
+
+    if ( bnan )
+        return a;
+
+    return get_max( a, b );
+} //do_fmax
+
 #if defined( __GNUC__ ) && !defined( __APPLE__ ) && !defined( __clang__ )     // bogus warning in g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
 #pragma GCC diagnostic ignored "-Wformat="
 #endif
@@ -716,6 +875,12 @@ void RiscV::trace_state()
             snprintf( symbol_offset, _countof( symbol_offset ), " + %llx", offset );
         strcat( symbol_offset, "\n            " );
     }
+
+#if 0
+    static char float_regs[ 100 ] = {0};
+    snprintf( float_regs, _countof( float_regs ), "fa0 %llx fa4 %llx fs0 %llx fs1 %llx",
+              * (uint64_t *) &fregs[ a0 ], * (uint64_t *) &fregs[ a4 ], * (uint64_t *) &fregs[ s0 ], * (uint64_t *) &fregs[ s1 ] );
+#endif
 
     tracer.Trace( "pc %8llx %s%s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx a4 %llx a5 %llx gp %llx %s ra %llx sp %llx t %2llx %c => ",
                   pc, symbol_name, symbol_offset,
@@ -765,9 +930,9 @@ void RiscV::trace_state()
             else if ( 1 == opcode_type )
             {
                 if ( 2 == funct3 )
-                    tracer.Trace( "flw     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) );
+                    tracer.Trace( "flw     %s, %lld(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) );
                 else if ( 3 == funct3 )
-                    tracer.Trace( "fld     %s, %d(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) );
+                    tracer.Trace( "fld     %s, %lld(%s)  # %.2lf\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) );
             }
             else if ( 3 == opcode_type )
             {
@@ -814,13 +979,13 @@ void RiscV::trace_state()
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         //uint32_t result = val << i_shamt5;
                         //uint64_t result64 = sign_extend( result, 31 );
-                        tracer.Trace( "slliw   %s, %s, %lld  # %x << %d\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, val, i_shamt5 );
+                        tracer.Trace( "slliw   %s, %s, %lld  # %llx << %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, (uint64_t) val, i_shamt5 );
                     }
                 }
                 else if ( 5 == funct3 )
                 {
                     if ( 0 == i_top2 )
-                        tracer.Trace( "srliw   %s, %s, %lld  # %x >> %d = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
+                        tracer.Trace( "srliw   %s, %s, %lld  # %llx >> %lld = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
                                       ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 )  );
                     else if ( 1 == i_top2 )
                         tracer.Trace( "sraiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  );
@@ -944,9 +1109,9 @@ void RiscV::trace_state()
             if ( 8 == opcode_type )
             {
                 if ( 0 == funct3 )
-                    tracer.Trace( "sb      %s, %lld(%s)  #  %2x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                    tracer.Trace( "sb      %s, %lld(%s)  #  %2llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
                 else if ( 1 == funct3 )
-                    tracer.Trace( "sh      %s, %lld(%s)  #  %4x, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                    tracer.Trace( "sh      %s, %lld(%s)  #  %4llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
                 else if ( 2 == funct3 )
                     tracer.Trace( "sw      %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) );
                 else if ( 3 == funct3 )
@@ -957,7 +1122,7 @@ void RiscV::trace_state()
                 if ( 2 == funct3 )
                     tracer.Trace( "fsw     %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
                 else if ( 3 == funct3 )
-                    tracer.Trace( "fsd     %s, %lld(%s), # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
+                    tracer.Trace( "fsd     %s, %lld(%s), # %.2lf\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
             }
             break;
         }
@@ -1066,13 +1231,13 @@ void RiscV::trace_state()
                     else if ( 1 == funct3  )
                         tracer.Trace( "sll     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 2 == funct3 )
-                        tracer.Trace( "slt     %s, %s, %s # %d == %lld < %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                        tracer.Trace( "slt     %s, %s, %s # %lld == %lld < %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       (int64_t) regs[rs1] < (int64_t) regs[rs2], regs[rs1], regs[rs2] );
                     else if ( 3 == funct3  )
                         tracer.Trace( "sltu    %s, %s, %s # %d == %llu < %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       regs[rs1] < regs[rs2], regs[rs1], regs[rs2] );
                     else if ( 4 == funct3  )
-                        tracer.Trace( "xor     %s, %s, %s # %d == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2], regs[rs1] ^ regs[rs2] );
+                        tracer.Trace( "xor     %s, %s, %s # %lld == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2], regs[rs1] ^ regs[rs2] );
                     else if ( 5 == funct3  )
                         tracer.Trace( "srl     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 6 == funct3 )
@@ -1115,8 +1280,8 @@ void RiscV::trace_state()
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
                         uint64_t result = sign_extend( (uint32_t) val, 31 );
-                        tracer.Trace( "addw    %s, %s, %s  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
-                                      regs[ rs1 ], regs[ rs2 ], result );
+                        tracer.Trace( "addw    %s, %s, %s  # %lld + %lld = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                                      ( 0xffffffff & regs[ rs1 ] ), ( 0xffffffff & regs[ rs2 ] ), result );
                     }
                     else if ( 1 == funct3 )
                     {
@@ -1234,27 +1399,27 @@ void RiscV::trace_state()
             {
                 if ( 0 == funct7 )
                     tracer.Trace( "fadd.s  %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  fregs[ rs1 ].f + fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                                  (float) do_fadd( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 1 == funct7 )
-                    tracer.Trace( "fadd.d  %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  fregs[ rs1 ].d + fregs[ rs2 ].d, fregs[ rs1 ].d, fregs[ rs2 ].d );
+                    tracer.Trace( "fadd.d  %s, %s, %s  # %.2lf = %.2lf + %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                  do_fadd( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 4 == funct7 )
                     tracer.Trace( "fsub.s  %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                   fregs[ rs1 ].f - fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                                   (float) do_fsub( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 5 == funct7 )
-                    tracer.Trace( "fsub.d  %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                   fregs[ rs1 ].d - fregs[ rs2 ].d, fregs[ rs1 ].d, fregs[ rs2 ].d );
+                    tracer.Trace( "fsub.d  %s, %s, %s  # %.2lf = %.2lf - %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                   do_fsub( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 8 == funct7 )
                     tracer.Trace( "fmul.s  %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 else if ( 9 == funct7 )
-                    tracer.Trace( "fmul.d  %s, %s, %s  # %.2f = %.2f * %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  fregs[ rs1 ].d * fregs[ rs2 ].d, fregs[ rs1 ].d, fregs[ rs2 ].d );
+                    tracer.Trace( "fmul.d  %s, %s, %s  # %.2lf = %.2lf * %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                  do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 0xc == funct7 )
                     tracer.Trace( "fdiv.s  %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   fregs[ rs1 ].f / fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 0xd == funct7 )
-                    tracer.Trace( "fdiv.d  %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  fregs[ rs1 ].d / fregs[ rs2 ].d, fregs[ rs1 ].d, fregs[ rs2 ].d );
+                    tracer.Trace( "fdiv.d  %s, %s, %s  # %.2lf == %.2lf / %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                                  do_fdiv( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 0x10 == funct7 )
                 {
                     if ( 0 == funct3 )
@@ -1408,7 +1573,7 @@ void RiscV::trace_state()
                 else if ( 0x71 == funct7 )
                 {
                     if ( 0 == rs2 && 0 == funct3 )
-                        tracer.Trace( "fmv.x.d %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), fregs[ rs1 ].d );
+                        tracer.Trace( "fmv.x.d %s, %s  # %.2lf\n", reg_name( rd ), freg_name( rs1 ), fregs[ rs1 ].d );
                 }
                 else if ( 0x78 == funct7 )
                 {
@@ -1416,7 +1581,7 @@ void RiscV::trace_state()
                     {
                         float f;
                         memcpy( &f, & regs[ rs1 ], 4 );
-                        tracer.Trace( "fmv.w.x %s, %s  # %x = %.2f\n", freg_name( rd ), reg_name( rs1 ), regs[ rs1 ], f ); // copy ui32 to float as-is bit for bit
+                        tracer.Trace( "fmv.w.x %s, %s  # %llx = %.2f\n", freg_name( rd ), reg_name( rs1 ), 0xffffffff & regs[ rs1 ], f ); // copy ui32 to float as-is bit for bit
                     }
                 }
                 else if ( 0x79 == funct7 )
@@ -1425,7 +1590,7 @@ void RiscV::trace_state()
                     {
                         double d;
                         memcpy( &d, & regs[ rs1 ], 8 );
-                        tracer.Trace( "fmv.d.x %s, %s  # %x = %.2f\n", freg_name( rd ), reg_name( rs1 ), regs[ rs1 ], d ); // copy ui64 to double as-is bit for bit
+                        tracer.Trace( "fmv.d.x %s, %s  # %llx = %.2lf\n", freg_name( rd ), reg_name( rs1 ), regs[ rs1 ], d ); // copy ui64 to double as-is bit for bit
                     }
                 }
             }
@@ -1446,7 +1611,7 @@ void RiscV::trace_state()
             else if ( 2 == c_imm_flags )
             {
                 if ( funct3 >= 6 )
-                    tracer.Trace( "cmv%s %s, %s, %s, %lud\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), c_rc2 );
+                    tracer.Trace( "cmv%s %s, %s, %s, %llu\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), c_rc2 );
                 else
                     tracer.Trace( "cmv%s %s, %s, %s, %lld\n", cmp_type( funct3 ), reg_name( rd ), reg_name( rs1 ), reg_name( c_rc1 ), rc2_imm );
             }
@@ -1508,159 +1673,6 @@ void RiscV::trace_state()
                   * (uint64_t *) & fregs[ fa5 ].d );
 #endif
 } //trace_state
-
-// Arm64 returns -NAN in some cases for +-*/ math.
-// RISC-V64 always returns positive NAN in these cases.
-
-double do_fsub( double a, double b )
-{
-    bool ainf = isinf( a );
-    bool binf = isinf( b );
-
-    if ( ainf && binf )
-    {
-        if ( signbit( a ) != signbit( b ) )
-            return a;
-        return MY_NAN; // msft C will return -nan if this check isn't here
-    }
-
-    double result = a - b;
-    if ( isnan( result ) ) // never return -NAN
-        return MY_NAN;
-
-    return result;
-} //do_fsub
-
-double do_fadd( double a, double b )
-{
-    bool ainf = isinf( a );
-    bool binf = isinf( b );
-
-    if ( ainf && binf )
-    {
-        if ( signbit( a ) == signbit( b ) )
-            return a;
-        return MY_NAN; // msft C will return -nan if this check isn't here
-    }
-
-    if ( isnan( a ) )
-        return MY_NAN;
-
-    if ( isnan( b ) )
-        return MY_NAN;
-
-    if ( ainf )
-        return a;
-
-    if ( binf )
-        return b;
-
-    return a + b;
-} //do_fadd
-
-double do_fmul( double a, double b )
-{
-    if ( isnan( a ) )
-        return MY_NAN;
-
-    if ( isnan( b ) )
-        return MY_NAN;
-
-    bool ainf = isinf( a );
-    bool binf = isinf( b );
-    bool azero = ( 0.0 == a );
-    bool bzero = ( 0.0 == b );
-
-    if ( ( ainf && bzero ) || ( azero && binf ) )
-        return MY_NAN;
-
-    if ( ainf && binf )
-        set_double_sign( INFINITY, ( signbit( a ) != signbit( b ) ) );
-
-    if ( ainf || binf )
-        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
-
-    if ( azero || bzero )
-        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
-
-    return a * b;
-} //do_fmul
-
-double do_fdiv( double a, double b )
-{
-    if ( isnan( a ) )
-        return MY_NAN;
-
-    if ( isnan( b ) )
-        return MY_NAN;
-
-    bool ainf = isinf( a );
-    bool binf = isinf( b );
-    bool azero = ( 0.0 == a );
-    bool bzero = ( 0.0 == b );
-
-    if ( ( ainf && binf ) || ( azero && bzero ) )
-        return MY_NAN;
-
-    if ( ainf )
-        return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
-
-    if ( binf )
-        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
-
-    if ( azero )
-        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
-
-    return a / b;
-} //do_fdiv
-
-double do_fmin( double a, double b )
-{
-    if ( ( 0.0 == a ) && ( 0.0 == b ) )
-    {
-        if ( signbit( a ) )
-            return a;
-        return b;
-    }
-
-    bool anan = isnan( a );
-    bool bnan = isnan( b );
-
-    if ( anan && bnan )
-        return MY_NAN; // canonical NAN in this case
-
-    if ( anan )
-        return b;
-
-    if ( bnan )
-        return a;
-
-    return get_min( a, b );
-} //do_fmin
-
-double do_fmax( double a, double b )
-{
-    if ( ( 0.0 == a ) && ( 0.0 == b ) )
-    {
-        if ( signbit( a ) )
-            return b;
-        return a;
-    }
-
-    bool anan = isnan( a );
-    bool bnan = isnan( b );
-
-    if ( anan && bnan )
-        return MY_NAN; // canonical NAN in this case
-
-    if ( anan )
-        return b;
-
-    if ( bnan )
-        return a;
-
-    return get_max( a, b );
-} //do_fmax
 
 #ifdef _WIN32
 __declspec(noinline)
@@ -2610,7 +2622,7 @@ uint64_t RiscV::run()
                     {
                         fregs[ rd ].f = sqrtf( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
                         if ( isnan( fregs[ rd ].f ) )
-                            fregs[ rd ].f = MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
+                            fregs[ rd ].f = (float) MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
                     }
                     else
                         unhandled();
@@ -2705,7 +2717,11 @@ uint64_t RiscV::run()
                     if ( 0 == rs2 )
                     {
                         if ( 0 == funct3 ) // fmv.x.w rd, frs1
-                            memcpy( & regs[ rd ], & fregs[ rs1 ].f, 4 );
+                        {
+                            uint32_t val;
+                            memcpy( & val, & fregs[ rs1 ].f, 4 );
+                            regs[ rd ] = sign_extend( val, 31 );
+                        }
                         else if ( 1 == funct3 ) // fclass.s
                         {
                             // rd bit Meaning
@@ -2724,14 +2740,14 @@ uint64_t RiscV::run()
                             float f = fregs[ rs1 ].f;
                             if ( isnan( f ) )
                             {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
                                 if ( issignaling( f ) )
                                     result = 0x100;
                                 else
                                 #endif
                                     result = 0x200;
                             }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
                             else if ( issubnormal( f ) )
                             {
                                 if ( f >= 0.0 )
@@ -2774,14 +2790,14 @@ uint64_t RiscV::run()
                             double d = fregs[ rs1 ].d;
                             if ( isnan( d ) )
                             {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
                                 if ( issignaling( d ) )
                                     result = 0x100;
                                 else
                                 #endif
                                     result = 0x200;
                             }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
                             else if ( issubnormal( d ) )
                             {
                                 if ( d >= 0.0 )
@@ -2815,7 +2831,10 @@ uint64_t RiscV::run()
                 else if ( 0x78 == funct7 )
                 {
                     if ( 0 == rs2 && 0 == funct3 )
-                        memcpy( & fregs[ rd ].f, & regs[ rs1 ], 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
+                    {
+                        uint32_t val = 0xffffffff & regs[ rs1 ];
+                        memcpy( & fregs[ rd ].f, & val, 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
+                    }
                     else
                         unhandled();
                 }

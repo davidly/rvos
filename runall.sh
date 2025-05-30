@@ -9,6 +9,8 @@ elif [ "$1" = "armos" ]; then
     _rvoscmd="../ArmOS/armos -h:200 ../ArmOS/bin/rvos -h:100"
 elif [ "$1" = "armoscl" ]; then
     _rvoscmd="../ArmOS/armoscl -h:200 ../ArmOS/bin/rvos -h:100"
+elif [ "$1" = "m68" ]; then
+    _rvoscmd="../m68/m68 -h:200 ../m68/rvos/rvos -h:100"
 fi    
 
 outputfile="runall_linux_test.txt"

@@ -195,19 +195,34 @@ struct RiscV
         return ( ( r < beyond ) && ( r >= mem ) );  
     } //is_address_valid
 
+#ifdef TARGET_BIG_ENDIAN
+    uint64_t getui64( uint64_t o ) { return flip_endian64( * (uint64_t *) getmem( o ) ); }
+    uint32_t getui32( uint64_t o ) { return flip_endian32( * (uint32_t *) getmem( o ) ); }
+    uint16_t getui16( uint64_t o ) { return flip_endian16( * (uint16_t *) getmem( o ) ); }
+    float getfloat( uint64_t o ) { uint32_t x = getui32( o ); return * (float *) & x; }
+    double getdouble( uint64_t o ) { uint64_t x = getui64( o ); return * (double *) & x; }
+
+    void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = flip_endian64( val ); }
+    void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = flip_endian32( val ); }
+    void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = flip_endian16( val ); }
+    void setfloat( uint64_t o, float val ) { uint32_t x = * (uint32_t *) & val; setui32( o, x ); }
+    void setdouble( uint64_t o, double val ) { uint64_t x = * (uint64_t *) & val; setui64( o, x ); }
+#else
     uint64_t getui64( uint64_t o ) { return * (uint64_t *) getmem( o ); }
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }
     uint16_t getui16( uint64_t o ) { return * (uint16_t *) getmem( o ); }
-    uint8_t getui8( uint64_t o ) { return * (uint8_t *) getmem( o ); }
     float getfloat( uint64_t o ) { return * (float *) getmem( o ); }
     double getdouble( uint64_t o ) { return * (double *) getmem( o ); }
 
     void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = val; }
     void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = val; }
     void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = val; }
-    void setui8( uint64_t o, uint8_t val ) { * (uint8_t *) getmem( o ) = val; }
     void setfloat( uint64_t o, float val ) { * (float *) getmem( o ) = val; }
     void setdouble( uint64_t o, double val ) { * (double *) getmem( o ) = val; }
+#endif //TARGET_BIG_ENDIAN
+
+    uint8_t getui8( uint64_t o ) { return * (uint8_t *) getmem( o ); }
+    void setui8( uint64_t o, uint8_t val ) { * (uint8_t *) getmem( o ) = val; }
 
   private:
 
