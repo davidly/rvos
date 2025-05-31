@@ -41,23 +41,9 @@ using namespace std::chrono;
 
 #define USE_RVCTABLE 1
 
-static uint64_t g_ui64_NAN = 0x7ff8000000000000;
+static const uint64_t g_ui64_NAN = 0x7ff8000000000000;
 
 #define MY_NAN ( * (double *) & g_ui64_NAN )
-
-#if 0
-#ifdef __clang__
-    // some versions of clang++ reverse the definitions of NAN to be -NAN.
-    // specifically the version that ships with Microsoft Visual Studio 2022
-    // clang version 18.1.8
-    // Target: x86_64-pc-windows-msvc
-    // Thread model: posix
-
-    #define MY_NAN ((float)(INFINITY * 0.0F))
-#else
-    #define MY_NAN NAN
-#endif
-#endif
 
 // these instruction types are mostly just useful for debugging
 
