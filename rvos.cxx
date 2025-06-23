@@ -228,6 +228,8 @@ uint16_t swap_endian16( uint16_t x )
 
 #pragma pack( push, 1 )
 
+#define AT_EH_FRAME_BEGIN 0x69690069 // address of __EH_FRAME_BEGIN__
+
 struct AuxProcessStart
 {
     uint64_t a_type; // AT_xxx ID from elf.h
@@ -251,8 +253,9 @@ struct AuxProcessStart32
     union
     {
         uint32_t a_val;
-        void * a_ptr;
-        void ( * a_fcn )();
+        // need 32-bit values here
+        //void * a_ptr;
+        //void ( * a_fcn )();
     } a_un;
 
     void swap_endianness()
@@ -5932,6 +5935,7 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     tracer.Trace( "  section entries: %u\n", ehead.section_header_table_entries );
     tracer.Trace( "  section header entry size: %u\n", ehead.section_header_table_size );
     tracer.Trace( "  section offset: %u == %x\n", ehead.section_header_table, ehead.section_header_table );
+    tracer.Trace( "  section with section names: %u == %x\n", ehead.section_with_section_names, ehead.section_with_section_names );
     tracer.Trace( "  flags: %x\n", ehead.flags );
     g_execution_address = ehead.entry_point;
 
@@ -5977,7 +5981,8 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     memory_size -= g_base_address;
     tracer.Trace( "memory_size of content to load from elf file: %x\n", memory_size );
 
-    // first load the string table
+    // first load the string table(s)
+    vector<char> section_names_string_table;
 
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
     {
@@ -5992,17 +5997,34 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
         head.swap_endianness();
         if ( 3 == head.type )
         {
-            g_string_table.resize( head.size );
-            fseek( fp, (long) head.offset, SEEK_SET );
-            read = fread( g_string_table.data(), head.size, 1, fp );
-            if ( 1 != read )
-                usage( "can't read string table\n" );
-
-            break;
+            if ( sh == ehead.section_with_section_names )
+            {
+                section_names_string_table.resize( head.size );
+                fseek( fp, (long) head.offset, SEEK_SET );
+                read = fread( section_names_string_table.data(), head.size, 1, fp );
+                if ( 1 != read )
+                    usage( "can't read string table\n" );
+    
+                tracer.Trace( "section names string table:\n" );
+                tracer.TraceBinaryData( (uint8_t *) section_names_string_table.data(), head.size, 4 );
+            }
+            else
+            {
+                g_string_table.resize( head.size );
+                fseek( fp, (long) head.offset, SEEK_SET );
+                read = fread( g_string_table.data(), head.size, 1, fp );
+                if ( 1 != read )
+                    usage( "can't read string table\n" );
+    
+                tracer.Trace( "main string table:\n" );
+                tracer.TraceBinaryData( (uint8_t *) g_string_table.data(), head.size, 4 );
+            }
         }
     }
 
-    // load the symbol data into RAM
+    uint32_t the_EH_FRAME_BEGIN = 0; // for C++ programs, the pointer to the argument for __register_frame() at app startup
+
+    // load the symbol data into RAM and look for .eh_frame
 
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
     {
@@ -6019,10 +6041,18 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
         head.swap_endianness();
 
         tracer.Trace( "  type: %x / %s\n", head.type, head.show_type() );
+        tracer.Trace( "  name %s, offset: %x\n", & section_names_string_table[ head.name_offset ], head.name_offset );
         tracer.Trace( "  flags: %x / %s\n", head.flags, head.show_flags() );
         tracer.Trace( "  address: %x\n", head.address );
         tracer.Trace( "  offset: %x\n", head.offset );
         tracer.Trace( "  size: %x\n", head.size );
+        tracer.Trace( "  link: %x\n", head.link );
+        tracer.Trace( "  info: %x\n", head.info );
+        tracer.Trace( "  address_alignment: %x\n", head.address_alignment );
+        tracer.Trace( "  entry_size: %x\n", head.entry_size );
+
+        if ( !strcmp( ".eh_frame", & section_names_string_table[ head.name_offset ] ) )
+            the_EH_FRAME_BEGIN = head.address;
 
         if ( 2 == head.type )
         {
@@ -6045,7 +6075,7 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     }
 
     // use known my_qsort so traces are consistent across platforms because qsort implementations for duplicate values differ
-    tracer.Trace( "sorting invalid symbol entries\n" );
+    tracer.Trace( "sorting symbol entries\n" );
     my_qsort( g_symbols32.data(), g_symbols32.size(), sizeof( ElfSymbol32 ), symbol_compare32 );
 
     // remove symbols that don't look like they have a valid addresses (rust binaries have tens of thousands of these)
@@ -6277,9 +6307,7 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     if ( 0 == ( 1 & ( app_argc + env_count ) ) )
         pstack--;
 
-    pstack -= sizeof( AuxProcessStart32 ); // the AT_NULL record will be here since memory is initialized to 0
-
-    pstack -= ( 8 * sizeof( AuxProcessStart32 ) ); // for 8 aux records
+    pstack -= ( 10 * sizeof( AuxProcessStart32 ) ); // for 10 aux records
     AuxProcessStart32 * paux = (AuxProcessStart32 *) pstack;
     paux[0].a_type = 25; // AT_RANDOM
     paux[0].a_un.a_val = prandom;
@@ -6305,17 +6333,22 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     paux[7].a_type = 14; // AT_EGID
     paux[7].a_un.a_val = 0x595a5449;
     paux[7].swap_endianness();
+    paux[8].a_type = AT_EH_FRAME_BEGIN;
+    paux[8].a_un.a_val = the_EH_FRAME_BEGIN;
+    paux[8].swap_endianness();
+    paux[9].a_type = 0;  // 0 to signify the end of the list of AT aux records
+    paux[9].a_un.a_val = 0;
 
     pstack--; // end of environment data is 0
     pstack--; // move to where the OS environment variable is set OS=RVOS or OS=ARMOS
     *pstack = swap_endian32( env_os_address ); // (REG_TYPE) ( env_offset + arg_data_offset + g_base_address + max_args * sizeof( REG_TYPE ) );
-    tracer.Trace( "the OS environment argument is at VM address %llx\n", swap_endian32( *pstack ) );
+    tracer.Trace( "the OS environment argument is at VM address %lx\n", swap_endian32( *pstack ) );
 
     if ( 0 != env_tz_address )
     {
         pstack--; // move to where the TZ environment variable is set TZ=xxx
         *pstack = swap_endian32( env_tz_address );
-        tracer.Trace( "the TZ environment argument is at VM address %llx\n", *pstack );
+        tracer.Trace( "the TZ environment argument is at VM address %lx (orig %lx)\n", swap_endian32( *pstack ), env_tz_address );
     }
 
     pstack--; // the last argv is 0 to indicate the end
@@ -6544,6 +6577,7 @@ static bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "  section entries: %u\n", ehead.section_header_table_entries );
     tracer.Trace( "  section header entry size: %u\n", ehead.section_header_table_size );
     tracer.Trace( "  section offset: %llu == %llx\n", ehead.section_header_table, ehead.section_header_table );
+    tracer.Trace( "  section with section names: %llu == %llx\n", ehead.section_with_section_names, ehead.section_with_section_names );
     tracer.Trace( "  flags: %x\n", ehead.flags );
     g_execution_address = (REG_TYPE) ehead.entry_point;
     g_compressed_rvc = 0 != ( ehead.flags & 1 ); // 2-byte compressed RVC instructions, not 4-byte default risc-v instructions
@@ -6594,6 +6628,7 @@ static bool load_image( const char * pimage, const char * app_args )
     tracer.Trace( "memory_size of content to load from elf file: %llx\n", memory_size );
 
     // first load the string table
+    vector<char> section_names_string_table;
 
     for ( uint16_t sh = 0; sh < ehead.section_header_table_entries; sh++ )
     {
@@ -6608,13 +6643,28 @@ static bool load_image( const char * pimage, const char * app_args )
         head.swap_endianness();
         if ( 3 == head.type )
         {
-            g_string_table.resize( head.size );
-            fseek( fp, (long) head.offset, SEEK_SET );
-            read = fread( g_string_table.data(), head.size, 1, fp );
-            if ( 1 != read )
-                usage( "can't read string table\n" );
-
-            break;
+            if ( sh == ehead.section_with_section_names )
+            {
+                section_names_string_table.resize( head.size );
+                fseek( fp, (long) head.offset, SEEK_SET );
+                read = fread( section_names_string_table.data(), head.size, 1, fp );
+                if ( 1 != read )
+                    usage( "can't read string table\n" );
+    
+                tracer.Trace( "section names string table:\n" );
+                tracer.TraceBinaryData( (uint8_t *) section_names_string_table.data(), head.size, 4 );
+            }
+            else
+            {
+                g_string_table.resize( head.size );
+                fseek( fp, (long) head.offset, SEEK_SET );
+                read = fread( g_string_table.data(), head.size, 1, fp );
+                if ( 1 != read )
+                    usage( "can't read string table\n" );
+    
+                tracer.Trace( "main string table:\n" );
+                tracer.TraceBinaryData( (uint8_t *) g_string_table.data(), head.size, 4 );
+            }
         }
     }
 
@@ -6634,10 +6684,15 @@ static bool load_image( const char * pimage, const char * app_args )
 
         head.swap_endianness();
         tracer.Trace( "  type: %x / %s\n", head.type, head.show_type() );
+        tracer.Trace( "  name %s, offset: %x\n", & section_names_string_table[ head.name_offset ], head.name_offset );
         tracer.Trace( "  flags: %llx / %s\n", head.flags, head.show_flags() );
         tracer.Trace( "  address: %llx\n", head.address );
         tracer.Trace( "  offset: %llx\n", head.offset );
         tracer.Trace( "  size: %llx\n", head.size );
+        tracer.Trace( "  link: %x\n", head.link );
+        tracer.Trace( "  info: %x\n", head.info );
+        tracer.Trace( "  address_alignment: %llx\n", head.address_alignment );
+        tracer.Trace( "  entry_size: %llx\n", head.entry_size );
 
         if ( 2 == head.type )
         {
