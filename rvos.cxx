@@ -788,15 +788,18 @@ static void backslash_to_slash( char * p )
     }
 } //backslash_to_slash
 
-class Win32BinaryMode
+#ifdef M68K
+extern "C" bool _setbinarymode( bool binmode );
+#endif
+
+class SetBinaryMode
 {
     int prevmodeout, prevmodeerr;
     bool modeset;
 
     public:
-        Win32BinaryMode( bool set ) : modeset( false ), prevmodeout( 0 ), prevmodeerr( 0 )
+        SetBinaryMode( bool set ) : modeset( false ), prevmodeout( 0 ), prevmodeerr( 0 )
         {
-#if 1
             #if defined( _WIN32 )
                 if ( set && !g_addCRBeforeLF )
                 {
@@ -808,10 +811,17 @@ class Win32BinaryMode
                     modeset = true;
                 }
             #endif
-#endif
+
+            #ifdef M68K
+                if ( set && !g_addCRBeforeLF )
+                {
+                    prevmodeout = _setbinarymode( true );
+                    modeset = true;
+                }
+            #endif
         }
 
-        ~Win32BinaryMode()
+        ~SetBinaryMode()
         {
             #if defined( _WIN32 )
                 if ( modeset )
@@ -822,6 +832,11 @@ class Win32BinaryMode
                     _setmode( _fileno( stdout ), prevmodeout ); // likely back in text mode
                     _setmode( _fileno( stderr ), prevmodeerr ); // likely back in text mode
                 }
+            #endif
+
+            #ifdef M68K
+                if ( modeset )
+                    _setbinarymode( prevmodeout );
             #endif
         }
 };
@@ -848,7 +863,7 @@ size_t WinWrite( int descriptor, uint8_t * p, int count )
             if ( 0 != towrite )
                 written += write( descriptor, & p[ start ], towrite );
 
-            Win32BinaryMode binmode( true );
+            SetBinaryMode binmode( true );
             written += write( descriptor, & p[ i ], 1 );
             towrite = 0;
             start = i + 1;
@@ -1632,7 +1647,7 @@ static void update_result_errno( CPUClass & cpu, SIGNED_REG_TYPE result )
 
 void send_character( uint8_t c )
 {
-    Win32BinaryMode bm( 10 == c );
+    SetBinaryMode bm( 10 == c );
     printf( "%c", c );
 } //send_character
 
@@ -2028,10 +2043,10 @@ void emulator_invoke_svc( CPUClass & cpu )
         }
         case SYS_close:
         {
-            tracer.Trace( "  syscall command SYS_close\n" );
             int descriptor = (int) ACCESS_REG( REG_ARG0 );
+            tracer.Trace( "  syscall command SYS_close %d\n", descriptor );
 
-            if ( descriptor >=0 && descriptor <= 3 )
+            if ( descriptor >= 0 && descriptor <= 2 )
             {
                 // built-in handle stdin, stdout, stderr -- ignore
                 ACCESS_REG( REG_RESULT ) = 0;
@@ -3299,7 +3314,7 @@ void emulator_invoke_68k_trap15( m68000 & cpu )
         case 1: // putch
         {
             uint8_t val = (uint8_t) ACCESS_REG( 0 );
-            Win32BinaryMode bm( 10 == val );
+            SetBinaryMode bm( 10 == val );
             size_t written = write( 1, &val, 1 );
             update_result_errno( cpu, (REG_TYPE) written );
             break;
@@ -3512,8 +3527,16 @@ const char * bdos_function( uint32_t id )
     if ( id < _countof( bdos_functions ) )
         return bdos_functions[ id ];
 
+    if ( 45 == id )
+        return "non - cp/m 2.2: set action on hardware error";
+    if ( 48 == id )
+        return "non - cp/m 2.2: empty disk buffers";
+    if ( 105 == id )
+        return "non - cp/m 2.2: get date and time";
     if ( 108 == id )
         return "cp/m v3 get/put exit code";
+    if ( 155 == id )
+        return "non - cp/m 2.2: get date and time with seconds";
 
     return "unknown";
 } //bdos_function
@@ -3827,6 +3850,26 @@ struct FileEntry
     FILE * fp;
 };
 
+#pragma pack( push, 1 )
+struct CPM3DateTime
+{
+    uint16_t day; // day 1 is 1 January 1978
+    uint8_t hour; // packed bcd (nibbles for each digit)
+    uint8_t minute; // packed bcd
+    uint8_t second; // packed bcd. for BDOS 155, not BDOS 105
+
+    void swap_endian()
+    {
+        day = flip_endian16( day );
+    }
+};
+#pragma pack(pop)
+
+uint8_t packBCD( uint8_t x )
+{
+    return (uint8_t) ( ( ( x / 10 ) << 4 ) | ( x % 10 ) );
+} //packBCD
+
 static bool g_forceLowercase = false;
 static uint8_t * g_DMA = 0;
 static vector<FileEntry> g_fileEntries;
@@ -3949,6 +3992,7 @@ struct HeaderCPM68K    // .68k executable files for cp/m 68k v1.3
         tracer.Trace( "  cb_data: %#x\n", cb_data );
         tracer.Trace( "  cb_bss: %#x\n", cb_bss );
         tracer.Trace( "  cb_symbols: %#x\n", cb_symbols );
+        tracer.Trace( "  reserved: %#x\n", reserved );
         tracer.Trace( "  text_start: %#x\n", text_start );
         tracer.Trace( "  relocation_flag: %#x\n", relocation_flag );
     }
@@ -4075,6 +4119,22 @@ struct BasePageCPM // base page for cp/m -- the first 256 bytes in memory
     FCBCPM68K firstFCB;                 // 5c
     uint8_t cb_command_tail;            // 80 also start of default DMA buffer
     uint8_t command_tail[ 127 ];        // 81
+
+    void Trace()
+    {
+        tracer.Trace( "base page:\n" );
+        tracer.Trace( "  lowest tpa:       %lx\n", swap_endian32( lowest_tpa ) );
+        tracer.Trace( "  highest tpa:      %lx\n", swap_endian32( highest_tpa ) );
+        tracer.Trace( "  start_text:       %lx\n", swap_endian32( start_text ) );
+        tracer.Trace( "  cb_text:          %lx\n", swap_endian32( cb_text ) );
+        tracer.Trace( "  start_data:       %lx\n", swap_endian32( start_data ) );
+        tracer.Trace( "  cb_data:          %lx\n", swap_endian32( cb_data ) );
+        tracer.Trace( "  start_bss:        %lx\n", swap_endian32( start_bss ) );
+        tracer.Trace( "  cb_bss:           %lx\n", swap_endian32( cb_bss ) );
+        tracer.Trace( "  cb_after_bss:     %lx\n", swap_endian32( cb_after_bss ) );
+        tracer.Trace( "  cb_command_tail:  %x\n",  cb_command_tail );
+        tracer.TraceBinaryData( command_tail, 127, 4 );
+    }
 };
 
 #pragma pack(pop)
@@ -4355,6 +4415,8 @@ bool load59_cpm68k( FILE *fp, uint32_t lowestAddress, uint32_t highestAddress, u
     if ( !read_symbols_cpm( fp, head, text_base, data_base, bss_base ) )
         return false;
 
+    pbasepage->Trace();
+
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  actual top of stack:                                %x\n", stackPointer );
     tracer.Trace( "  <stack>\n" );
@@ -4440,7 +4502,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     memset( memory.data(), 0, memory.size() );
 
     // put the supervisor stack pointer in the first 4 bytes of RAM.
-    * (uint32_t *) memory.data() = swap_endian32( 0x2000 ); // arbitrary, but above the vector table and below the typical cp/m 68k base page
+    * (uint32_t *) memory.data() = swap_endian32( 1024 ); // arbitrary, but above the vector table and below the typical cp/m 68k base page (where f83 loads)
 
     g_base_address = 0;
     uint32_t base_page = text_base - 0x100; // where the base page (256 bytes) resides
@@ -4575,6 +4637,8 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     if ( !read_symbols_cpm( fp, head, text_base, data_base, bss_base ) )
         return false;
 
+    pbasepage->Trace();
+
     tracer.Trace( "memory map from highest to lowest addresses:\n" );
     tracer.Trace( "  first byte beyond allocated memory:                 %x\n", g_base_address + memory_size );
     tracer.Trace( "  actual top of stack:                                %x\n", g_top_of_stack + 8 );
@@ -4590,6 +4654,7 @@ bool load_cpm68k( const char * acApp, const char * acAppArgs )
     tracer.Trace( "  start of data segment:                              %x\n", g_execution_address + head.cb_text );
     tracer.Trace( "  <code from the .68k file>\n" );
     tracer.Trace( "  initial pc execution_addess + start of code         %x\n", g_execution_address );
+    tracer.Trace( "  default DMA address:                                %x\n", (uint32_t) ( g_DMA - memory.data() ) );
     tracer.Trace( "  start of base page:                                 %x\n", base_page );
     tracer.Trace( "  start of the address space:                         %x\n", g_base_address );
 
@@ -4819,9 +4884,12 @@ bool parse_FCB_Filename( FCBCPM68K * pfcb, char * pcFilename )
 
     for ( int i = 0; i < 8; i++ )
     {
-        if ( ' ' == ( 0x7f & pfcb->f[ i ] ) )
+        char c = ( 0x7f & pfcb->f[ i ] );
+        if ( ' ' == c )
             break;
-        *pcFilename++ = ( 0x7f & pfcb->f[ i ] );
+        if ( '/' == c ) // slash is legal in CP/M and MT Pascal v3.0b uses it for P2/FLT.OVL. hack it to use #
+            c = '#';
+        *pcFilename++ = c;
     }
 
     if ( ' ' != pfcb->t[0] )
@@ -4830,9 +4898,10 @@ bool parse_FCB_Filename( FCBCPM68K * pfcb, char * pcFilename )
 
         for ( int i = 0; i < 3; i++ )
         {
-            if ( ' ' == ( 0x7f & pfcb->t[ i ] ) )
+            char c = ( 0x7f & pfcb->t[ i ] );
+            if ( ' ' == c )
                 break;
-            *pcFilename++ = ( 0x7f & pfcb->t[ i ] );
+            *pcFilename++ = c;
         }
     }
 
@@ -5057,6 +5126,28 @@ void emulator_invoke_68k_trap3( m68000 & cpu ) // bios
     }
 } //emulator_invoke_68k_trap3
 
+uint16_t days_since_jan1_1978()
+{
+    time_t current_time;
+    struct tm *time_info;
+
+    current_time = time(NULL);
+    time_info = localtime(&current_time);
+
+    struct tm target_date = {0};
+    target_date.tm_year = 1978 - 1900; // Years since 1900
+    target_date.tm_mon = 0;         // January (0-indexed)
+    target_date.tm_mday = 1;
+    target_date.tm_hour = 0;
+    target_date.tm_min = 0;
+    target_date.tm_sec = 0;
+
+    time_t target_time = mktime(&target_date);
+    time_t difference_seconds = current_time - target_time;
+    uint16_t days_since_1978 = (uint16_t) ( difference_seconds / ( 24 * 60 * 60 ) );
+    return days_since_1978;
+} //days_since_jan1_1978
+
 void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
 {
     char acFilename[ CPM_FILENAME_LEN ];
@@ -5248,9 +5339,11 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
                         // Digital Research's lk80.com linker has many undocumented expectations no other apps I've tested have.
                         // including rc > 0 after an open. Whitesmith C requires the record count set correctly.
 
-                        pfcb->cr = 0;
                         pfcb->SetRecordCount( fp );
-                        pfcb->ex = 0;
+
+                        // cr and ex can't be zeroed or whitesmith pascal's lnk produces corrupt .com files
+                        // pfcb->cr = 0;
+                        // pfcb->ex = 0;
                         pfcb->s2 = 0;
                         tracer.Trace( "  file opened successfully, record count: %u\n", pfcb->rc );
                     }
@@ -5281,7 +5374,18 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
                         tracer.Trace( "ERROR: file close failed, error %d = %s\n", errno, strerror( errno ) );
                 }
                 else
-                    tracer.Trace( "ERROR: file close on file that's not open\n" );
+                {
+                    // return error 255 if the file doesn't exist.
+                    // Pro Pascal Compiler v2.1 requires a 0 return code for a file that's not open but exists.
+
+                    if ( file_exists( acFilename ) )
+                    {
+                        tracer.Trace( "    WARNING: file close on file that's not open but exists\n" );
+                        ACCESS_REG( REG_RESULT ) = 0;
+                    }
+                    else
+                        tracer.Trace( "ERROR: file close on file that's not open and doesn't exist\n" );
+                }
             }
             else
                 tracer.Trace( "ERROR: can't parse filename in close call\n" );
@@ -5740,6 +5844,12 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
             WriteRandom( cpu );
             break;
         }
+        case 45: // called by BASIC/Z
+        {
+            // non - CP/M 2.2: set action on hardware error
+            ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
         case 47: // chain to program
         {
             tracer.Trace( "chain to len %u command '%s'\n", * g_DMA, g_DMA + 1 );
@@ -5836,6 +5946,32 @@ void emulator_invoke_68k_trap2( m68000 & cpu ) // bdos
         {
             cpu.set_supervisor_state();
             ACCESS_REG( REG_RESULT ) = 0;
+            break;
+        }
+        case 102:
+        {
+            // Get file date and time (not in cp/m 2.2)
+            break;
+        }
+        case 105: // get date time. cp/m 3.0 and later. Returns seconds in A as packed bcd
+        case 155: // Get date and time. MP/M, Concurrent CP/M. called by rmcobol v1.5
+        {
+            CPM3DateTime * ptime = (CPM3DateTime *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
+            system_clock::time_point now = system_clock::now();
+            time_t time_now = system_clock::to_time_t( now );
+            struct tm * plocal = localtime( & time_now );
+
+            ptime->day = 1 + days_since_jan1_1978();
+            ptime->hour = packBCD( (uint8_t) plocal->tm_hour );
+            ptime->minute = packBCD( (uint8_t) plocal->tm_min );
+            ACCESS_REG( REG_RESULT ) = packBCD( (uint8_t) plocal->tm_sec );
+
+            if ( 155 == function )
+                ptime->second = (uint8_t) ACCESS_REG( REG_RESULT );
+
+#ifdef TARGET_BIG_ENDIAN
+            ptime->swap_endian();
+#endif
             break;
         }
         case 108: // bdos get put program return code
