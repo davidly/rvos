@@ -17,9 +17,10 @@ outputfile="runall_linux_test.txt"
 date_time=$(date)
 echo "$date_time" >$outputfile
 
-for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw tmmap tstr \
-           fileops ttime tm glob tap tsimplef tphi tf ttt td terrno t_setjmp tex \
-           mm tao pis ttypes nantst sleeptm tatomic lenum tregex;
+for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw \
+           tmmap tstr fileops ttime tm glob tap tsimplef tphi tf ttt td terrno \
+           t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum \
+           tregex trename;
 do
     echo $arg
     for opt in 0 1 2 3 fast;

@@ -13,7 +13,8 @@ echo %date% %time% >%outputfile%
 set _folderlist=bin0 bin1 bin2 bin3 binfast
 set _applist=tcmp t e printint sieve simple tmuldiv tpi ts ttt tarray tbits trw ^
              tmmap tstr fileops ttime tm glob tap tsimplef tf td terrno ^
-             t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum tregex
+             t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum ^
+             tregex trename
 set _optlist=6 8 a d 3 i I m o r x
 
 ( for %%f in (%_folderlist%) do ( call :folderRun %%f ) )
