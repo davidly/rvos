@@ -8,7 +8,7 @@ do
     for optflag in 0 1 2 3 fast;
     do
         mkdir bin"$optflag" 2>/dev/null
-        _gnubuild="g++ "$arg".c -o bin"$optflag"/"$arg" -O"$optflag" -static -fsigned-char -Wno-format -Wno-format-security"
+        _gnubuild="/usr/bin/riscv64-linux-gnu-g++ $arg.c -o bin"$optflag"/$arg -O"$optflag" -latomic -static -fsigned-char -Wno-format -Wno-format-security"
 
         if [ "$optflag" != "fast" ]; then
             $_gnubuild &
@@ -20,4 +20,3 @@ done
 
 echo "Waiting for all processes to complete..."
 wait
-
