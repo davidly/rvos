@@ -13,7 +13,7 @@ elif [ "$1" = "m68" ]; then
     _rvoscmd="../m68/m68 -h:200 ../m68/rvos/rvos -h:100"
 fi    
 
-outputfile="runall_linux_test.txt"
+outputfile="runall_test.txt"
 date_time=$(date)
 echo "$date_time" >$outputfile
 

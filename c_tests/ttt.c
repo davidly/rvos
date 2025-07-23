@@ -300,7 +300,7 @@ void * TTTThreadProc( void * param )
     return 0;
 } //TTTThreadProc
 
-#if 0
+#if 1
 float elapsed( struct timeval & a, struct timeval & b )
 {
 // printf shows floats/doubles off by 3 orders of magnitude
@@ -323,19 +323,19 @@ extern int main( int argc, char * argv[] )
     if ( 2 == argc )
         sscanf( argv[ 1 ], "%d", &g_Iterations );  /* no atoi in MS C 1.0 */
 
-//    struct timeval tv;
-//    gettimeofday( &tv, 0 );
+    struct timeval tv;
+    gettimeofday( &tv, 0 );
 
     ttt();
 
-//    struct timeval tv_after;
-//    gettimeofday( &tv_after, 0 );
+    struct timeval tv_after;
+    gettimeofday( &tv_after, 0 );
 
-//    float elap = elapsed( tv, tv_after );
+    float elap = elapsed( tv, tv_after );
 
     printf( "done\n" );
     printf( "%ld moves\n", g_Moves );
-//    printf( "%f milliseconds\n", elap ); 
+    printf( "%f milliseconds\n", elap ); 
     fflush( stdout );
 } //main
 
