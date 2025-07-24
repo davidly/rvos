@@ -18,7 +18,7 @@ date_time=$(date)
 echo "$date_time" >$outputfile
 
 for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw \
-           tmmap tstr fileops ttime tm glob tap tsimplef tphi tf ttt td terrno \
+           tmmap tstr tdir fileops ttime tm glob tap tsimplef tphi tf ttt td terrno \
            t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum \
            tregex trename;
 do
