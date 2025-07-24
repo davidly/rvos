@@ -41,6 +41,10 @@ set _optlist=6 8 a d 3 i I m o r x
     ) )
 ) )
 
+echo test TINS
+echo c_tests/tins>>%outputfile%
+%_runcmd% c_tests\tins >>%outputfile%
+
 set _rustlist=e ttt fileops ato tap real tphi mysort tmm
 set _rustfolders=bin0 bin1 bin2 bin3
 

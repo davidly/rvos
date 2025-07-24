@@ -18,5 +18,9 @@ do
     done
 done
 
+# build assembly tests
+
+/usr/bin/riscv64-linux-gnu-g++ tins.s -o tins -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
+
 echo "Waiting for all processes to complete..."
 wait

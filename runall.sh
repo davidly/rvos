@@ -48,6 +48,10 @@ do
     done
 done
 
+echo test TINS
+echo c_tests/tins >>$outputfile
+$_rvoscmd c_tests/tins >>$outputfile
+
 for arg in e ttt fileops ato tap real tphi mysort tmm;
 do
     echo $arg
