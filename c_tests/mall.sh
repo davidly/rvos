@@ -18,6 +18,8 @@ do
     done
 done
 
+g++ tins.s -o tins -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
+
 echo "Waiting for all processes to complete..."
 wait
 
