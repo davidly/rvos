@@ -1,4 +1,4 @@
-Thu 07/24/2025 17:52:50.75 
+Fri 07/25/2025  5:19:05.99 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -3250,30 +3250,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 24, hour 19, min 52, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 0, min 52, sec 56
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 24, hour 19, min 52, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 0, min 52, sec 56
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 24, hour 19, min 52, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 0, min 52, sec 56
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 24, hour 19, min 52, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 0, min 52, sec 56
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 24, hour 19, min 52, sec 56
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 24, hour 16, min 52, sec 56
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 0, min 52, sec 56
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -3613,27 +3613,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-30.046000 milliseconds
+25.157000 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-16.521999 milliseconds
+17.409000 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-16.306999 milliseconds
+16.830999 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-10.985000 milliseconds
+10.735000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-10.725000 milliseconds
+10.770000 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -5993,6 +5993,13 @@ c_tests/bin0/ttypes
 UINT128_MAX = ffffffffffffffff
 INT128_MAX  = 7fffffffffffffff
 INT128_MIN  = 8000000000000000
+types: i8 a, ui8 h, i16 s, ui16 t, i32 i, ui32 j, i64 l, ui64 m, i128 n, ui128 o, f f, d d, ld e
+int8_t is signed: 1, uint8_t is signed: 0
+int16_t is signed: 1, uint16_t is signed: 0
+int32_t is signed: 1, uint32_t is signed: 0
+int64_t is signed: 1, uint64_t is signed: 0
+int128_t is signed: 1, uint128_t is signed: 0
+float is signed: 1, double is signed: 1, long double is signed: 1
 cast:     types    int8 +    int8, size 2, sumA -74, sumB -44, sumC -88
 overflow: types    int8 +    int8, size 2, sumA 102, sumB -52, sumC -104
 cast:     types    int8 +   uint8, size 2, sumA 6, sumB 0, sumC -32
@@ -10054,6 +10061,13 @@ c_tests/bin1/ttypes
 UINT128_MAX = ffffffffffffffff
 INT128_MAX  = 7fffffffffffffff
 INT128_MIN  = 8000000000000000
+types: i8 a, ui8 h, i16 s, ui16 t, i32 i, ui32 j, i64 l, ui64 m, i128 n, ui128 o, f f, d d, ld e
+int8_t is signed: 1, uint8_t is signed: 0
+int16_t is signed: 1, uint16_t is signed: 0
+int32_t is signed: 1, uint32_t is signed: 0
+int64_t is signed: 1, uint64_t is signed: 0
+int128_t is signed: 1, uint128_t is signed: 0
+float is signed: 1, double is signed: 1, long double is signed: 1
 cast:     types    int8 +    int8, size 2, sumA -74, sumB -44, sumC -88
 overflow: types    int8 +    int8, size 2, sumA 102, sumB -52, sumC -104
 cast:     types    int8 +   uint8, size 2, sumA 6, sumB 0, sumC -32
@@ -14115,6 +14129,13 @@ c_tests/bin2/ttypes
 UINT128_MAX = ffffffffffffffff
 INT128_MAX  = 7fffffffffffffff
 INT128_MIN  = 8000000000000000
+types: i8 a, ui8 h, i16 s, ui16 t, i32 i, ui32 j, i64 l, ui64 m, i128 n, ui128 o, f f, d d, ld e
+int8_t is signed: 1, uint8_t is signed: 0
+int16_t is signed: 1, uint16_t is signed: 0
+int32_t is signed: 1, uint32_t is signed: 0
+int64_t is signed: 1, uint64_t is signed: 0
+int128_t is signed: 1, uint128_t is signed: 0
+float is signed: 1, double is signed: 1, long double is signed: 1
 cast:     types    int8 +    int8, size 2, sumA -74, sumB -44, sumC -88
 overflow: types    int8 +    int8, size 2, sumA 102, sumB -52, sumC -104
 cast:     types    int8 +   uint8, size 2, sumA 6, sumB 0, sumC -32
@@ -18176,6 +18197,13 @@ c_tests/bin3/ttypes
 UINT128_MAX = ffffffffffffffff
 INT128_MAX  = 7fffffffffffffff
 INT128_MIN  = 8000000000000000
+types: i8 a, ui8 h, i16 s, ui16 t, i32 i, ui32 j, i64 l, ui64 m, i128 n, ui128 o, f f, d d, ld e
+int8_t is signed: 1, uint8_t is signed: 0
+int16_t is signed: 1, uint16_t is signed: 0
+int32_t is signed: 1, uint32_t is signed: 0
+int64_t is signed: 1, uint64_t is signed: 0
+int128_t is signed: 1, uint128_t is signed: 0
+float is signed: 1, double is signed: 1, long double is signed: 1
 cast:     types    int8 +    int8, size 2, sumA -74, sumB -44, sumC -88
 overflow: types    int8 +    int8, size 2, sumA 102, sumB -52, sumC -104
 cast:     types    int8 +   uint8, size 2, sumA 6, sumB 0, sumC -32
@@ -22237,6 +22265,13 @@ c_tests/binfast/ttypes
 UINT128_MAX = ffffffffffffffff
 INT128_MAX  = 7fffffffffffffff
 INT128_MIN  = 8000000000000000
+types: i8 a, ui8 h, i16 s, ui16 t, i32 i, ui32 j, i64 l, ui64 m, i128 n, ui128 o, f f, d d, ld e
+int8_t is signed: 1, uint8_t is signed: 0
+int16_t is signed: 1, uint16_t is signed: 0
+int32_t is signed: 1, uint32_t is signed: 0
+int64_t is signed: 1, uint64_t is signed: 0
+int128_t is signed: 1, uint128_t is signed: 0
+float is signed: 1, double is signed: 1, long double is signed: 1
 cast:     types    int8 +    int8, size 2, sumA -74, sumB -44, sumC -88
 overflow: types    int8 +    int8, size 2, sumA 102, sumB -52, sumC -104
 cast:     types    int8 +   uint8, size 2, sumA 6, sumB 0, sumC -32
@@ -32781,7 +32816,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-362 ms for 1 iterations
+372 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32808,7 +32843,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-93 ms for 1 iterations
+94 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32835,7 +32870,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-84 ms for 1 iterations
+85 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32862,7 +32897,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-97 ms for 1 iterations
+99 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32889,7 +32924,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-98 ms for 1 iterations
+101 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32934,19 +32969,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   11.0381ms
+serial runtime:   9.3497ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   3.4405ms
+serial runtime:   2.5196ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   2.0374ms
+serial runtime:   1.9766ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.5617ms
+serial runtime:   1.586ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -33233,4 +33268,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Thu 07/24/2025 17:53:32.27 
+Fri 07/25/2025  5:19:48.02 
