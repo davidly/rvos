@@ -13,8 +13,8 @@ typedef unsigned __int128 uint128_t;
 typedef __int128 int128_t;
 typedef long double ldouble_t;
 
-static const int128_t UINT128_MAX = uint128_t( int128_t( -1L ) );
-static const int128_t INT128_MAX = UINT128_MAX >> 1;
+static const uint128_t UINT128_MAX = uint128_t( int128_t( -1L ) );
+static const int128_t INT128_MAX = (int128_t) ( 0x7fffffffffffffff );
 static const int128_t INT128_MIN = -INT128_MAX - 1;
 
 //#define _perhaps_inline __attribute__((noinline))
@@ -113,14 +113,20 @@ template <class T, class U> T do_cast( U x )
         }
         else if ( 16 == cbT )
         {
+            //printf( "signedT: %d, signedU: %d, x %#llx\n", signedT, signedU, (unsigned long long) x );
             if ( signedT )
-                result = (T) ( ( x < INT128_MIN ) ? INT128_MIN : ( x > INT128_MAX ) ? INT128_MAX : x );
+            {
+                //printf( "x < INT128_MIN: %d, x > INT128_MAX: %d\n", ( x < INT128_MIN ), ( x > INT128_MAX ) );
+                result = (T) ( ( (T) x < (T) INT128_MIN ) ? INT128_MIN : ( (T) x > (T) INT128_MAX ) ? (T) INT128_MAX : (T) x );
+            }
             else
-                result = (T) ( ( x < 0 ) ? 0 : ( x > UINT128_MAX ) ? UINT128_MAX : x );
+                result = (T) ( ( x < 0 ) ? 0 : ( x > (T) UINT128_MAX ) ? (T) UINT128_MAX : x );
         }
         else
             printf( "unknown integer type\n" );
     }
+    //printf( "do_cast: %s to %s, x = %llx, result = %llx\n", 
+    //        maptype( typeid(U).name() ), maptype( typeid(T).name() ), (unsigned long long) x, (unsigned long long) result );
     return result;
 }
 
@@ -161,20 +167,32 @@ template <class T, class U, size_t size> T tstCasts( T t, U u )
     T c[ _countof( a ) ] = { 0 };
     T x = t;
 
+    //printf( "sizeof T %zd, sizeof U %zd, size %zd\n", sizeof( T ), sizeof( U ), size );
+
     srand( 0 );
 
     for ( int i = 0; i < _countof( a ); i++ )
     {
+        //printf( "top of loop, i %d, x %.12g, u %.12g\n", i, (double) x, (double) u );
         x = x + do_cast<T,size_t>( ( rand() % ( i + 1000 ) ) / 2 );
+        //printf( "  point after addition, x %.12g\n", (double) x );
         x = -x;
+        //printf( "  point after negation, x %.12g\n", (double) x );
         x = do_cast<T,int128_t>( (int128_t) x & 0x33303330333033 );
+        //printf( "  point after bitwise AND, x %.12g\n", (double) x );
         x = do_abs( x );
+        //printf( "  point after abs, x %.12g\n", (double) x );
         x = do_cast<T,double>( sqrt( (double) x ) );
+        //printf( "  point after sqrt, x %.12g\n", (double) x );
         x += do_cast<T,float>( 1.02f );
+        //printf( "  point after sqrt and addition, x %.12g\n", (double) x );
         x = do_cast<T,double>( (double) x * 3.2f );
+        //printf( "  point after multiplication, x %.12g\n", (double) x );
         u += do_cast<U,size_t>( ( rand() % ( i + 2000 ) ) / 3 );
+        //printf( "  point after u addition, u %.12g\n", (double) u );
         a[ i ] = ( x * do_cast<T,U>( u ) ) + ( x + do_cast<T,U>( u ) );
         //printf( "bottom of loop, a[%d] is %.12g, u %.12g, x %.12g\n", i, (double) a[ i ], (double) u, (double) x );
+        //printf( "   aka %llx, %llx, %llx\n", (unsigned long long) a[ i ], (unsigned long long) u, (unsigned long long) x );
         //printBytes( "array a:", a, size );
     }
 
@@ -384,13 +402,17 @@ template <class T, class U, size_t size> T tst( T t, U u )
 
 int main( int argc, char * argv[], char * env[] )
 {
-#if 0    
+    printf( "UINT128_MAX = %llx\n", (unsigned long long) UINT128_MAX );
+    printf( "INT128_MAX  = %llx\n", (long long) INT128_MAX );
+    printf( "INT128_MIN  = %llx\n", (long long) INT128_MIN );
+
+#if 0        
     printf( "types: i8 %s, ui8 %s, i16 %s, ui16 %s, i32 %s, ui32 %s, i64 %s, ui64 %s, i128 %s, ui128 %s, f %s, d %s, ld %s\n",
             typeid(int8_t).name(), typeid(uint8_t).name(), typeid(int16_t).name(), typeid(uint16_t).name(),
             typeid(int32_t).name(), typeid(uint32_t).name(), typeid(int64_t).name(), typeid(uint64_t).name(),
             typeid(int128_t).name(), typeid(uint128_t).name(), 
             typeid(float).name(), typeid(double).name(), typeid(ldouble_t).name() );
-#endif            
+#endif                        
 
 #if 1
     run_dimension( 2 );    
@@ -405,11 +427,11 @@ int main( int argc, char * argv[], char * env[] )
     run_dimension( 32 );    
     run_dimension( 33 );    
     run_dimension( 128 );
-#else    
+#else        
     //run_dimensionz( 3 );    
-    tst<float,uint32_t,2>( 0, 0 );
+    tst<int128_t,int32_t,2>( 0, 0 );
     //tst<int128_t,int128_t,3>( 0, 0 );
-#endif
+#endif    
 
     printf( "test types completed with great success\n" );
     return 0;
