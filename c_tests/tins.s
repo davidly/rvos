@@ -78,7 +78,7 @@ main:
     lla      a0, helloString
     jal      rvos_print_text
 
-    ebreak
+    # ebreak
 
   test_amoswap.w:
     li       a0, 3
@@ -394,9 +394,9 @@ main:
     j        leave_execution
 
   clean_exit:
-    add      a0, zero, zero
     lla      a0, endString
     jal      rvos_print_text
+    add      a0, zero, zero
 
   leave_execution:
     ld       ra, 16(sp)
