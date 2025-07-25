@@ -840,10 +840,6 @@ void RiscV::trace_state()
 {
     uint8_t optype = riscv_types[ opcode_type ];
 
-    static char acExtra[ 1024 ];
-    acExtra[ 0 ] = 0;
-    snprintf( acExtra, _countof( acExtra ), "t0 %llx t1 %llx s0 %llx s1 %llx, s7 %llx", regs[ t0 ], regs[ t1 ], regs[ s0 ], regs[ s1 ], regs[ s7 ] );
-
     static const char * previous_symbol = 0;
     uint64_t offset;
     const char * symbol_name = emulator_symbol_lookup( pc, offset );
@@ -862,16 +858,14 @@ void RiscV::trace_state()
         strcat( symbol_offset, "\n            " );
     }
 
-#if 0
-    static char float_regs[ 100 ] = {0};
-    snprintf( float_regs, _countof( float_regs ), "fa0 %llx fa4 %llx fs0 %llx fs1 %llx",
-              * (uint64_t *) &fregs[ a0 ], * (uint64_t *) &fregs[ a4 ], * (uint64_t *) &fregs[ s0 ], * (uint64_t *) &fregs[ s1 ] );
-#endif
+    static char reg_string[ 32 * 32 ];
+    reg_string[ 0 ] = 0;
+    int len = 0;
+    for ( int r = 3; r <= 31; r++ ) // skip over zero, ra, and sp
+        if ( 0 != regs[ r ] )
+            len += snprintf( & reg_string[ len ], 32, "%s:%llx ", register_names[ r ], regs[ r ] );
 
-    tracer.Trace( "pc %8llx %s%s op %8llx a0 %llx a1 %llx a2 %llx a3 %llx a4 %llx a5 %llx gp %llx %s ra %llx sp %llx t %2llx %c => ",
-                  pc, symbol_name, symbol_offset,
-                  op, regs[ a0 ], regs[ a1 ], regs[ a2 ], regs[ a3 ], regs[ a4 ], regs[ a5 ], regs[ gp ], acExtra,
-                  regs[ ra ], regs[ sp ], opcode_type, instruction_types[ optype ] );
+    tracer.Trace( "pc %8llx %s%s op %8llx %sra:%llx sp:%llx => ", pc, symbol_name, symbol_offset, op, reg_string, regs[ ra ], regs[ sp ] );
 
     switch ( optype )
     {
@@ -884,16 +878,16 @@ void RiscV::trace_state()
         {
             decode_U();
             if ( 0x5 == opcode_type )
-                tracer.Trace( "auipc   %s, %lld  # %llx\n", reg_name( rd ), (u_imm << 12 ), pc + ( u_imm << 12 ) );
+                tracer.Trace( "auipc %s, %lld  # %llx\n", reg_name( rd ), (u_imm << 12 ), pc + ( u_imm << 12 ) );
             else if ( 0xd == opcode_type )
-                tracer.Trace( "lui     %s, %lld  # %llx\n", reg_name( rd ), u_imm << 12, u_imm << 12 );
+                tracer.Trace( "lui %s, %lld  # %llx\n", reg_name( rd ), u_imm << 12, u_imm << 12 );
             break;
         }
         case JType:
         {
             decode_J();
             if ( 0x1b == opcode_type )
-                tracer.Trace( "jal     %lld # %8llx\n", j_imm_u, pc + j_imm_u );
+                tracer.Trace( "jal %lld # %8llx\n", j_imm_u, pc + j_imm_u );
             break;
         }
         case IType:
@@ -904,21 +898,21 @@ void RiscV::trace_state()
             {
                 switch( funct3 )
                 {
-                    case 0: tracer.Trace( "lb      %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
-                    case 1: tracer.Trace( "lh      %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
-                    case 2: tracer.Trace( "lw      %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
-                    case 3: tracer.Trace( "ld      %s, %lld(%s)  # %lld(%llx)\n", reg_name( rd ), i_imm, reg_name( rs1 ), i_imm, regs[ rs1 ] ); break;
-                    case 4: tracer.Trace( "lbu     %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
-                    case 5: tracer.Trace( "lhu     %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
-                    case 6: tracer.Trace( "lwu     %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 0: tracer.Trace( "lb %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 1: tracer.Trace( "lh %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 2: tracer.Trace( "lw %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 3: tracer.Trace( "ld %s, %lld(%s)  # %lld(%llx)\n", reg_name( rd ), i_imm, reg_name( rs1 ), i_imm, regs[ rs1 ] ); break;
+                    case 4: tracer.Trace( "lbu %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 5: tracer.Trace( "lhu %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
+                    case 6: tracer.Trace( "lwu %s, %lld(%s)\n", reg_name( rd ), i_imm, reg_name( rs1 ) ); break;
                 }
             }
             else if ( 1 == opcode_type )
             {
                 if ( 2 == funct3 )
-                    tracer.Trace( "flw     %s, %lld(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) );
+                    tracer.Trace( "flw %s, %lld(%s)  # %.2f\n", freg_name( rd ), i_imm, reg_name( rs1 ), getfloat( i_imm + regs[ rs1 ] ) );
                 else if ( 3 == funct3 )
-                    tracer.Trace( "fld     %s, %lld(%s)  # %.2lf\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) );
+                    tracer.Trace( "fld %s, %lld(%s)  # %.2lf\n", freg_name( rd ), i_imm, reg_name( rs1 ), getdouble( i_imm + regs[ rs1 ] ) );
             }
             else if ( 3 == opcode_type )
             {
@@ -931,21 +925,21 @@ void RiscV::trace_state()
 
                 switch( funct3 )
                 {
-                    case 0: tracer.Trace( "addi    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
-                    case 1: tracer.Trace( "slli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 ); break;
-                    case 2: tracer.Trace( "slti    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
-                    case 3: tracer.Trace( "sltiu   %s, %s, %llu\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
-                    case 4: tracer.Trace( "xori    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 0: tracer.Trace( "addi %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 1: tracer.Trace( "slli %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 ); break;
+                    case 2: tracer.Trace( "slti %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 3: tracer.Trace( "sltiu %s, %s, %llu\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 4: tracer.Trace( "xori %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                     case 5:
                     {
                         if ( 0 == i_top2 )
-                            tracer.Trace( "srli    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 );
+                            tracer.Trace( "srli %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 );
                         else if ( 1 == i_top2 )
-                            tracer.Trace( "srai    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5 );
+                            tracer.Trace( "srai %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5 );
                         break;
                     }
-                    case 6: tracer.Trace( "ori     %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
-                    case 7: tracer.Trace( "andi    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 6: tracer.Trace( "ori %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
+                    case 7: tracer.Trace( "andi %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
                 }
             }
             else if ( 6 == opcode_type )
@@ -956,7 +950,7 @@ void RiscV::trace_state()
                 {
                     uint32_t x = (uint32_t) ( ( 0xffffffff & regs[ rs1 ] ) + i_imm );
                     uint64_t ext = sign_extend( x, 31 );
-                    tracer.Trace( "addiw   %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
+                    tracer.Trace( "addiw %s, %s, %lld  # %d + %d = %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm, regs[ rs1 ], i_imm, ext );
                 }
                 else if ( 1 == funct3 )
                 {
@@ -965,22 +959,22 @@ void RiscV::trace_state()
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         //uint32_t result = val << i_shamt5;
                         //uint64_t result64 = sign_extend( result, 31 );
-                        tracer.Trace( "slliw   %s, %s, %lld  # %llx << %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, (uint64_t) val, i_shamt5 );
+                        tracer.Trace( "slliw %s, %s, %lld  # %llx << %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, (uint64_t) val, i_shamt5 );
                     }
                 }
                 else if ( 5 == funct3 )
                 {
                     if ( 0 == i_top2 )
-                        tracer.Trace( "srliw   %s, %s, %lld  # %llx >> %lld = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
+                        tracer.Trace( "srliw %s, %s, %lld  # %llx >> %lld = %x\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, regs[ rs1 ], i_shamt5,
                                       ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 )  );
                     else if ( 1 == i_top2 )
-                        tracer.Trace( "sraiw   %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  );
+                        tracer.Trace( "sraiw %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5  );
                 }
             }
             else if ( 0x19 == opcode_type )
             {
                 if ( 0 == funct3 )
-                    tracer.Trace( "jalr    %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm );
+                    tracer.Trace( "jalr %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm );
             }
             else if ( 0x1c == opcode_type )
             {
@@ -1007,66 +1001,66 @@ void RiscV::trace_state()
                 else if ( 1 == funct3 ) // write csr
                 {
                     if ( 1 == csr )
-                        tracer.Trace( "csrrw   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrw %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 2 == csr )
-                        tracer.Trace( "csrrw   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrw %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xc00 == csr )
-                        tracer.Trace( "csrrw   %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrw %s, cycle, %s\n", reg_name( rd ), reg_name( rs1 ) );
                     else
                         tracer.Trace( "csrrw unknown\n" );
                 }
                 else if ( 2 == funct3 ) // read csr
                 {
                     if ( 1 == csr )
-                        tracer.Trace( "csrrs   %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, fflags, %s  # read fp exception flags\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 2 == csr )
-                        tracer.Trace( "csrrs   %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, frm, %s  # read fp rounding mode\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x100 == csr )
-                        tracer.Trace( "csrrs   %s, sstatus, %s  # supervisor status\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, sstatus, %s  # supervisor status\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x104 == csr )
-                        tracer.Trace( "csrrs   %s, sie, %s  # supervisor interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, sie, %s  # supervisor interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x105 == csr )
-                        tracer.Trace( "csrrs   %s, stvec, %s  # supervisor trap handler base address\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, stvec, %s  # supervisor trap handler base address\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x140 == csr )
-                        tracer.Trace( "csrrs   %s, sscratch, %s  # supervisor scratch register for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, sscratch, %s  # supervisor scratch register for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x141 == csr )
-                        tracer.Trace( "csrrs   %s, sepc, %s  # supervisor exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, sepc, %s  # supervisor exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x142 == csr )
-                        tracer.Trace( "csrrs   %s, scause, %s  # supervisor trap cause\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, scause, %s  # supervisor trap cause\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x143 == csr )
-                        tracer.Trace( "csrrs   %s, stval, %s  # supervisor bad address or instruction\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, stval, %s  # supervisor bad address or instruction\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x180 == csr )
-                        tracer.Trace( "csrrs   %s, satp, %s  # supervisor adress translation and protection\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, satp, %s  # supervisor adress translation and protection\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x302 == csr )
-                        tracer.Trace( "csrrs   %s, medeleg, %s  # machine exception delegation\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, medeleg, %s  # machine exception delegation\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x303 == csr )
-                        tracer.Trace( "csrrs   %s, mideleg, %s  # machine interrupt delegation\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mideleg, %s  # machine interrupt delegation\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x304 == csr )
-                        tracer.Trace( "csrrs   %s, mie, %s  # machine interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mie, %s  # machine interrupt-enable\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x305 == csr )
-                        tracer.Trace( "csrrs   %s, mtvec, %s  # machine trap-handler base addess\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mtvec, %s  # machine trap-handler base addess\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x306 == csr )
-                        tracer.Trace( "csrrs   %s, mcounteren, %s  # machine counter enable\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mcounteren, %s  # machine counter enable\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x340 == csr )
-                        tracer.Trace( "csrrs   %s, mscratch, %s  # machine scratch for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mscratch, %s  # machine scratch for trap handlers\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0x341 == csr )
-                        tracer.Trace( "csrrs   %s, mepc, %s  # machine exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mepc, %s  # machine exception program counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xb00 == csr )
-                        tracer.Trace( "csrrs   %s, mcycle, %s  # rdmcycle read machine cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mcycle, %s  # rdmcycle read machine cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xb02 == csr )
-                        tracer.Trace( "csrrs   %s, minstret, %s  # rdminstret read machine instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, minstret, %s  # rdminstret read machine instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xc00 == csr )
-                        tracer.Trace( "csrrs   %s, cycle, %s  # rdcycle read cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, cycle, %s  # rdcycle read cycle counter\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xc01 == csr )
-                        tracer.Trace( "csrrs   %s, time, %s  # rdtime read time\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, time, %s  # rdtime read time\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xc02 == csr )
-                        tracer.Trace( "csrrs   %s, instret, %s  # rdinstret read instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, instret, %s  # rdinstret read instrutions retired\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xf11 == csr ) // mvendorid vendor
-                        tracer.Trace( "csrrs   %s, mvendorid, %s  # vendor id\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mvendorid, %s  # vendor id\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xf12 == csr ) // marchid architecture
-                        tracer.Trace( "csrrs   %s, marchid, %s  # architecture id\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, marchid, %s  # architecture id\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 0xf13 == csr ) // mimpid implementation
-                        tracer.Trace( "csrrs   %s, mimpid, %s  # implementation id\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "csrrs %s, mimpid, %s  # implementation id\n", reg_name( rd ), reg_name( rs1 ) );
                     else
                         tracer.Trace( "csrrs unknown\n" );
                 }
@@ -1084,7 +1078,7 @@ void RiscV::trace_state()
         {
             decode_B();
             if ( 0x18 == opcode_type )
-                tracer.Trace( "b%s     %s, %s, %lld  # %8llx\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
+                tracer.Trace( "b%s %s, %s, %lld  # %8llx\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), b_imm, pc + b_imm );
             break;
         }
         case SType:
@@ -1095,20 +1089,20 @@ void RiscV::trace_state()
             if ( 8 == opcode_type )
             {
                 if ( 0 == funct3 )
-                    tracer.Trace( "sb      %s, %lld(%s)  #  %2llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                    tracer.Trace( "sb %s, %lld(%s)  #  %2llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint8_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
                 else if ( 1 == funct3 )
-                    tracer.Trace( "sh      %s, %lld(%s)  #  %4llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
+                    tracer.Trace( "sh %s, %lld(%s)  #  %4llx, %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), (uint64_t) (uint16_t) regs[ rs2 ], s_imm, regs[ rs1 ] );
                 else if ( 2 == funct3 )
-                    tracer.Trace( "sw      %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) );
+                    tracer.Trace( "sw %s, %lld(%s)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ) );
                 else if ( 3 == funct3 )
-                    tracer.Trace( "sd      %s, %lld(%s)  # %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), s_imm, regs[ rs1 ] );
+                    tracer.Trace( "sd %s, %lld(%s)  # %lld(%llx)\n", reg_name( rs2 ), s_imm, reg_name( rs1 ), s_imm, regs[ rs1 ] );
             }
             else if ( 9 == opcode_type )
             {
                 if ( 2 == funct3 )
-                    tracer.Trace( "fsw     %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
+                    tracer.Trace( "fsw %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
                 else if ( 3 == funct3 )
-                    tracer.Trace( "fsd     %s, %lld(%s), # %.2lf\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
+                    tracer.Trace( "fsd %s, %lld(%s), # %.2lf\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
             }
             break;
         }
@@ -1124,7 +1118,7 @@ void RiscV::trace_state()
             if ( 0xa == opcode_type )
             {
                 if ( 0 == funct7 )
-                    tracer.Trace( "jr%s    %s, %s, %s\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), reg_name( rd ) );
+                    tracer.Trace( "jr%s %s, %s, %s\n", cmp_type( funct3 ), reg_name( rs1 ), reg_name( rs2 ), reg_name( rd ) );
             }
             else if ( 0xb == opcode_type )
             {
@@ -1146,16 +1140,16 @@ void RiscV::trace_state()
                 else if ( 2 == top5 )
                 {
                     if ( 2 == funct3 )
-                        tracer.Trace( "lr.w   %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "lr.w %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
                     else if ( 3 == funct3 )
-                        tracer.Trace( "lr.d   %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
+                        tracer.Trace( "lr.d %s, (%s)\n", reg_name( rd ), reg_name( rs1 ) );
                 }
                 else if ( 3 == top5 )
                 {
                     if ( 2 == funct3 )
-                        tracer.Trace( "sc.w  %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "sc.w %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                    else if ( 3 == funct3 )
-                        tracer.Trace( "sc.d  %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
+                        tracer.Trace( "sc.d %s, %s, (%s)\n", reg_name( rd ), reg_name( rs2 ), reg_name( rs1 ) );
                 }
                 else if ( 4 == top5 )
                 {
@@ -1213,49 +1207,49 @@ void RiscV::trace_state()
                 if ( 0 == funct7 )
                 {
                     if ( 0 == funct3  )
-                        tracer.Trace( "add     %s, %s, %s # %llx + %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "add %s, %s, %s # %llx + %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 1 == funct3  )
-                        tracer.Trace( "sll     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "sll %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 2 == funct3 )
-                        tracer.Trace( "slt     %s, %s, %s # %lld == %lld < %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                        tracer.Trace( "slt %s, %s, %s # %lld == %lld < %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       (int64_t) regs[rs1] < (int64_t) regs[rs2], regs[rs1], regs[rs2] );
                     else if ( 3 == funct3  )
-                        tracer.Trace( "sltu    %s, %s, %s # %d == %llu < %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                        tracer.Trace( "sltu %s, %s, %s # %d == %llu < %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       regs[rs1] < regs[rs2], regs[rs1], regs[rs2] );
                     else if ( 4 == funct3  )
-                        tracer.Trace( "xor     %s, %s, %s # %lld == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2], regs[rs1] ^ regs[rs2] );
+                        tracer.Trace( "xor %s, %s, %s # %lld == %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[rs1] ^ regs[rs2], regs[rs1] ^ regs[rs2] );
                     else if ( 5 == funct3  )
-                        tracer.Trace( "srl     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "srl %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 6 == funct3 )
-                        tracer.Trace( "or      %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "or  %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 7 == funct3 )
-                        tracer.Trace( "and     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "and %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                  }
                  else if ( 1 == funct7 )
                  {
                     if ( 0 == funct3 )
-                        tracer.Trace( "mul     %s, %s, %s # %llx * %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mul %s, %s, %s # %llx * %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 1 == funct3 )
-                        tracer.Trace( "mulh    %s, %s, %s  # %lld * %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulh %s, %s, %s  # %lld * %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 2 == funct3 )
-                        tracer.Trace( "mulhsu  %s, %s, %s  # %lld * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulhsu %s, %s, %s  # %lld * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 3 == funct3 )
-                        tracer.Trace( "mulhu   %s, %s, %s  # %llu * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "mulhu %s, %s, %s  # %llu * %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 4 == funct3 )
-                        tracer.Trace( "div     %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "div %s, %s, %s  # %lld / %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 5 == funct3 )
-                        tracer.Trace( "udiv    %s, %s, %s  # %llu / %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
+                        tracer.Trace( "udiv %s, %s, %s  # %llu / %llu\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ] );
                     else if ( 6 == funct3 )
-                        tracer.Trace( "rem     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "rem %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 7 == funct3 )
-                        tracer.Trace( "remu    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "remu %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
                 else if ( 0x20 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "sub     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "sub %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 5== funct3 )
-                        tracer.Trace( "sra     %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "sra %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
             }
             else if ( 0x0e == opcode_type )
@@ -1266,7 +1260,7 @@ void RiscV::trace_state()
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
                         uint64_t result = sign_extend( (uint32_t) val, 31 );
-                        tracer.Trace( "addw    %s, %s, %s  # %lld + %lld = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
+                        tracer.Trace( "addw %s, %s, %s  # %lld + %lld = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       ( 0xffffffff & regs[ rs1 ] ), ( 0xffffffff & regs[ rs2 ] ), result );
                     }
                     else if ( 1 == funct3 )
@@ -1275,10 +1269,10 @@ void RiscV::trace_state()
                         uint32_t amount = 0x1f & regs[ rs2 ];
                         uint32_t result = val << amount;
                         uint64_t result64 = sign_extend( result, 31 );
-                        tracer.Trace( "sllw    %s, %s, %s  # %x << %d = %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), val, amount, result64 );
+                        tracer.Trace( "sllw %s, %s, %s  # %x << %d = %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), val, amount, result64 );
                     }
                     else if ( 5 == funct3 )
-                        tracer.Trace( "srlw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "srlw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
                 else if ( 1 == funct7 )
                 {
@@ -1286,23 +1280,23 @@ void RiscV::trace_state()
                     {
                         uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
                         uint64_t ext = sign_extend( x, 31 );
-                        tracer.Trace( "mulw    %s, %s, %s  # %d * %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ], ext );
+                        tracer.Trace( "mulw %s, %s, %s  # %d * %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ], ext );
                     }
                     else if ( 4 == funct3 )
-                        tracer.Trace( "divw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "divw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 5 == funct3 )
-                        tracer.Trace( "divuw   %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "divuw%s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 6 == funct3 )
-                        tracer.Trace( "remw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "remw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 7 == funct3 )
-                        tracer.Trace( "remuw   %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "remuw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
                 else if ( 0x20 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        tracer.Trace( "subw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "subw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 5 == funct3 )
-                        tracer.Trace( "sraw    %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "sraw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                 }
             }
             else if ( 0x10 == opcode_type )
@@ -1313,13 +1307,13 @@ void RiscV::trace_state()
                 if ( 0 == fmt )
                 {
                     float result = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f;
-                    tracer.Trace( "fmadd.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fmadd.s %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );
                 }
                 else if ( 1 == fmt )
                 {
                     double result = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) + fregs[ rs3 ].d;
-                    tracer.Trace( "fmadd.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fmadd.d %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d );
                 }
             }
@@ -1331,13 +1325,13 @@ void RiscV::trace_state()
                 if ( 0 == fmt )
                 {
                     float result = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) - fregs[ rs3 ].f;
-                    tracer.Trace( "fmsub.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fmsub.s %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );
                 }
                 else if ( 1 == fmt )
                 {
                     double result = ( fregs[ rs1 ].d * fregs[ rs2 ].d ) - fregs[ rs3 ].d;
-                    tracer.Trace( "fmsub.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fmsub.d %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d );                        
                 }
             }
@@ -1351,13 +1345,13 @@ void RiscV::trace_state()
                 if ( 0 == fmt )
                 {
                     float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f;
-                    tracer.Trace( "fnmsub.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fnmsub.s %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
                 }
                 else if ( 1 == fmt )
                 {
                     double result = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) + fregs[ rs3 ].d;
-                    tracer.Trace( "fnmsub.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fnmsub.d %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d );                        
                 }
             }
@@ -1371,40 +1365,40 @@ void RiscV::trace_state()
                 if ( 0 == fmt )
                 {
                     float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f;
-                    tracer.Trace( "fnmadd.s  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fnmadd.s %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
                 }
                 else if ( 1 == fmt )
                 {
                     double result = ( -1.0 * ( fregs[ rs1 ].d * fregs[ rs2 ].d ) ) - fregs[ rs3 ].d;
-                    tracer.Trace( "fnmadd.d  %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
+                    tracer.Trace( "fnmadd.d %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
                                   result, fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d );                        
                 }
             }
             else if ( 0x14 == opcode_type )
             {
                 if ( 0 == funct7 )
-                    tracer.Trace( "fadd.s  %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fadd.s %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   (float) do_fadd( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 1 == funct7 )
-                    tracer.Trace( "fadd.d  %s, %s, %s  # %.2lf = %.2lf + %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fadd.d %s, %s, %s  # %.2lf = %.2lf + %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   do_fadd( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 4 == funct7 )
-                    tracer.Trace( "fsub.s  %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fsub.s %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                    (float) do_fsub( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 5 == funct7 )
-                    tracer.Trace( "fsub.d  %s, %s, %s  # %.2lf = %.2lf - %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fsub.d %s, %s, %s  # %.2lf = %.2lf - %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                    do_fsub( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 8 == funct7 )
-                    tracer.Trace( "fmul.s  %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                    tracer.Trace( "fmul.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 else if ( 9 == funct7 )
-                    tracer.Trace( "fmul.d  %s, %s, %s  # %.2lf = %.2lf * %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fmul.d %s, %s, %s  # %.2lf = %.2lf * %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 0xc == funct7 )
-                    tracer.Trace( "fdiv.s  %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fdiv.s %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   fregs[ rs1 ].f / fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
                 else if ( 0xd == funct7 )
-                    tracer.Trace( "fdiv.d  %s, %s, %s  # %.2lf == %.2lf / %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
+                    tracer.Trace( "fdiv.d %s, %s, %s  # %.2lf == %.2lf / %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   do_fdiv( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 0x10 == funct7 )
                 {
