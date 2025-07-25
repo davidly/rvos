@@ -1,4 +1,4 @@
-Fri 07/25/2025  5:19:05.99 
+Fri 07/25/2025  7:18:45.86 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -3250,30 +3250,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 9, min 18, sec 51
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 14, min 18, sec 51
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 9, min 18, sec 51
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 14, min 18, sec 51
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 9, min 18, sec 51
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 14, min 18, sec 51
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 9, min 18, sec 51
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 14, min 18, sec 51
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 7, min 19, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 4, min 19, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 12, min 19, sec 11
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 7, day 25, hour 9, min 18, sec 51
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 7, day 25, hour 6, min 18, sec 51
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 7, day 25, hour 14, min 18, sec 51
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -3613,27 +3613,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-25.157000 milliseconds
+25.039000 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-17.409000 milliseconds
+16.747000 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-16.830999 milliseconds
+15.984000 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-10.735000 milliseconds
+10.684000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-10.770000 milliseconds
+10.551001 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -14266,8 +14266,8 @@ cast:     types   int32 +  double, size 2, sumA 71556302, sumB 143112604, sumC 2
 overflow: types   int32 +  double, size 2, sumA 54598486, sumB 109196972, sumC 218393944
 cast:     types   int32 + ldouble, size 2, sumA 71556302, sumB 143112604, sumC 286225208
 overflow: types   int32 + ldouble, size 2, sumA 54598486, sumB 109196972, sumC 218393944
-cast:     types  uint32 +    int8, size 2, sumA 181993, sumB -2, sumC 727972
-overflow: types  uint32 +    int8, size 2, sumA 8007766, sumB -2, sumC 32031064
+cast:     types  uint32 +    int8, size 2, sumA 181993, sumB 0, sumC 727972
+overflow: types  uint32 +    int8, size 2, sumA 8007766, sumB 0, sumC 32031064
 cast:     types  uint32 +   uint8, size 2, sumA 24023710, sumB 254, sumC 96094840
 overflow: types  uint32 +   uint8, size 2, sumA 8007766, sumB 254, sumC 32031064
 cast:     types  uint32 +   int16, size 2, sumA 181993, sumB 0, sumC 727972
@@ -14318,8 +14318,8 @@ cast:     types   int64 +  double, size 2, sumA 116769318670, sumB 233538637340,
 overflow: types   int64 +  double, size 2, sumA 230465752774, sumB 460931505548, sumC 921863011096
 cast:     types   int64 + ldouble, size 2, sumA 116769318670, sumB 233538637340, sumC 467077274680
 overflow: types   int64 + ldouble, size 2, sumA 230465752774, sumB 460931505548, sumC 921863011096
-cast:     types  uint64 +    int8, size 2, sumA 768219185, sumB -2, sumC 3072876740
-overflow: types  uint64 +    int8, size 2, sumA 33801643718, sumB -2, sumC 135206574872
+cast:     types  uint64 +    int8, size 2, sumA 768219185, sumB 0, sumC 3072876740
+overflow: types  uint64 +    int8, size 2, sumA 33801643718, sumB 0, sumC 135206574872
 cast:     types  uint64 +   uint8, size 2, sumA 101404933550, sumB 254, sumC 405619734200
 overflow: types  uint64 +   uint8, size 2, sumA 33801643718, sumB 254, sumC 135206574872
 cast:     types  uint64 +   int16, size 2, sumA 768219185, sumB 0, sumC 3072876740
@@ -32816,7 +32816,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-372 ms for 1 iterations
+355 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32843,7 +32843,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-94 ms for 1 iterations
+92 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32897,7 +32897,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-99 ms for 1 iterations
+96 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32924,7 +32924,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-101 ms for 1 iterations
+97 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -32969,19 +32969,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   9.3497ms
+serial runtime:   9.2735ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.5196ms
+serial runtime:   2.5958ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   1.9766ms
+serial runtime:   2.2092ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.586ms
+serial runtime:   1.5543ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -33268,4 +33268,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Fri 07/25/2025  5:19:48.02 
+Fri 07/25/2025  7:19:27.36 

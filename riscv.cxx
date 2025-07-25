@@ -1870,7 +1870,7 @@ uint64_t RiscV::run()
                 else if ( 2 == funct3 ) // slti rd, rs1, imm
                     regs[ rd ] = ( (int64_t) regs[ rs1 ] < i_imm );
                 else if ( 3 == funct3 ) // sltiu rd, rs1, imm
-                    regs[ rd ] = ( regs[ rs1 ] < i_imm_u );
+                    regs[ rd ] = ( regs[ rs1 ] < (uint64_t) i_imm ); // treat the sign-extended immediate as an unsigned quantity, not the non-sign-extended i_imm_u
                 else if ( 4 == funct3 ) // xori rd, rs1, imm
                     regs[ rd ] =  i_imm ^ regs[ rs1 ];
                 else if ( 5 == funct3 )
