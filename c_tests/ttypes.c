@@ -67,8 +67,20 @@ template <class T, class U> T do_cast( U x )
     size_t cbU = sizeof( U );
     size_t cbT = sizeof( T );
     bool signedU = std::is_signed<U>();
+
+    if ( 'n' == *typeid(U).name() ) // old gnu compilers for riscv64 get this wrong in is_signed for int128_t
+        signedU = true;
+    
     bool signedT = std::is_signed<T>();
+
+    if ( 'n' == *typeid(T).name() ) // old gnu compilers for riscv64 get this wrong in is_signed for int128_t
+        signedT = true;
+    
     T result = 0;
+
+    //printf( "do_cast: %s to %s, x = %llx\n", 
+    //        maptype( typeid(U).name() ), maptype( typeid(T).name() ), (unsigned long long) x );
+    //printf( "do_cast: cbU %zd, cbT %zd, signedU %d, signedT %d\n", cbU, cbT, signedU, signedT );
 
     if ( IS_FP( result ) )
     {
@@ -429,7 +441,7 @@ int main( int argc, char * argv[], char * env[] )
     run_dimension( 128 );
 #else        
     //run_dimensionz( 3 );    
-    tst<int128_t,int32_t,2>( 0, 0 );
+    tst<int8_t,int128_t,2>( 0, 0 );
     //tst<int128_t,int128_t,3>( 0, 0 );
 #endif    
 
