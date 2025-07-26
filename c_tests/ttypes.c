@@ -1,3 +1,10 @@
+// note: this test's purpose so to have compilers generate many unique instructions
+// so emulators can be validated. The test generates signed integer overflows which
+// have undefined behavior in C and C++, so results of the test will vary between
+// compilers and compiler versions. -fwrapv can be used with some compilers, but
+// even then behavior isn't consistent.
+// Output is consistent for recent versions of clang and g++.
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -417,6 +424,7 @@ template <class T, class U, size_t size> T tst( T t, U u )
 
 int main( int argc, char * argv[], char * env[] )
 {
+#if 1
     printf( "UINT128_MAX = %llx\n", (unsigned long long) UINT128_MAX );
     printf( "INT128_MAX  = %llx\n", (long long) INT128_MAX );
     printf( "INT128_MIN  = %llx\n", (long long) INT128_MIN );
@@ -435,7 +443,6 @@ int main( int argc, char * argv[], char * env[] )
     printf( "float is signed: %d, double is signed: %d, long double is signed: %d\n",
             is_signed_type<float>(), is_signed_type<double>(), is_signed_type<ldouble_t>() );
 
-#if 1
     run_dimension( 2 );    
     run_dimension( 3 );    
     run_dimension( 4 );    
