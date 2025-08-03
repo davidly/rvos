@@ -3,6 +3,8 @@
 _rvoscmd="rvos"
 if [ "$1" = "nested" ]; then
     _rvoscmd="rvos -h:200 bin/rvos"
+elif [ "$1" = "native" ]; then
+    _rvoscmd=""
 elif [ "$1" = "rvoscl" ]; then
     _rvoscmd="rvoscl -h:200"
 elif [ "$1" = "armos" ]; then

@@ -41,8 +41,9 @@ const char * tf( bool f )
 
 void _perhaps_inline show_num( double d )
 {
-    printf( "  %lf = %#llx, isnan %s, isinf %s, iszero %s, signbit %s\n", * (uint64_t *) &d,
-            (double) d, tf( std::isnan( d ) ), tf( std::isinf( d ) ),
+    printf( "  %lf = %#llx, isnan %s, isinf %s, iszero %s, signbit %s\n",
+            d, * (uint64_t *) &d,
+            tf( std::isnan( d ) ), tf( std::isinf( d ) ),
             tf( 0.0 == d ),  tf( std::signbit( d ) ) );
 } //show_num
 
@@ -100,7 +101,7 @@ double _perhaps_inline do_math( double a, double b )
 
 double zero = 0.0;
 double neg_zero = set_double_sign( 0.0, true );
-double infinity = INFINITY;
+double pos_infinity = INFINITY;
 double neg_infinity = set_double_sign( INFINITY, true );
 double not_a_number = NAN;
 double neg_not_a_number = set_double_sign( NAN, true );
@@ -122,8 +123,8 @@ double test_case( double d )
     r += do_math( not_a_number, d );
     r += do_math( d, neg_not_a_number );
     r += do_math( neg_not_a_number, d );
-    r += do_math( d, infinity );
-    r += do_math( infinity, d );
+    r += do_math( d, pos_infinity );
+    r += do_math( pos_infinity, d );
     r += do_math( d, neg_infinity );
     r += do_math( neg_infinity, d );
     r += do_math( d, d );
@@ -132,13 +133,11 @@ double test_case( double d )
 
 int main( int argc, char * argv[] )
 {
-    double d;
-
     printf( "NAN: %#llx\n", * (uint64_t *) & not_a_number );
     printf( "-NAN: %#llx\n", * (uint64_t *) & neg_not_a_number );
     printf( "quiet NAN: %#llx\n", * (uint64_t *) & quiet_nan );
     printf( "signaling NAN: %#llx\n", * (uint64_t *) & signaling_nan );
-    printf( "INFINITY: %#llx\n", * (uint64_t *) & infinity );
+    printf( "INFINITY: %#llx\n", * (uint64_t *) & pos_infinity );
     printf( "-INFINITY: %#llx\n", * (uint64_t *) & neg_infinity );
     printf( "0.0: %#llx\n", * (uint64_t *) & zero );
     printf( "-0.0: %#llx\n", * (uint64_t *) & neg_zero );
@@ -150,7 +149,7 @@ int main( int argc, char * argv[] )
     test_case( neg_not_a_number );
 
     printf( "testing with INFINITY:\n" );
-    test_case( infinity );
+    test_case( pos_infinity );
 
     printf( "testing with -INFINITY:\n" );
     test_case( neg_infinity );
