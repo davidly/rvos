@@ -173,7 +173,7 @@ CDJLTrace tracer;
 ConsoleConfiguration g_consoleConfig;
 bool g_compressed_rvc = false;                 // is the app compressed risc-v?
 const REG_TYPE g_arg_data_commit = 1024;       // storage spot for command-line arguments and environment variables
-const REG_TYPE g_stack_commit = 128 * 1024;    // RAM to allocate for the fixed stack. the top of this has argv data
+REG_TYPE g_stack_commit = 128 * 1024;          // RAM to allocate for the fixed stack. the top of this has argv data
 
 #ifdef M68
 REG_TYPE g_brk_commit = 10 * 1024 * 1024;      // RAM to reserve if the app calls brk to allocate space. 10 meg default
@@ -762,6 +762,7 @@ static void usage( char const * perror = 0 )
 #endif
     printf( "                 -m:X   # of meg for mmap space. 0..1024 are valid. default is 40. 0 for CP/M\n" );
     printf( "                 -p     shows performance information at app exit\n" );
+    printf( "                 -s:X   # of KB for stack space. 1..1024 are valid. default is 128.\n" );
     printf( "                 -t     enable debug tracing to %ls\n", LOGFILE_NAME );
     printf( "                 -v     used with -e shows verbose information (e.g. symbols)\n" );
     printf( "  %s\n", build_string() );
@@ -1548,11 +1549,11 @@ static const SysCall syscalls[] =
 const void * my_bsearch( const void * key, const void * vbase, size_t num, unsigned width, int (*compare)( const void * a, const void * b ) )
 {
     const char * base = (const char *) vbase;
-    int i = 0;
-    int j = (int) num - 1;
+    int lo = 0;
+    int hi = (int) num - 1;
     do
     {
-        int k = ( j + i ) / 2;
+        int k = ( lo + hi ) / 2;
         const char * here = base + width * k;
         int cmp = ( *compare )( key, here );
         if ( 0 == cmp )
@@ -1563,10 +1564,10 @@ const void * my_bsearch( const void * key, const void * vbase, size_t num, unsig
         }
 
         if ( cmp < 0 )
-            j = k - 1;
+            hi = k - 1;
         else
-            i = k + 1;
-      } while ( j >= i );
+            lo = k + 1;
+      } while ( hi >= lo );
 
    return 0;
 } //my_bsearch
@@ -6310,6 +6311,7 @@ static bool load_image32( FILE * fp, const char * pimage, const char * app_args 
     }
 
     // use known my_qsort so traces are consistent across platforms because qsort implementations for duplicate values differ
+
     tracer.Trace( "sorting symbol entries\n" );
     my_qsort( g_symbols32.data(), g_symbols32.size(), sizeof( ElfSymbol32 ), symbol_compare32 );
 
@@ -6958,6 +6960,7 @@ static bool load_image( const char * pimage, const char * app_args )
     }
 
     // use known qsort so traces are consistent across platforms because qsort implementations for ties differ
+
     my_qsort( g_symbols.data(), g_symbols.size(), sizeof( ElfSymbol64 ), symbol_compare );
 
     // remove symbols that don't look like they have a valid addresses (rust binaries have tens of thousands of these)
@@ -7738,13 +7741,23 @@ int main( int argc, char * argv[] )
                     if ( mmap_space > 1024 ) // limit to a gig
                         usage( "invalid mmap size specified" );
 
-
                     g_mmap_commit = mmap_space * 1024 * 1024;
                 }
                 else if ( 'e' == ca )
                     elfInfo = true;
                 else if ( 'p' == ca )
                     showPerformance = true;
+                else if ( 's' == ca )
+                {
+                    if ( ':' != parg[2] )
+                        usage( "the -m argument requires a value" );
+
+                    REG_TYPE stack_space = (REG_TYPE) strtoull( parg + 3 , 0, 10 );
+                    if ( stack_space > 1024 ) // limit to a meg
+                        usage( "invalid stack size specified" );
+
+                    g_stack_commit = stack_space * 1024;
+                }
                 else if ( 'v' == ca )
                     verboseElfInfo = true;
                 else
