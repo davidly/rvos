@@ -218,12 +218,18 @@ uint64_t round_ui64_from_double( double d, uint64_t rm )
     if ( d <= 0.0 )
         return 0;
 
+    if ( d > UINT64_MAX )
+        return UINT64_MAX;
+
     return round_i64_from_double( d, rm );
 } //round_ui64_from_double
 
 uint32_t round_ui32_from_double( double d, uint64_t rm )
 {
-    return (uint32_t) round_ui64_from_double( d, rm );
+    uint64_t ui64 = round_ui64_from_double( d, rm );
+    if ( ui64 > UINT32_MAX )
+        return UINT32_MAX;
+    return (uint32_t) ui64;
 } //round_ui32_from_double
 
 #pragma warning(disable: 4100)
