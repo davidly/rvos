@@ -3,7 +3,11 @@
 // have undefined behavior in C and C++, so results of the test will vary between
 // compilers and compiler versions. -fwrapv can be used with some compilers, but
 // even then behavior isn't consistent.
-// Output is consistent for recent versions of clang and g++.
+// Output is mostly consistent for recent versions of clang and g++, but results
+// vary widely between, say, Ubuntu and PI5 running lastest versions of compilers
+// available for each platform.
+// Compare emulator results against those obtained by running this app natively on
+// each target machine.
 
 #include <stdio.h>
 #include <stdint.h>
