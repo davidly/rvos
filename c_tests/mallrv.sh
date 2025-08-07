@@ -2,7 +2,8 @@
 
 for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw tmmap tstr \
            tdir fileops ttime tm glob tap tsimplef tphi tf ttt td terrno t_setjmp tex \
-           tprintf pis mm tao ttypes nantst sleeptm tatomic lenum tregex trename an ba;
+           tprintf pis mm tao ttypes nantst sleeptm tatomic lenum tregex trename \
+           nqueens an ba;
 do
     echo $arg
     for optflag in 0 1 2 3 fast;

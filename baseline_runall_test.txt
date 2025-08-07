@@ -1,4 +1,4 @@
-Wed 08/06/2025 10:42:00.46 
+Thu 08/07/2025  7:11:33.72 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -3730,30 +3730,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 6, hour 12, min 42, sec 6
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 6, hour 17, min 42, sec 6
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 6, hour 12, min 42, sec 6
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 6, hour 17, min 42, sec 6
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 6, hour 12, min 42, sec 6
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 6, hour 17, min 42, sec 6
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 6, hour 12, min 42, sec 6
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 6, hour 17, min 42, sec 6
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 6, hour 12, min 42, sec 6
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 6, hour 9, min 42, sec 6
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 6, hour 17, min 42, sec 6
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -4123,27 +4123,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-27.492001 milliseconds
+27.052999 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-17.393000 milliseconds
+17.403999 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-17.448000 milliseconds
+17.489000 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-11.318000 milliseconds
+11.082000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-11.254001 milliseconds
+11.089001 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -33104,6 +33104,71 @@ c_tests/bin3/trename
 trename completed with great success
 c_tests/binfast/trename
 trename completed with great success
+c_tests/bin0/nqueens
+  size    solutions
+     1            1
+     2            0
+     3            0
+     4            2
+     5           10
+     6            4
+     7           40
+     8           92
+     9          352
+    10          724
+    11         2680
+c_tests/bin1/nqueens
+  size    solutions
+     1            1
+     2            0
+     3            0
+     4            2
+     5           10
+     6            4
+     7           40
+     8           92
+     9          352
+    10          724
+    11         2680
+c_tests/bin2/nqueens
+  size    solutions
+     1            1
+     2            0
+     3            0
+     4            2
+     5           10
+     6            4
+     7           40
+     8           92
+     9          352
+    10          724
+    11         2680
+c_tests/bin3/nqueens
+  size    solutions
+     1            1
+     2            0
+     3            0
+     4            2
+     5           10
+     6            4
+     7           40
+     8           92
+     9          352
+    10          724
+    11         2680
+c_tests/binfast/nqueens
+  size    solutions
+     1            1
+     2            0
+     3            0
+     4            2
+     5           10
+     6            4
+     7           40
+     8           92
+     9          352
+    10          724
+    11         2680
 c_tests/bin0/an david lee
 a delve id
 a delved i
@@ -33353,7 +33418,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-100 ms for 1 iterations
+102 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33380,7 +33445,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-92 ms for 1 iterations
+93 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33407,7 +33472,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-104 ms for 1 iterations
+105 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33479,19 +33544,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   9.545ms
+serial runtime:   9.7764ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.6719ms
+serial runtime:   2.7098ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   1.9609ms
+serial runtime:   2.0105ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.6226ms
+serial runtime:   1.6537ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -33778,4 +33843,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Wed 08/06/2025 10:42:43.49 
+Thu 08/07/2025  7:12:18.74 

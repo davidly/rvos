@@ -14,7 +14,7 @@ set _folderlist=bin0 bin1 bin2 bin3 binfast
 set _applist=tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw ^
              tmmap tstr tdir fileops ttime tm glob tap tsimplef tphi tf ttt td terrno ^
              t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum ^
-             tregex trename
+             tregex trename nqueens
 
 ( for %%a in (%_applist%) do (
     echo %%a
