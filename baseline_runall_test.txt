@@ -1,4 +1,4 @@
-Thu 08/07/2025  7:11:33.72 
+Fri 08/08/2025  9:04:16.75 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -3730,30 +3730,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 7, hour 9, min 11, sec 39
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 7, hour 6, min 11, sec 39
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 7, hour 14, min 11, sec 39
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -4123,27 +4123,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-27.052999 milliseconds
+25.660000 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-17.403999 milliseconds
+16.664000 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-17.489000 milliseconds
+17.389999 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-11.082000 milliseconds
+9.965000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-11.089001 milliseconds
+10.650001 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -4165,7 +4165,15 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
-stop
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+test td completed with great success
 c_tests/bin1/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -4187,7 +4195,15 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
-stop
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+test td completed with great success
 c_tests/bin2/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -4209,7 +4225,15 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
-stop
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+test td completed with great success
 c_tests/bin3/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -4231,7 +4255,15 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
-stop
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+test td completed with great success
 c_tests/binfast/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -4253,7 +4285,15 @@ l,le,l,le,l,le,l,le,l,le,l,le,l,le,l,le,g,ge,g,ge,
 pi has mantissa: 0.785398, exponent 2
 r should be 1.0: 1.000000
   r high point 3187071009115104228782838925952666189789578010509155762176.000000
-stop
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+floor of 1.1: 1.000000 == 1
+ceil of 1.1: 2.000000 == 2
+floor of -1.8: -2.000000 == -2
+ceil of -1.8: -1.000000 == -1
+test td completed with great success
 c_tests/bin0/terrno
 errno opening a file for read that doesn't exist: 2 (2 file not found expected)
 errno doing write to stdin file descriptor: 13. (13 permission denied expected)
@@ -33054,6 +33094,7 @@ clk_tck / number of linux ticks per second: 100
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1031, system time 0
 sleepy time ended with great success
 c_tests/bin2/sleeptm
 clk_tck / number of linux ticks per second: 100
@@ -33391,7 +33432,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-387 ms for 1 iterations
+353 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33418,7 +33459,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-102 ms for 1 iterations
+93 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33445,7 +33486,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-93 ms for 1 iterations
+86 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33472,7 +33513,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-105 ms for 1 iterations
+97 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33499,7 +33540,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-104 ms for 1 iterations
+96 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33544,19 +33585,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   9.7764ms
+serial runtime:   8.878ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.7098ms
+serial runtime:   2.5945ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   2.0105ms
+serial runtime:   1.9499ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.6537ms
+serial runtime:   1.5502ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -33843,4 +33884,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Thu 08/07/2025  7:12:18.74 
+Fri 08/08/2025  9:05:00.87 

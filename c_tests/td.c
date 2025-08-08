@@ -4,6 +4,58 @@
 #include <stdint.h>
 #include <math.h>
 
+int fl_cl_test()
+{
+    double d1_1 = 1.1;
+    double d1_8 = 1.8;
+    double d;
+    int32_t x;
+
+    d = floor( d1_1 );
+    x = (int32_t) d;
+    printf( "floor of 1.1: %lf == %ld\n", d, x );
+
+    d = ceil( d1_1 );
+    x = (int32_t) d;
+    printf( "ceil of 1.1: %lf == %ld\n", d, x );
+
+    d = floor( -d1_8 );
+    x = (int32_t) d;
+    printf( "floor of -1.8: %lf == %ld\n", d, x );
+
+    d = ceil( -d1_8 );
+    x = (int32_t) d;
+    printf( "ceil of -1.8: %lf == %ld\n", d, x );
+
+    return 0;
+}
+
+int fl_cl_test_ld()
+{
+    long double d1_1 = 1.1;
+    long double d1_8 = 1.8;
+    double d;
+    int32_t x;
+
+    d = floor( d1_1 );
+    x = (int32_t) d;
+    printf( "floor of 1.1: %lf == %ld\n", (double) d, x );
+
+    d = ceil( d1_1 );
+    x = (int32_t) d;
+    printf( "ceil of 1.1: %lf == %ld\n", (double) d, x );
+
+    d = floor( -d1_8 );
+    x = (int32_t) d;
+    printf( "floor of -1.8: %lf == %ld\n", (double) d, x );
+
+    d = ceil( -d1_8 );
+    x = (int32_t) d;
+    printf( "ceil of -1.8: %lf == %ld\n", (double) d, x );
+
+    return 0;
+}
+
 extern "C" int main()
 {
     double pi = 3.14159265358979323846264338327952884197169399375105820974944592307;
@@ -89,7 +141,10 @@ extern "C" int main()
     printf( "r should be 1.0: %lf\n", r );
     printf( "  r high point %lf\n", t );
     
-    printf( "stop\n" );
+    fl_cl_test();
+    fl_cl_test_ld();
+
+    printf( "test td completed with great success\n" );
     return 0;
 } //main
 

@@ -2,7 +2,7 @@
     This is a simplistic 64-bit RISC-V emulator.
     Only physical memory is supported.
     The core set of instructions "rv64imadfc" are implemented: integer, multiply/divide, atomic, double, float, compressed
-    I tested with a variety of C and C++ apps compiled with four different versions of g++ (each exposed different bugs)
+    I tested with a variety of Rust, C, and C++ apps compiled with four different versions of g++ (each exposed different bugs)
     I also tested with the BASIC test suite for my compiler BA, which targets risc-v.
     It's slightly faster than the 400Mhz K210 processor on my AMD 5950x machine.
 
@@ -218,7 +218,7 @@ uint64_t round_ui64_from_double( double d, uint64_t rm )
     if ( d <= 0.0 )
         return 0;
 
-    if ( d > UINT64_MAX )
+    if ( d > (double) UINT64_MAX )
         return UINT64_MAX;
 
     return round_i64_from_double( d, rm );
@@ -1628,17 +1628,11 @@ void RiscV::trace_state()
         }
 #endif
         case CsrType:
-        {
             break;
-        }
         case R4Type:
-        {
             break;
-        }
         default:
-        {
             break;
-        }
     }
 
 #if 0
@@ -1649,14 +1643,9 @@ void RiscV::trace_state()
                   fregs[ fs0 ].d, fregs[ fs1 ].d, fregs[ fs2 ].d, fregs[ fs3 ].d, fregs[ fs4 ].d, fregs[ fs5 ].d,
                   fregs[ fa0 ].d, fregs[ fa5 ].d );
     tracer.Trace( "fs0 %#llx, fs1 %#llx, fs2 %#llx, fs3 %#llx, fs4 %#llx, fs5 %#llx, fa0 %#llx, fa5 %#llx\n",
-                  * (uint64_t *) & fregs[ fs0 ].d,
-                  * (uint64_t *) & fregs[ fs1 ].d,
-                  * (uint64_t *) & fregs[ fs2 ].d,
-                  * (uint64_t *) & fregs[ fs3 ].d,
-                  * (uint64_t *) & fregs[ fs4 ].d,
-                  * (uint64_t *) & fregs[ fs5 ].d,
-                  * (uint64_t *) & fregs[ fa0 ].d,
-                  * (uint64_t *) & fregs[ fa5 ].d );
+                  * (uint64_t *) & fregs[ fs0 ].d, * (uint64_t *) & fregs[ fs1 ].d, * (uint64_t *) & fregs[ fs2 ].d,
+                  * (uint64_t *) & fregs[ fs3 ].d, * (uint64_t *) & fregs[ fs4 ].d, * (uint64_t *) & fregs[ fs5 ].d,
+                  * (uint64_t *) & fregs[ fa0 ].d, * (uint64_t *) & fregs[ fa5 ].d );
 #endif
 } //trace_state
 
@@ -1666,7 +1655,11 @@ __declspec(noinline)
 void RiscV::unhandled()
 {
     printf( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
+    printf( "  funct3 %llx, funct7 %llx, rs1 %llx, rs2 %llx, rd %llx, i_imm %llx, u_imm %llx, s_imm %llx\n",
+            funct3, funct7, rs1, rs2, rd, i_imm, u_imm, s_imm );
     tracer.Trace( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
+    tracer.Trace( "  funct3 %llx, funct7 %llx, rs1 %llx, rs2 %llx, rd %llx, i_imm %llx, u_imm %llx, s_imm %llx\n",
+                  funct3, funct7, rs1, rs2, rd, i_imm, u_imm, s_imm );
     emulator_hard_termination( *this, "opcode not handled:", op );
 } //unhandled
 
@@ -1859,7 +1852,7 @@ uint64_t RiscV::run()
                 decode_I();
                 if ( 0 == rd )
                     break;
-    
+
                 if ( 0 == funct3 ) // addi rd, rs1, imm
                     regs[ rd ] =  i_imm + regs[ rs1 ];
                 else if ( 1 == funct3 ) // slli rd, rs1, imm
@@ -2626,28 +2619,39 @@ uint64_t RiscV::run()
                 }
                 else if ( 0x50 == funct7 )
                 {
+                    if ( funct3 > 2 )
+                        unhandled();
+                    if ( 0 == rd )
+                        break;
+
                     if ( 0 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
                     else if ( 1 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
                     else if ( 2 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
-                    else
-                        unhandled();
                 }
                 else if ( 0x51 == funct7 )
                 {
+                    if ( funct3 > 2 )
+                        unhandled();
+                    if ( 0 == rd )
+                        break;
+
                     if ( 0 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].d <= fregs[ rs2 ].d ); // fle.d rd, frs1, frs2
                     else if ( 1 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].d < fregs[ rs2 ].d ); // flt.d rd, frs1, frs2
                     else if ( 2 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].d == fregs[ rs2 ].d ); // feq.d rd, frs1, frs2
-                    else
-                        unhandled();
                 }            
                 else if ( 0x60 == funct7 )
                 {
+                    if ( funct3 > 3 )
+                        unhandled();
+                    if ( 0 == rd )
+                        break;
+
                     if ( 0 == rs2 )
                         regs[ rd ] = round_i32_from_float( fregs[ rs1 ].f, funct3 ); // fcvt.w.s rd, frs1
                     else if ( 1 == rs2 )
@@ -2656,11 +2660,14 @@ uint64_t RiscV::run()
                         regs[ rd ] = round_i64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
                     else if ( 3 == rs2 )
                         regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
-                    else
-                        unhandled();
                 }
                 else if ( 0x61 == funct7 )
                 {
+                    if ( funct3 > 3 )
+                        unhandled();
+                    if ( 0 == rd )
+                        break;
+
                     if ( 0 == rs2 )
                         regs[ rd ] = round_i32_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.w.d rd, frs1
                     else if ( 1 == rs2 )
@@ -2669,8 +2676,6 @@ uint64_t RiscV::run()
                         regs[ rd ] = round_i64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
                     else if ( 3 == rs2 )
                         regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
-                    else
-                        unhandled();
                 }
                 else if ( 0x68 == funct7 )
                 {
@@ -2706,7 +2711,8 @@ uint64_t RiscV::run()
                         {
                             uint32_t val;
                             memcpy( & val, & fregs[ rs1 ].f, 4 );
-                            regs[ rd ] = sign_extend( val, 31 );
+                            if ( 0 != rd )
+                                regs[ rd ] = sign_extend( val, 31 );
                         }
                         else if ( 1 == funct3 ) // fclass.s
                         {
@@ -2756,7 +2762,8 @@ uint64_t RiscV::run()
                                 else
                                     result = 2;
                             }
-                            regs[ rd ] = result;
+                            if ( 0 != rd )
+                                regs[ rd ] = result;
                         }
                         else
                             unhandled();
@@ -2769,7 +2776,10 @@ uint64_t RiscV::run()
                     if ( 0 == rs2 )
                     {
                         if ( 0 == funct3 ) // fmv.x.d rd, frs1
-                            memcpy( & regs[ rd ], & fregs[ rs1 ].d, 8 );
+                        {
+                            if ( 0 != rd )
+                                memcpy( & regs[ rd ], & fregs[ rs1 ].d, 8 );
+                        }
                         else if ( 1 == funct3 ) // fclass.d
                         {
                             uint64_t result = 0;
@@ -2806,7 +2816,8 @@ uint64_t RiscV::run()
                                 else
                                     result = 2;
                             }
-                            regs[ rd ] = result;
+                            if ( 0 != rd )
+                                regs[ rd ] = result;
                         }
                         else
                             unhandled();
