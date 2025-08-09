@@ -2647,7 +2647,7 @@ uint64_t RiscV::run()
                 }            
                 else if ( 0x60 == funct7 )
                 {
-                    if ( funct3 > 3 )
+                    if ( rs2 > 3 )
                         unhandled();
                     if ( 0 == rd )
                         break;
@@ -2663,7 +2663,7 @@ uint64_t RiscV::run()
                 }
                 else if ( 0x61 == funct7 )
                 {
-                    if ( funct3 > 3 )
+                    if ( rs2 > 3 )
                         unhandled();
                     if ( 0 == rd )
                         break;
