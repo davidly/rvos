@@ -332,7 +332,6 @@ static uint32_t compose_J( uint32_t offset, uint32_t opcode_type )
              ( ( offset << 9 )  & 0x00100000 ) |
              ( offset &           0x000ff000 );
     //tracer.Trace( "j offset re-encoded as %x = %d\n", offset, offset );
-
     return offset | ( opcode_type << 2 ) | 3;
 } //compose_J
 
@@ -941,7 +940,7 @@ void RiscV::trace_state()
                         if ( 0 == i_top2 )
                             tracer.Trace( "srli %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 );
                         else if ( 1 == i_top2 )
-                            tracer.Trace( "srai %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5 );
+                            tracer.Trace( "srai %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt6 );
                         break;
                     }
                     case 6: tracer.Trace( "ori %s, %s, %lld\n", reg_name( rd ), reg_name( rs1 ), i_imm ); break;
@@ -963,8 +962,6 @@ void RiscV::trace_state()
                     if ( 0 == i_top2 )
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
-                        //uint32_t result = val << i_shamt5;
-                        //uint64_t result64 = sign_extend( result, 31 );
                         tracer.Trace( "slliw %s, %s, %lld  # %llx << %lld\n", reg_name( rd ), reg_name( rs1 ), i_shamt5, (uint64_t) val, i_shamt5 );
                     }
                 }
@@ -1660,6 +1657,8 @@ void RiscV::unhandled()
     tracer.Trace( "unhandled op %llx optype %llx == %c\n", op, opcode_type, instruction_types[ riscv_types[ opcode_type ] ] );
     tracer.Trace( "  funct3 %llx, funct7 %llx, rs1 %llx, rs2 %llx, rd %llx, i_imm %llx, u_imm %llx, s_imm %llx\n",
                   funct3, funct7, rs1, rs2, rd, i_imm, u_imm, s_imm );
+    printf( "  pc %llx, opcode %x, base %llx, mem_size %llx, stack_top %llx, stack_size %llx\n", pc, getui32( pc ), base, mem_size, stack_top, stack_size );
+    tracer.Trace( "  pc %llx, opcode %x, base %llx, mem_size %llx, stack_top %llx, stack_size %llx\n", pc, getui32( pc ), base, mem_size, stack_top, stack_size );
     emulator_hard_termination( *this, "opcode not handled:", op );
 } //unhandled
 
@@ -1672,21 +1671,17 @@ uint64_t RiscV::run()
         #ifndef NDEBUG
             if ( 0 != regs[ 0 ] )
                 emulator_hard_termination( *this, "zero register isn't 0:", regs[ zero ] );
-
             if ( regs[ sp ] <= ( stack_top - stack_size ) )
                 emulator_hard_termination( *this, "stack pointer is below stack memory:", regs[ sp ] );
-
             if ( regs[ sp ] > stack_top )
                 emulator_hard_termination( *this, "stack pointer is above the top of its starting point:", regs[ sp ] );
-
             if ( pc < base )
                 emulator_hard_termination( *this, "pc is lower than memory:", pc );
-
             if ( pc >= ( base + mem_size - stack_size ) )
                 emulator_hard_termination( *this, "pc is higher than it should be:", pc );
-
             if ( 0 != ( regs[ sp ] & 0xf ) ) // by convention, risc-v stacks are 16-byte aligned
                 emulator_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
+            //memset( &op, 0x55, 20 * 8 ); // to help debug broken decoding
         #endif
 
         uint64_t pcnext = decode();   // 18% of runtime
@@ -1869,7 +1864,6 @@ uint64_t RiscV::run()
                 else if ( 5 == funct3 )
                 {
                     decode_I_shift();
-    
                     if ( 0 == i_top2 ) // srli rd, rs1, i_shamt
                         regs[ rd ] = ( regs[ rs1 ] >> i_shamt6 );
                     else if ( 1 == i_top2 ) // srai rd, rs1, i_shamt
@@ -1898,9 +1892,7 @@ uint64_t RiscV::run()
                 if ( 0 == rd )
                     break;
     
-                // auipc imm.    rd <= pc + ( imm << 12 )
-    
-                regs[ rd ] = pc + ( u_imm << 12 );
+                regs[ rd ] = pc + ( u_imm << 12 ); // auipc imm.    rd <= pc + ( imm << 12 )
                 break;
             }
             case 6:
@@ -2355,7 +2347,6 @@ uint64_t RiscV::run()
                 decode_U();
                 if ( 0 == rd )
                     break;
-    
                 regs[ rd ] = ( u_imm << 12 );
                 break;
             }
@@ -2527,19 +2518,12 @@ uint64_t RiscV::run()
                     fregs[ rd ].d = do_fdiv( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fdiv.d frd, frs1, frs2
                 else if ( 0x10 == funct7 )
                 {
-                    if ( 0 == funct3 )
-                    {
-                        // put rs1's absolute value in rd and use rs2's sign bit
+                    if ( 0 == funct3 ) // put rs1's absolute value in rd and use rs2's sign bit
                         fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, signbit( fregs[ rs2 ].f ) ); // fsgnj.s rd, rs1, rs2
-                    }
-                    else if ( 1 == funct3 )
-                    {
-                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
+                    else if ( 1 == funct3 ) // put rs1's absolute value in rd and use opposite of rs2's sign bit
                         fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, !signbit( fregs[ rs2 ].f ) ); // fsgnjn.s rd, rs1, rs2
-                    }
-                    else if ( 2 == funct3 )
+                    else if ( 2 == funct3 ) // put rs1's absolute value in rd and use the xor of the two sign bits
                     {
-                        // put rs1's absolute value in rd and use the xor of the two sign bits
                         bool result_negative = ( signbit( fregs[ rs1 ].f ) ^ signbit( fregs[ rs2 ].f ) );
                         fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, result_negative ); // fsgnjnx.s rd, rs1, rs2
                     }
@@ -2548,19 +2532,12 @@ uint64_t RiscV::run()
                 }
                 else if ( 0x11 == funct7 )
                 {
-                    if ( 0 == funct3 )
-                    {
-                        // put rs1's absolute value in rd and use rs2's sign bit
+                    if ( 0 == funct3 ) // put rs1's absolute value in rd and use rs2's sign bit
                         fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, signbit( fregs[ rs2 ].d ) ); // fsgnj.d rd, rs1, rs2
-                    }
-                    else if ( 1 == funct3 )
-                    {
-                        // put rs1's absolute value in rd and use opposite of rs2's sign bit
+                    else if ( 1 == funct3 ) // put rs1's absolute value in rd and use opposite of rs2's sign bit
                         fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, !signbit( fregs[ rs2 ].d ) ); // fsgnjn.d rd, rs1, rs2
-                    }
-                    else if ( 2 == funct3 )
+                    else if ( 2 == funct3 ) // put rs1's absolute value in rd and use the xor of the two sign bits
                     {
-                        // put rs1's absolute value in rd and use the xor of the two sign bits
                         bool result_negative = ( signbit( fregs[ rs1 ].d ) ^ signbit( fregs[ rs2 ].d ) );
                         fregs[ rd ].d = set_double_sign( fregs[ rs1 ].d, result_negative ); // fsgnjnx.d rd, rs1, rs2
                     }
@@ -2887,18 +2864,16 @@ uint64_t RiscV::run()
                     unhandled();
                 break;
             }
-            case 0x1b:
+            case 0x1b: 
             {
                 assert_type( JType );
                 decode_J();
-    
-                // jal offset
     
                 if ( 0 != rd )
                     regs[ rd ] = pcnext;
     
                 int64_t offset = j_imm_u;
-                pcnext = pc + offset;
+                pcnext = pc + offset; // jal offset
                 break;
             }
             case 0x1c:

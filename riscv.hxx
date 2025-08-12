@@ -332,14 +332,8 @@ struct RiscV
 
     __inline_perf void decode_I_shift()
     {
-        // 6 bit shift amount. srli, slliw, slli need this
-
-        i_shamt6 = ( op >> 20 ) & 0x3f;
-        
-        // 5 bit shift amount. sraiw, srai, srliw need this
-
-        i_shamt5 = i_shamt6 & 0x1f;
-     
+        i_shamt6 = ( op >> 20 ) & 0x3f; // used for srai, srli, slli
+        i_shamt5 = i_shamt6 & 0x1f; // used for sraiw, srliw, slliw
         i_top2 = ( op >> 30 );
     } //decode_I_shift
 
