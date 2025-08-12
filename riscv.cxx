@@ -175,8 +175,8 @@ int64_t round_i64_from_double( double d, uint64_t rm )
         return (int64_t) floor( d );
     if ( rm_RUP == rm )
         return (int64_t) ceil( d );
-    else
-        return (int64_t) round_ties_to_max_magnitude( d );
+    assert( rm_RMM == rm );
+    return (int64_t) round_ties_to_max_magnitude( d );
 } //round_i64_from_double
 
 int32_t round_i32_from_double( double d, uint64_t rm )
@@ -192,8 +192,8 @@ int32_t round_i32_from_double( double d, uint64_t rm )
         return (int32_t) floor( d );
     if ( rm_RUP == rm )
         return (int32_t) ceil( d );
-    else
-        return (int32_t) round_ties_to_max_magnitude( d );
+    assert( rm_RMM == rm );
+    return (int32_t) round_ties_to_max_magnitude( d );
 } //round_i32_from_double
 
 int32_t round_i32_from_float( float f, uint64_t rm )
@@ -209,8 +209,8 @@ int32_t round_i32_from_float( float f, uint64_t rm )
         return (int32_t) floorf( f );
     if ( rm_RUP == rm )
         return (int32_t) ceilf( f );
-    else
-        return (int32_t) round_ties_to_max_magnitude( f );
+    assert( rm_RMM == rm );
+    return (int32_t) round_ties_to_max_magnitude( f );
 } //round_i32_from_double
 
 uint64_t round_ui64_from_double( double d, uint64_t rm )
@@ -684,7 +684,7 @@ static const char * cmp_type( uint64_t t )
     return comparison_types[ t ];
 } //cmp_type
 
-// Arm64 returns -NAN in some cases for +-*/ math.
+// Arm64 returns negative NAN in some cases for +-*/ math.
 // RISC-V64 always returns positive NAN in these cases.
 
 double do_fsub( double a, double b )
@@ -1681,7 +1681,7 @@ uint64_t RiscV::run()
                 emulator_hard_termination( *this, "pc is higher than it should be:", pc );
             if ( 0 != ( regs[ sp ] & 0xf ) ) // by convention, risc-v stacks are 16-byte aligned
                 emulator_hard_termination( *this, "the stack pointer isn't 16-byte aligned:", regs[ sp ] );
-            //memset( &op, 0x55, 20 * 8 ); // to help debug broken decoding
+            //memset( &op, 0xff, offsetof( RiscV, past_decoded_data ) - offsetof( RiscV, op ) ); // to help debug broken decoding
         #endif
 
         uint64_t pcnext = decode();   // 18% of runtime
@@ -1713,11 +1713,11 @@ uint64_t RiscV::run()
                     regs[ rd ] = (int8_t) getui8( regs[ rs1 ] + i_imm ); // sign extend
                 else if ( 1 == funct3 ) // lh rd, imm(rs1)
                     regs[ rd ] = (int16_t) getui16( regs[ rs1 ] + i_imm ); // sign extend
-                else if ( 2 == funct3 ) // lw    rd, imm(rs1)
+                else if ( 2 == funct3 ) // lw rd, imm(rs1)
                     regs[ rd ] = (int32_t) getui32( regs[ rs1 ] + i_imm ); // sign extend
-                else if ( 3 == funct3 ) // ld    rd, imm(rs1)
+                else if ( 3 == funct3 ) // ld rd, imm(rs1)
                     regs[ rd ] = getui64( regs[ rs1 ] + i_imm );
-                else if ( 4 == funct3 ) // lbu   rd, imm(rs1)
+                else if ( 4 == funct3 ) // lbu rd, imm(rs1)
                     regs[ rd ] = getui8( regs[ rs1 ] + i_imm );
                 else if ( 5 == funct3 ) // lhu rd, imm(rs1)
                     regs[ rd ] = getui16( regs[ rs1 ] + i_imm );
@@ -2550,6 +2550,8 @@ uint64_t RiscV::run()
                         fregs[ rd ].f = (float) do_fmin( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
                     else if ( 1 == funct3 )
                         fregs[ rd ].f = (float) do_fmax( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
+                    else
+                        unhandled();
                 }
                 else if ( 0x15 == funct7 )
                 {
@@ -2557,6 +2559,8 @@ uint64_t RiscV::run()
                         fregs[ rd ].d = do_fmin( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmin.d rd, rs1, rs2
                     else if ( 1 == funct3 )
                         fregs[ rd ].d = do_fmax( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmax.d rd, rs1, rs2
+                    else
+                        unhandled();
                 }
                 else if ( 0x20 == funct7 )
                 {
@@ -2605,7 +2609,7 @@ uint64_t RiscV::run()
                         regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
                     else if ( 1 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
-                    else if ( 2 == funct3 )
+                    else // if ( 2 == funct3 )
                         regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
                 }
                 else if ( 0x51 == funct7 )
@@ -2635,7 +2639,7 @@ uint64_t RiscV::run()
                         regs[ rd ] = round_ui32_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.wu.s rd, frs1
                     else if ( 2 == rs2 )
                         regs[ rd ] = round_i64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
-                    else if ( 3 == rs2 )
+                    else // if ( 3 == rs2 )
                         regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
                 }
                 else if ( 0x61 == funct7 )
@@ -2651,7 +2655,7 @@ uint64_t RiscV::run()
                         regs[ rd ] = round_ui32_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.wu.d rd, frs1
                     else if ( 2 == rs2 )
                         regs[ rd ] = round_i64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
-                    else if ( 3 == rs2 )
+                    else // if ( 3 == rs2 )
                         regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
                 }
                 else if ( 0x68 == funct7 )

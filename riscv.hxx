@@ -246,6 +246,7 @@ struct RiscV
     uint64_t c_rc1;
     uint64_t c_rc2;
     uint64_t c_imm_flags;
+    uint64_t past_decoded_data;
 
     void unhandled( void );
 
