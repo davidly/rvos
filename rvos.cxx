@@ -920,6 +920,8 @@ em_platform build_target_platform()
         return dos_win;
     #elif defined( sparc )
         return linux_sparc;
+    #elif defined( __APPLE__ )
+        return macos;
     #elif defined( __mc68000__ )
         return newlib_68k;
     #elif defined( __riscv ) || defined( __amd64 )
@@ -2845,10 +2847,10 @@ void emulator_invoke_svc( CPUClass & cpu )
 #ifdef __APPLE__
             if ( -100 == descriptor ) // current directory
                 descriptor = -2;
-            if ( 0x100 == flags ) // AT_SYMLINK_NOFOLLOW
-                flags = 0x20; // Apple's value for this flag
+            if ( EMULATOR_AT_SYMLINK_NOFOLLOW & flags )
+                flags = AT_SYMLINK_NOFOLLOW; // 0x20 instead of 0x100 on macOS
             else
-                flags = 0; // no other flags are supported on MacOS
+                flags = 0; // no other flags are supported on macOS
             tracer.Trace( "  translated flags for MacOS: %x\n", flags );
             if ( 0 == path[ 0 ] )
                 result = fstat( descriptor, & local_stat );
@@ -3373,6 +3375,15 @@ void emulator_invoke_svc( CPUClass & cpu )
             const char * pathname = (const char *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
             int flags = (int) ACCESS_REG( REG_ARG2 );
             tracer.Trace( "  flags: %#x, EMULATOR_AT_SYMLINK_NOFOLLOW: %x\n", flags, EMULATOR_AT_SYMLINK_NOFOLLOW );
+#ifdef AT_SYMLINK_NOFOLLOW
+            tracer.Trace( "  AT_SYMLINK_NOFOLLOW: %x\n", AT_SYMLINK_NOFOLLOW );
+            if ( flags & EMULATOR_AT_SYMLINK_NOFOLLOW )
+            {
+                flags &= ~EMULATOR_AT_SYMLINK_NOFOLLOW;
+                flags |= AT_SYMLINK_NOFOLLOW;
+            }
+#endif //AT_SYMLINK_NOFOLLOW
+
             tracer.Trace( "  statx on path '%s'\n", pathname );
             int mask = (int) ACCESS_REG( REG_ARG3 );
 
@@ -3443,7 +3454,24 @@ void emulator_invoke_svc( CPUClass & cpu )
             tracer.Trace( "  sizeof struct stat: %d\n", (int) sizeof( struct stat ) );
             struct stat local_stat = {0};
 
+#if defined( __APPLE__ )
+            if ( -100 == dirfd )
+                dirfd = -2;
+            if ( EMULATOR_AT_SYMLINK_NOFOLLOW & flags )
+                flags = AT_SYMLINK_NOFOLLOW; // 0x20 instead of 0x100 on macOS
+            else
+                flags = 0; // no other flags are supported on macOS
+
+            tracer.Trace( "  statx calling fstatat with dirfd %d, flags %#x\n", dirfd, flags );
+            if ( 0 == pathname[ 0 ] )
+                result = fstat( dirfd, & local_stat );
+            else
+                result = fstatat( dirfd, pathname, & local_stat, flags );
+#else
+            tracer.Trace( "  statx calling fstatat with dirfd %d, flags %#x\n", dirfd, flags );
             result = fstatat( dirfd, pathname, & local_stat, flags );
+
+#endif // __APPLE__
             if ( 0 == result )
             {
 #ifdef SPARCOS
@@ -3591,9 +3619,13 @@ void emulator_invoke_svc( CPUClass & cpu )
             errno = EINVAL; // no symbolic links on Windows as far as this emulator is concerned
             result = -1;
 #else
+    #if defined( __APPLE__ )
+            if ( -100 == dirfd )
+                dirfd = -2;
+    #endif //__APPLE__
             result = readlinkat( dirfd, pathname, buf, bufsiz );
             tracer.Trace( "  result of readlinkat(): %d\n", result );
-#endif
+#endif // _WIN32 || M68K
 
             update_result_errno( cpu, result );
             break;
