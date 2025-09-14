@@ -1,4 +1,4 @@
-Fri 08/08/2025  9:04:16.75 
+Sun 09/14/2025  8:47:11.28 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -2430,39 +2430,521 @@ c_tests/bin3/tpi
 c_tests/binfast/tpi
 314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535
 c_tests/bin0/ts
-top of app
-print an int 27
-print an int64_t 27
-sizeof T: 1, result: ff
-sizeof T: 1, result: 7f
-sizeof T: 2, result: ffff
-sizeof T: 2, result: 7fff
-sizeof T: 4, result: ffffffff
-sizeof T: 4, result: 7fffffff
-sizeof T: 8, result: ffffffffffffffff
-sizeof T: 8, result: 7fffffffffffffff
+test multiple shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3f
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1f
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: f
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3fff
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1fff
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fff
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7ff
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3ff
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1ff
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ff
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7f
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3f
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1f
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: f
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffffff
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffffff
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffff
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffffff
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffffff
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffffff
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffff
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffff
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffff
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffff
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffff
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffff
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffff
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffff
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffff
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fff
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fff
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fff
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fff
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ff
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ff
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ff
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ff
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7f
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3f
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1f
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: f
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffff
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffffff
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffff
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffff
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffff
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffff
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffff
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffff
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffff
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffff
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffff
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffff
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffff
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffff
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffff
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffff
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffff
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffff
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffff
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffff
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffff
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffff
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffff
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffff
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffff
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffff
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffff
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffff
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffff
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffff
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffff
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffff
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffff
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffff
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffff
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffff
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffff
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffff
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffff
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffff
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffff
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffff
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffff
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fff
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fff
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fff
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fff
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ff
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ff
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ff
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ff
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7f
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3f
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1f
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: f
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1
+test right shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
 now test left shifts
-sizeof T: 1, result: fe
-sizeof T: 1, result: fe
-sizeof T: 2, result: fffe
-sizeof T: 2, result: fffe
-sizeof T: 4, result: fffffffe
-sizeof T: 4, result: fffffffe
-sizeof T: 8, result: fffffffffffffffe
-sizeof T: 8, result: fffffffffffffffe
-now test comparisons
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+now test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+more test comparisons. t, f, t, f, t expected
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+more test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+more comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
 testing printf
   string: 'hello'
   char: 'h'
@@ -2472,41 +2954,532 @@ testing printf
   negative int64_t: -27, ffffffffffffffe5
   float: 3.141573
   negative float: -3.141573
-stop
+testing inttoa
+  ui64toa: 18446744073709551615
+  i64toa: -1
+  ui32toa: 4294967295
+  i32toa: -1
+  ui16toa: 65535
+  i16toa: -1
+  ui8toa: 255
+  i8toa: -1
+test shifts and comparisons completed with great success
 c_tests/bin1/ts
-top of app
-print an int 27
-print an int64_t 27
-sizeof T: 1, result: ff
-sizeof T: 1, result: 7f
-sizeof T: 2, result: ffff
-sizeof T: 2, result: 7fff
-sizeof T: 4, result: ffffffff
-sizeof T: 4, result: 7fffffff
-sizeof T: 8, result: ffffffffffffffff
-sizeof T: 8, result: 7fffffffffffffff
+test multiple shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3f
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1f
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: f
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3fff
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1fff
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fff
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7ff
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3ff
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1ff
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ff
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7f
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3f
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1f
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: f
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffffff
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffffff
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffff
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffffff
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffffff
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffffff
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffff
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffff
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffff
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffff
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffff
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffff
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffff
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffff
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffff
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fff
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fff
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fff
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fff
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ff
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ff
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ff
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ff
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7f
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3f
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1f
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: f
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffff
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffffff
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffff
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffff
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffff
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffff
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffff
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffff
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffff
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffff
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffff
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffff
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffff
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffff
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffff
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffff
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffff
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffff
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffff
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffff
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffff
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffff
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffff
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffff
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffff
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffff
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffff
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffff
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffff
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffff
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffff
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffff
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffff
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffff
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffff
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffff
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffff
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffff
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffff
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffff
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffff
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffff
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffff
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fff
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fff
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fff
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fff
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ff
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ff
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ff
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ff
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7f
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3f
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1f
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: f
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1
+test right shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
 now test left shifts
-sizeof T: 1, result: fe
-sizeof T: 1, result: fe
-sizeof T: 2, result: fffe
-sizeof T: 2, result: fffe
-sizeof T: 4, result: fffffffe
-sizeof T: 4, result: fffffffe
-sizeof T: 8, result: fffffffffffffffe
-sizeof T: 8, result: fffffffffffffffe
-now test comparisons
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+now test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+more test comparisons. t, f, t, f, t expected
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+more test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+more comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
 testing printf
   string: 'hello'
   char: 'h'
@@ -2516,41 +3489,532 @@ testing printf
   negative int64_t: -27, ffffffffffffffe5
   float: 3.141573
   negative float: -3.141573
-stop
+testing inttoa
+  ui64toa: 18446744073709551615
+  i64toa: -1
+  ui32toa: 4294967295
+  i32toa: -1
+  ui16toa: 65535
+  i16toa: -1
+  ui8toa: 255
+  i8toa: -1
+test shifts and comparisons completed with great success
 c_tests/bin2/ts
-top of app
-print an int 27
-print an int64_t 27
-sizeof T: 1, result: ff
-sizeof T: 1, result: 7f
-sizeof T: 2, result: ffff
-sizeof T: 2, result: 7fff
-sizeof T: 4, result: ffffffff
-sizeof T: 4, result: 7fffffff
-sizeof T: 8, result: ffffffffffffffff
-sizeof T: 8, result: 7fffffffffffffff
+test multiple shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3f
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1f
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: f
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3fff
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1fff
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fff
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7ff
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3ff
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1ff
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ff
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7f
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3f
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1f
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: f
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffffff
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffffff
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffff
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffffff
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffffff
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffffff
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffff
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffff
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffff
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffff
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffff
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffff
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffff
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffff
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffff
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fff
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fff
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fff
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fff
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ff
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ff
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ff
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ff
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7f
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3f
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1f
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: f
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffff
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffffff
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffff
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffff
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffff
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffff
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffff
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffff
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffff
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffff
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffff
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffff
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffff
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffff
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffff
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffff
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffff
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffff
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffff
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffff
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffff
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffff
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffff
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffff
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffff
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffff
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffff
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffff
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffff
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffff
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffff
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffff
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffff
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffff
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffff
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffff
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffff
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffff
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffff
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffff
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffff
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffff
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffff
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fff
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fff
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fff
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fff
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ff
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ff
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ff
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ff
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7f
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3f
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1f
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: f
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1
+test right shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
 now test left shifts
-sizeof T: 1, result: fe
-sizeof T: 1, result: fe
-sizeof T: 2, result: fffe
-sizeof T: 2, result: fffe
-sizeof T: 4, result: fffffffe
-sizeof T: 4, result: fffffffe
-sizeof T: 8, result: fffffffffffffffe
-sizeof T: 8, result: fffffffffffffffe
-now test comparisons
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+now test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+more test comparisons. t, f, t, f, t expected
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+more test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+more comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
 testing printf
   string: 'hello'
   char: 'h'
@@ -2560,41 +4024,532 @@ testing printf
   negative int64_t: -27, ffffffffffffffe5
   float: 3.141573
   negative float: -3.141573
-stop
+testing inttoa
+  ui64toa: 18446744073709551615
+  i64toa: -1
+  ui32toa: 4294967295
+  i32toa: -1
+  ui16toa: 65535
+  i16toa: -1
+  ui8toa: 255
+  i8toa: -1
+test shifts and comparisons completed with great success
 c_tests/bin3/ts
-top of app
-print an int 27
-print an int64_t 27
-sizeof T: 1, result: ff
-sizeof T: 1, result: 7f
-sizeof T: 2, result: ffff
-sizeof T: 2, result: 7fff
-sizeof T: 4, result: ffffffff
-sizeof T: 4, result: 7fffffff
-sizeof T: 8, result: ffffffffffffffff
-sizeof T: 8, result: 7fffffffffffffff
+test multiple shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3f
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1f
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: f
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3fff
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1fff
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fff
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7ff
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3ff
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1ff
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ff
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7f
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3f
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1f
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: f
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffffff
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffffff
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffff
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffffff
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffffff
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffffff
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffff
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffff
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffff
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffff
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffff
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffff
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffff
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffff
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffff
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fff
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fff
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fff
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fff
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ff
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ff
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ff
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ff
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7f
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3f
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1f
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: f
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffff
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffffff
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffff
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffff
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffff
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffff
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffff
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffff
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffff
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffff
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffff
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffff
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffff
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffff
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffff
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffff
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffff
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffff
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffff
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffff
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffff
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffff
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffff
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffff
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffff
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffff
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffff
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffff
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffff
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffff
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffff
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffff
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffff
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffff
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffff
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffff
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffff
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffff
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffff
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffff
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffff
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffff
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffff
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fff
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fff
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fff
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fff
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ff
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ff
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ff
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ff
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7f
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3f
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1f
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: f
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1
+test right shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
 now test left shifts
-sizeof T: 1, result: fe
-sizeof T: 1, result: fe
-sizeof T: 2, result: fffe
-sizeof T: 2, result: fffe
-sizeof T: 4, result: fffffffe
-sizeof T: 4, result: fffffffe
-sizeof T: 8, result: fffffffffffffffe
-sizeof T: 8, result: fffffffffffffffe
-now test comparisons
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+now test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+more test comparisons. t, f, t, f, t expected
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+more test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+more comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
 testing printf
   string: 'hello'
   char: 'h'
@@ -2604,41 +4559,532 @@ testing printf
   negative int64_t: -27, ffffffffffffffe5
   float: 3.141573
   negative float: -3.141573
-stop
+testing inttoa
+  ui64toa: 18446744073709551615
+  i64toa: -1
+  ui32toa: 4294967295
+  i32toa: -1
+  ui16toa: 65535
+  i16toa: -1
+  ui8toa: 255
+  i8toa: -1
+test shifts and comparisons completed with great success
 c_tests/binfast/ts
-top of app
-print an int 27
-print an int64_t 27
-sizeof T: 1, result: ff
-sizeof T: 1, result: 7f
-sizeof T: 2, result: ffff
-sizeof T: 2, result: 7fff
-sizeof T: 4, result: ffffffff
-sizeof T: 4, result: 7fffffff
-sizeof T: 8, result: ffffffffffffffff
-sizeof T: 8, result: 7fffffffffffffff
+test multiple shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: fc
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3f
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: f8
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1f
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: f0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: f
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: e0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: c0
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 3
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: 80
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 1
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: fffc
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3fff
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: fff8
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1fff
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: fff0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: fff
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffe0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7ff
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffc0
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3ff
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ff80
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1ff
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ff00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: ff
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: fe00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7f
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: fc00
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3f
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: f800
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1f
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: f000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: f
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: e000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: c000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 3
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: 8000
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 1
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: fffffffc
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffffff
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: fffffff8
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffffff
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: fffffff0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffffff
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffe0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffffff
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffc0
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffffff
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffff80
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffffff
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffff00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffffff
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: fffffe00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffff
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: fffffc00
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fffff
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: fffff800
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fffff
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: fffff000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fffff
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffe000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ffff
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffc000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ffff
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffff8000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ffff
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffff0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ffff
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: fffe0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fff
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: fffc0000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3fff
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: fff80000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1fff
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: fff00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: fff
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffe00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7ff
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffc00000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3ff
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ff800000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1ff
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ff000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: ff
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: fe000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7f
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: fc000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3f
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: f8000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1f
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: f0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: f
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: e0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: c0000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 3
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: 80000000
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 1
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: fffffffffffffffc
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: fffffffffffffff8
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffffff
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: fffffffffffffff0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffffff
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffe0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffffff
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffc0
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffff80
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffffff
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffff00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffffff
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: fffffffffffffe00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffff
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: fffffffffffffc00
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffffff
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: fffffffffffff800
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffffff
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: fffffffffffff000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffffff
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffe000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffffff
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffc000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffffff
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffff8000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffffff
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffff0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffffff
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: fffffffffffe0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffff
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: fffffffffffc0000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffffff
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: fffffffffff80000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffffff
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: fffffffffff00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffffff
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffe00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffffff
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffc00000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffffff
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffff800000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffffff
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffff000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffffff
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: fffffffffe000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffff
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: fffffffffc000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffffff
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: fffffffff8000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffffff
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: fffffffff0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffffff
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffe0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffffff
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffc0000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffffff
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffff80000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffffff
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffff00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffffff
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: fffffffe00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffff
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: fffffffc00000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffffff
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: fffffff800000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffffff
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: fffffff000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffffff
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffe000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffffff
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffc000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffffff
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffff8000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffffff
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffff0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffffff
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: fffffe0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffff
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: fffffc0000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fffff
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: fffff80000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fffff
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: fffff00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fffff
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffe00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ffff
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffc00000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ffff
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffff800000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ffff
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffff000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ffff
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: fffe000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fff
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: fffc000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3fff
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: fff8000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1fff
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: fff0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: fff
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffe0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7ff
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffc0000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3ff
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ff80000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1ff
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ff00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: ff
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: fe00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7f
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: fc00000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3f
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: f800000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1f
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: f000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: f
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: e000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: c000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 3
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: 8000000000000000
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 1
+test right shifts
+    sizeof T: 1, result: ff
+    sizeof T: 1, result: 7f
+    sizeof T: 2, result: ffff
+    sizeof T: 2, result: 7fff
+    sizeof T: 4, result: ffffffff
+    sizeof T: 4, result: 7fffffff
+    sizeof T: 8, result: ffffffffffffffff
+    sizeof T: 8, result: 7fffffffffffffff
 now test left shifts
-sizeof T: 1, result: fe
-sizeof T: 1, result: fe
-sizeof T: 2, result: fffe
-sizeof T: 2, result: fffe
-sizeof T: 4, result: fffffffe
-sizeof T: 4, result: fffffffe
-sizeof T: 8, result: fffffffffffffffe
-sizeof T: 8, result: fffffffffffffffe
-now test comparisons
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
-sizeof T: 4, result: 1
+    sizeof T: 1, result: fe
+    sizeof T: 1, result: fe
+    sizeof T: 2, result: fffe
+    sizeof T: 2, result: fffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 4, result: fffffffe
+    sizeof T: 8, result: fffffffffffffffe
+    sizeof T: 8, result: fffffffffffffffe
+now test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+more test comparisons. t, f, t, f, t expected
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+    t, f, t, f, t
+more test comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+more comparisons. f, f, f, t, t expected
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
+    f, f, f, t, t
 testing printf
   string: 'hello'
   char: 'h'
@@ -2648,7 +5094,16 @@ testing printf
   negative int64_t: -27, ffffffffffffffe5
   float: 3.141573
   negative float: -3.141573
-stop
+testing inttoa
+  ui64toa: 18446744073709551615
+  i64toa: -1
+  ui32toa: 4294967295
+  i32toa: -1
+  ui16toa: 65535
+  i16toa: -1
+  ui8toa: 255
+  i8toa: -1
+test shifts and comparisons completed with great success
 c_tests/bin0/tarray
 sum: 0xf8
 sum: 0xf8
@@ -3730,30 +6185,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 9, day 14, hour 10, min 47, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 9, day 14, hour 15, min 47, sec 18
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 9, day 14, hour 10, min 47, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 9, day 14, hour 15, min 47, sec 18
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 9, day 14, hour 10, min 47, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 9, day 14, hour 15, min 47, sec 18
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 9, day 14, hour 10, min 47, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 9, day 14, hour 15, min 47, sec 18
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 8, day 8, hour 11, min 4, sec 22
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 8, day 8, hour 8, min 4, sec 22
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 8, day 8, hour 16, min 4, sec 22
+before TZ is set: tz: 'PacificDaylightTime+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 9, day 14, hour 10, min 47, sec 18
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 9, day 14, hour 7, min 47, sec 18
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 9, day 14, hour 15, min 47, sec 18
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -4123,27 +6578,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-25.660000 milliseconds
+46.553001 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-16.664000 milliseconds
+27.063999 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-17.389999 milliseconds
+27.361000 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-9.965000 milliseconds
+19.284000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-10.650001 milliseconds
+19.469002 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -33094,7 +35549,7 @@ clk_tck / number of linux ticks per second: 100
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 1031, system time 0
+getrusage user time in ms: 1015, system time 0
 sleepy time ended with great success
 c_tests/bin2/sleeptm
 clk_tck / number of linux ticks per second: 100
@@ -33432,7 +35887,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-353 ms for 1 iterations
+687 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33459,7 +35914,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-93 ms for 1 iterations
+159 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33486,7 +35941,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-86 ms for 1 iterations
+156 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33513,7 +35968,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-97 ms for 1 iterations
+174 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33540,7 +35995,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-96 ms for 1 iterations
+172 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -33585,19 +36040,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   8.878ms
+serial runtime:   15.8216ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.5945ms
+serial runtime:   4.236ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   1.9499ms
+serial runtime:   3.279ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.5502ms
+serial runtime:   2.6779ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -33884,4 +36339,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Fri 08/08/2025  9:05:00.87 
+Sun 09/14/2025  8:48:07.17 
