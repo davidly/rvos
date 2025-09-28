@@ -2,10 +2,10 @@
 
 includes="-I../gnu11rv-arm/include -I../gnu11rv-arm/include/c++/11 -I../gnu11rv-arm/include/c++/11/riscv64-linux-gnu"
 
-for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw tmmap tstr \
+for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw trw2 tmmap tstr \
            tdir fileops ttime tm glob tap tsimplef tphi tf ttt td terrno t_setjmp tex \
            tprintf pis mm tao ttypes nantst sleeptm tatomic lenum tregex trename \
-           nqueens an ba;
+           nqueens ff an ba;
 do
     echo $arg
     for optflag in 0 1 2 3 fast;
