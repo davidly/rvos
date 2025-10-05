@@ -25,6 +25,13 @@ set _applist=tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw trw2
     ) )
 ) )
 
+set _sapplist=tins sieve_rv e_rv tttu_rv
+( for %%a in (%_sapplist%) do (
+    echo %%a
+    echo c_tests/%%a>>%outputfile%
+    %_runcmd% c_tests\%%a >>%outputfile%
+) )
+
 echo test AN
 ( for %%f in (%_folderlist%) do (
     echo c_tests/%%f/an david lee>>%outputfile%
@@ -41,10 +48,6 @@ set _optlist=6 8 a d 3 i I m o r x
         %_runcmd% c_tests\%%f\ba -a:%%o -x c_tests\tp.bas >>%outputfile%
     ) )
 ) )
-
-echo test TINS
-echo c_tests/tins>>%outputfile%
-%_runcmd% c_tests\tins >>%outputfile%
 
 echo test ff . ff.c
 set _folderlist=bin0 bin1 bin2 bin3 binfast

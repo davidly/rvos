@@ -32,6 +32,13 @@ do
     done
 done
 
+for arg in tins sieve_rv e_rv tttu_rv
+do
+    echo $arg
+    echo c_tests/$arg >>$outputfile
+    $_rvoscmd c_tests/$arg >>$outputfile
+done
+
 echo test AN
 for opt in 0 1 2 3 fast;
 do
@@ -49,10 +56,6 @@ do
         $_rvoscmd c_tests/bin$opt/ba -a:$codegen -x c_tests/tp.bas >>$outputfile
     done
 done
-
-echo test TINS
-echo c_tests/tins >>$outputfile
-$_rvoscmd c_tests/tins >>$outputfile
 
 echo test ff . ff.c
 for opt in 0 1 2 3 fast;
