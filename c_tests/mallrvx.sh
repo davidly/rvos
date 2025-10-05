@@ -24,6 +24,9 @@ done
 # build assembly tests
 
 /usr/riscv64/riscv64-linux-gnu-g++-11 tins.s -o tins -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
+/usr/riscv64/riscv64-linux-gnu-g++-11 tttu_rv.s -o tttu_rv -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
+/usr/riscv64/riscv64-linux-gnu-g++-11 e_rv.s -o e_rv -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
+/usr/riscv64/riscv64-linux-gnu-g++-11 sieve_rv.s -o sieve_rv -mcmodel=medany -mabi=lp64d -march=rv64imadcv -latomic -static
 
 echo "Waiting for all processes to complete..."
 wait
