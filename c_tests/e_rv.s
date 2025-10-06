@@ -40,10 +40,7 @@
 
   .p2align 4
   .done_string: .asciz "\ndone"
-  .number_string: .asciz "%u"
-
-  .print_buf: .zero 20
-  .after_print_buf: .zero 1
+  .print_buffer: .space 24
 
 .text
   .p2align 4
@@ -104,9 +101,6 @@
         bne     s5, zero, _inner
 
       _print_digit:
-#        lla     a0, .number_string
-#        mv      a1, s4
-#        jal     printf
          mv      a0, s4
         call     print_unsigned_long
         j       _outer
@@ -134,17 +128,7 @@
         jr      ra
         .cfi_endproc
 
-.data
-# A static buffer to hold the ASCII representation of the number.
-# An unsigned 64-bit integer can have up to 20 decimal digits.
-# Add space for a null terminator and a bit of padding.
-.align 3
-print_buffer:
-    .space 24
-
-.text
 .globl print_unsigned_long
-
 print_unsigned_long:
     # Save necessary registers.
     # No need to save s1 or s2 as they are not used in this version.
@@ -153,7 +137,7 @@ print_unsigned_long:
 
     mv a1, a0          # a1 = number to print
     li a2, 10          # a2 = divisor (10)
-    la a3, print_buffer + 23 # a3 = pointer to end of buffer
+    lla a3, .print_buffer + 23 # a3 = pointer to end of buffer
                              # (24 bytes - 1 for zero-based indexing)
 
     # Handle the special case for number 0
@@ -172,7 +156,7 @@ print_unsigned_long:
     # Now make the write syscall.
     li a0, 1             # a0 = file descriptor (1 for stdout)
     addi a1, a3, 1       # a1 = buffer address (start of string)
-    la a2, print_buffer + 24 # a2 = end of buffer address
+    lla a2, .print_buffer + 24 # a2 = end of buffer address
     sub a2, a2, a1       # a2 = length of string
     li a7, 64            # a7 = syscall number for write
     ecall                # Execute the write syscall
@@ -181,7 +165,7 @@ print_unsigned_long:
 
 .L_print_zero:
     # If the number is 0, just print a single '0'
-    la a1, print_buffer + 23 # a1 = buffer address
+    lla a1, .print_buffer + 23 # a1 = buffer address
     li a0, '0'
     sb a0, 0(a1)
 
