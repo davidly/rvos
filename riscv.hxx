@@ -17,8 +17,8 @@ struct RiscV;
 
 // callbacks when instructions are executed
 
-extern void emulator_invoke_svc( RiscV & cpu );                                             // called when the ecall instruction is executed
-extern const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset );            // returns the best guess for a symbol name and offset for the address
+extern void emulator_invoke_svc( RiscV & cpu );                                                // called when the ecall instruction is executed
+extern const char * emulator_symbol_lookup( uint64_t address, uint64_t & offset );             // returns the best guess for a symbol name and offset for the address
 extern void emulator_hard_termination( RiscV & cpu, const char *pcerr, uint64_t error_value ); // show an error and exit
 
 struct RiscV

@@ -6,6 +6,7 @@ if "%1" == "armos" (set _runcmd="..\armos\armos" -h:160 ..\armos\bin\rvos -h:100
 if "%1" == "armoscl" (set _runcmd="..\armos\armoscl" -h:160 ..\armos\bin\rvoscl -h:100 )
 if "%1" == "m68" (set _runcmd="..\m68\m68" -h:160 ..\m68\rvos\rvos -h:100 )
 if "%1" == "sparcos" (set _runcmd="..\sparcos\sparcos" -h:160 ..\sparcos\bin\rvos-sparc.elf -h:100 )
+if "%1" == "x64os" (set _runcmd="..\x64os\x64os" -h:160 ..\x64os\bin\rvos -h:100 )
 if "%1" == "nested" (set _runcmd=rvos -h:160 linux\rvos -h:100 )
 
 set outputfile=runall_test.txt

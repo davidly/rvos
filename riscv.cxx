@@ -1694,7 +1694,7 @@ uint64_t RiscV::run()
                 break;
             }
 
-            if ( g_State & stateTraceInstructions )
+            if ( ( g_State & stateTraceInstructions ) && tracer.IsEnabled() )
                 trace_state();
         }
 
