@@ -132,7 +132,7 @@
 print_unsigned_long:
     # Save necessary registers.
     # No need to save s1 or s2 as they are not used in this version.
-    addi sp, sp, -8
+    addi sp, sp, -16
     sd ra, 0(sp)
 
     mv a1, a0          # a1 = number to print
@@ -178,5 +178,5 @@ print_unsigned_long:
 .L_done:
     # Restore registers and return.
     ld ra, 0(sp)
-    addi sp, sp, 8
+    addi sp, sp, 16
     ret
