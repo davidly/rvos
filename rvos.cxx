@@ -3308,14 +3308,14 @@ void emulator_invoke_svc( CPUClass & cpu )
                     pout->st_ctim.tv_sec = local_stat.st_ctimespec.tv_sec;
                     pout->st_ctim.tv_nsec = local_stat.st_ctimespec.tv_nsec;
                 #else
-//                    #ifndef M68K
+                    #ifndef M68K
                         pout->st_atim.tv_sec = local_stat.st_atim.tv_sec;
                         pout->st_atim.tv_nsec = local_stat.st_atim.tv_nsec;
                         pout->st_mtim.tv_sec = local_stat.st_mtim.tv_sec;
                         pout->st_mtim.tv_nsec = local_stat.st_mtim.tv_nsec;
                         pout->st_ctim.tv_sec = local_stat.st_ctim.tv_sec;
                         pout->st_ctim.tv_nsec = local_stat.st_ctim.tv_nsec;
-//                    #endif // M68K
+                    #endif // M68K
                 #endif //__APPLE__
 
                 tracer.Trace( "  sizeof output structure: %u\n", (int) sizeof( *pout ) );
