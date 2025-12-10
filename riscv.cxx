@@ -2713,14 +2713,14 @@ uint64_t RiscV::run()
                             float f = fregs[ rs1 ].f;
                             if ( isnan( f ) )
                             {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
                                 if ( issignaling( f ) )
                                     result = 0x100;
                                 else
                                 #endif
                                     result = 0x200;
                             }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
                             else if ( issubnormal( f ) )
                             {
                                 if ( f >= 0.0 )
@@ -2767,14 +2767,14 @@ uint64_t RiscV::run()
                             double d = fregs[ rs1 ].d;
                             if ( isnan( d ) )
                             {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
+                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
                                 if ( issignaling( d ) )
                                     result = 0x100;
                                 else
                                 #endif
                                     result = 0x200;
                             }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(M68K)
+                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
                             else if ( issubnormal( d ) )
                             {
                                 if ( d >= 0.0 )
