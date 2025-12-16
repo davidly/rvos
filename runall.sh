@@ -66,6 +66,13 @@ do
     $_rvoscmd c_tests/bin$opt/ff . ff.c >>$outputfile
 done
 
+echo test tgets
+for optflag in 0 1 2 3 fast;
+do
+    echo test c_tests/bin$optflag/tgets >>$outputfile
+    $_rvoscmd c_tests/bin$optflag/tgets <c_tests/tgets.txt >>$outputfile
+done    
+
 for arg in e ttt fileops ato tap real tphi mysort tmm;
 do
     echo $arg
