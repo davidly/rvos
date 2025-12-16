@@ -65,6 +65,13 @@ set _folderlist=bin0 bin1 bin2 bin3 binfast
     %_runcmd% c_tests\%%f\tgets <c_tests\tgets.txt>>%outputfile%
 ) )
 
+echo test targs
+set _folderlist=bin0 bin1 bin2 bin3 binfast
+( for %%f in (%_folderlist%) do (
+    echo test c_tests/%%f/targs>>%outputfile%
+    %_runcmd% c_tests\%%f\targs a bb ccc dddd>>%outputfile%
+) )
+
 set _rustlist=e ttt fileops ato tap real tphi mysort tmm
 set _rustfolders=bin0 bin1 bin2 bin3
 

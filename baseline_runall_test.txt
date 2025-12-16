@@ -1,4 +1,4 @@
-Tue 12/16/2025  8:11:04.96 
+Tue 12/16/2025 12:46:24.03 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -6255,30 +6255,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 11, min 11, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 16, min 11, sec 11
+before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 15, min 46, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 20, min 46, sec 30
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 11, min 11, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 16, min 11, sec 11
+before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 15, min 46, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 20, min 46, sec 30
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 11, min 11, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 16, min 11, sec 11
+before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 15, min 46, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 20, min 46, sec 30
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 11, min 11, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 16, min 11, sec 11
+before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 15, min 46, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 20, min 46, sec 30
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 11, min 11, sec 11
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 11
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 16, min 11, sec 11
+before TZ is set: tz: 'PacificStandardTime+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2025, month 12, day 16, hour 15, min 46, sec 30
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 30
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2025, month 12, day 16, hour 20, min 46, sec 30
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -6648,27 +6648,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-25.334000 milliseconds
+25.336000 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-15.965000 milliseconds
+16.273001 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-16.423000 milliseconds
+18.344999 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-10.628000 milliseconds
+10.543000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-10.497001 milliseconds
+10.232000 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -35616,7 +35616,6 @@ testing with -0.0:
 nan test completed with great success
 c_tests/bin0/sleeptm
 clk_tck / number of linux ticks per second: 100
-getrusage user time in ms: 984, system time 0
 sleepy time ended with great success
 c_tests/bin1/sleeptm
 clk_tck / number of linux ticks per second: 100
@@ -35752,7 +35751,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 37
+tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 56
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin1/fopentst
@@ -35772,7 +35771,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 37
+tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 57
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin2/fopentst
@@ -35792,7 +35791,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 37
+tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 57
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin3/fopentst
@@ -35812,7 +35811,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 37
+tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 57
 len in pfl: 0
 exiting fopentst with great success
 c_tests/binfast/fopentst
@@ -35832,7 +35831,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2025, month 12, day 16, hour 8, min 11, sec 38
+tz: 'PST+8', year: 2025, month 12, day 16, hour 12, min 46, sec 57
 len in pfl: 0
 exiting fopentst with great success
 c_tests/tins
@@ -36070,7 +36069,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-353 ms for 1 iterations
+438 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36151,7 +36150,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-98 ms for 1 iterations
+96 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36178,7 +36177,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-95 ms for 1 iterations
+97 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36278,6 +36277,51 @@ read: 'a' == 97 == 0x61
 read: '
 ' == 10 == 0xa
 tgets completed with great success
+test c_tests/bin0/targs
+argc: 5
+argv[ 0 ]: 'c_tests/bin0/targs'
+argv[ 1 ]: 'a'
+argv[ 2 ]: 'bb'
+argv[ 3 ]: 'ccc'
+argv[ 4 ]: 'dddd'
+penv[ 0 ]: 'OS=RVOS'
+penv[ 1 ]: 'TZ=PacificStandardTime+8'
+test c_tests/bin1/targs
+argc: 5
+argv[ 0 ]: 'c_tests/bin1/targs'
+argv[ 1 ]: 'a'
+argv[ 2 ]: 'bb'
+argv[ 3 ]: 'ccc'
+argv[ 4 ]: 'dddd'
+penv[ 0 ]: 'OS=RVOS'
+penv[ 1 ]: 'TZ=PacificStandardTime+8'
+test c_tests/bin2/targs
+argc: 5
+argv[ 0 ]: 'c_tests/bin2/targs'
+argv[ 1 ]: 'a'
+argv[ 2 ]: 'bb'
+argv[ 3 ]: 'ccc'
+argv[ 4 ]: 'dddd'
+penv[ 0 ]: 'OS=RVOS'
+penv[ 1 ]: 'TZ=PacificStandardTime+8'
+test c_tests/bin3/targs
+argc: 5
+argv[ 0 ]: 'c_tests/bin3/targs'
+argv[ 1 ]: 'a'
+argv[ 2 ]: 'bb'
+argv[ 3 ]: 'ccc'
+argv[ 4 ]: 'dddd'
+penv[ 0 ]: 'OS=RVOS'
+penv[ 1 ]: 'TZ=PacificStandardTime+8'
+test c_tests/binfast/targs
+argc: 5
+argv[ 0 ]: 'c_tests/binfast/targs'
+argv[ 1 ]: 'a'
+argv[ 2 ]: 'bb'
+argv[ 3 ]: 'ccc'
+argv[ 4 ]: 'dddd'
+penv[ 0 ]: 'OS=RVOS'
+penv[ 1 ]: 'TZ=PacificStandardTime+8'
 rust_tests/bin0/e
 testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
@@ -36295,19 +36339,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   9.4181ms
+serial runtime:   9.0857ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   2.4943ms
+serial runtime:   2.5656ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   1.961ms
+serial runtime:   1.9605ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   1.5668ms
+serial runtime:   1.5954ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -36594,4 +36638,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Tue 12/16/2025  8:11:50.89 
+Tue 12/16/2025 12:47:10.69 
