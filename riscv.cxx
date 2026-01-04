@@ -749,9 +749,6 @@ double do_fmul( double a, double b )
     if ( ( ainf && bzero ) || ( azero && binf ) )
         return MY_NAN;
 
-    if ( ainf && binf )
-        set_double_sign( INFINITY, ( signbit( a ) != signbit( b ) ) );
-
     if ( ainf || binf )
         return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
 
@@ -780,10 +777,7 @@ double do_fdiv( double a, double b )
     if ( ainf )
         return set_double_sign( INFINITY, signbit( a ) != signbit( b ) );
 
-    if ( binf )
-        return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
-
-    if ( azero )
+    if ( binf || azero )
         return set_double_sign( 0.0, signbit( a ) != signbit( b ) );
 
     return a / b;
