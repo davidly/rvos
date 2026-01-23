@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fnmatch.h>
+#include <stdint.h>
 
 extern "C" int lstat( const char *__restrict __path, struct stat *__restrict __buf );
 
