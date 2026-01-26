@@ -24,7 +24,7 @@ echo "$date_time" >$outputfile
 for arg in tcmp t e printint sieve simple tmuldiv tpi ts tarray tbits trw trw2 \
            tmmap tstr tdir fileops ttime tm glob tap tsimplef tphi tf ttt td terrno \
            t_setjmp tex mm tao pis ttypes nantst sleeptm tatomic lenum \
-           tregex trename nqueens fopentst;
+           tregex trename nqueens fopentst termiosf;
 do
     echo $arg
     for opt in 0 1 2 3 fast;
