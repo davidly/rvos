@@ -1,4 +1,4 @@
-Mon 01/26/2026  8:11:32.36 
+Wed 01/28/2026  7:56:33.99 
 c_tests/bin0/tcmp
 uint8_t:
   lt 1 le 1 eq 0 ge 0 gt 0
@@ -5144,6 +5144,14 @@ sum: 0xf8
     0200  00 00 00 00 00 00 00 22 00 44 00 00 00 ef 78 ff : ff ff ff ff ff ff de ff bc ff ff ff 12 90 00 00  .......".D....x.................
     0220  00 00 00 00 00 24 00 48 00 00 00 ee 70 ff ff ff : ff ff ff ff dc ff b8 ff ff ff 13 98 00 00 00 00  .....$.H....p...................
     0240  00 00 00 26 00 4c 00 00 00 ed 68 ff ff ff ff ff : ff ff da ff b4 ff ff ff                          ...&.L....h.............
+element 0: 1 = 1 0 0 0
+element 1: 16 = 16 0 0 0
+element 2: 256 = 0 1 0 0
+element 3: 4096 = 0 16 0 0
+element 4: 65536 = 0 0 1 0
+element 5: 1048576 = 0 0 16 0
+element 6: 16777216 = 0 0 0 1
+element 7: 268435456 = 0 0 0 16
 tarray completed with great success
 c_tests/bin1/tarray
 sum: 0xf8
@@ -5185,6 +5193,14 @@ sum: 0xf8
     0200  00 00 00 00 00 00 00 22 00 44 00 00 00 ef 78 ff : ff ff ff ff ff ff de ff bc ff ff ff 12 90 00 00  .......".D....x.................
     0220  00 00 00 00 00 24 00 48 00 00 00 ee 70 ff ff ff : ff ff ff ff dc ff b8 ff ff ff 13 98 00 00 00 00  .....$.H....p...................
     0240  00 00 00 26 00 4c 00 00 00 ed 68 ff ff ff ff ff : ff ff da ff b4 ff ff ff                          ...&.L....h.............
+element 0: 1 = 1 0 0 0
+element 1: 16 = 16 0 0 0
+element 2: 256 = 0 1 0 0
+element 3: 4096 = 0 16 0 0
+element 4: 65536 = 0 0 1 0
+element 5: 1048576 = 0 0 16 0
+element 6: 16777216 = 0 0 0 1
+element 7: 268435456 = 0 0 0 16
 tarray completed with great success
 c_tests/bin2/tarray
 sum: 0xf8
@@ -5226,6 +5242,14 @@ sum: 0xf8
     0200  00 00 00 00 00 00 00 22 00 44 00 00 00 ef 78 ff : ff ff ff ff ff ff de ff bc ff ff ff 12 90 00 00  .......".D....x.................
     0220  00 00 00 00 00 24 00 48 00 00 00 ee 70 ff ff ff : ff ff ff ff dc ff b8 ff ff ff 13 98 00 00 00 00  .....$.H....p...................
     0240  00 00 00 26 00 4c 00 00 00 ed 68 ff ff ff ff ff : ff ff da ff b4 ff ff ff                          ...&.L....h.............
+element 0: 1 = 1 0 0 0
+element 1: 16 = 16 0 0 0
+element 2: 256 = 0 1 0 0
+element 3: 4096 = 0 16 0 0
+element 4: 65536 = 0 0 1 0
+element 5: 1048576 = 0 0 16 0
+element 6: 16777216 = 0 0 0 1
+element 7: 268435456 = 0 0 0 16
 tarray completed with great success
 c_tests/bin3/tarray
 sum: 0xf8
@@ -5267,6 +5291,14 @@ sum: 0xf8
     0200  00 00 00 00 00 00 00 22 00 44 00 00 00 ef 78 ff : ff ff ff ff ff ff de ff bc ff ff ff 12 90 00 00  .......".D....x.................
     0220  00 00 00 00 00 24 00 48 00 00 00 ee 70 ff ff ff : ff ff ff ff dc ff b8 ff ff ff 13 98 00 00 00 00  .....$.H....p...................
     0240  00 00 00 26 00 4c 00 00 00 ed 68 ff ff ff ff ff : ff ff da ff b4 ff ff ff                          ...&.L....h.............
+element 0: 1 = 1 0 0 0
+element 1: 16 = 16 0 0 0
+element 2: 256 = 0 1 0 0
+element 3: 4096 = 0 16 0 0
+element 4: 65536 = 0 0 1 0
+element 5: 1048576 = 0 0 16 0
+element 6: 16777216 = 0 0 0 1
+element 7: 268435456 = 0 0 0 16
 tarray completed with great success
 c_tests/binfast/tarray
 sum: 0xf8
@@ -5308,6 +5340,14 @@ sum: 0xf8
     0200  00 00 00 00 00 00 00 22 00 44 00 00 00 ef 78 ff : ff ff ff ff ff ff de ff bc ff ff ff 12 90 00 00  .......".D....x.................
     0220  00 00 00 00 00 24 00 48 00 00 00 ee 70 ff ff ff : ff ff ff ff dc ff b8 ff ff ff 13 98 00 00 00 00  .....$.H....p...................
     0240  00 00 00 26 00 4c 00 00 00 ed 68 ff ff ff ff ff : ff ff da ff b4 ff ff ff                          ...&.L....h.............
+element 0: 1 = 1 0 0 0
+element 1: 16 = 16 0 0 0
+element 2: 256 = 0 1 0 0
+element 3: 4096 = 0 16 0 0
+element 4: 65536 = 0 0 1 0
+element 5: 1048576 = 0 0 16 0
+element 6: 16777216 = 0 0 0 1
+element 7: 268435456 = 0 0 0 16
 tarray completed with great success
 c_tests/bin0/tbits
 uint8_t:
@@ -6255,30 +6295,30 @@ result of read at offset 512: 512
 result of read at offset 0: 512
 fileops has completed with great success
 c_tests/bin0/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 26, hour 11, min 11, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 26, hour 16, min 11, sec 40
+before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 28, hour 10, min 56, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 28, hour 15, min 56, sec 40
 c_tests/bin1/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 26, hour 11, min 11, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 26, hour 16, min 11, sec 40
+before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 28, hour 10, min 56, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 28, hour 15, min 56, sec 40
 c_tests/bin2/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 26, hour 11, min 11, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 26, hour 16, min 11, sec 40
+before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 28, hour 10, min 56, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 28, hour 15, min 56, sec 40
 c_tests/bin3/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 26, hour 11, min 11, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 26, hour 16, min 11, sec 40
+before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 28, hour 10, min 56, sec 40
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 56, sec 40
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 28, hour 15, min 56, sec 40
 c_tests/binfast/ttime
-before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 26, hour 11, min 11, sec 40
-west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 11, sec 40
-TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 26, hour 16, min 11, sec 40
+before TZ is set: tz: 'PacificStandardTime+8', year: 2026, month 1, day 28, hour 7, min 56, sec 41
+east coast time: set tz 'TZ=EST+5' tz: 'EST+5', year: 2026, month 1, day 28, hour 10, min 56, sec 41
+west coast time: set tz 'TZ=PST+8' tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 56, sec 41
+TZ=<blank>: set tz 'TZ=' tz: '', year: 2026, month 1, day 28, hour 15, min 56, sec 41
 c_tests/bin0/tm
 tm has completed with great success
 c_tests/bin1/tm
@@ -6648,27 +6688,27 @@ c_tests/bin0/ttt
 starting...
 done
 64930 moves
-46.303001 milliseconds
+24.896999 milliseconds
 c_tests/bin1/ttt
 starting...
 done
 64930 moves
-26.492001 milliseconds
+16.202999 milliseconds
 c_tests/bin2/ttt
 starting...
 done
 64930 moves
-26.066000 milliseconds
+16.235001 milliseconds
 c_tests/bin3/ttt
 starting...
 done
 64930 moves
-19.209999 milliseconds
+10.371000 milliseconds
 c_tests/binfast/ttt
 starting...
 done
 64930 moves
-19.342001 milliseconds
+10.791000 milliseconds
 c_tests/bin0/td
 sprintf double 3.14159265358979311600
 double from printf: 3.14159265358979311600
@@ -35625,6 +35665,7 @@ clk_tck / number of linux ticks per second: 100
 sleepy time ended with great success
 c_tests/bin3/sleeptm
 clk_tck / number of linux ticks per second: 100
+getrusage user time in ms: 1031, system time 0
 sleepy time ended with great success
 c_tests/binfast/sleeptm
 clk_tck / number of linux ticks per second: 100
@@ -35751,7 +35792,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 12, sec 12
+tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 57, sec 7
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin1/fopentst
@@ -35771,7 +35812,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 12, sec 12
+tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 57, sec 7
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin2/fopentst
@@ -35791,7 +35832,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 12, sec 12
+tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 57, sec 7
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin3/fopentst
@@ -35811,7 +35852,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 12, sec 12
+tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 57, sec 7
 len in pfl: 0
 exiting fopentst with great success
 c_tests/binfast/fopentst
@@ -35831,7 +35872,7 @@ len in pfl: 70
 length of file before initial close: 70
 length from stat: 70
 length from fstat: 70
-tz: 'PST+8', year: 2026, month 1, day 26, hour 8, min 12, sec 12
+tz: 'PST+8', year: 2026, month 1, day 28, hour 7, min 57, sec 7
 len in pfl: 0
 exiting fopentst with great success
 c_tests/bin0/termiosf
@@ -36220,7 +36261,7 @@ done
 c_tests/tttu_rv
 starting...
 6493 moves
-1 milliseconds
+0 milliseconds
 1 iterations
 c_tests/bin0/an david lee
 a delve id
@@ -36444,7 +36485,7 @@ lade vied
 lead vied
 c_tests/bin0/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-670 ms for 1 iterations
+356 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36471,7 +36512,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin1/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-158 ms for 1 iterations
+94 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36498,7 +36539,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin2/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-156 ms for 1 iterations
+99 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36525,7 +36566,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/bin3/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-171 ms for 1 iterations
+94 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36552,7 +36593,7 @@ parsing input file c_tests/tp.bas
 created assembler file: c_tests/tp.asm, use registers: yes, expression optimization: yes
 c_tests/binfast/ba c_tests/tp.bas
 parsing input file c_tests/tp.bas
-173 ms for 1 iterations
+93 ms for 1 iterations
 final move count 6493
 exiting the basic interpreter
 parsing input file c_tests/tp.bas
@@ -36714,19 +36755,19 @@ testing finding e
 271828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746639193200305992181741359662904357290033429526059563073813232862794349076323382988075319
 exiting finding e with great success
 rust_tests/bin0/ttt
-serial runtime:   15.5336ms
+serial runtime:   8.7501ms
 moves:            6493
 iterations:       1
 rust_tests/bin1/ttt
-serial runtime:   4.3492ms
+serial runtime:   2.5305ms
 moves:            6493
 iterations:       1
 rust_tests/bin2/ttt
-serial runtime:   3.2582ms
+serial runtime:   1.939ms
 moves:            6493
 iterations:       1
 rust_tests/bin3/ttt
-serial runtime:   2.6652ms
+serial runtime:   1.5357ms
 moves:            6493
 iterations:       1
 rust_tests/bin0/fileops
@@ -37013,4 +37054,4 @@ sum f32: 465880
 sum u32: 465880
 sum u16: 7128
 exiting matrix multiply testing with great success
-Mon 01/26/2026  8:12:31.81 
+Wed 01/28/2026  7:57:21.18 
