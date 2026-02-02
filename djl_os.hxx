@@ -1,5 +1,5 @@
 /*
-    These are some utilities and abstractions for building on Windows and Linux
+    These are some utilities and abstractions for building on Windows, Linux, and macOS
 */
 
 #pragma once

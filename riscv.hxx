@@ -205,8 +205,8 @@ struct RiscV
     void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = flip_endian64( val ); }
     void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = flip_endian32( val ); }
     void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = flip_endian16( val ); }
-    void setfloat( uint64_t o, float val ) { uint32_t x = * (uint32_t *) & val; setui32( o, x ); }
-    void setdouble( uint64_t o, double val ) { uint64_t x = * (uint64_t *) & val; setui64( o, x ); }
+    void setfloat( uint64_t o, float val ) { setui32( o, * (uint32_t *) & val ); }
+    void setdouble( uint64_t o, double val ) { setui64( o, * (uint64_t *) & val ); }
 #else
     uint64_t getui64( uint64_t o ) { return * (uint64_t *) getmem( o ); }
     uint32_t getui32( uint64_t o ) { return * (uint32_t *) getmem( o ); }

@@ -16,6 +16,8 @@
             https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf
 */
 
+#define NOMINMAX // otherwise windows.h overrides things like std::numeric_limits<T>::max()
+
 #include <stdint.h>
 #include <memory.h>
 #include <stdio.h>
@@ -165,72 +167,40 @@ double round_ties_to_max_magnitude( double x )
     return rounded;
 } //round_ties_to_max_magnitide
 
-int64_t round_i64_from_double( double d, uint64_t rm )
+double round_double_from_double( double d, uint64_t rm )
 {
-    if ( rm_RNE == rm )
-        return (int64_t) round( d );
-    if ( rm_RTZ == rm )
-        return (int64_t) trunc( d );
-    if ( rm_RDN == rm )
-        return (int64_t) floor( d );
-    if ( rm_RUP == rm )
-        return (int64_t) ceil( d );
-    assert( rm_RMM == rm );
-    return (int64_t) round_ties_to_max_magnitude( d );
-} //round_i64_from_double
-
-int32_t round_i32_from_double( double d, uint64_t rm )
-{
-    if ( isnan( d ) )
-        return INT32_MAX; // RISC-V hardware does this
+    if ( isnan( d ) || isinf( d ) )
+        return d;
 
     if ( rm_RNE == rm )
-        return (int32_t) round( d );
+        return round( d );
     if ( rm_RTZ == rm )
-        return (int32_t) trunc( d );
+        return trunc( d );
     if ( rm_RDN == rm )
-        return (int32_t) floor( d );
+        return floor( d );
     if ( rm_RUP == rm )
-        return (int32_t) ceil( d );
+        return ceil( d );
     assert( rm_RMM == rm );
-    return (int32_t) round_ties_to_max_magnitude( d );
-} //round_i32_from_double
+    return round_ties_to_max_magnitude( d );
+} //round_double_from_double
 
-int32_t round_i32_from_float( float f, uint64_t rm )
+template <typename T> T round_int_from_double( double d, uint64_t rm ) // works for both signed and unsigned integer types
 {
-    if ( 0x4f000000 == * (uint32_t *) &f ) // RISC-V hardware behavior. else comes back as -1
-        return INT32_MAX;
+    static_assert(std::is_integral<T>::value, "Type must be an integral type.");
 
-    if ( rm_RNE == rm )
-        return (int32_t) roundf( f );
-    if ( rm_RTZ == rm )
-        return (int32_t) truncf( f );
-    if ( rm_RDN == rm )
-        return (int32_t) floorf( f );
-    if ( rm_RUP == rm )
-        return (int32_t) ceilf( f );
-    assert( rm_RMM == rm );
-    return (int32_t) round_ties_to_max_magnitude( f );
-} //round_i32_from_double
+    d = round_double_from_double( d, rm );
 
-uint64_t round_ui64_from_double( double d, uint64_t rm )
-{
-    if ( d <= 0.0 )
-        return 0;
+    if ( isnan( d ) || isinf( d ) )
+        return std::numeric_limits<T>::max();
 
-    if ( d > (double) UINT64_MAX )
-        return UINT64_MAX;
+    if ( d > (double) std::numeric_limits<T>::max() )
+        return std::numeric_limits<T>::max();
 
-    return round_i64_from_double( d, rm );
-} //round_ui64_from_double
+    if ( d < (double) std::numeric_limits<T>::min() )
+        return std::numeric_limits<T>::min();
 
-uint32_t round_ui32_from_double( double d, uint64_t rm )
-{
-    uint64_t ui64 = round_ui64_from_double( d, rm );
-    if ( ui64 > UINT32_MAX )
-        return UINT32_MAX;
-    return (uint32_t) ui64;
-} //round_ui32_from_double
+    return (T) d;
+} //round_int_from_double
 
 #pragma warning(disable: 4100)
 void RiscV::assert_type( uint8_t t ) { assert( t == riscv_types[ opcode_type ] ); }
@@ -2628,13 +2598,13 @@ uint64_t RiscV::run()
                         break;
 
                     if ( 0 == rs2 )
-                        regs[ rd ] = round_i32_from_float( fregs[ rs1 ].f, funct3 ); // fcvt.w.s rd, frs1
+                        regs[ rd ] = round_int_from_double<int32_t>( fregs[ rs1 ].f, funct3 ); // fcvt.w.s rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = round_ui32_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.wu.s rd, frs1
+                        regs[ rd ] = round_int_from_double<uint32_t>( fregs[ rs1 ].f, funct3 ); // fcvt.wu.s rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = round_i64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
+                        regs[ rd ] = round_int_from_double<int64_t>( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
                     else // if ( 3 == rs2 )
-                        regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
+                        regs[ rd ] = round_int_from_double<uint64_t>( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
                 }
                 else if ( 0x61 == funct7 )
                 {
@@ -2644,13 +2614,13 @@ uint64_t RiscV::run()
                         break;
 
                     if ( 0 == rs2 )
-                        regs[ rd ] = round_i32_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.w.d rd, frs1
+                        regs[ rd ] = round_int_from_double<int32_t>( fregs[ rs1 ].d, funct3 ); // fcvt.w.d rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = round_ui32_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.wu.d rd, frs1
+                        regs[ rd ] = round_int_from_double<uint32_t>( fregs[ rs1 ].d, funct3 ); // fcvt.wu.d rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = round_i64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
+                        regs[ rd ] = round_int_from_double<int64_t>( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
                     else // if ( 3 == rs2 )
-                        regs[ rd ] = round_ui64_from_double( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
+                        regs[ rd ] = round_int_from_double<uint64_t>( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
                 }
                 else if ( 0x68 == funct7 )
                 {
