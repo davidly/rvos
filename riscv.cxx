@@ -1226,7 +1226,7 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t result = sign_extend( (uint32_t) val, 31 );
+                        uint64_t result = val;
                         tracer.Trace( "addw %s, %s, %s  # %lld + %lld = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ),
                                       ( 0xffffffff & regs[ rs1 ] ), ( 0xffffffff & regs[ rs2 ] ), result );
                     }
@@ -1235,7 +1235,7 @@ void RiscV::trace_state()
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t amount = 0x1f & regs[ rs2 ];
                         uint32_t result = val << amount;
-                        uint64_t result64 = sign_extend( result, 31 );
+                        uint64_t result64 = (int32_t) result;
                         tracer.Trace( "sllw %s, %s, %s  # %x << %d = %llx\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), val, amount, result64 );
                     }
                     else if ( 5 == funct3 )
@@ -1246,7 +1246,7 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t ext = sign_extend( x, 31 );
+                        uint64_t ext = (int32_t) x;
                         tracer.Trace( "mulw %s, %s, %s  # %d * %d = %lld\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ), regs[ rs1 ], regs[ rs2 ], ext );
                     }
                     else if ( 4 == funct3 )
@@ -1872,7 +1872,7 @@ uint64_t RiscV::run()
                     int32_t val = 0xffffffff & regs[ rs1 ];
                     int32_t imm = (int32_t) i_imm;
                     int32_t result = val + imm;
-                    regs[ rd ] = sign_extend( (uint32_t) result, 31 );
+                    regs[ rd ] = result;
                 }
                 else if ( 1 == funct3 )
                 {
@@ -1881,7 +1881,7 @@ uint64_t RiscV::run()
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t result = val << i_shamt5;
-                        uint64_t result64 = sign_extend( result, 31 );
+                        uint64_t result64 = (int32_t) result;
                         regs[ rd ] = result64;  // slliw rd, rs1, i_shamt5
                     }
                     else
@@ -2014,7 +2014,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] + memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amoadd.d rd, rs2, (rs1)
                     {
@@ -2030,7 +2030,7 @@ uint64_t RiscV::run()
                 {
                     if ( 2 == funct3 ) // amoswap.w rd, rs2, (rs1)
                     {
-                        uint64_t memval = sign_extend( getui32( regs[ rs1 ] ), 31 );
+                        uint64_t memval = (int32_t) getui32( regs[ rs1 ] );
                         uint32_t regval = (uint32_t) regs[ rs2 ];
                         setui32( regs[ rs1 ], regval );
                         if ( 0 != rd )
@@ -2051,9 +2051,9 @@ uint64_t RiscV::run()
                 {
                     if ( 2 == funct3 ) // lr.w rd, (rs1)
                     {
-                        uint32_t memval = getui32( regs[ rs1 ] );
+                        int32_t memval = (int32_t) getui32( regs[ rs1 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = memval;
                     }
                     else if ( 3 == funct3 ) // lr.d rd, (rs1)
                     {
@@ -2088,7 +2088,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] ^ memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amoxor.d rd, rs2, (rs1)
                     {
@@ -2107,7 +2107,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], (uint32_t) ( regs[ rs2 ] | memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amoor.d rd, rs2, (rs1)
                     {
@@ -2126,7 +2126,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], regs[ rs2 ] & memval );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amoand.d rd, rs2, (rs1)
                     {
@@ -2145,7 +2145,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_min( (int32_t) regs[ rs2 ], (int32_t) memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amomin.d rd, rs2, (rs1)
                     {
@@ -2164,7 +2164,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_max( (int32_t) regs[ rs2 ], (int32_t) memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 );
+                            regs[ rd ] = (int32_t) memval;
                     }
                     else if ( 3 == funct3 ) // amomax.d rd, rs2, (rs1)
                     {
@@ -2183,7 +2183,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_min( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 ); // AMOs always sign-extend value placed in rd
+                            regs[ rd ] = (int32_t) memval; // AMOs always sign-extend value placed in rd
                     }
                     else if ( 3 == funct3 ) // amominu.d rd, rs2, (rs1)
                     {
@@ -2202,7 +2202,7 @@ uint64_t RiscV::run()
                         uint32_t memval = getui32( regs[ rs1 ] );
                         setui32( regs[ rs1 ], get_max( (uint32_t) regs[ rs2 ], memval ) );
                         if ( 0 != rd )
-                            regs[ rd ] = sign_extend( memval, 31 ); // AMOs always sign-extend value placed in rd
+                            regs[ rd ] = (int32_t) memval; // AMOs always sign-extend value placed in rd
                     }
                     else if ( 3 == funct3 ) // amomaxu.d rd, rs2, (rs1)
                     {
@@ -2326,15 +2326,14 @@ uint64_t RiscV::run()
                     if ( 0 == funct3 )
                     {
                         int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t result = sign_extend( (uint32_t) val, 31 );
-                        regs[ rd ] = result; // addw rd, rs1, rs2
+                        regs[ rd ] = val; // addw rd, rs1, rs2
                     }
                     else if ( 1 == funct3 )
                     {
                         uint32_t val = (uint32_t) regs[ rs1 ];
                         uint32_t amount = 0x1f & regs[ rs2 ];
                         uint32_t result = val << amount;
-                        uint64_t result64 = sign_extend( result, 31 );
+                        uint64_t result64 = (int32_t) result;
                         regs[ rd ] = result64; // sllw rd, rs1, rs2
                     }
                     else if ( 5 == funct3 )
@@ -2346,8 +2345,8 @@ uint64_t RiscV::run()
                 {
                     if ( 0 == funct3 )
                     {
-                        uint32_t x = ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] );
-                        uint64_t ext = sign_extend( x, 31 );
+                        int32_t x = (int32_t) ( ( 0xffffffff & regs[ rs1 ] ) * ( 0xffffffff & regs[ rs2 ] ) );
+                        uint64_t ext = x;
                         regs[ rd ] = ext; // mulw rd, rs1, rs2
                     }
                     else if ( 4 == funct3 )
@@ -2654,10 +2653,10 @@ uint64_t RiscV::run()
                     {
                         if ( 0 == funct3 ) // fmv.x.w rd, frs1
                         {
-                            uint32_t val;
+                            int32_t val;
                             memcpy( & val, & fregs[ rs1 ].f, 4 );
                             if ( 0 != rd )
-                                regs[ rd ] = sign_extend( val, 31 );
+                                regs[ rd ] = val;
                         }
                         else if ( 1 == funct3 ) // fclass.s
                         {
