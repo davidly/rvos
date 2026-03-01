@@ -10,9 +10,23 @@
 
 using namespace std::chrono;
 
+uint64_t ns_to_ms( uint64_t ns )
+{
+    const uint64_t ms_per_ns = 1000000;
+    return ( ns + ( ms_per_ns / 2 ) ) / ms_per_ns;
+} //ns_to_ms
+
 int main( int argc, char * argv[] )
 {
     high_resolution_clock::time_point tStart = high_resolution_clock::now();
+
+    struct timespec sts_start;
+    int result = clock_gettime( CLOCK_REALTIME, &sts_start );
+    if ( -1 == result )
+    {
+        printf( "clock_gettime failed with error %d\n", errno );
+        exit( 1 );
+    }
 
     //printf( "this test should take about 2.5 seconds to complete\n" );
     uint64_t clk_tck = sysconf( _SC_CLK_TCK );
@@ -21,7 +35,7 @@ int main( int argc, char * argv[] )
     struct tms tstart;
     clock_t cstart = times( &tstart );
     struct timespec request = { 1, 500000000 }; // 1.5 seconds
-    int result = nanosleep( &request, 0 );
+    result = nanosleep( &request, 0 );
     if ( -1 == result )
     {
         printf( "nanosleep failed with error %d\n", errno );
@@ -37,6 +51,14 @@ int main( int argc, char * argv[] )
     //printf( "sleep duration %#llx\n", cduration );
     //printf( "  sleep duration in milliseconds: %llu\n", ( cduration * 1000 ) / clk_tck );
     //printf( "  user time: %llu, kernel time: %llu\n", tend_sleep.tms_utime, tend_sleep.tms_stime );
+
+    struct timespec sts_sleep_end;
+    result = clock_gettime( CLOCK_REALTIME, &sts_sleep_end );
+    if ( -1 == result )
+    {
+        printf( "clock_gettime failed with error %d\n", errno );
+        exit( 1 );
+    }
 
     uint64_t busy_work = 0;
     do
@@ -80,10 +102,31 @@ int main( int argc, char * argv[] )
     int64_t sleepMS = duration_cast<std::chrono::milliseconds>( tAfterSleep - tStart ).count();
     int64_t totalMS = duration_cast<std::chrono::milliseconds>( tEnd - tStart ).count();
 
+    struct timespec sts_end;
+    result = clock_gettime( CLOCK_REALTIME, &sts_end );
+    if ( -1 == result )
+    {
+        printf( "clock_gettime failed with error %d\n", errno );
+        exit( 1 );
+    }
+
     // cut precision some slack
 
     if ( sleepMS < 1480 || sleepMS > 1520 || totalMS < 2480 || totalMS > 2520 )
-        printf( "milliseconds sleeping (should be ~1500) %llu, milliseconds total (should be ~2500): %llu\n", sleepMS, totalMS );
+        printf( "milliseconds sleeping using chrono (should be ~1500) %llu, milliseconds total (should be ~2500): %llu\n", sleepMS, totalMS );
+
+    uint64_t cgt_start = ( ( (uint64_t) sts_start.tv_sec * 1000 ) + ns_to_ms( sts_start.tv_nsec ) );
+    uint64_t cgt_sleep_end = ( ( (uint64_t) sts_sleep_end.tv_sec * 1000 ) + ns_to_ms( sts_sleep_end.tv_nsec ) );
+    uint64_t cgt_end = ( ( (uint64_t) sts_end.tv_sec * 1000 ) + ns_to_ms( sts_end.tv_nsec ) );        
+
+    uint32_t cgt_sleep_duration = (uint32_t) ( cgt_sleep_end - cgt_start );
+    uint32_t cgt_duration = (uint32_t) ( cgt_end - cgt_start );
+
+    if ( cgt_sleep_duration < 1480 || cgt_sleep_duration > 1530 || cgt_duration < 2480 || cgt_duration > 2540 )
+    {
+        printf( "millisecond sleep duration using clock_gettime (should be about 1500 ms): %lu\n", cgt_sleep_duration );
+        printf( "millisecond duration using clock_gettime (should be about 2500 ms): %lu\n", cgt_duration );
+    }
 
     printf( "sleepy time ended with great success\n" );
     return 0;
