@@ -61,40 +61,36 @@
         uint64_t tms_cstime;
     };
 
-#ifndef _SIZE_T_DEFINED
-    typedef SSIZE_T ssize_t;
-#endif
-
+    #ifndef _SIZE_T_DEFINED
+        typedef SSIZE_T ssize_t;
+    #endif
 #else
     #include <unistd.h>
     #include <sys/wait.h>
 
-    #ifndef OLDGCC      // the several-years-old Gnu C compilers for the RISC-V development boards
-        #include <termios.h>
-        #include <sys/ioctl.h>
+    #include <termios.h>
+    #include <sys/ioctl.h>
 
-#ifndef __mc68000__
+    #ifdef __mc68000__
+        #include <time.h>
+    #else
         #include <sys/random.h>
-#endif
-        #ifdef __mc68000__
-            #include <time.h>
-        #else
-            #include <sys/uio.h>
-        #endif
-        #include <dirent.h>
-        #include <sys/times.h>
-        #include <sys/resource.h>
-        #if !defined( __APPLE__ ) && !defined( __mc68000__ )
-            #include <sys/sysinfo.h>
-        #endif
+        #include <sys/uio.h>
+    #endif
 
-        #ifdef __mc68000__
-            DIR * fdopendir( int fd );
-            extern "C" int lstat( const char * path, struct stat * statbuf );
-            extern "C" int pipe2( int pipefd[2], int flags );
-            extern "C" int wait4( pid_t pid, int * wstatus, int options, struct rusage * ru );
-            extern "C" char * realpath( const char *__restrict path, char *__restrict resolved_path );
-        #endif
+    #include <dirent.h>
+    #include <sys/times.h>
+    #include <sys/resource.h>
+    #if !defined( __APPLE__ ) && !defined( __mc68000__ )
+        #include <sys/sysinfo.h>
+    #endif
+
+    #ifdef __mc68000__
+        DIR * fdopendir( int fd );
+        extern "C" int lstat( const char * path, struct stat * statbuf );
+        extern "C" int pipe2( int pipefd[2], int flags );
+        extern "C" int wait4( pid_t pid, int * wstatus, int options, struct rusage * ru );
+        extern "C" char * realpath( const char *__restrict path, char *__restrict resolved_path );
     #endif
 
     struct LINUX_FIND_DATA
@@ -292,6 +288,8 @@ bool g_addCRBeforeLF = true;                   // on Windows, a command-line arg
 bool g_addTimeZoneToEnv = true;                // on Windows, a command-line argument to control if the TZ is added to the environment
 char * g_penvironment = 0;                     // 0 or initial environment variables from the command-line
 char g_acLoadedApp[ EMULATOR_MAX_PATH ];       // path of the app being emulated
+struct local_kernel_termios g_termios;         // current state of stdin/stdout/stderr for those not redirected
+
 
 // fake descriptors.
 // /etc/timezone is not implemented, so apps running in the emulator on Windows assume UTC
@@ -1761,6 +1759,70 @@ static tcflag_t map_termios_cflag_macos_to_linux( tcflag_t f )
 
 #endif //__APPLE__
 
+int initialize_local_kernel_termios( struct local_kernel_termios * pt, int fd )
+{
+    if ( !isatty( fd ) )
+        return -1;
+
+    #ifdef _WIN32
+            memset( pt, 0, sizeof( *pt ) );
+            pt->c_iflag = linux_ICRNL | linux_IXON;
+            pt->c_oflag = linux_OPOST | linux_ONLCR;
+            pt->c_cflag = linux_B38400 | linux_CS8 | linux_CREAD;
+            pt->c_lflag = linux_ISIG | linux_CANON | linux_ECHO | linux_ECHOE | linux_ECHOK | linux_ECHOCTL | linux_ECHOKE;
+
+            #if defined( __i386__ ) || defined( sparc )  // older ISAs including x86 and sparc have c_line. modern ISAs don't
+                pt->c_line = 0;
+            #endif
+    
+            pt->c_cc[linux_VINTR]    = 0x03; // ^C
+            pt->c_cc[linux_VQUIT]    = 0x1c; //
+            pt->c_cc[linux_VERASE]   = 0x7f; // DEL
+            pt->c_cc[linux_VKILL]    = 0x15; // ^U
+            pt->c_cc[linux_VEOF]     = 0x04; // ^D
+            pt->c_cc[linux_VTIME]    = 0;    // No inter-character timer
+            pt->c_cc[linux_VMIN]     = 1;    // Minimum characters for non-canonical read
+            pt->c_cc[linux_VSWTC]    = 0;
+            pt->c_cc[linux_VSTART]   = 0x11; // ^Q
+            pt->c_cc[linux_VSTOP]    = 0x13; // ^S
+            pt->c_cc[linux_VSUSP]    = 0x1a; // ^Z
+            pt->c_cc[linux_VEOL]     = 0;
+            pt->c_cc[linux_VREPRINT] = 0x12; // ^R
+            pt->c_cc[linux_VDISCARD] = 0x0f; // ^O
+            pt->c_cc[linux_VWERASE]  = 0x17; // ^W
+            pt->c_cc[linux_VLNEXT]   = 0x16; // ^V
+            pt->c_cc[linux_VEOL2]    = 0;
+    #else
+        struct termios val;
+        int result = tcgetattr( fd, &val );
+        if ( -1 == result )
+            return result;
+
+        tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+        memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
+    
+        pt->c_iflag = val.c_iflag;
+        pt->c_oflag = val.c_oflag;
+        pt->c_cflag = val.c_cflag;
+        pt->c_lflag = val.c_lflag;
+    
+        #ifdef __APPLE__
+            pt->c_iflag = map_termios_iflag_macos_to_linux( pt->c_iflag );
+            pt->c_oflag = map_termios_oflag_macos_to_linux( pt->c_oflag );
+            pt->c_cflag = map_termios_cflag_macos_to_linux( pt->c_cflag );
+            pt->c_lflag = map_termios_lflag_macos_to_linux( pt->c_lflag );
+            tracer.Trace( "  mac translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+            map_c_cc_macos_to_linux( pt->c_cc );
+        #endif //__APPLE__
+            
+        #if defined( __i386__ ) || defined( sparc )  // older ISAs including x86 and sparc have c_line. modern ISAs don't
+            pt->c_line = val.c_line;
+        #endif
+    #endif
+
+    return 0;
+} //initialize_local_kernel_termios
+
 struct SysCall
 {
     const char * name;
@@ -2125,6 +2187,7 @@ static const SyscalltoRV X32ToRiscV[] = // per https://gpages.juszkiewicz.com.pl
     { 140, emulator_sys__llseek },
     { 141, emulator_sys_getdents },
     { 142, emulator_sys__newselect },
+    { 146, SYS_writev },
     { 148, SYS_fdatasync },
     { 162, SYS_nanosleep },
     { 163, SYS_mremap },
@@ -2302,10 +2365,8 @@ void emulator_invoke_svc( CPUClass & cpu )
     static char g_acFindFirstPattern[ EMULATOR_MAX_PATH ];
     char acPath[ EMULATOR_MAX_PATH ];
 #else
-    #if !defined( OLDGCC )
-        static DIR * g_FindFirst = 0;
-        static REG_TYPE g_FindFirstDescriptor = -1;
-    #endif
+    static DIR * g_FindFirst = 0;
+    static REG_TYPE g_FindFirstDescriptor = -1;
 #endif
 
     REG_TYPE syscall_id = ACCESS_REG( REG_SYSCALL );
@@ -2523,9 +2584,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 
             tracer.Trace( "  getcwd returning '%s'\n", pin );
 #else
-    #ifndef OLDGCC      // the several-years-old Gnu C compiler for the RISC-V development boards
             pout = cpu.host_to_vm_address( getcwd( pin, size ) );
-    #endif
 #endif
             if ( pout )
                 update_result_errno( cpu, original );
@@ -2918,6 +2977,18 @@ void emulator_invoke_svc( CPUClass & cpu )
                 }
                 else
                 {
+                    if ( ( 0 != ( g_termios.c_iflag & linux_ICRNL ) ) && ( 13 == r ) )
+                    {
+                        tracer.Trace( "  translating 13 CR to 10 LF\n" );
+                        r = 10;
+                    }
+
+                    if ( isatty( 0 ) && ( 0 != ( g_termios.c_lflag & linux_ECHO ) ) )
+                    {
+                        int written = write( 1, &r, 1 );
+                        tracer.Trace( "    echo written bytes: %u\n", written );
+                    }
+
                     * (char *) buffer = (char) r;
                     ACCESS_REG( REG_RESULT ) = 1;
                     tracer.Trace( "  getch read character %u == '%c'\n", (uint8_t) r, printable( (uint8_t) r ) );
@@ -3069,7 +3140,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 }
                 else
 #else
-    #if !defined( OLDGCC )
                 if ( g_FindFirstDescriptor == descriptor )
                 {
                     if ( 0 != g_FindFirst )
@@ -3081,7 +3151,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                     update_result_errno( cpu, 0 );
                     break;
                 }
-    #endif
 #endif
                 result = close( descriptor );
                 update_result_errno( cpu, result );
@@ -3196,7 +3265,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 }
             }
 #else
-        #if !defined( OLDGCC )
             tracer.Trace( "  g_FindFirstDescriptor: %d, g_FindFirst: %p\n", g_FindFirstDescriptor, g_FindFirst );
 
             if ( -1 == g_FindFirstDescriptor )
@@ -3246,7 +3314,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 tracer.Trace( "  readdir returned 0, so there are no more files in the enumeration\n" );
                 result = 0;
             }
-    #endif
 #endif
             update_result_errno( cpu, result );
             break;
@@ -3363,7 +3430,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 }
             }
 #else
-        #if !defined( OLDGCC )
             tracer.Trace( "  g_FindFirstDescriptor: %d, g_FindFirst: %p, descriptor: %p\n", g_FindFirstDescriptor, g_FindFirst, descriptor );
 
             if ( -1 == g_FindFirstDescriptor )
@@ -3413,7 +3479,6 @@ void emulator_invoke_svc( CPUClass & cpu )
                 tracer.Trace( "  readdir returned 0, so there are no more files in the enumeration\n" );
                 result = 0;
             }
-        #endif
 #endif
             update_result_errno( cpu, result );
             break;
@@ -3576,7 +3641,6 @@ void emulator_invoke_svc( CPUClass & cpu )
             update_result_errno( cpu, -1 );
             break;
         }
-#if !defined(OLDGCC) // the syscalls below aren't invoked from the old g++ compiler and runtime
         case SYS_openat:
         {
             tracer.Trace( "  syscall command SYS_openat\n" );
@@ -3653,13 +3717,52 @@ void emulator_invoke_svc( CPUClass & cpu )
         }
         case SYS_sysinfo:
         {
-#if defined(_WIN32) || defined(__APPLE__) || defined( __mc68000__ )
-            errno = EACCES;
-            update_result_errno( cpu, -1 );
+#if defined( SPARCOS ) || defined( M68 ) || defined( X32OS )
+             struct sysinfo_syscall32 * psi = (struct sysinfo_syscall32 *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );
 #else
-            int result = sysinfo( (struct sysinfo *) cpu.getmem( ACCESS_REG( REG_ARG0 ) ) );
+             struct sysinfo_syscall64 * psi = (struct sysinfo_syscall64 *) cpu.getmem( ACCESS_REG( REG_ARG0 ) );      
+#endif
+
+#if defined(_WIN32) || defined(__APPLE__) || defined( __mc68000__ )
+            int result = 0;
+            // make a reasonable lie
+            bool big = ( 8 == sizeof( psi->uptime ) );
+            psi->uptime = 666;
+            psi->loads[0] = 0;
+            psi->loads[1] = 0;
+            psi->loads[2] = 0;
+            psi->totalram = big ? ( ( 1024 * 1024 ) / 4096 ) : ( 1024 * 1024 );
+            psi->freeram = big ? ( ( 1024 * 1024 ) / 4096 ) : ( 1024 * 1024 );
+            psi->bufferram = 0;
+            psi->totalswap = 0;
+            psi->freeswap = 0;
+            psi->procs = 69;
+            psi->totalhigh = 0;
+            psi->freehigh = 0;
+            psi->mem_unit = big ? 4096 : 1;
+#else
+            struct sysinfo si;
+            int result = sysinfo( &si );
+            if ( -1 != result )
+            {
+                psi->uptime = static_cast<decltype(psi->uptime)>( si.uptime );
+                psi->loads[0] = static_cast<std::remove_reference_t<decltype(psi->loads[0])>>( si.loads[0] );
+                psi->loads[1] = static_cast<std::remove_reference_t<decltype(psi->loads[1])>>( si.loads[1] );
+                psi->loads[2] = static_cast<std::remove_reference_t<decltype(psi->loads[2])>>( si.loads[2] );
+                psi->totalram = static_cast<decltype(psi->totalram)>( si.totalram );
+                psi->freeram = static_cast<decltype(psi->freeram)>( si.freeram );
+                psi->bufferram = static_cast<decltype(psi->bufferram)>( si.bufferram );
+                psi->totalswap = static_cast<decltype(psi->totalswap)>( si.totalswap );
+                psi->freeswap = static_cast<decltype(psi->freeswap)>( si.freeswap );
+                psi->procs = static_cast<decltype(psi->procs)>( si.procs );
+                psi->totalhigh = static_cast<decltype(psi->totalhigh)>( si.totalhigh );
+                psi->freehigh = static_cast<decltype(psi->freehigh)>( si.freehigh );
+                psi->mem_unit = static_cast<decltype(psi->mem_unit)>( si.mem_unit );
+            }
+#endif
+            if ( 0 == result )
+                psi->swap_endianness();
             update_result_errno( cpu, result );
-#endif // defined(_WIN32) || defined(__APPLE__) || defined( __mc68000__ )
             break;
         }
         case SYS_newfstatat:
@@ -4986,14 +5089,9 @@ void emulator_invoke_svc( CPUClass & cpu )
                 {
                     if ( isatty( fd ) )
                     {
-                        // populate with arbitrary but reasonable values
-
-                        pt->c_iflag = 0;
-                        pt->c_oflag = 5;
-                        pt->c_cflag = 0xbf;
-                        pt->c_lflag = 0xa30;
-                        pt->c_cc[ 0 ] = 0;
-                        pt->c_cc[ 1 ] = 0;
+                        tracer.Trace( "  responding to 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                        *pt = g_termios;
                         pt->swap_endianness();
                         update_result_errno( cpu, 0 );
                         break;
@@ -5003,49 +5101,39 @@ void emulator_invoke_svc( CPUClass & cpu )
                     update_result_errno( cpu, -1 );
                     break;
                 }
-                else if ( 0x5402 == request )
+                else if ( 0x5402 == request ) // TCSETS
                 {
-                    // kbhit() works without all this fuss on Windows
+                    pt->swap_endianness();
+                    if ( isatty( fd ) )
+                    {
+                        g_termios = *pt;
+                        tracer.Trace( "  updated local termios via 5402 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                    }
                 }
 #else //defined( _WIN32 )
                 // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
 
-                if ( 0x5401 == request || 0x5408 == request ) // TCGETS
+                if ( isatty( fd ) && ( 0x5401 == request || 0x5408 == request ) ) // TCGETS
                 {
-                    struct termios val;
-                    int result = tcgetattr( fd, &val );
+                    int result = initialize_local_kernel_termios( pt, fd );
                     if ( -1 == result )
                     {
-                        tracer.Trace( "  tcgetattr on fd %d failed, errno %d\n", fd, errno );
+                        tracer.Trace( "  initialize_local_kernel_termios on fd %d failed, errno %d\n", fd, errno );
                         update_result_errno( cpu, -1 );
                         break;
                     }
-                    tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+                    tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
 
-                    memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
-
-                    pt->c_iflag = val.c_iflag;
-                    pt->c_oflag = val.c_oflag;
-                    pt->c_cflag = val.c_cflag;
-                    pt->c_lflag = val.c_lflag;
-#ifdef __APPLE__
-                    pt->c_iflag = map_termios_iflag_macos_to_linux( pt->c_iflag );
-                    pt->c_oflag = map_termios_oflag_macos_to_linux( pt->c_oflag );
-                    pt->c_cflag = map_termios_cflag_macos_to_linux( pt->c_cflag );
-                    pt->c_lflag = map_termios_lflag_macos_to_linux( pt->c_lflag );
-                    tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
-                    map_c_cc_macos_to_linux( pt->c_cc );
-#endif //__APPLE__
-
-#if defined( __i386__ ) || defined( sparc )  // older ISAs including x86 and sparc have c_line. modern ISAs don't
-                    pt->c_line = val.c_line;
-#endif
+                    g_termios = *pt;
+                    tracer.Trace( "  updated local termios via 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                  g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
 
 #ifdef SPARCOS
                     map_c_cc_linux_to_sparc( pt->c_cc );
 #endif //SPARCOS
-                    tracer.Trace( "  ioctl queried termios on stdin, sizeof local_kernel_termios %zd, sizeof val %zd\n",
-                                sizeof( struct local_kernel_termios ), sizeof( val ) );
+                    tracer.Trace( "  ioctl queried termios on fd %u, sizeof local_kernel_termios %zd, sizeof termios %zd\n",
+                                  fd, sizeof( struct local_kernel_termios ), sizeof( struct termios ) );
                     pt->swap_endianness();
                 }
                 else if ( 0x5402 == request ) // TCSETS
@@ -5054,6 +5142,12 @@ void emulator_invoke_svc( CPUClass & cpu )
                     memset( &val, 0, sizeof val );
                     tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
                     pt->swap_endianness();
+                    if ( isatty( fd ) )
+                    {
+                        g_termios = *pt;
+                        tracer.Trace( "  set termios via 5402 to iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                    }
                     memcpy( & val.c_cc, & pt->c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
 
                     val.c_iflag = pt->c_iflag;
@@ -5078,6 +5172,7 @@ void emulator_invoke_svc( CPUClass & cpu )
 #endif // SPARCOS
 
                     tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
+
 #ifdef __APPLE__
                     map_c_cc_linux_to_macos( val.c_cc );
 #endif
@@ -5134,8 +5229,6 @@ void emulator_invoke_svc( CPUClass & cpu )
         case SYS_mprotect:
             // ignore for now
             break;
-
-#endif // !defined(OLDGCC)
         case SYS_faccessat:
         {
             const char * pathname = (const char *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
@@ -9928,6 +10021,7 @@ int main( int argc, char * argv[] )
         tracer.SetQuiet( true );
         tracer.Trace( "host is little endian: %d, emulated cpu is little endian: %d\n", HOST_IS_LITTLE_ENDIAN, CPU_IS_LITTLE_ENDIAN );
 
+        initialize_local_kernel_termios( & g_termios, isatty( 0 ) ? 0 : ( isatty( 1 ) ? 1 : 2 ) );
         g_consoleConfig.EstablishConsoleOutput( 0, 0 );
 
 #ifdef RVOS
