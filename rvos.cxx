@@ -47,12 +47,6 @@
 #ifdef _WIN32
     #include <io.h>
 
-    struct iovec
-    {
-       void * iov_base; /* Starting address */
-       size_t iov_len; /* Length in bytes */
-    };
-
     struct tms
     {
         uint64_t tms_utime;
@@ -1798,7 +1792,7 @@ int initialize_local_kernel_termios( struct local_kernel_termios * pt, int fd )
         if ( -1 == result )
             return result;
 
-        tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+        tracer.Trace( "  initialize_local_kernel_termios iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
         memcpy( & pt->c_cc, & val.c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
     
         pt->c_iflag = val.c_iflag;
@@ -2352,6 +2346,32 @@ int macos_pipe2( int pipefd[2] )
     return 0;
 } //macos_pipe2
 #endif // __APPLE__
+
+#ifdef _WIN32
+bool Win32RenameFile( const char * oldname, const char * newname )
+{
+    bool ok = MoveFileExA( oldname, newname, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH ); // rename() on windows doesn't clobber existing files with newname
+    if ( ok )
+        return true;
+
+    // if it fails due to access denied, it's possible OneDrive or CI or something else has a temporary lock. It's crazy that a Windows component does this. Retry.
+
+    DWORD err = GetLastError();
+    if ( ERROR_ACCESS_DENIED == err )
+    {
+        for ( int r = 0; r < 5; r++ )
+        {
+            tracer.Trace( "    sleeping then retrying movefileex\n" );
+            Sleep( 20 );
+            ok = MoveFileExA( oldname, newname, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH );
+            if ( ok )
+                return ok;
+        }
+    }
+
+    return false;
+} //Win32RenameFile
+#endif
 
 // this is called when the arm64 app has an svc #0 instruction or a RISC-V 64 app has an ecall instruction
 // https://thevivekpandey.github.io/posts/2017-09-25-linux-system-calls.html
@@ -4200,27 +4220,31 @@ void emulator_invoke_svc( CPUClass & cpu )
         case SYS_writev:
         {
             int descriptor = (int) ACCESS_REG( REG_ARG0 );
-            const struct iovec * pvec = (const struct iovec *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
-            if ( 1 == descriptor || 2 == descriptor )
-#ifdef M68
-                tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( 0xffffffff & (REG_TYPE) pvec->iov_base ) );
+#if defined( M68 ) || defined ( X32OS ) || defined ( SPARCOS )
+            const struct iovec_syscall32 * pvec = (const struct iovec_syscall32 *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
 #else
-                tracer.Trace( "  desc %d: writing '%.*s'\n", descriptor, pvec->iov_len, cpu.getmem( (REG_TYPE) (uint64_t) pvec->iov_base ) );
+            const struct iovec_syscall64 * pvec = (const struct iovec_syscall64 *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
 #endif
+            int count = (int) ACCESS_REG( REG_ARG2 );
+
+            tracer.TraceBinaryData( (uint8_t *) cpu.getmem( pvec->iov_base ), (int) pvec->iov_len, 4 );
 
             REG_TYPE result = 0;
 
 #ifdef _WIN32
-            if ( descriptor <= 2 )
-                result = (REG_TYPE) WinWrite( descriptor, cpu.getmem( (REG_TYPE) (uint64_t) pvec->iov_base ), (unsigned) (uint64_t) pvec->iov_len );
-            else
-                result = (REG_TYPE) write( descriptor, cpu.getmem( (REG_TYPE) (uint64_t) pvec->iov_base ), (unsigned) (uint64_t) pvec->iov_len );
+            for ( int i = 0; i < count; i++ )
+            {
+                if ( descriptor <= 2 )
+                    result = (REG_TYPE) WinWrite( descriptor, cpu.getmem( (REG_TYPE) pvec[i].iov_base ), (unsigned) pvec[i].iov_len );
+                else
+                    result = (REG_TYPE) write( descriptor, cpu.getmem( (REG_TYPE) pvec[i].iov_base ), (unsigned) pvec[i].iov_len );
+            }
 #else //_WIN32
             struct iovec vec_local;
-            vec_local.iov_base = cpu.getmem( (uint64_t) pvec->iov_base );
+            vec_local.iov_base = cpu.getmem( (REG_TYPE) pvec->iov_base );
             vec_local.iov_len = pvec->iov_len;
-            tracer.Trace( "  write length: %u to descriptor %d at addr %p\n", pvec->iov_len, descriptor, vec_local.iov_base );
-            result = writev( descriptor, &vec_local, ACCESS_REG( REG_ARG2 ) );
+            tracer.Trace( "  write length: %u to descriptor %d at addr %p\n", (int) pvec->iov_len, descriptor, vec_local.iov_base );
+            result = writev( descriptor, &vec_local, count );
 #endif //_WIN32
             update_result_errno( cpu, result );
             break;
@@ -4424,10 +4448,15 @@ void emulator_invoke_svc( CPUClass & cpu )
             const char * newname = (const char *) cpu.getmem( ACCESS_REG( REG_ARG1 ) );
 
 #if defined( _WIN32 )
-            bool ok = MoveFileExA( oldname, newname, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH ); // rename() on windows doesn't clobber existing files with newname
+            bool ok = Win32RenameFile( oldname, newname );
             int result = 0;
             if ( !ok )
-                result = map_win32_to_errno( GetLastError() );
+            {
+                DWORD err = GetLastError();
+                tracer.Trace( "rename failed, error %d\n", err );
+                errno = map_win32_to_errno( err );
+                result = -1;
+            }
 #else
             int result = rename( (const char *) cpu.getmem( ACCESS_REG( REG_ARG0 ) ), (const char *) cpu.getmem( ACCESS_REG( REG_ARG1 ) ) );
 #endif
@@ -4443,11 +4472,17 @@ void emulator_invoke_svc( CPUClass & cpu )
             const char * newpath = (const char *) cpu.getmem( ACCESS_REG( REG_ARG3 ) );
             unsigned int flags = ( SYS_renameat2 == syscall_id ) ? (unsigned int) ACCESS_REG( REG_ARG4 ) : 0;
             tracer.Trace( "  renaming '%s' to '%s'\n", oldpath, newpath );
+
 #if defined( _WIN32 )
-            bool ok = MoveFileExA( oldpath, newpath, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH ); // rename() on windows doesn't clobber existing files with newname
+            bool ok = Win32RenameFile( oldpath, newpath );
             int result = 0;
             if ( !ok )
-                result = map_win32_to_errno( GetLastError() );
+            {
+                DWORD err = GetLastError();
+                tracer.Trace( "rename failed, error %d\n", err );
+                errno = map_win32_to_errno( err );
+                result = -1;
+            }
 #elif defined( __mc68000__ )
             int result = rename( oldpath, newpath );
 #elif defined( __APPLE__ )
@@ -5080,148 +5115,157 @@ void emulator_invoke_svc( CPUClass & cpu )
             unsigned long request = (unsigned long) ACCESS_REG( REG_ARG1 ) & 0xffff;
             tracer.Trace( "  ioctl fd %d, request %lx\n", fd, request );
             struct local_kernel_termios * pt = (struct local_kernel_termios *) cpu.getmem( ACCESS_REG( REG_ARG2 ) );
-            int result = 0;
+            errno = ENOTTY;
+            int result = -1;
 
             if ( 0 == fd || 1 == fd || 2 == fd ) // stdin, stdout, stderr
             {
-#if defined( _WIN32 )
-                if ( 0x5401 == request || 0x5408 == request ) // TCGETS. 5401 is newer, 5408 is older like Linux on sparc
+                tracer.Trace( "  checking if fd %u is a tty\n", fd );
+                if ( isatty( fd ) )
                 {
-                    if ( isatty( fd ) )
+                    tracer.Trace( "    it's a tty\n" );
+                    #if defined( _WIN32 )
+                        if ( 0x5401 == request || 0x5408 == request ) // TCGETS. 5401 is newer, 5408 is older like Linux on sparc
+                        {
+                            tracer.Trace( "    responding to 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                          g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                            tracer.Trace( "    sizeof local_kernel_termios: %u\n", (int) sizeof( *pt ) );
+                            *pt = g_termios;
+                            pt->swap_endianness();
+                            update_result_errno( cpu, 0 );
+                            break;
+                        }
+                        else if ( 0x5402 == request || 0x5404 == request ) // TCSETS or TCSETSF
+                        {
+                            pt->swap_endianness();
+                            if ( isatty( fd ) )
+                            {
+                                g_termios = *pt;
+                                tracer.Trace( "  updated local termios via 5402 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                              g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                            }
+                            update_result_errno( cpu, 0 );
+                            break;
+                        }
+                    #else //defined( _WIN32 ) // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
+                        if ( 0x5401 == request || 0x5408 == request ) // TCGETS
+                        {
+                            result = initialize_local_kernel_termios( pt, fd );
+                            if ( -1 == result )
+                            {
+                                tracer.Trace( "  initialize_local_kernel_termios on fd %d failed, errno %d\n", fd, errno );
+                                update_result_errno( cpu, -1 );
+                                break;
+                            }
+                            tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+            
+                            g_termios = *pt;
+                            tracer.Trace( "  updated local termios via 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                          g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+            
+                            #ifdef SPARCOS
+                                map_c_cc_linux_to_sparc( pt->c_cc );
+                            #endif //SPARCOS
+                            tracer.Trace( "  ioctl queried termios on fd %u, sizeof local_kernel_termios %zd, sizeof termios %zd\n",
+                                          fd, sizeof( struct local_kernel_termios ), sizeof( struct termios ) );
+                            pt->swap_endianness();
+                        }
+                        else if ( 0x5402 == request || 0x5404 == request ) // TCSETS or TCSETSF
+                        {
+                            struct termios val;
+                            memset( &val, 0, sizeof val );
+                            tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
+                            pt->swap_endianness();
+
+                            g_termios = *pt;
+                            tracer.Trace( "  set termios via 5402 to iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
+                                          g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+
+                            memcpy( & val.c_cc, & pt->c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
+            
+                            val.c_iflag = pt->c_iflag;
+                            val.c_oflag = pt->c_oflag;
+                            val.c_cflag = pt->c_cflag;
+                            val.c_lflag = pt->c_lflag;
+                            tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+        
+                            #ifdef __APPLE__
+                                val.c_iflag = map_termios_iflag_linux_to_macos( val.c_iflag );
+                                val.c_oflag = map_termios_oflag_linux_to_macos( val.c_oflag );
+                                val.c_cflag = map_termios_cflag_linux_to_macos( val.c_cflag );
+                                val.c_lflag = map_termios_lflag_linux_to_macos( val.c_lflag );
+                                tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
+                            #endif //__APPLE__
+            
+                            #if defined( __i386__ ) || defined( sparc )  // older ISAs including x86 and sparc have c_line. modern ISAs don't
+                                val.c_line = pt->c_line;
+                            #endif
+            
+                            #ifdef SPARCOS
+                                map_c_cc_sparc_to_linux( val.c_cc );
+                            #endif // SPARCOS
+            
+                            tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
+            
+                            #ifdef __APPLE__
+                                map_c_cc_linux_to_macos( val.c_cc );
+                            #endif
+
+                            result = tcsetattr( fd, TCSANOW, &val );
+                        }
+                    #endif //defined( _WIN32 )
+    
+                    else if ( 0x540b == request || 0x5409 == request ) // TCFLSH or TCSBRK
                     {
-                        tracer.Trace( "  responding to 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
-                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
-                        *pt = g_termios;
-                        pt->swap_endianness();
                         update_result_errno( cpu, 0 );
                         break;
                     }
 
-                    errno = ENOTTY;
-                    update_result_errno( cpu, -1 );
-                    break;
-                }
-                else if ( 0x5402 == request ) // TCSETS
-                {
-                    pt->swap_endianness();
-                    if ( isatty( fd ) )
-                    {
-                        g_termios = *pt;
-                        tracer.Trace( "  updated local termios via 5402 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
-                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
-                    }
-                }
-#else //defined( _WIN32 )
-                // likely a TCGETS or TCSETS on stdin to check or enable non-blocking reads for a keystroke
+                    #if defined( SPARCOS )
+                        else if ( 1 == fd && 0x7468 == request ) // TIOCGWINSZ
+                    #else
+                        else if ( 1 == fd && 0x5413 == request ) // TIOCGWINSZ
+                    #endif
 
-                if ( isatty( fd ) && ( 0x5401 == request || 0x5408 == request ) ) // TCGETS
-                {
-                    int result = initialize_local_kernel_termios( pt, fd );
-                    if ( -1 == result )
-                    {
-                        tracer.Trace( "  initialize_local_kernel_termios on fd %d failed, errno %d\n", fd, errno );
-                        update_result_errno( cpu, -1 );
-                        break;
-                    }
-                    tracer.Trace( "  result %d, iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", result, pt->c_iflag, pt->c_oflag, pt->c_cflag, pt->c_lflag );
+                        {
+                            tracer.Trace( "  tiocg winsize on stdout\n" );
+                            struct winsize_syscall *pws = (struct winsize_syscall *) cpu.getmem( ACCESS_REG( REG_ARG2 ) );
 
-                    g_termios = *pt;
-                    tracer.Trace( "  updated local termios via 5401 with iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
-                                  g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
+                            #ifdef _WIN32
+                                CONSOLE_SCREEN_BUFFER_INFO csbi;
+                                if ( GetConsoleScreenBufferInfo( GetStdHandle( STD_OUTPUT_HANDLE ), &csbi ) ) // if stdout is redirected this will fail
+                                {
+                                    pws->ws_col = (uint16_t) ( csbi.srWindow.Right - csbi.srWindow.Left + 1 );
+                                    pws->ws_row = (uint16_t) ( csbi.srWindow.Bottom - csbi.srWindow.Top + 1 );
+                                }
+                                result = 0;
+                            #else // _WIN32
+                                #if defined( __APPLE__ ) || defined( sparc )
+                                    request = 0x40087468; // TIOCGWINSZ on apple and sparc
+                                #else
+                                    request = 0x5413; // map to the standard TIOCGWINSZ constant on other platforms
+                                #endif // __APPLE__ || sparc
 
-#ifdef SPARCOS
-                    map_c_cc_linux_to_sparc( pt->c_cc );
-#endif //SPARCOS
-                    tracer.Trace( "  ioctl queried termios on fd %u, sizeof local_kernel_termios %zd, sizeof termios %zd\n",
-                                  fd, sizeof( struct local_kernel_termios ), sizeof( struct termios ) );
-                    pt->swap_endianness();
-                }
-                else if ( 0x5402 == request ) // TCSETS
-                {
-                    struct termios val;
-                    memset( &val, 0, sizeof val );
-                    tracer.TraceBinaryData( (uint8_t *) pt, sizeof( struct local_kernel_termios ), 4 );
-                    pt->swap_endianness();
-                    if ( isatty( fd ) )
-                    {
-                        g_termios = *pt;
-                        tracer.Trace( "  set termios via 5402 to iflag %#x, oflag %#x, cflag %#x, lflag %#x\n",
-                                      g_termios.c_iflag, g_termios.c_oflag, g_termios.c_cflag, g_termios.c_lflag );
-                    }
-                    memcpy( & val.c_cc, & pt->c_cc, get_min( sizeof( pt->c_cc ), sizeof( val.c_cc ) ) );
+                                result = ioctl( fd, request, pws );
+                            #endif // _WIN32
 
-                    val.c_iflag = pt->c_iflag;
-                    val.c_oflag = pt->c_oflag;
-                    val.c_cflag = pt->c_cflag;
-                    val.c_lflag = pt->c_lflag;
-                    tracer.Trace( "  iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
-#ifdef __APPLE__
-                    val.c_iflag = map_termios_iflag_linux_to_macos( val.c_iflag );
-                    val.c_oflag = map_termios_oflag_linux_to_macos( val.c_oflag );
-                    val.c_cflag = map_termios_cflag_linux_to_macos( val.c_cflag );
-                    val.c_lflag = map_termios_lflag_linux_to_macos( val.c_lflag );
-                    tracer.Trace( "  translated iflag %#x, oflag %#x, cflag %#x, lflag %#x\n", val.c_iflag, val.c_oflag, val.c_cflag, val.c_lflag );
-#endif //__APPLE__
+                            pws->swap_endianness();
+                        } // tiocgwinsz
+                } // isatty
+            } // fd is <= 2
 
-#if defined( __i386__ ) || defined( sparc )  // older ISAs including x86 and sparc have c_line. modern ISAs don't
-                    val.c_line = pt->c_line;
-#endif
-
-#ifdef SPARCOS
-                    map_c_cc_sparc_to_linux( val.c_cc );
-#endif // SPARCOS
-
-                    tracer.TraceBinaryData( (uint8_t *) &val, sizeof( struct termios ), 4 );
-
-#ifdef __APPLE__
-                    map_c_cc_linux_to_macos( val.c_cc );
-#endif
-                    tcsetattr( 0, TCSANOW, &val );
-                    tracer.Trace( "  ioctl set termios on stdin\n" );
-                }
-#endif //defined( _WIN32 ) || defined( __mc68000__ )
-
-#if defined( SPARCOS )
-                else if ( 1 == fd && 0x7468 == request ) // TIOCGWINSZ
-#else
-                else if ( 1 == fd && 0x5413 == request ) // TIOCGWINSZ
-#endif
-                {
-                    tracer.Trace( "  tiocg winsize on stdout\n" );
-                    struct winsize_syscall *pws = (struct winsize_syscall *) cpu.getmem( ACCESS_REG( REG_ARG2 ) );
-#ifdef _WIN32
-                    CONSOLE_SCREEN_BUFFER_INFO csbi;
-                    if ( GetConsoleScreenBufferInfo( GetStdHandle( STD_OUTPUT_HANDLE ), &csbi ) )
-                    {
-                        pws->ws_col = (uint16_t) ( csbi.srWindow.Right - csbi.srWindow.Left + 1 );
-                        pws->ws_row = (uint16_t) ( csbi.srWindow.Bottom - csbi.srWindow.Top + 1 );
-                    }
-                    else
-                        result = -1; // if stdout is redirected this will fail
-#else // _WIN32
-
-#if defined( __APPLE__ ) || defined( sparc )
-                    request = 0x40087468; // TIOCGWINSZ on apple and sparc
-#else
-                    request = 0x5413; // map to the standard TIOCGWINSZ constant on other platforms
-#endif // __APPLE__ || sparc
-                    result = ioctl( fd, request, pws );
-#endif // _WIN32
-                    pws->swap_endianness();
-                }
-            }
-
-            ACCESS_REG( REG_RESULT ) = result;
+            tracer.Trace( "    falling out out SYS_ioctl, result %d\n", result );
+            update_result_errno( cpu, result );
             break;
         }
         case SYS_set_tid_address:
         {
-            ACCESS_REG( REG_RESULT ) = 1;
+            update_result_errno( cpu, 1 );
             break;
         }
         case SYS_madvise:
         {
-            ACCESS_REG( REG_RESULT ) = 0; // report success
+            update_result_errno( cpu, 0 ); // report success
             break;
         }
         case SYS_set_robust_list:

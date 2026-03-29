@@ -796,7 +796,9 @@ struct utsname_syscall
     char domainname[SYS_NMLN];
 };
 
-#define local_KERNEL_NCCS 0x16 // most linux platforms have an array >= this but don't use them
+// i386 linux typically uses 19. other platforms use a larger size. i386 is 18 for the gcc on ubuntu tools I'm using
+
+#define local_KERNEL_NCCS 18 // 0x16 // most linux platforms have an array >= this but don't use them
 
 // indexes into c_cc across various platforms. linux means amd64, x86, risc-v, and arm64
 
@@ -1080,4 +1082,27 @@ struct sysinfo_syscall64
     }
 };
 
+struct iovec_syscall32
+{
+    uint32_t iov_base;
+    uint32_t iov_len;
+
+    void swap_endianness()
+    {
+        iov_base = swap_endian32( iov_base );
+        iov_len = swap_endian32( iov_len );
+    }
+};
+
+struct iovec_syscall64
+{
+    uint64_t iov_base;
+    uint64_t iov_len;
+
+    void swap_endianness()
+    {
+        iov_base = swap_endian64( iov_base );
+        iov_len = swap_endian64( iov_len );
+    }
+};
 
