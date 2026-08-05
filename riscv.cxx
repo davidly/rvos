@@ -531,15 +531,11 @@ uint32_t RiscV::uncompress_rvc( uint16_t x )
 
             switch( p_funct3 )
             {
-                case 0: // c.cslli
+                case 0: // c.slli (shamt==0 is the RV128-only c.slli64 encoding; on rv64 it's a reserved
+                        // HINT that must still decode as a harmless slli rd, rd, 0, not fault)
                 {
-                    if ( 0 == bit12 && 0 == p_rs2 ) // slli64
-                        tracer.Trace( "warning: ignoring slli64\n" );
-                    else // slli
-                    {
-                        uint32_t amount = ( ( x >> 7 ) & 0x20 ) | p_rs2;
-                        op32 = compose_I( 1, p_rs1rd, p_rs1rd, amount, 4 );
-                    }
+                    uint32_t amount = ( ( x >> 7 ) & 0x20 ) | p_rs2;
+                    op32 = compose_I( 1, p_rs1rd, p_rs1rd, amount, 4 );
                     break;
                 }
                 case 1: // c.fldsp
