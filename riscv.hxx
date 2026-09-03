@@ -110,11 +110,14 @@ struct RiscV
 
     const char * reg_name( uint64_t reg );
     const char * freg_name( uint64_t reg );
+    float get_freg_float( uint32_t reg ) const;
+    void set_freg_float( uint32_t reg, float value );
 
     union floating
     {
         float f;
         double d;
+        uint64_t u;
     };
 
     uint64_t regs[ 32 ]; // x0 through x31
@@ -144,6 +147,12 @@ struct RiscV
     uint64_t csr_sie;
     uint64_t csr_pmpaddr0;
     uint64_t csr_pmpcfg0;
+    uint8_t csr_fflags;
+    uint8_t csr_frm;
+
+    bool reservation_valid;
+    uint64_t reservation_address;
+    uint8_t reservation_size;
 
     uint8_t * mem;
     uint8_t * beyond;
@@ -202,9 +211,9 @@ struct RiscV
     float getfloat( uint64_t o ) { uint32_t x = getui32( o ); return * (float *) & x; }
     double getdouble( uint64_t o ) { uint64_t x = getui64( o ); return * (double *) & x; }
 
-    void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = flip_endian64( val ); }
-    void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = flip_endian32( val ); }
-    void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = flip_endian16( val ); }
+    void setui64( uint64_t o, uint64_t val ) { reservation_valid = false; * (uint64_t *) getmem( o ) = flip_endian64( val ); }
+    void setui32( uint64_t o, uint32_t val ) { reservation_valid = false; * (uint32_t *) getmem( o ) = flip_endian32( val ); }
+    void setui16( uint64_t o, uint16_t val ) { reservation_valid = false; * (uint16_t *) getmem( o ) = flip_endian16( val ); }
     void setfloat( uint64_t o, float val ) { setui32( o, * (uint32_t *) & val ); }
     void setdouble( uint64_t o, double val ) { setui64( o, * (uint64_t *) & val ); }
 #else
@@ -214,15 +223,15 @@ struct RiscV
     float getfloat( uint64_t o ) { return * (float *) getmem( o ); }
     double getdouble( uint64_t o ) { return * (double *) getmem( o ); }
 
-    void setui64( uint64_t o, uint64_t val ) { * (uint64_t *) getmem( o ) = val; }
-    void setui32( uint64_t o, uint32_t val ) { * (uint32_t *) getmem( o ) = val; }
-    void setui16( uint64_t o, uint16_t val ) { * (uint16_t *) getmem( o ) = val; }
-    void setfloat( uint64_t o, float val ) { * (float *) getmem( o ) = val; }
-    void setdouble( uint64_t o, double val ) { * (double *) getmem( o ) = val; }
+    void setui64( uint64_t o, uint64_t val ) { reservation_valid = false; * (uint64_t *) getmem( o ) = val; }
+    void setui32( uint64_t o, uint32_t val ) { reservation_valid = false; * (uint32_t *) getmem( o ) = val; }
+    void setui16( uint64_t o, uint16_t val ) { reservation_valid = false; * (uint16_t *) getmem( o ) = val; }
+    void setfloat( uint64_t o, float val ) { reservation_valid = false; * (float *) getmem( o ) = val; }
+    void setdouble( uint64_t o, double val ) { reservation_valid = false; * (double *) getmem( o ) = val; }
 #endif //TARGET_BIG_ENDIAN
 
     uint8_t getui8( uint64_t o ) { return * (uint8_t *) getmem( o ); }
-    void setui8( uint64_t o, uint8_t val ) { * (uint8_t *) getmem( o ) = val; }
+    void setui8( uint64_t o, uint8_t val ) { reservation_valid = false; * (uint8_t *) getmem( o ) = val; }
 
   private:
 

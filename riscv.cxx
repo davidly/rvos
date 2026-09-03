@@ -121,7 +121,7 @@ static const uint8_t riscv_types[ 32 ] =
     IllType, // 1f
 };
 
-#define rm_RNE 0 // Nearest, ties to Even                     round()
+#define rm_RNE 0 // Nearest, ties to Even
 #define rm_RTZ 1 // Round towards Zero                        trunc()
 #define rm_RDN 2 // Round Down (towards)                      floor()
 #define rm_RUP 3 // Round Up (towards)                        ceil()
@@ -173,7 +173,15 @@ double round_double_from_double( double d, uint64_t rm )
         return d;
 
     if ( rm_RNE == rm )
-        return round( d );
+    {
+        double lower = floor( d );
+        double fraction = d - lower;
+        if ( fraction < 0.5 )
+            return lower;
+        if ( fraction > 0.5 )
+            return lower + 1.0;
+        return ( 0.0 == fmod( lower, 2.0 ) ) ? lower : lower + 1.0;
+    }
     if ( rm_RTZ == rm )
         return trunc( d );
     if ( rm_RDN == rm )
@@ -190,10 +198,13 @@ template <typename T> T round_int_from_double( double d, uint64_t rm ) // works 
 
     d = round_double_from_double( d, rm );
 
-    if ( isnan( d ) || isinf( d ) )
+    if ( isnan( d ) )
         return std::numeric_limits<T>::max();
 
-    if ( d > (double) std::numeric_limits<T>::max() )
+    if ( isinf( d ) )
+        return signbit( d ) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
+
+    if ( d >= (double) std::numeric_limits<T>::max() )
         return std::numeric_limits<T>::max();
 
     if ( d < (double) std::numeric_limits<T>::min() )
@@ -236,6 +247,59 @@ const char * RiscV::freg_name( uint64_t reg )
 
     return fregister_names[ reg ];
 } //freg_name
+
+float RiscV::get_freg_float( uint32_t reg ) const
+{
+    uint32_t bits = 0x7fc00000; // canonical quiet NaN for an invalid NaN box
+    if ( UINT32_MAX == (uint32_t) ( fregs[ reg ].u >> 32 ) )
+        bits = (uint32_t) fregs[ reg ].u;
+    float result;
+    memcpy( &result, &bits, sizeof( result ) );
+    return result;
+} //get_freg_float
+
+void RiscV::set_freg_float( uint32_t reg, float value )
+{
+    uint32_t bits;
+    memcpy( &bits, &value, sizeof( bits ) );
+    fregs[ reg ].u = UINT64_C( 0xffffffff00000000 ) | bits;
+} //set_freg_float
+
+static uint64_t classify_float_bits( uint32_t bits )
+{
+    uint32_t sign = bits >> 31;
+    uint32_t exponent = ( bits >> 23 ) & 0xff;
+    uint32_t fraction = bits & 0x7fffff;
+    if ( 0xff == exponent )
+    {
+        if ( 0 == fraction ) return sign ? 1 : 0x80;
+        return ( fraction & 0x400000 ) ? 0x200 : 0x100;
+    }
+    if ( 0 == exponent )
+    {
+        if ( 0 == fraction ) return sign ? 8 : 0x10;
+        return sign ? 4 : 0x20;
+    }
+    return sign ? 2 : 0x40;
+}
+
+static uint64_t classify_double_bits( uint64_t bits )
+{
+    uint64_t sign = bits >> 63;
+    uint64_t exponent = ( bits >> 52 ) & 0x7ff;
+    uint64_t fraction = bits & UINT64_C( 0xfffffffffffff );
+    if ( 0x7ff == exponent )
+    {
+        if ( 0 == fraction ) return sign ? 1 : 0x80;
+        return ( fraction & UINT64_C( 0x8000000000000 ) ) ? 0x200 : 0x100;
+    }
+    if ( 0 == exponent )
+    {
+        if ( 0 == fraction ) return sign ? 8 : 0x10;
+        return sign ? 4 : 0x20;
+    }
+    return sign ? 2 : 0x40;
+}
 
 static void unhandled_op16( uint16_t x )
 {
@@ -843,9 +907,9 @@ void RiscV::trace_state()
         {
             decode_U();
             if ( 0x5 == opcode_type )
-                tracer.Trace( "auipc %s, %lld  # %llx\n", reg_name( rd ), (u_imm << 12 ), pc + ( u_imm << 12 ) );
+                tracer.Trace( "auipc %s, %lld  # %llx\n", reg_name( rd ), ( (uint64_t) u_imm << 12 ), pc + ( (uint64_t) u_imm << 12 ) );
             else if ( 0xd == opcode_type )
-                tracer.Trace( "lui %s, %lld  # %llx\n", reg_name( rd ), u_imm << 12, u_imm << 12 );
+                tracer.Trace( "lui %s, %lld  # %llx\n", reg_name( rd ), (uint64_t) u_imm << 12, (uint64_t) u_imm << 12 );
             break;
         }
         case JType:
@@ -1063,7 +1127,7 @@ void RiscV::trace_state()
             else if ( 9 == opcode_type )
             {
                 if ( 2 == funct3 )
-                    tracer.Trace( "fsw %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].f );
+                    tracer.Trace( "fsw %s, %lld(%s)  # %.2f\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), get_freg_float( rs2 ) );
                 else if ( 3 == funct3 )
                     tracer.Trace( "fsd %s, %lld(%s), # %.2lf\n", freg_name( rs2 ), s_imm, reg_name( rs1 ), fregs[ rs2 ].d );
             }
@@ -1248,7 +1312,7 @@ void RiscV::trace_state()
                     else if ( 4 == funct3 )
                         tracer.Trace( "divw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 5 == funct3 )
-                        tracer.Trace( "divuw%s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
+                        tracer.Trace( "divuw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 6 == funct3 )
                         tracer.Trace( "remw %s, %s, %s\n", reg_name( rd ), reg_name( rs1 ), reg_name( rs2 ) );
                     else if ( 7 == funct3 )
@@ -1269,9 +1333,9 @@ void RiscV::trace_state()
 
                 if ( 0 == fmt )
                 {
-                    float result = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) + fregs[ rs3 ].f;
+                    float result = ( get_freg_float( rs1 ) * get_freg_float( rs2 ) ) + get_freg_float( rs3 );
                     tracer.Trace( "fmadd.s %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
-                                  result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );
+                                  result, get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) );
                 }
                 else if ( 1 == fmt )
                 {
@@ -1287,9 +1351,9 @@ void RiscV::trace_state()
 
                 if ( 0 == fmt )
                 {
-                    float result = ( fregs[ rs1 ].f * fregs[ rs2 ].f ) - fregs[ rs3 ].f;
+                    float result = ( get_freg_float( rs1 ) * get_freg_float( rs2 ) ) - get_freg_float( rs3 );
                     tracer.Trace( "fmsub.s %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
-                                  result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );
+                                  result, get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) );
                 }
                 else if ( 1 == fmt )
                 {
@@ -1307,9 +1371,9 @@ void RiscV::trace_state()
 
                 if ( 0 == fmt )
                 {
-                    float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) + fregs[ rs3 ].f;
+                    float result = ( -1.0f * ( get_freg_float( rs1 ) * get_freg_float( rs2 ) ) ) + get_freg_float( rs3 );
                     tracer.Trace( "fnmsub.s %s, %s, %s, %s  # %.2f = %.2f * %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
-                                  result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
+                                  result, get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) );
                 }
                 else if ( 1 == fmt )
                 {
@@ -1327,9 +1391,9 @@ void RiscV::trace_state()
 
                 if ( 0 == fmt )
                 {
-                    float result = ( -1.0f * ( fregs[ rs1 ].f * fregs[ rs2 ].f ) ) - fregs[ rs3 ].f;
+                    float result = ( -1.0f * ( get_freg_float( rs1 ) * get_freg_float( rs2 ) ) ) - get_freg_float( rs3 );
                     tracer.Trace( "fnmadd.s %s, %s, %s, %s  # %.2f = %.2f * %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ), freg_name( rs3 ),
-                                  result, fregs[ rs1 ].f, fregs[ rs2 ].f, fregs[ rs3 ].f );                        
+                                  result, get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) );
                 }
                 else if ( 1 == fmt )
                 {
@@ -1342,13 +1406,13 @@ void RiscV::trace_state()
             {
                 if ( 0 == funct7 )
                     tracer.Trace( "fadd.s %s, %s, %s  # %.2f = %.2f + %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  (float) do_fadd( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
+                                  (float) do_fadd( get_freg_float( rs1 ), get_freg_float( rs2 ) ), get_freg_float( rs1 ), get_freg_float( rs2 ) );
                 else if ( 1 == funct7 )
                     tracer.Trace( "fadd.d %s, %s, %s  # %.2lf = %.2lf + %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   do_fadd( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 4 == funct7 )
                     tracer.Trace( "fsub.s %s, %s, %s  # %.2f = %.2f - %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                   (float) do_fsub( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs1 ].f, fregs[ rs2 ].f );
+                                   (float) do_fsub( get_freg_float( rs1 ), get_freg_float( rs2 ) ), get_freg_float( rs1 ), get_freg_float( rs2 ) );
                 else if ( 5 == funct7 )
                     tracer.Trace( "fsub.d %s, %s, %s  # %.2lf = %.2lf - %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                    do_fsub( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
@@ -1359,7 +1423,7 @@ void RiscV::trace_state()
                                   do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
                 else if ( 0xc == funct7 )
                     tracer.Trace( "fdiv.s %s, %s, %s  # %.2f == %.2f / %.2f\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
-                                  fregs[ rs1 ].f / fregs[ rs2 ].f, fregs[ rs1 ].f, fregs[ rs2 ].f );
+                                  get_freg_float( rs1 ) / get_freg_float( rs2 ), get_freg_float( rs1 ), get_freg_float( rs2 ) );
                 else if ( 0xd == funct7 )
                     tracer.Trace( "fdiv.d %s, %s, %s  # %.2lf == %.2lf / %.2lf\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ),
                                   do_fdiv( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs1 ].d, fregs[ rs2 ].d );
@@ -1368,20 +1432,20 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                     {
                         // put rs1's absolute value in rd and use rs2's sign bit
-                        float f = set_float_sign( fregs[ rs1 ].f, signbit( fregs[ rs2 ].f ) ); // fsgnj.s rd, rs1, rs2
+                        float f = set_float_sign( get_freg_float( rs1 ), signbit( get_freg_float( rs2 ) ) ); // fsgnj.s rd, rs1, rs2
                         tracer.Trace( "fsgnj.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                     else if ( 1 == funct3 )
                     {
                         // put rs1's absolute value in rd and use opposite of rs2's sign bit
-                        float f = set_float_sign( fregs[ rs1 ].f, !signbit( fregs[ rs2 ].f )); // fsgnjn.s rd, rs1, rs2
+                        float f = set_float_sign( get_freg_float( rs1 ), !signbit( get_freg_float( rs2 ) )); // fsgnjn.s rd, rs1, rs2
                         tracer.Trace( "fsgnjn.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                     else if ( 2 == funct3 )
                     {
                         // put rs1's absolute value in rd and use the xor of the two sign bits
-                        bool result_negative = ( signbit( fregs[ rs1 ].f ) ^ signbit( fregs[ rs2 ].f ) );
-                        float f = set_float_sign( fregs[ rs1 ].f, result_negative ); // fsgnjnx.s rd, rs1, rs2
+                        bool result_negative = ( signbit( get_freg_float( rs1 ) ) ^ signbit( get_freg_float( rs2 ) ) );
+                        float f = set_float_sign( get_freg_float( rs1 ), result_negative ); // fsgnjnx.s rd, rs1, rs2
                         tracer.Trace( "fsgnjnx.s %s, %s, %s  # %.2f\n", freg_name( rd), freg_name( rs1) , freg_name( rs2 ), f );
                     }
                 }
@@ -1412,14 +1476,14 @@ void RiscV::trace_state()
                     if ( 0 == funct3 )
                         tracer.Trace( "fmin.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                     else if ( 1 == funct3 )
-                        tracer.Trace( "fmin.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                        tracer.Trace( "fmax.s %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 }
                 else if ( 0x15 == funct7 )
                 {
                     if ( 0 == funct3 )
                         tracer.Trace( "fmin.d %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                     else if ( 1 == funct3 )
-                        tracer.Trace( "fmin.d %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
+                        tracer.Trace( "fmax.d %s, %s, %s\n", freg_name( rd ), freg_name( rs1 ), freg_name( rs2 ) );
                 }
                 else if ( 0x20 == funct7 )
                 {
@@ -1462,13 +1526,13 @@ void RiscV::trace_state()
                 else if ( 0x60 == funct7 )
                 {
                     if ( 0 == rs2 )
-                        tracer.Trace( "fcvt.w.s %s, %s, %s  # %ld = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (int32_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to i32
+                        tracer.Trace( "fcvt.w.s %s, %s, %s  # %ld = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (int32_t) get_freg_float( rs1 ), get_freg_float( rs1 ) ); // float to i32
                     else if ( 1 == rs2 )
-                        tracer.Trace( "fcvt.wu.s %s, %s, %s  # %lu = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (uint32_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to ui32
+                        tracer.Trace( "fcvt.wu.s %s, %s, %s  # %lu = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (uint32_t) get_freg_float( rs1 ), get_freg_float( rs1 ) ); // float to ui32
                     else if ( 2 == rs2 )
-                        tracer.Trace( "fcvt.l.s %s, %s, %s  # %lld = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (int64_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to i64
+                        tracer.Trace( "fcvt.l.s %s, %s, %s  # %lld = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (int64_t) get_freg_float( rs1 ), get_freg_float( rs1 ) ); // float to i64
                     else if ( 3 == rs2 )
-                        tracer.Trace( "fcvt.lu.s %s, %s, %s  # %llu = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (uint64_t) fregs[ rs1 ].f, fregs[ rs1 ].f ); // float to ui64
+                        tracer.Trace( "fcvt.lu.s %s, %s, %s  # %llu = %.2f\n", reg_name( rd ), freg_name( rs1 ), get_rm( funct3 ), (uint64_t) get_freg_float( rs1 ), get_freg_float( rs1 ) ); // float to ui64
                 }
                 else if ( 0x61 == funct7 )
                 {
@@ -1508,9 +1572,9 @@ void RiscV::trace_state()
                     if ( 0 == rs2 )
                     {
                         if ( 0 == funct3 )
-                            tracer.Trace( "fmv.x.w %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), fregs[ rs1 ].f );
+                            tracer.Trace( "fmv.x.w %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), get_freg_float( rs1 ) );
                         else if ( 1 == funct3 )
-                            tracer.Trace( "fclass.s %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), fregs[ rs1 ].f );
+                            tracer.Trace( "fclass.s %s, %s  # %.2f\n", reg_name( rd ), freg_name( rs1 ), get_freg_float( rs1 ) );
                      }
                 }
                 else if ( 0x71 == funct7 )
@@ -1594,15 +1658,14 @@ void RiscV::trace_state()
 
 #if 0
     tracer.Trace( "float: fs0 %lf, fs1 %lf, fs2 %lf, fs3 %lf, fs4 %lf, fs5 %lf, fa0 %lf, fa5 %lf\n",
-                  fregs[ fs0 ].f, fregs[ fs1 ].f, fregs[ fs2 ].f, fregs[ fs3 ].f, fregs[ fs4 ].f, fregs[ fs5 ].f,
-                  fregs[ fa0 ].f, fregs[ fa5 ].f );
+                  get_freg_float( fs0 ), get_freg_float( fs1 ), get_freg_float( fs2 ), get_freg_float( fs3 ),
+                  get_freg_float( fs4 ), get_freg_float( fs5 ), get_freg_float( fa0 ), get_freg_float( fa5 ) );
     tracer.Trace( "double: fs0 %lf, fs1 %lf, fs2 %lf, fs3 %lf, fs4 %lf, fs5 %lf, fa0 %lf, fa5 %lf\n",
                   fregs[ fs0 ].d, fregs[ fs1 ].d, fregs[ fs2 ].d, fregs[ fs3 ].d, fregs[ fs4 ].d, fregs[ fs5 ].d,
                   fregs[ fa0 ].d, fregs[ fa5 ].d );
     tracer.Trace( "fs0 %#llx, fs1 %#llx, fs2 %#llx, fs3 %#llx, fs4 %#llx, fs5 %#llx, fa0 %#llx, fa5 %#llx\n",
-                  * (uint64_t *) & fregs[ fs0 ].d, * (uint64_t *) & fregs[ fs1 ].d, * (uint64_t *) & fregs[ fs2 ].d,
-                  * (uint64_t *) & fregs[ fs3 ].d, * (uint64_t *) & fregs[ fs4 ].d, * (uint64_t *) & fregs[ fs5 ].d,
-                  * (uint64_t *) & fregs[ fa0 ].d, * (uint64_t *) & fregs[ fa5 ].d );
+                  fregs[ fs0 ].u, fregs[ fs1 ].u, fregs[ fs2 ].u, fregs[ fs3 ].u,
+                  fregs[ fs4 ].u, fregs[ fs5 ].u, fregs[ fa0 ].u, fregs[ fa5 ].u );
 #endif
 } //trace_state
 
@@ -1693,7 +1756,7 @@ uint64_t RiscV::run()
                 decode_I();
     
                 if ( 2 == funct3 ) // flw rd, i_imm(rs1)
-                    fregs[ rd ].f = getfloat( regs[ rs1 ] + i_imm );
+                    set_freg_float( rd, getfloat( regs[ rs1 ] + i_imm ) );
                 else if ( 3 == funct3 ) // fld rd, i_imm(rs1)
                     fregs[ rd ].d = getdouble( regs[ rs1 ] + i_imm );
                 else
@@ -1852,7 +1915,7 @@ uint64_t RiscV::run()
                 if ( 0 == rd )
                     break;
     
-                regs[ rd ] = pc + ( u_imm << 12 ); // auipc imm.    rd <= pc + ( imm << 12 )
+                regs[ rd ] = pc + ( (uint64_t) u_imm << 12 ); // auipc imm.    rd <= pc + ( imm << 12 )
                 break;
             }
             case 6:
@@ -1865,10 +1928,8 @@ uint64_t RiscV::run()
     
                 if ( 0 == funct3 ) // addiw rd, rs1, i_imm  (sign-extend both i_imm and rd)
                 {
-                    int32_t val = 0xffffffff & regs[ rs1 ];
-                    int32_t imm = (int32_t) i_imm;
-                    int32_t result = val + imm;
-                    regs[ rd ] = result;
+                    uint32_t result = (uint32_t) regs[ rs1 ] + (uint32_t) i_imm;
+                    regs[ rd ] = (int32_t) result;
                 }
                 else if ( 1 == funct3 )
                 {
@@ -1886,7 +1947,7 @@ uint64_t RiscV::run()
                 else if ( 5 == funct3 )
                 {
                     if ( 0 == i_top2 )
-                        regs[ rd ] = ( ( 0xffffffff & regs[ rs1 ] ) >> i_shamt5 ); // srliw rd, rs1, i_imm
+                        regs[ rd ] = (int32_t) ( (uint32_t) regs[ rs1 ] >> i_shamt5 ); // srliw rd, rs1, i_imm
                     else if ( 1 == i_top2 )
                     {
                         // the old g++ compiler that targets RISC-V doesn't sign-extend right shifts on signed numbers.
@@ -1927,9 +1988,9 @@ uint64_t RiscV::run()
                 decode_S();
     
                 if ( 2 == funct3 ) // fsw   rs2, imm(rs1)
-                    setfloat( regs[ rs1 ] + s_imm, fregs[ rs2 ].f );
+                    setui32( regs[ rs1 ] + s_imm, (uint32_t) fregs[ rs2 ].u );
                 else if ( 3 == funct3 ) // fsd  rs2, imm(rs1)
-                    setdouble( regs[ rs1 ] + s_imm, fregs[ rs2 ].d );
+                    setui64( regs[ rs1 ] + s_imm, fregs[ rs2 ].u );
                 else
                     unhandled();
                 break;
@@ -2048,12 +2109,18 @@ uint64_t RiscV::run()
                     if ( 2 == funct3 ) // lr.w rd, (rs1)
                     {
                         int32_t memval = (int32_t) getui32( regs[ rs1 ] );
+                        reservation_valid = true;
+                        reservation_address = regs[ rs1 ];
+                        reservation_size = 4;
                         if ( 0 != rd )
                             regs[ rd ] = memval;
                     }
                     else if ( 3 == funct3 ) // lr.d rd, (rs1)
                     {
                         uint64_t memval = getui64( regs[ rs1 ] );
+                        reservation_valid = true;
+                        reservation_address = regs[ rs1 ];
+                        reservation_size = 8;
                         if ( 0 != rd )
                             regs[ rd ] = memval;
                     }
@@ -2064,15 +2131,21 @@ uint64_t RiscV::run()
                 {
                     if ( 2 == funct3 ) // sc.w rd, rs2, (rs1)
                     {
-                        setui32( regs[ rs1 ], (uint32_t) regs[ rs2 ] );
+                        bool success = reservation_valid && 4 == reservation_size && reservation_address == regs[ rs1 ];
+                        reservation_valid = false;
+                        if ( success )
+                            setui32( regs[ rs1 ], (uint32_t) regs[ rs2 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = 0;
+                            regs[ rd ] = success ? 0 : 1;
                     }
                     else if ( 3 == funct3 ) // sc.d rd, rs2, (rs1)
                     {
-                        setui64( regs[ rs1 ], regs[ rs2 ] );
+                        bool success = reservation_valid && 8 == reservation_size && reservation_address == regs[ rs1 ];
+                        reservation_valid = false;
+                        if ( success )
+                            setui64( regs[ rs1 ], regs[ rs2 ] );
                         if ( 0 != rd )
-                            regs[ rd ] = 0;
+                            regs[ rd ] = success ? 0 : 1;
                     }
                     else
                         unhandled();
@@ -2258,14 +2331,11 @@ uint64_t RiscV::run()
                     }
                     else if ( 2 == funct3 ) // mulhsu rd, rs1, rs2    signed rs1 * unsigned rs2
                     {
-                        int64_t reg1 = regs[ rs1 ];
-                        bool negative = ( reg1 < 0 );
                         uint64_t high;
                         CMultiply128::mul_u64_u64( regs[ rs1 ], regs[ rs2 ], &high );
-                        int64_t result = (int64_t) high;
-                        if ( negative )
-                            result = -result;
-                        regs[ rd ] = result;
+                        if ( (int64_t) regs[ rs1 ] < 0 )
+                            high -= regs[ rs2 ];
+                        regs[ rd ] = high;
                     }
                     else if ( 3 == funct3 ) // mulhu rd, rs1, rs2    unsigned * unsigned
                     {
@@ -2274,13 +2344,31 @@ uint64_t RiscV::run()
                         regs[ rd ] = high;
                     }
                     else if ( 4 == funct3 )
-                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : (int64_t) regs[ rs1 ] / (int64_t) regs[ rs2 ]; // div rd, rs1, rs2
+                    {
+                        int64_t dividend = (int64_t) regs[ rs1 ];
+                        int64_t divisor = (int64_t) regs[ rs2 ];
+                        if ( 0 == divisor )
+                            regs[ rd ] = UINT64_MAX;
+                        else if ( INT64_MIN == dividend && -1 == divisor )
+                            regs[ rd ] = (uint64_t) INT64_MIN;
+                        else
+                            regs[ rd ] = dividend / divisor;
+                    }
                     else if ( 5 == funct3 )
-                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : regs[ rs1 ] / regs[ rs2 ]; // udiv rd, rs1, rs2
+                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? UINT64_MAX : regs[ rs1 ] / regs[ rs2 ]; // divu rd, rs1, rs2
                     else if ( 6 == funct3 )
-                        regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : (int64_t) regs[ rs1 ] % (int64_t) regs[ rs2 ]; // rem rd, rs1, rs2
+                    {
+                        int64_t dividend = (int64_t) regs[ rs1 ];
+                        int64_t divisor = (int64_t) regs[ rs2 ];
+                        if ( 0 == divisor )
+                            regs[ rd ] = regs[ rs1 ];
+                        else if ( INT64_MIN == dividend && -1 == divisor )
+                            regs[ rd ] = 0;
+                        else
+                            regs[ rd ] = dividend % divisor;
+                    }
                     else if ( 7 == funct3 )
-                         regs[ rd ] = ( 0 == regs[ rs2 ] ) ? 0 : regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
+                         regs[ rd ] = ( 0 == regs[ rs2 ] ) ? regs[ rs1 ] : regs[ rs1 ] % regs[ rs2 ]; // remu rd, rs1, rs2
                     else
                         unhandled();
                 }
@@ -2307,7 +2395,7 @@ uint64_t RiscV::run()
                 decode_U();
                 if ( 0 == rd )
                     break;
-                regs[ rd ] = ( u_imm << 12 );
+                regs[ rd ] = ( (uint64_t) u_imm << 12 );
                 break;
             }
             case 0xe:
@@ -2321,8 +2409,8 @@ uint64_t RiscV::run()
                 {
                     if ( 0 == funct3 )
                     {
-                        int32_t val = (int32_t) ( 0xffffffff & regs[ rs1 ] ) + (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        regs[ rd ] = val; // addw rd, rs1, rs2
+                        uint32_t val = (uint32_t) regs[ rs1 ] + (uint32_t) regs[ rs2 ];
+                        regs[ rd ] = (int32_t) val; // addw rd, rs1, rs2
                     }
                     else if ( 1 == funct3 )
                     {
@@ -2333,7 +2421,7 @@ uint64_t RiscV::run()
                         regs[ rd ] = result64; // sllw rd, rs1, rs2
                     }
                     else if ( 5 == funct3 )
-                        regs[ rd ] = ( 0xffffffff & regs[ rs1 ] ) >> ( 0x1f & regs[ rs2 ] ); // srlw rd, rs1, rs2
+                        regs[ rd ] = (int32_t) ( (uint32_t) regs[ rs1 ] >> ( 0x1f & regs[ rs2 ] ) ); // srlw rd, rs1, rs2
                     else
                         unhandled();
                 }
@@ -2349,25 +2437,37 @@ uint64_t RiscV::run()
                     {
                         int32_t val1 = (int32_t) ( 0xffffffff & regs[ rs1 ] );
                         int32_t val2 = (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        regs[ rd ] = ( 0 == val2 ) ? 0 : val1 / val2; // divw rd, rs1, rs2
+                        if ( 0 == val2 )
+                            regs[ rd ] = UINT64_MAX;
+                        else if ( INT32_MIN == val1 && -1 == val2 )
+                            regs[ rd ] = (int64_t) INT32_MIN;
+                        else
+                            regs[ rd ] = (int64_t) ( val1 / val2 ); // divw rd, rs1, rs2
                     }
                     else if ( 5 == funct3 )
                     {
                         uint32_t val1 = ( 0xffffffff & regs[ rs1 ] );
                         uint32_t val2 = ( 0xffffffff & regs[ rs2 ] );
-                        regs[ rd ] = ( 0 == val2 ) ? 0 : val1 / val2; // divuw rd, rs1, rs2
+                        uint32_t result = ( 0 == val2 ) ? UINT32_MAX : val1 / val2;
+                        regs[ rd ] = (int32_t) result; // divuw rd, rs1, rs2
                     }
                     else if ( 6 == funct3 )
                     {
                         int32_t val1 = (int32_t) ( 0xffffffff & regs[ rs1 ] );
                         int32_t val2 = (int32_t) ( 0xffffffff & regs[ rs2 ] );
-                        regs[ rd ] = ( 0 == val2 ) ? 0 : ( val1 % val2 ); // remw rd, rs1, rs2
+                        if ( 0 == val2 )
+                            regs[ rd ] = (int64_t) val1;
+                        else if ( INT32_MIN == val1 && -1 == val2 )
+                            regs[ rd ] = 0;
+                        else
+                            regs[ rd ] = (int64_t) ( val1 % val2 ); // remw rd, rs1, rs2
                     }
                     else if ( 7 == funct3 )
                     {
                         uint32_t val1 = ( 0xffffffff & regs[ rs1 ] );
                         uint32_t val2 = ( 0xffffffff & regs[ rs2 ] );
-                        regs[ rd ] = ( 0 == val2 ) ? 0 : ( val1 % val2 ); // remuw rd, rs1, rs2
+                        uint32_t result = ( 0 == val2 ) ? val1 : ( val1 % val2 );
+                        regs[ rd ] = (int32_t) result; // remuw rd, rs1, rs2
                     }
                     else
                         unhandled();
@@ -2375,7 +2475,7 @@ uint64_t RiscV::run()
                 else if ( 0x20 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        regs[ rd ] = (int64_t) ( (int32_t) ( 0xffffffff & regs[ rs1 ] ) - (int32_t) ( 0xffffffff & regs[ rs2 ] ) ); // subw rd, rs1, rs2
+                        regs[ rd ] = (int32_t) ( (uint32_t) regs[ rs1 ] - (uint32_t) regs[ rs2 ] ); // subw rd, rs1, rs2
                     else if ( 5 == funct3 )
                     {
                         uint64_t shift = ( 0x1f & regs[ rs2 ] );
@@ -2399,9 +2499,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) do_fadd( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fmadd.s frd, frs1, frs2, frs3
+                    set_freg_float( rd, fmaf( get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) ) ); // fmadd.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fadd( do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fmadd.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = fma( fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d ); // fmadd.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2415,9 +2515,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) do_fsub( do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fmsub.s frd, frs1, frs2, frs3
+                    set_freg_float( rd, fmaf( get_freg_float( rs1 ), get_freg_float( rs2 ), -get_freg_float( rs3 ) ) ); // fmsub.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fsub( do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fmsub.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = fma( fregs[ rs1 ].d, fregs[ rs2 ].d, -fregs[ rs3 ].d ); // fmsub.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2431,9 +2531,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) do_fadd( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fnmsub.s frd, frs1, frs2, frs3
+                    set_freg_float( rd, fmaf( -get_freg_float( rs1 ), get_freg_float( rs2 ), get_freg_float( rs3 ) ) ); // fnmsub.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fadd( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fnmsub.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = fma( -fregs[ rs1 ].d, fregs[ rs2 ].d, fregs[ rs3 ].d ); // fnmsub.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2447,9 +2547,9 @@ uint64_t RiscV::run()
                 uint32_t fmt = ( funct7 & 3 );
     
                 if ( 0 == fmt )
-                    fregs[ rd ].f = (float) do_fsub( -1.0 * do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ), fregs[ rs3 ].f ); // fnmadd.s frd, frs1, frs2, frs3
+                    set_freg_float( rd, fmaf( -get_freg_float( rs1 ), get_freg_float( rs2 ), -get_freg_float( rs3 ) ) ); // fnmadd.s frd, frs1, frs2, frs3
                 else if ( 1 == fmt )
-                    fregs[ rd ].d = do_fsub( -1.0 * do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ), fregs[ rs3 ].d ); // fnmadd.d frd, frs1, frs2, frs3
+                    fregs[ rd ].d = fma( -fregs[ rs1 ].d, fregs[ rs2 ].d, -fregs[ rs3 ].d ); // fnmadd.d frd, frs1, frs2, frs3
                 else
                     unhandled();
                 break;
@@ -2460,31 +2560,31 @@ uint64_t RiscV::run()
                 decode_R();
     
                 if ( 0 == funct7 )
-                    fregs[ rd ].f = (float) do_fadd( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fadd.s frd, frs1, frs2
+                    set_freg_float( rd, (float) do_fadd( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fadd.s frd, frs1, frs2
                 else if ( 1 == funct7 )
                     fregs[ rd ].d = do_fadd( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fadd.d frd, frs1, frs2
                 else if ( 4 == funct7 )
-                    fregs[ rd ].f = (float) do_fsub( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fsub.s frd, frs1, frs2
+                    set_freg_float( rd, (float) do_fsub( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fsub.s frd, frs1, frs2
                 else if ( 5 == funct7 )
                     fregs[ rd ].d = do_fsub( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fsub.d frd, frs1, frs2
                 else if ( 8 == funct7 )
-                    fregs[ rd ].f = (float) do_fmul( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmul.s frd, frs1, frs2
+                    set_freg_float( rd, (float) do_fmul( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fmul.s frd, frs1, frs2
                 else if ( 9 == funct7 )
                     fregs[ rd ].d = do_fmul( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fmul.d frd, frs1, frs2
                 else if ( 0xc == funct7 )
-                    fregs[ rd ].f = (float) do_fdiv( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fdiv.s frd, frs1, frs2
+                    set_freg_float( rd, (float) do_fdiv( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fdiv.s frd, frs1, frs2
                 else if ( 0xd == funct7 )
                     fregs[ rd ].d = do_fdiv( fregs[ rs1 ].d, fregs[ rs2 ].d ); // fdiv.d frd, frs1, frs2
                 else if ( 0x10 == funct7 )
                 {
                     if ( 0 == funct3 ) // put rs1's absolute value in rd and use rs2's sign bit
-                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, signbit( fregs[ rs2 ].f ) ); // fsgnj.s rd, rs1, rs2
+                        set_freg_float( rd, set_float_sign( get_freg_float( rs1 ), signbit( get_freg_float( rs2 ) ) ) ); // fsgnj.s rd, rs1, rs2
                     else if ( 1 == funct3 ) // put rs1's absolute value in rd and use opposite of rs2's sign bit
-                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, !signbit( fregs[ rs2 ].f ) ); // fsgnjn.s rd, rs1, rs2
+                        set_freg_float( rd, set_float_sign( get_freg_float( rs1 ), !signbit( get_freg_float( rs2 ) ) ) ); // fsgnjn.s rd, rs1, rs2
                     else if ( 2 == funct3 ) // put rs1's absolute value in rd and use the xor of the two sign bits
                     {
-                        bool result_negative = ( signbit( fregs[ rs1 ].f ) ^ signbit( fregs[ rs2 ].f ) );
-                        fregs[ rd ].f = set_float_sign( fregs[ rs1 ].f, result_negative ); // fsgnjnx.s rd, rs1, rs2
+                        bool result_negative = ( signbit( get_freg_float( rs1 ) ) ^ signbit( get_freg_float( rs2 ) ) );
+                        set_freg_float( rd, set_float_sign( get_freg_float( rs1 ), result_negative ) ); // fsgnjx.s rd, rs1, rs2
                     }
                     else
                         unhandled();
@@ -2506,9 +2606,9 @@ uint64_t RiscV::run()
                 else if ( 0x14 == funct7 )
                 {
                     if ( 0 == funct3 )
-                        fregs[ rd ].f = (float) do_fmin( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmin.s rd, rs1, rs2
+                        set_freg_float( rd, (float) do_fmin( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fmin.s rd, rs1, rs2
                     else if ( 1 == funct3 )
-                        fregs[ rd ].f = (float) do_fmax( fregs[ rs1 ].f, fregs[ rs2 ].f ); // fmax.s rd, rs1, rs2
+                        set_freg_float( rd, (float) do_fmax( get_freg_float( rs1 ), get_freg_float( rs2 ) ) ); // fmax.s rd, rs1, rs2
                     else
                         unhandled();
                 }
@@ -2524,14 +2624,14 @@ uint64_t RiscV::run()
                 else if ( 0x20 == funct7 )
                 {
                     if ( 1 == rs2 )
-                        fregs[ rd ].f = (float) fregs[ rs1 ].d; // fcvt.s.d rd, rs1
+                        set_freg_float( rd, (float) fregs[ rs1 ].d ); // fcvt.s.d rd, rs1
                     else
                         unhandled();
                 }                
                 else if ( 0x21 == funct7 )
                 {
                     if ( 0 == rs2 )
-                        fregs[ rd ].d = fregs[ rs1 ].f; // fcvt.d.s rd, rs1
+                        fregs[ rd ].d = get_freg_float( rs1 ); // fcvt.d.s rd, rs1
                     else
                         unhandled();
                 }     
@@ -2539,9 +2639,10 @@ uint64_t RiscV::run()
                 {
                     if ( 0 == rs2 )
                     {
-                        fregs[ rd ].f = sqrtf( fregs[ rs1 ].f ); // fsqrt.s frd, frs1
-                        if ( isnan( fregs[ rd ].f ) )
-                            fregs[ rd ].f = (float) MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
+                        float result = sqrtf( get_freg_float( rs1 ) ); // fsqrt.s frd, frs1
+                        if ( isnan( result ) )
+                            result = (float) MY_NAN; // RISC-V hardware sets positive NAN while some C implementations set -NAN
+                        set_freg_float( rd, result );
                     }
                     else
                         unhandled();
@@ -2565,11 +2666,11 @@ uint64_t RiscV::run()
                         break;
 
                     if ( 0 == funct3 )
-                        regs[ rd ] = ( fregs[ rs1 ].f <= fregs[ rs2 ].f ); // fle.s rd, frs1, frs2
+                        regs[ rd ] = ( get_freg_float( rs1 ) <= get_freg_float( rs2 ) ); // fle.s rd, frs1, frs2
                     else if ( 1 == funct3 )
-                        regs[ rd ] = ( fregs[ rs1 ].f < fregs[ rs2 ].f ); // flt.s rd, frs1, frs2
+                        regs[ rd ] = ( get_freg_float( rs1 ) < get_freg_float( rs2 ) ); // flt.s rd, frs1, frs2
                     else // if ( 2 == funct3 )
-                        regs[ rd ] = ( fregs[ rs1 ].f == fregs[ rs2 ].f ); // feq.s rd, frs1, frs2
+                        regs[ rd ] = ( get_freg_float( rs1 ) == get_freg_float( rs2 ) ); // feq.s rd, frs1, frs2
                 }
                 else if ( 0x51 == funct7 )
                 {
@@ -2592,14 +2693,15 @@ uint64_t RiscV::run()
                     if ( 0 == rd )
                         break;
 
+                    uint64_t rm = ( 7 == funct3 ) ? csr_frm : funct3;
                     if ( 0 == rs2 )
-                        regs[ rd ] = round_int_from_double<int32_t>( fregs[ rs1 ].f, funct3 ); // fcvt.w.s rd, frs1
+                        regs[ rd ] = round_int_from_double<int32_t>( get_freg_float( rs1 ), rm ); // fcvt.w.s rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = round_int_from_double<uint32_t>( fregs[ rs1 ].f, funct3 ); // fcvt.wu.s rd, frs1
+                        regs[ rd ] = (int32_t) round_int_from_double<uint32_t>( get_freg_float( rs1 ), rm ); // fcvt.wu.s rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = round_int_from_double<int64_t>( fregs[ rs1 ].f, funct3 ); // fcvt.l.s rd, frs1
+                        regs[ rd ] = round_int_from_double<int64_t>( get_freg_float( rs1 ), rm ); // fcvt.l.s rd, frs1
                     else // if ( 3 == rs2 )
-                        regs[ rd ] = round_int_from_double<uint64_t>( fregs[ rs1 ].f, funct3 ); // fcvt.lu.s rd, frs1
+                        regs[ rd ] = round_int_from_double<uint64_t>( get_freg_float( rs1 ), rm ); // fcvt.lu.s rd, frs1
                 }
                 else if ( 0x61 == funct7 )
                 {
@@ -2608,25 +2710,26 @@ uint64_t RiscV::run()
                     if ( 0 == rd )
                         break;
 
+                    uint64_t rm = ( 7 == funct3 ) ? csr_frm : funct3;
                     if ( 0 == rs2 )
-                        regs[ rd ] = round_int_from_double<int32_t>( fregs[ rs1 ].d, funct3 ); // fcvt.w.d rd, frs1
+                        regs[ rd ] = round_int_from_double<int32_t>( fregs[ rs1 ].d, rm ); // fcvt.w.d rd, frs1
                     else if ( 1 == rs2 )
-                        regs[ rd ] = round_int_from_double<uint32_t>( fregs[ rs1 ].d, funct3 ); // fcvt.wu.d rd, frs1
+                        regs[ rd ] = (int32_t) round_int_from_double<uint32_t>( fregs[ rs1 ].d, rm ); // fcvt.wu.d rd, frs1
                     else if ( 2 == rs2 )
-                        regs[ rd ] = round_int_from_double<int64_t>( fregs[ rs1 ].d, funct3 ); // fcvt.l.d rd, frs1
+                        regs[ rd ] = round_int_from_double<int64_t>( fregs[ rs1 ].d, rm ); // fcvt.l.d rd, frs1
                     else // if ( 3 == rs2 )
-                        regs[ rd ] = round_int_from_double<uint64_t>( fregs[ rs1 ].d, funct3 ); // fcvt.lu.d rd, frs1
+                        regs[ rd ] = round_int_from_double<uint64_t>( fregs[ rs1 ].d, rm ); // fcvt.lu.d rd, frs1
                 }
                 else if ( 0x68 == funct7 )
                 {
                     if ( 0 == rs2 )
-                        fregs[ rd ].f = (float) (int32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.w frd, rs1   -- converts i32 to float
+                        set_freg_float( rd, (float) (int32_t) regs[ rs1 ] ); // fcvt.s.w frd, rs1
                     else if ( 1 == rs2 )
-                        fregs[ rd ].f = (float) (uint32_t) ( 0xffffffff & regs[ rs1 ] ); // fcvt.s.wu frd, rs1   -- converts ui32 to float
+                        set_freg_float( rd, (float) (uint32_t) regs[ rs1 ] ); // fcvt.s.wu frd, rs1
                     else if ( 2 == rs2 )
-                        fregs[ rd ].f = (float) (int64_t) regs[ rs1 ]; // fcvt.s.l frd, rs1   -- converts i64 to float
+                        set_freg_float( rd, (float) (int64_t) regs[ rs1 ] ); // fcvt.s.l frd, rs1
                     else if ( 3 == rs2 )
-                        fregs[ rd ].f = (float) regs[ rs1 ]; // fcvt.s.lu frd, rs1   -- converts ui64 to float
+                        set_freg_float( rd, (float) regs[ rs1 ] ); // fcvt.s.lu frd, rs1
                     else
                         unhandled();
                 }
@@ -2649,10 +2752,8 @@ uint64_t RiscV::run()
                     {
                         if ( 0 == funct3 ) // fmv.x.w rd, frs1
                         {
-                            int32_t val;
-                            memcpy( & val, & fregs[ rs1 ].f, 4 );
                             if ( 0 != rd )
-                                regs[ rd ] = val;
+                                regs[ rd ] = (int32_t) (uint32_t) fregs[ rs1 ].u;
                         }
                         else if ( 1 == funct3 ) // fclass.s
                         {
@@ -2668,40 +2769,8 @@ uint64_t RiscV::run()
                             // 8 rs1 is a signaling NaN.
                             // 9 rs1 is a quiet NaN
     
-                            uint64_t result = 0;
-                            float f = fregs[ rs1 ].f;
-                            if ( isnan( f ) )
-                            {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
-                                if ( issignaling( f ) )
-                                    result = 0x100;
-                                else
-                                #endif
-                                    result = 0x200;
-                            }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
-                            else if ( issubnormal( f ) )
-                            {
-                                if ( f >= 0.0 )
-                                    result = 0x20;
-                                else
-                                    result = 4;
-                            }
-                            #endif
-                            else if ( !isfinite( f ) )
-                            {
-                                if ( f >= 0.0 )
-                                    result = 0x80;
-                                else
-                                    result = 1;
-                            }
-                            else
-                            {
-                                if ( f >= 0.0 )
-                                    result = 0x40;
-                                else
-                                    result = 2;
-                            }
+                            uint64_t result = ( UINT32_MAX == (uint32_t) ( fregs[ rs1 ].u >> 32 ) )
+                                              ? classify_float_bits( (uint32_t) fregs[ rs1 ].u ) : 0x200;
                             if ( 0 != rd )
                                 regs[ rd ] = result;
                         }
@@ -2718,44 +2787,11 @@ uint64_t RiscV::run()
                         if ( 0 == funct3 ) // fmv.x.d rd, frs1
                         {
                             if ( 0 != rd )
-                                memcpy( & regs[ rd ], & fregs[ rs1 ].d, 8 );
+                                regs[ rd ] = fregs[ rs1 ].u;
                         }
                         else if ( 1 == funct3 ) // fclass.d
                         {
-                            uint64_t result = 0;
-                            double d = fregs[ rs1 ].d;
-                            if ( isnan( d ) )
-                            {
-                                #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
-                                if ( issignaling( d ) )
-                                    result = 0x100;
-                                else
-                                #endif
-                                    result = 0x200;
-                            }
-                            #if !defined(_MSC_VER) && !defined(OLDGCC) && !defined(__APPLE__) && !defined(__mc68000__) && !defined(sparc)
-                            else if ( issubnormal( d ) )
-                            {
-                                if ( d >= 0.0 )
-                                    result = 0x20;
-                                else
-                                    result = 4;
-                            }
-                            #endif
-                            else if ( !isfinite( d ) )
-                            {
-                                if ( d >= 0.0 )
-                                    result = 0x80;
-                                else
-                                    result = 1;
-                            }
-                            else
-                            {
-                                if ( d >= 0.0 )
-                                    result = 0x40;
-                                else
-                                    result = 2;
-                            }
+                            uint64_t result = classify_double_bits( fregs[ rs1 ].u );
                             if ( 0 != rd )
                                 regs[ rd ] = result;
                         }
@@ -2769,8 +2805,10 @@ uint64_t RiscV::run()
                 {
                     if ( 0 == rs2 && 0 == funct3 )
                     {
-                        uint32_t val = 0xffffffff & regs[ rs1 ];
-                        memcpy( & fregs[ rd ].f, & val, 4 ); // fmv.w.x frd, rs1    rs1 is probably r0
+                        uint32_t val = (uint32_t) regs[ rs1 ];
+                        float f;
+                        memcpy( &f, &val, 4 );
+                        set_freg_float( rd, f ); // fmv.w.x frd, rs1
                     }
                     else
                         unhandled();
@@ -2778,7 +2816,7 @@ uint64_t RiscV::run()
                 else if ( 0x79 == funct7 )
                 {
                     if ( 0 == rs2 && 0 == funct3 )
-                        memcpy( & fregs[ rd ].d, & regs[ rs1 ], 8 ); // fmv.d.x frd, rs1    rs1 is probably r0
+                        fregs[ rd ].u = regs[ rs1 ]; // fmv.d.x frd, rs1
                     else
                         unhandled();
                 }
@@ -2818,7 +2856,7 @@ uint64_t RiscV::run()
     
                 if ( 0 == funct3 )
                 {
-                    uint64_t temp = ( regs[ rs1 ] + i_imm ); // jalr (rs1) + i_imm
+                    uint64_t temp = ( regs[ rs1 ] + i_imm ) & ~UINT64_C( 1 ); // jalr (rs1) + i_imm
                     if ( 0 != rd )
                         regs[ rd ] = pcnext;
                     pcnext = temp;
@@ -2868,9 +2906,17 @@ uint64_t RiscV::run()
                 else if ( 1 == funct3 ) // csrrw. csr write
                 {
                     if ( 0x1 == csr )
-                        regs[ rd ] = 0; // csrrw   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                    {
+                        uint64_t old = csr_fflags;
+                        csr_fflags = regs[ rs1 ] & 0x1f;
+                        if ( 0 != rd ) regs[ rd ] = old;
+                    }
                     else if ( 0x2 == csr )
-                        regs[ rd ] = 0; // csrrw   rd, frm, rs1.  read rounding mode. 0 means nearest
+                    {
+                        uint64_t old = csr_frm;
+                        csr_frm = regs[ rs1 ] & 7;
+                        if ( 0 != rd ) regs[ rd ] = old;
+                    }
                     else if ( 0xc00 == csr ) // csrrw rd, cycle, rs1
                     {
                         if ( 0 != rd )
@@ -2884,13 +2930,20 @@ uint64_t RiscV::run()
                 }
                 else if ( 2 == funct3 ) // csrrs. csr read
                 {
-                    if ( 0 == rd )
+                    if ( 0 == rd && 0x1 != csr && 0x2 != csr )
                         break;
-
                     if ( 0x1 == csr )
-                        regs[ rd ] = 0; // csrrs   rd, fflags, rs1.  read fp exception flags. 0 means all clear
+                    {
+                        uint64_t old = csr_fflags;
+                        if ( 0 != rs1 ) csr_fflags |= regs[ rs1 ] & 0x1f;
+                        if ( 0 != rd ) regs[ rd ] = old;
+                    }
                     else if ( 0x2 == csr )
-                        regs[ rd ] = 0; // csrrs   rd, frm, rs1.  read rounding mode. 0 means nearest
+                    {
+                        uint64_t old = csr_frm;
+                        if ( 0 != rs1 ) csr_frm |= regs[ rs1 ] & 7;
+                        if ( 0 != rd ) regs[ rd ] = old;
+                    }
                     else if ( 0xb00 == csr ) // csrrs rd, mcycle, rs1. rdmcycle
                         regs[ rd ] = cycles;
                     else if ( 0xb02 == csr ) // csrrs rd, minstret, rs1. rdminstret
@@ -2922,10 +2975,17 @@ uint64_t RiscV::run()
                 {
                     if ( 1 == csr )
                     {
-                        // csrrsi rd, fflags, rs1 --- set fp csr flags like rounding mode (ignore). also, return the flags
-
+                        uint64_t old = csr_fflags;
+                        csr_fflags |= rs1 & 0x1f;
                         if ( 0 != rd )
-                            regs[ rd ] = 0;
+                            regs[ rd ] = old;
+                    }
+                    else if ( 2 == csr )
+                    {
+                        uint64_t old = csr_frm;
+                        csr_frm |= rs1 & 7;
+                        if ( 0 != rd )
+                            regs[ rd ] = old;
                     }
                     else
                     {
